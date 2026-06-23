@@ -1,0 +1,49 @@
+Import the following real CSA 2016 matches and replace all fictional 2016 match records.
+
+[
+{"date":"2016-01-24","competition":"Campeonato Alagoano","opponent":"Penedense","venue":"Away","goalsFor":3,"goalsAgainst":0,"result":"W"},
+{"date":"2016-01-27","competition":"Campeonato Alagoano","opponent":"Ipanema","venue":"Home","goalsFor":4,"goalsAgainst":0,"result":"W"},
+{"date":"2016-01-31","competition":"Campeonato Alagoano","opponent":"Coruripe","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2016-02-03","competition":"Campeonato Alagoano","opponent":"Penedense","venue":"Home","goalsFor":5,"goalsAgainst":1,"result":"W"},
+{"date":"2016-02-14","competition":"Campeonato Alagoano","opponent":"Santa Rita","venue":"Away","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2016-02-21","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2016-02-28","competition":"Campeonato Alagoano","opponent":"Ipanema","venue":"Away","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2016-03-06","competition":"Campeonato Alagoano","opponent":"Coruripe","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2016-03-13","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Away","goalsFor":4,"goalsAgainst":1,"result":"W"},
+{"date":"2016-03-16","competition":"Campeonato Alagoano","opponent":"Santa Rita","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"},
+{"date":"2016-03-20","competition":"Campeonato Alagoano","opponent":"Murici","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"},
+{"date":"2016-03-27","competition":"Campeonato Alagoano","opponent":"Coruripe","venue":"Away","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2016-04-03","competition":"Campeonato Alagoano","opponent":"ASA","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2016-04-13","competition":"Campeonato Alagoano","opponent":"Santa Rita","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+{"date":"2016-04-16","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2016-04-20","competition":"Campeonato Alagoano","opponent":"Murici","venue":"Away","goalsFor":2,"goalsAgainst":2,"result":"D"},
+{"date":"2016-04-24","competition":"Campeonato Alagoano","opponent":"Murici","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2016-05-01","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+{"date":"2016-05-08","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2016-06-12","competition":"Brasileirão Série D","opponent":"Parnahyba","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2016-06-19","competition":"Brasileirão Série D","opponent":"Guarani de Juazeiro","venue":"Home","goalsFor":6,"goalsAgainst":0,"result":"W"},
+{"date":"2016-06-26","competition":"Brasileirão Série D","opponent":"Central","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2016-07-03","competition":"Brasileirão Série D","opponent":"Central","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2016-07-10","competition":"Brasileirão Série D","opponent":"Guarani de Juazeiro","venue":"Away","goalsFor":3,"goalsAgainst":2,"result":"W"},
+{"date":"2016-07-17","competition":"Brasileirão Série D","opponent":"Parnahyba","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2016-07-24","competition":"Brasileirão Série D","opponent":"Parnahyba","venue":"Away","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2016-07-31","competition":"Brasileirão Série D","opponent":"Parnahyba","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"},
+{"date":"2016-08-14","competition":"Brasileirão Série D","opponent":"Altos","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"},
+{"date":"2016-08-21","competition":"Brasileirão Série D","opponent":"Altos","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+{"date":"2016-08-27","competition":"Brasileirão Série D","opponent":"Ituano","venue":"Away","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2016-09-04","competition":"Brasileirão Série D","opponent":"Ituano","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2016-09-11","competition":"Brasileirão Série D","opponent":"São Bento","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2016-09-18","competition":"Brasileirão Série D","opponent":"São Bento","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2016-09-29","competition":"Brasileirão Série D","opponent":"Volta Redonda","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2016-10-01","competition":"Brasileirão Série D","opponent":"Volta Redonda","venue":"Away","goalsFor":0,"goalsAgainst":4,"result":"L"}
+]
+
+After import, validate that season totals remain:
+
+Matches: 35
+Wins: 23
+Draws: 5
+Losses: 7
+Goals For: 65
+Goals Against: 28
