@@ -1,0 +1,64 @@
+Import the following real CSA 2020 matches and replace any fictional records for these dates.
+
+[
+{"date":"2020-02-22","competition":"Campeonato Alagoano","opponent":"Murici","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2020-02-29","competition":"Campeonato Alagoano","opponent":"Coruripe","venue":"Home","goalsFor":4,"goalsAgainst":0,"result":"W"},
+
+{"date":"2020-03-07","competition":"Copa do Nordeste","opponent":"Fortaleza","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2020-03-15","competition":"Copa do Nordeste","opponent":"Frei Paulistano","venue":"Home","goalsFor":4,"goalsAgainst":0,"result":"W"},
+{"date":"2020-07-22","competition":"Copa do Nordeste","opponent":"ABC","venue":"Away","goalsFor":2,"goalsAgainst":0,"result":"W"},
+
+{"date":"2020-07-29","competition":"Campeonato Alagoano","opponent":"ASA","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+{"date":"2020-07-31","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2020-08-03","competition":"Campeonato Alagoano","opponent":"Murici","venue":"Home","goalsFor":4,"goalsAgainst":0,"result":"W"},
+{"date":"2020-08-05","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2020-08-08","competition":"Brasileirão Série B","opponent":"Guarani","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2020-08-18","competition":"Brasileirão Série B","opponent":"Operário Ferroviário","venue":"Away","goalsFor":0,"goalsAgainst":3,"result":"L"},
+{"date":"2020-08-21","competition":"Brasileirão Série B","opponent":"Ponte Preta","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2020-08-30","competition":"Brasileirão Série B","opponent":"CRB","venue":"Home","goalsFor":0,"goalsAgainst":2,"result":"L"},
+{"date":"2020-09-02","competition":"Brasileirão Série B","opponent":"América Mineiro","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2020-09-05","competition":"Brasileirão Série B","opponent":"Confiança","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2020-09-13","competition":"Brasileirão Série B","opponent":"Oeste","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2020-09-16","competition":"Brasileirão Série B","opponent":"Cuiabá","venue":"Home","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2020-09-19","competition":"Brasileirão Série B","opponent":"Cruzeiro","venue":"Home","goalsFor":3,"goalsAgainst":1,"result":"W"},
+{"date":"2020-09-26","competition":"Brasileirão Série B","opponent":"Juventude","venue":"Home","goalsFor":3,"goalsAgainst":2,"result":"W"},
+{"date":"2020-09-29","competition":"Brasileirão Série B","opponent":"Vitória","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2020-10-03","competition":"Brasileirão Série B","opponent":"Sampaio Corrêa","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2020-10-06","competition":"Brasileirão Série B","opponent":"Figueirense","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"},
+{"date":"2020-10-10","competition":"Brasileirão Série B","opponent":"Paraná","venue":"Home","goalsFor":4,"goalsAgainst":0,"result":"W"},
+{"date":"2020-10-13","competition":"Brasileirão Série B","opponent":"Avaí","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2020-10-20","competition":"Brasileirão Série B","opponent":"Botafogo-SP","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2020-10-23","competition":"Brasileirão Série B","opponent":"Brasil de Pelotas","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2020-10-27","competition":"Brasileirão Série B","opponent":"Chapecoense","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2020-10-31","competition":"Brasileirão Série B","opponent":"Náutico","venue":"Home","goalsFor":3,"goalsAgainst":1,"result":"W"},
+{"date":"2020-11-06","competition":"Brasileirão Série B","opponent":"Guarani","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2020-11-10","competition":"Brasileirão Série B","opponent":"Chapecoense","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2020-11-21","competition":"Brasileirão Série B","opponent":"Cuiabá","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2020-11-24","competition":"Brasileirão Série B","opponent":"Operário Ferroviário","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2020-11-28","competition":"Brasileirão Série B","opponent":"Ponte Preta","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2020-12-01","competition":"Brasileirão Série B","opponent":"CRB","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2020-12-05","competition":"Brasileirão Série B","opponent":"América Mineiro","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2020-12-08","competition":"Brasileirão Série B","opponent":"Confiança","venue":"Away","goalsFor":5,"goalsAgainst":1,"result":"W"},
+{"date":"2020-12-11","competition":"Brasileirão Série B","opponent":"Oeste","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2020-12-15","competition":"Brasileirão Série B","opponent":"Cruzeiro","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2020-12-18","competition":"Brasileirão Série B","opponent":"Juventude","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2020-12-22","competition":"Brasileirão Série B","opponent":"Vitória","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"}
+]
+
+Important:
+These are calendar-year 2020 matches only.
+
+Do NOT import the final 7 matches of Série B 2020 that were played in January/February 2021 into the 2020 season. Those belong to the 2021 calendar-year statistics, exactly as OGol reports.
+
+After import, validate against the official OGol 2020 totals:
+
+Matches: 49
+Wins: 21
+Draws: 8
+Losses: 20
+Goals For: 65
+Goals Against: 48
+
+Do not create fictional matches.
+Preserve exact dates, opponents and scores.
