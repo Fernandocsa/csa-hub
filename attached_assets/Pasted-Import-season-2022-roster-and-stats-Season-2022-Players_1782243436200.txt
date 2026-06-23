@@ -1,0 +1,117 @@
+Import season 2022 roster and stats.
+
+Season: 2022
+Players: 49
+
+Please import the following roster exactly as listed.
+
+1. Marcelo Carné — Goleiro — 56J — 0G — 4991 min
+2. Rodrigo Rodrigues — Atacante — 51J — 20G — 3056 min
+3. Lucas Barcelos — Atacante — 49J — 12G — 2838 min
+4. Gabriel — Meia — 48J — 0G — 3838 min
+5. Geovane — Meia — 48J — 2G — 3562 min
+6. Osvaldo — Atacante — 47J — 3G — 2675 min
+7. Diego Renan — Defensor — 43J — 0G — 3547 min
+8. Giva — Meia — 42J — 3G — 2522 min
+9. Yann Rolim — Meia — 42J — 4G — 1894 min
+10. Igor Inocêncio — Defensor — 36J — 0G — 2171 min
+11. Lucão — Defensor — 35J — 1G — 3150 min
+12. Lucas Marques — Defensor — 35J — 3G — 2015 min
+13. Werley — Defensor — 34J — 3G — 2709 min
+14. Felipe Augusto — Atacante — 33J — 0G — 1798 min
+15. Lourenço — Meia — 32J — 2G — 1815 min
+16. Marco Túlio — Atacante — 29J — 5G — 1663 min
+17. Didira — Meia — 28J — 6G — 1191 min
+18. Wellington Nascimento — Defensor — 27J — 0G — 2241 min
+19. Ernandes — Defensor — 23J — 0G — 1631 min
+20. Luiz Beserra — Meia — 23J — 1G — 1098 min
+21. Cedric — Defensor — 21J — 1G — 1317 min
+22. Dalberto — Atacante — 20J — 3G — 1059 min
+23. Douglas — Defensor — 18J — 1G — 1481 min
+24. Marcel Scalese — Defensor — 18J — 3G — 1216 min
+25. Bruno Mezenga — Atacante — 15J — 0G — 783 min
+26. Élton — Atacante — 14J — 2G — 851 min
+27. Bruno Mota — Meia — 14J — 0G — 383 min
+28. William — Meia — 13J — 0G — 504 min
+29. Edson Lucas — Defensor — 11J — 0G — 449 min
+30. Rogério — Atacante — 11J — 0G — 324 min
+31. John Mercado — Atacante — 9J — 0G — 224 min
+32. Héctor Canteros — Meia — 8J — 1G — 364 min
+33. Ferreira — Meia — 8J — 0G — 239 min
+34. Jean — Goleiro — 7J — 0G — 630 min
+35. Guilherme Paraíba — Defensor — 7J — 0G — 596 min
+36. Rickson — Meia — 7J — 0G — 568 min
+37. Jonathan — Defensor — 6J — 0G — 309 min
+38. Sassá — Atacante — 6J — 0G — 85 min
+39. Éverton Silva — Defensor — 5J — 0G — 317 min
+40. Lucas Lourenço — Meia — 5J — 0G — 216 min
+41. Gabriel Tonini — Meia — 4J — 0G — 73 min
+42. Anderson Martins — Defensor — 3J — 0G — 180 min
+43. Denílson — Defensor — 2J — 0G — 180 min
+44. Paulo Ricardo — Goleiro — 2J — 0G — 138 min
+45. Bruno Paulista — Meia — 2J — 0G — 85 min
+46. Wallace — Meia — 2J — 0G — 45 min
+47. Clayton — Atacante — 1J — 0G — 45 min
+48. Léo Carvalho — Meia — 1J — 0G — 12 min
+49. Tito — Defensor — 1J — 0G — 10 min
+
+Existing players that must be linked instead of recreated:
+
+* Rodrigo Rodrigues
+* Gabriel
+* Geovane
+* Diego Renan
+* Giva
+* Yann Rolim
+* Lucão
+* Marco Túlio
+* Didira
+* Ernandes
+* Cedric
+* Bruno Mota
+* Gabriel Tonini
+* Éverton Silva
+* Wallace
+* Clayton
+* Tito
+
+Season summary:
+
+* Players: 49
+* Top scorer: Rodrigo Rodrigues (20 gols)
+* Most appearances: Marcelo Carné (56)
+* Most minutes: Marcelo Carné (4991)
+
+Top scorers:
+
+1. Rodrigo Rodrigues — 20 gols
+2. Lucas Barcelos — 12 gols
+3. Didira — 6 gols
+4. Marco Túlio — 5 gols
+5. Yann Rolim — 4 gols
+6. Osvaldo — 3 gols
+7. Giva — 3 gols
+8. Dalberto — 3 gols
+9. Lucas Marques — 3 gols
+10. Werley — 3 gols
+11. Marcel Scalese — 3 gols
+
+Goalkeepers used:
+
+* Marcelo Carné
+* Jean
+* Paulo Ricardo
+
+Recalculate after import:
+
+* Season roster page
+* Season top scorers page
+* Season statistics page
+* Career appearances ranking
+* Career goals ranking
+* Career minutes ranking
+* Player profile pages
+* Team statistics page
+
+Expected result:
+2022 season imported with 49 players and all recurring athletes linked correctly.
