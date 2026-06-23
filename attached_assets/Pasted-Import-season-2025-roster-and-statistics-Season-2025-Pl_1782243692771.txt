@@ -1,0 +1,119 @@
+Import season 2025 roster and statistics.
+
+Season: 2025
+Players: 64
+
+IMPORTANT: Statistics below are already consolidated. Duplicate players from multiple competitions have already been merged. Do not create duplicate player records.
+
+Top scorers:
+
+1. Tiago Marques — 41J — 17G
+2. Igor Bahia — 42J — 10G
+3. Guilherme Cachoeira — 45J — 8G
+4. Brayann — 35J — 6G
+5. Enzo Santos — 43J — 4G
+6. Robinho — 20J — 3G
+7. Betão — 41J — 3G
+
+Players:
+
+1. Guilherme Cachoeira — Atacante — 45J — 8G — 3488 min
+2. Gustavo Nicola — Meia — 44J — 1G — 3197 min
+3. Enzo Santos — Defensor — 43J — 4G — 3386 min
+4. Igor Bahia — Atacante — 42J — 10G — 2121 min
+5. Betão — Defensor — 41J — 3G — 3623 min
+6. Tiago Marques — Atacante — 41J — 17G — 2219 min
+7. Brayann — Meia — 35J — 6G — 2519 min
+8. Camacho — Meia — 35J — 1G — 2647 min
+9. Silas — Meia — 29J — 1G — 1135 min
+10. Gabriel Felix — Goleiro — 28J — 0G — 2520 min
+11. Vander — Meia — 26J — 0G — 1641 min
+12. Islan — Defensor — 24J — 0G — 2007 min
+13. Álvaro — Meia — 20J — 2G — 884 min
+14. Georgemy — Goleiro — 20J — 0G — 1800 min
+15. Robinho — Atacante — 20J — 3G — 568 min
+16. Marcelinho — Atacante — 19J — 2G — 550 min
+17. Cedric — Defensor — 17J — 0G — 1413 min
+18. Wanderson — Defensor — 17J — 0G — 1485 min
+19. Gustavo Cabral — Meia — 17J — 0G — 602 min
+20. Felipe Albuquerque — Defensor — 17J — 0G — 1338 min
+21. Roberto — Defensor — 18J — 0G — 911 min
+22. Ramon Batista — Meia — 15J — 1G — 952 min
+23. Luciano Naninho — Meia — 15J — 0G — 631 min
+24. Marcão — Defensor — 14J — 0G — 871 min
+25. Buga — Meia — 10J — 0G — 391 min
+26. Klenisson — Atacante — 11J — 2G — 432 min
+27. Gabriel Vieira — Meia — 9J — 0G — 327 min
+28. Kevyn — Meia — 9J — 0G — 273 min
+29. Wellington Júnior — Atacante — 9J — 0G — 85 min
+30. Luiz Gustavo — Defensor — 8J — 0G — 469 min
+31. Danilinho — Meia — 8J — 0G — 326 min
+32. Diogo Batista — Defensor — 8J — 0G — 351 min
+33. Gustavo — Defensor — 7J — 0G — 555 min
+34. Luiz Guilherme — Meia — 7J — 2G — 518 min
+35. Davi Agra — Defensor — 7J — 0G — 494 min
+36. Cauã Soares — Defensor — 6J — 1G — 540 min
+37. Lucas Matheus — Goleiro — 6J — 0G — 540 min
+38. Vinicius Toledo — Meia — 6J — 0G — 532 min
+39. Ewerton — Atacante — 6J — 2G — 520 min
+40. Wesley — Meia — 6J — 0G — 393 min
+41. Betinho — Meia — 5J — 0G — 383 min
+42. Elvis — Atacante — 5J — 0G — 227 min
+43. Marcos Vinicius — Atacante — 5J — 0G — 206 min
+44. Angelo — Atacante — 5J — 0G — 193 min
+45. Raphinha — Defensor — 5J — 0G — 247 min
+46. Matías Cavalleri — Atacante — 5J — 0G — 86 min
+47. Kauã — Defensor — 4J — 0G — 360 min
+48. Eduardo Biazus — Defensor — 3J — 0G — 258 min
+49. Batinga — Meia — 3J — 0G — 143 min
+50. Francisco Serrate — Defensor — 3J — 0G — 122 min
+51. Marllon Moizes — Defensor — 3J — 0G — 105 min
+52. Rodrigo Amorim — Defensor — 3J — 0G — 54 min
+53. Ciel — Atacante — 3J — 0G — 206 min
+54. Vidal — Defensor — 3J — 0G — 208 min
+55. Léo Costa — Meia — 2J — 0G — 56 min
+56. Adiel — Atacante — 2J — 0G — 44 min
+57. Arthur Rocha — Meia — 2J — 0G — 22 min
+58. Jefferson Júnior — Atacante — 2J — 0G — 20 min
+59. Teles Junior — Atacante — 1J — 0G — 68 min
+60. Sobral — Meia — 1J — 0G — 34 min
+61. Giresse — Defensor — 1J — 0G — 13 min
+62. Guilherme Santana — Meia — 1J — 0G — 8 min
+63. Matheus Santos — Defensor — 1J — 0G — 90 min
+64. Baianinho — Atacante — 21J — 1G — 995 min
+
+Existing players that should be linked instead of recreated:
+
+* Tiago Marques
+* Gustavo Nicola
+* Brayann
+* Álvaro
+* Robinho
+* Cedric
+* Danilinho
+* Wanderson
+* Islan
+* Georgemy
+* Gabriel Felix
+* Gustavo Cabral
+* Marcão
+* Ramon Batista
+* Vidal
+* Klenisson
+* Igor Bahia
+* Betão
+* Guilherme Cachoeira
+* Enzo Santos
+* Eduardo Biazus
+* Wesley
+* Vinicius Toledo
+
+Recalculate:
+
+* Season roster
+* Season statistics
+* Career appearances
+* Career goals
+* Career minutes
+* Player profile pages
+* Historical rankings
