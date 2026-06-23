@@ -1,0 +1,40 @@
+Import the following real CSA 2017 matches and replace any fictional records for these dates.
+
+[
+{"date":"2017-01-21","competition":"Campeonato Alagoano","opponent":"Murici","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+
+{"date":"2017-01-25","competition":"Copa do Nordeste","opponent":"ABC","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"},
+
+{"date":"2017-01-29","competition":"Campeonato Alagoano","opponent":"Sete de Setembro-AL","venue":"Away","goalsFor":3,"goalsAgainst":1,"result":"W"},
+
+{"date":"2017-02-01","competition":"Campeonato Alagoano","opponent":"Coruripe","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2017-02-05","competition":"Copa do Nordeste","opponent":"CRB","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+
+{"date":"2017-02-08","competition":"Copa do Brasil","opponent":"Sport","venue":"Home","goalsFor":1,"goalsAgainst":4,"result":"L"},
+
+{"date":"2017-02-11","competition":"Copa do Nordeste","opponent":"Itabaiana","venue":"Home","goalsFor":1,"goalsAgainst":2,"result":"L"},
+
+{"date":"2017-02-13","competition":"Campeonato Alagoano","opponent":"CEO","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2017-02-16","competition":"Campeonato Alagoano","opponent":"Murici","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2017-02-19","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2017-02-25","competition":"Campeonato Alagoano","opponent":"Sete de Setembro-AL","venue":"Home","goalsFor":7,"goalsAgainst":0,"result":"W"},
+
+{"date":"2017-03-02","competition":"Copa do Nordeste","opponent":"Itabaiana","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"}
+]
+
+Do not create or infer any additional data.
+Preserve exact dates, opponents, competitions and results.
+
+Update:
+
+* Match database
+* Opponent statistics
+* Home/Away statistics
+* Competition records
+* Historical club statistics
+
+Validate imported records after completion.
