@@ -1,161 +1,103 @@
 import { useGetBiggestVictories, useGetBiggestDefeats, useGetStreaks } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function MatchRecords() {
-  const { data: victories, isLoading: isLoadingV } = useGetBiggestVictories({ limit: 10 });
-  const { data: defeats, isLoading: isLoadingD } = useGetBiggestDefeats({ limit: 10 });
-  const { data: streaks, isLoading: isLoadingS } = useGetStreaks();
+function fmtDate(d: string) {
+  return new Date(d).toLocaleDateString("pt-BR");
+}
 
-  const winningStreaks = streaks?.filter(s => s.type === "winning") || [];
-  const unbeatenStreaks = streaks?.filter(s => s.type === "unbeaten") || [];
+function MatchTable({ data, isLoading, colorClass }: { data: any[] | undefined; isLoading: boolean; colorClass: string }) {
+  return (
+    <div className="border rounded">
+      <Table>
+        <TableHeader>
+          <TableRow className="text-xs">
+            <TableHead className="py-2">#</TableHead>
+            <TableHead className="py-2">Adversário</TableHead>
+            <TableHead className="py-2 text-center">Placar</TableHead>
+            <TableHead className="py-2">Data</TableHead>
+            <TableHead className="py-2 hidden sm:table-cell">Competição</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {isLoading
+            ? Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}><TableCell colSpan={5}><Skeleton className="h-4" /></TableCell></TableRow>
+              ))
+            : data?.map((m, i) => (
+                <TableRow key={m.id} className="text-sm" data-testid={`row-match-${m.id}`}>
+                  <TableCell className="py-2 text-muted-foreground text-xs">{i + 1}</TableCell>
+                  <TableCell className="py-2 font-medium">{m.opponent}</TableCell>
+                  <TableCell className={`py-2 text-center font-bold font-mono ${colorClass}`}>{m.goalsFor}–{m.goalsAgainst}</TableCell>
+                  <TableCell className="py-2 text-muted-foreground text-xs">{fmtDate(m.date)}</TableCell>
+                  <TableCell className="py-2 text-muted-foreground text-xs hidden sm:table-cell">{m.competition}</TableCell>
+                </TableRow>
+              ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+export default function MatchRecords() {
+  const { data: victories, isLoading: lV } = useGetBiggestVictories({ limit: 10 });
+  const { data: defeats, isLoading: lD } = useGetBiggestDefeats({ limit: 10 });
+  const { data: streaks, isLoading: lS } = useGetStreaks();
+
+  const winStreak = streaks?.find((s) => s.type === "winning");
+  const unbeatenStreak = streaks?.find((s) => s.type === "unbeaten");
+  const losingStreak = streaks?.find((s) => s.type === "losing");
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
-      <div>
-        <h1 className="text-3xl font-bold">Recordes de Partidas</h1>
-        <p className="text-muted-foreground">Maiores goleadas e sequências invictas da história.</p>
+    <div className="space-y-8">
+      <div className="border-b pb-3">
+        <h1 className="text-xl font-bold" data-testid="heading-recordes">Recordes de Partidas</h1>
+        <p className="text-sm text-muted-foreground">Maiores goleadas e sequências históricas do CSA</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-primary">Maiores Vitórias</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Adversário</TableHead>
-                  <TableHead className="text-center">Placar</TableHead>
-                  <TableHead>Ano</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoadingV ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}><TableCell colSpan={3}><Skeleton className="h-5" /></TableCell></TableRow>
-                  ))
-                ) : (
-                  victories?.map((match) => (
-                    <TableRow key={match.id}>
-                      <TableCell className="font-medium">{match.opponent}</TableCell>
-                      <TableCell className="text-center font-bold text-green-600">
-                        {match.homeAway === 'home' ? match.goalsFor : match.goalsAgainst} - {match.homeAway === 'home' ? match.goalsAgainst : match.goalsFor}
-                      </TableCell>
-                      <TableCell>{match.date.substring(0, 4)}</TableCell>
-                    </TableRow>
-                  ))
+      {/* Streaks */}
+      <section>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Sequências</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {lS
+            ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="border rounded p-4"><Skeleton className="h-12" /></div>)
+            : (
+              <>
+                {winStreak && (
+                  <div className="border rounded p-4" data-testid="streak-winning">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Sequência de Vitórias</p>
+                    <p className="text-3xl font-black text-green-600 mt-1">{winStreak.length} <span className="text-sm font-normal text-muted-foreground">jogos</span></p>
+                    <p className="text-xs text-muted-foreground mt-1">{fmtDate(winStreak.startDate)} — {fmtDate(winStreak.endDate)}</p>
+                  </div>
                 )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                {unbeatenStreak && (
+                  <div className="border rounded p-4" data-testid="streak-unbeaten">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Invencibilidade</p>
+                    <p className="text-3xl font-black text-primary mt-1">{unbeatenStreak.length} <span className="text-sm font-normal text-muted-foreground">jogos</span></p>
+                    <p className="text-xs text-muted-foreground mt-1">{fmtDate(unbeatenStreak.startDate)} — {fmtDate(unbeatenStreak.endDate)}</p>
+                  </div>
+                )}
+                {losingStreak && (
+                  <div className="border rounded p-4" data-testid="streak-losing">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Sequência de Derrotas</p>
+                    <p className="text-3xl font-black text-red-600 mt-1">{losingStreak.length} <span className="text-sm font-normal text-muted-foreground">jogos</span></p>
+                    <p className="text-xs text-muted-foreground mt-1">{fmtDate(losingStreak.startDate)} — {fmtDate(losingStreak.endDate)}</p>
+                  </div>
+                )}
+              </>
+            )}
+        </div>
+      </section>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-destructive">Maiores Derrotas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Adversário</TableHead>
-                  <TableHead className="text-center">Placar</TableHead>
-                  <TableHead>Ano</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoadingD ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}><TableCell colSpan={3}><Skeleton className="h-5" /></TableCell></TableRow>
-                  ))
-                ) : (
-                  defeats?.map((match) => (
-                    <TableRow key={match.id}>
-                      <TableCell className="font-medium">{match.opponent}</TableCell>
-                      <TableCell className="text-center font-bold text-destructive">
-                        {match.homeAway === 'home' ? match.goalsFor : match.goalsAgainst} - {match.homeAway === 'home' ? match.goalsAgainst : match.goalsFor}
-                      </TableCell>
-                      <TableCell>{match.date.substring(0, 4)}</TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </div>
-      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Maiores Sequências de Vitórias</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-center">Jogos</TableHead>
-                  <TableHead>Período</TableHead>
-                  <TableHead>Descrição</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoadingS ? (
-                  Array.from({ length: 3 }).map((_, i) => (
-                    <TableRow key={i}><TableCell colSpan={3}><Skeleton className="h-5" /></TableCell></TableRow>
-                  ))
-                ) : (
-                  winningStreaks.slice(0, 5).map((streak, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="text-center font-black text-xl text-primary">{streak.length}</TableCell>
-                      <TableCell className="text-sm">
-                        {new Date(streak.startDate).toLocaleDateString('pt-BR')} - {new Date(streak.endDate).toLocaleDateString('pt-BR')}
-                      </TableCell>
-                      <TableCell className="text-sm">{streak.description}</TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Maiores Sequências Invictas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-center">Jogos</TableHead>
-                  <TableHead>Período</TableHead>
-                  <TableHead>Descrição</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoadingS ? (
-                  Array.from({ length: 3 }).map((_, i) => (
-                    <TableRow key={i}><TableCell colSpan={3}><Skeleton className="h-5" /></TableCell></TableRow>
-                  ))
-                ) : (
-                  unbeatenStreaks.slice(0, 5).map((streak, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="text-center font-black text-xl text-primary">{streak.length}</TableCell>
-                      <TableCell className="text-sm">
-                        {new Date(streak.startDate).toLocaleDateString('pt-BR')} - {new Date(streak.endDate).toLocaleDateString('pt-BR')}
-                      </TableCell>
-                      <TableCell className="text-sm">{streak.description}</TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <section>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">10 Maiores Vitórias</h2>
+          <MatchTable data={victories} isLoading={lV} colorClass="text-green-600" />
+        </section>
+        <section>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">10 Maiores Derrotas</h2>
+          <MatchTable data={defeats} isLoading={lD} colorClass="text-red-600" />
+        </section>
       </div>
     </div>
   );

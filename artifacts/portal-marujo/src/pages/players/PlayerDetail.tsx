@@ -1,107 +1,106 @@
-import { useGetPlayer } from "@workspace/api-client-react";
-import { useParams, Link } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link, useParams } from "wouter";
+import { useGetPlayer, getGetPlayerQueryKey } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, User, Calendar } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 export default function PlayerDetail() {
   const params = useParams();
-  const id = parseInt(params.id || "0", 10);
+  const id = parseInt(params.id ?? "0", 10);
 
   const { data: player, isLoading, isError } = useGetPlayer(id, {
-    query: { enabled: !!id }
+    query: { enabled: !!id, queryKey: getGetPlayerQueryKey(id) },
   });
 
   if (isLoading) {
     return (
-      <div className="space-y-6 max-w-4xl mx-auto">
-        <Skeleton className="h-10 w-32" />
-        <Skeleton className="h-32 w-full" />
-        <Skeleton className="h-64 w-full" />
+      <div className="space-y-5 max-w-3xl">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-60 w-full" />
       </div>
     );
   }
 
   if (isError || !player) {
-    return <div className="text-center p-8 text-destructive">Erro ao carregar jogador.</div>;
+    return <div className="text-center p-8 text-destructive">Jogador não encontrado.</div>;
   }
 
+  const avgGoals = player.totalAppearances > 0
+    ? (player.totalGoals / player.totalAppearances).toFixed(2)
+    : "–";
+
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-5 max-w-3xl">
       <Link href="/jogadores">
-        <Button variant="ghost" className="-ml-4 text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="mr-2 h-4 w-4" />
-          Voltar para Jogadores
-        </Button>
+        <span className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground cursor-pointer" data-testid="link-back">
+          <ChevronLeft className="h-4 w-4 mr-1" /> Voltar para Jogadores
+        </span>
       </Link>
 
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-4xl font-bold text-foreground">{player.name}</h1>
-          <p className="text-lg text-muted-foreground mt-1 flex items-center gap-2">
-            <User className="h-4 w-4" /> {player.position || "Sem Posição"}
-            {player.nationality && <span className="text-sm bg-muted px-2 py-0.5 rounded ml-2">{player.nationality}</span>}
-          </p>
+      <div className="border-b pb-4">
+        <h1 className="text-2xl font-bold" data-testid="heading-player-name">{player.name}</h1>
+        <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+          {player.position && <span className="border rounded px-2 py-0.5 text-xs font-medium">{player.position}</span>}
+          {player.nationality && <span>{player.nationality}</span>}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-primary text-primary-foreground border-none">
-          <CardContent className="pt-6">
-            <p className="text-sm font-medium opacity-80 uppercase tracking-wider">Jogos</p>
-            <p className="text-4xl font-black mt-2">{player.totalAppearances}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Gols</p>
-            <p className="text-4xl font-black text-foreground mt-2">{player.totalGoals}</p>
-          </CardContent>
-        </Card>
-        {player.totalAssists !== null && player.totalAssists !== undefined && (
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Assistências</p>
-              <p className="text-4xl font-black text-foreground mt-2">{player.totalAssists}</p>
-            </CardContent>
-          </Card>
-        )}
+      {/* Stat bar */}
+      <div className="grid grid-cols-4 gap-px bg-border rounded overflow-hidden" data-testid="player-stat-bar">
+        {[
+          { label: "Partidas", value: player.totalAppearances, highlight: true },
+          { label: "Gols", value: player.totalGoals },
+          { label: "Assistências", value: player.totalAssists ?? "–" },
+          { label: "Gols/Jogo", value: avgGoals },
+        ].map(({ label, value, highlight }) => (
+          <div key={label} className="bg-background p-3">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+            <p className={`text-2xl font-bold mt-0.5 ${highlight ? "text-primary" : ""}`}>{value}</p>
+          </div>
+        ))}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            Estatísticas por Temporada
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      {/* Season stats table */}
+      <div>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Estatísticas por Temporada</h2>
+        <div className="border rounded">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Temporada</TableHead>
-                <TableHead className="text-right">Jogos</TableHead>
-                <TableHead className="text-right">Gols</TableHead>
+              <TableRow className="text-xs">
+                <TableHead className="py-2">Temporada</TableHead>
+                <TableHead className="py-2 text-right">Jogos</TableHead>
+                <TableHead className="py-2 text-right">Gols</TableHead>
+                <TableHead className="py-2 text-right">Assistências</TableHead>
+                <TableHead className="py-2 text-right">Média</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {player.seasonStats.map((stat, idx) => (
-                <TableRow key={idx}>
-                  <TableCell className="font-medium">
-                    <Link href={`/temporadas/${stat.season}`} className="hover:underline text-primary">
-                      {stat.season}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="text-right">{stat.appearances}</TableCell>
-                  <TableCell className="text-right">{stat.goals}</TableCell>
+              {player.seasonStats.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-16 text-center text-muted-foreground">Sem estatísticas por temporada.</TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                player.seasonStats.map((stat, idx) => (
+                  <TableRow key={`${stat.season}-${idx}`} className="text-sm" data-testid={`row-season-${stat.season}`}>
+                    <TableCell className="py-2 font-medium">
+                      <Link href={`/temporadas/${stat.season}`} className="hover:text-primary hover:underline">
+                        {stat.season}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="py-2 text-right">{stat.appearances}</TableCell>
+                    <TableCell className="py-2 text-right font-medium">{stat.goals}</TableCell>
+                    <TableCell className="py-2 text-right">{stat.assists ?? "–"}</TableCell>
+                    <TableCell className="py-2 text-right text-muted-foreground text-xs">
+                      {stat.appearances > 0 ? (stat.goals / stat.appearances).toFixed(2) : "–"}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

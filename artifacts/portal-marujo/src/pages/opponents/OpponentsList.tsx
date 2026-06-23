@@ -2,99 +2,113 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { useListOpponents } from "@workspace/api-client-react";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
+
+function pct(wins: number, total: number) {
+  if (!total) return "–";
+  return ((wins / total) * 100).toFixed(1) + "%";
+}
+
+type SortKey = "matches" | "wins" | "goals";
 
 export default function OpponentsList() {
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const limit = 20;
+  const [sort, setSort] = useState<SortKey>("matches");
 
   const { data, isLoading } = useListOpponents({
-    search: search.length > 2 ? search : undefined,
-    limit,
-    offset: (page - 1) * limit
+    search: search.length > 1 ? search : undefined,
+    sort,
+    limit: 100,
+    offset: 0,
   });
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      <div>
-        <h1 className="text-3xl font-bold">Adversários</h1>
-        <p className="text-muted-foreground">Histórico de confrontos do CSA contra todos os adversários.</p>
+    <div className="space-y-5">
+      <div className="border-b pb-3">
+        <h1 className="text-xl font-bold" data-testid="heading-adversarios">Adversários</h1>
+        <p className="text-sm text-muted-foreground">Histórico do CSA contra cada adversário</p>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="w-full sm:w-72">
-          <Input 
-            placeholder="Buscar adversário..." 
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          />
+      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <Input
+          placeholder="Buscar adversário..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-8 w-full sm:w-64 text-sm"
+          data-testid="input-search-opponent"
+        />
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground whitespace-nowrap">Ordenar por:</span>
+          <Select value={sort} onValueChange={(v: SortKey) => setSort(v)}>
+            <SelectTrigger className="h-8 w-32 text-sm" data-testid="select-sort">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="matches">Jogos</SelectItem>
+              <SelectItem value="wins">Vitórias</SelectItem>
+              <SelectItem value="goals">Gols</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      <div className="border rounded-md">
+      <div className="border rounded">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Adversário</TableHead>
-              <TableHead className="text-right">J</TableHead>
-              <TableHead className="text-right">V</TableHead>
-              <TableHead className="text-right">E</TableHead>
-              <TableHead className="text-right">D</TableHead>
-              <TableHead className="text-right">GP</TableHead>
-              <TableHead className="text-right">GC</TableHead>
+            <TableRow className="text-xs">
+              <TableHead className="py-2">#</TableHead>
+              <TableHead className="py-2">Adversário</TableHead>
+              <TableHead className={`py-2 text-right ${sort === "matches" ? "text-primary font-bold" : ""}`}>J</TableHead>
+              <TableHead className="py-2 text-right text-green-600">V</TableHead>
+              <TableHead className="py-2 text-right text-amber-600">E</TableHead>
+              <TableHead className="py-2 text-right text-red-600">D</TableHead>
+              <TableHead className={`py-2 text-right ${sort === "goals" ? "text-primary font-bold" : ""}`}>GP</TableHead>
+              <TableHead className="py-2 text-right">GC</TableHead>
+              <TableHead className="py-2 text-right">Saldo</TableHead>
+              <TableHead className="py-2 text-right">Aproveit.</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              Array.from({ length: 10 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell><Skeleton className="h-5 w-40" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-8 ml-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-8 ml-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-8 ml-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-8 ml-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-8 ml-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-8 ml-auto" /></TableCell>
-                </TableRow>
-              ))
-            ) : data?.data.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">Nenhum adversário encontrado.</TableCell>
-              </TableRow>
-            ) : (
-              data?.data.map((opp) => (
-                <TableRow key={opp.id}>
-                  <TableCell className="font-bold">
-                    <Link href={`/adversarios/${opp.id}`} className="text-primary hover:underline">
-                      {opp.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="text-right font-medium">{opp.matches}</TableCell>
-                  <TableCell className="text-right text-green-600">{opp.wins}</TableCell>
-                  <TableCell className="text-right text-gray-500">{opp.draws}</TableCell>
-                  <TableCell className="text-right text-destructive">{opp.losses}</TableCell>
-                  <TableCell className="text-right">{opp.goalsFor}</TableCell>
-                  <TableCell className="text-right">{opp.goalsAgainst}</TableCell>
-                </TableRow>
-              ))
-            )}
+            {isLoading
+              ? Array.from({ length: 15 }).map((_, i) => (
+                  <TableRow key={i}><TableCell colSpan={10}><Skeleton className="h-4" /></TableCell></TableRow>
+                ))
+              : data?.data.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={10} className="h-20 text-center text-muted-foreground">Nenhum adversário encontrado.</TableCell>
+                  </TableRow>
+                )
+              : data?.data.map((opp, i) => {
+                  const gd = opp.goalsFor - opp.goalsAgainst;
+                  return (
+                    <TableRow key={opp.id} className="text-sm" data-testid={`row-opponent-${opp.id}`}>
+                      <TableCell className="py-2 text-muted-foreground text-xs">{i + 1}</TableCell>
+                      <TableCell className="py-2 font-medium">
+                        <Link href={`/adversarios/${opp.id}`} className="hover:text-primary hover:underline" data-testid={`link-opponent-${opp.id}`}>
+                          {opp.name}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="py-2 text-right font-medium">{opp.matches}</TableCell>
+                      <TableCell className="py-2 text-right text-green-600 font-medium">{opp.wins}</TableCell>
+                      <TableCell className="py-2 text-right text-amber-600">{opp.draws}</TableCell>
+                      <TableCell className="py-2 text-right text-red-600">{opp.losses}</TableCell>
+                      <TableCell className="py-2 text-right">{opp.goalsFor}</TableCell>
+                      <TableCell className="py-2 text-right">{opp.goalsAgainst}</TableCell>
+                      <TableCell className={`py-2 text-right text-xs font-medium ${gd >= 0 ? "text-green-600" : "text-red-600"}`}>
+                        {gd >= 0 ? "+" : ""}{gd}
+                      </TableCell>
+                      <TableCell className="py-2 text-right font-medium">{pct(opp.wins, opp.matches)}</TableCell>
+                    </TableRow>
+                  );
+                })}
           </TableBody>
         </Table>
       </div>
 
-      {data && data.total > limit && (
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">
-            Mostrando {(page - 1) * limit + 1} até {Math.min(page * limit, data.total)} de {data.total}
-          </span>
-          <div className="flex gap-2">
-            <Button variant="outline" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Anterior</Button>
-            <Button variant="outline" disabled={page * limit >= data.total} onClick={() => setPage(p => p + 1)}>Próxima</Button>
-          </div>
-        </div>
+      {data && (
+        <p className="text-xs text-muted-foreground">{data.total} adversários no total</p>
       )}
     </div>
   );

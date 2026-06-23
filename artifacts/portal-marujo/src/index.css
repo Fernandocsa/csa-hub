@@ -103,62 +103,63 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  --background: 210 20% 98%;
-  --foreground: 214 62% 10%;
-  --border: 214 30% 85%;
+  --background: 0 0% 100%;
+  --foreground: 222 47% 11%;
+  --border: 214 32% 91%;
 
   --card: 0 0% 100%;
-  --card-foreground: 214 62% 10%;
-  --card-border: 214 30% 90%;
+  --card-foreground: 222 47% 11%;
+  --card-border: 214 32% 91%;
 
-  --sidebar: 0 0% 100%;
-  --sidebar-foreground: 214 62% 15%;
-  --sidebar-border: 214 30% 90%;
+  --sidebar: 214 62% 21%;
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-border: 214 62% 21%;
   --sidebar-primary: 214 62% 27%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 214 20% 96%;
-  --sidebar-accent-foreground: 214 62% 27%;
-  --sidebar-ring: 214 62% 27%;
+  --sidebar-accent: 214 62% 27%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-ring: 214 62% 40%;
 
   --popover: 0 0% 100%;
-  --popover-foreground: 214 62% 10%;
-  --popover-border: 214 30% 90%;
+  --popover-foreground: 222 47% 11%;
+  --popover-border: 214 32% 91%;
 
-  /* CSA Blue: #1A3E6E -> 214 62% 27% */
-  --primary: 214 62% 27%;
+  /* CSA Blue: #1B3A6B */
+  --primary: 217 60% 26%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 214 30% 90%;
-  --secondary-foreground: 214 62% 20%;
+  --secondary: 214 32% 91%;
+  --secondary-foreground: 222 47% 11%;
 
-  --muted: 214 20% 94%;
-  --muted-foreground: 214 20% 40%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
 
-  /* Accent: Gold #FFD700 -> 51 100% 50% */
-  --accent: 51 100% 50%;
-  --accent-foreground: 214 62% 15%;
+  /* Accent: Gold/Yellow #F5A623 */
+  --accent: 38 92% 55%;
+  --accent-foreground: 222 47% 11%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 214 30% 85%;
-  --ring: 214 62% 27%;
+  --input: 214 32% 91%;
+  --ring: 217 60% 26%;
   
-  --chart-1: 214 62% 27%;
-  --chart-2: 51 100% 50%;
+  --chart-1: 217 60% 26%;
+  --chart-2: 38 92% 55%;
   --chart-3: 199 89% 48%;
   --chart-4: 34 100% 50%;
   --chart-5: 142 71% 45%;
 
-  --app-font-sans: 'Inter', sans-serif;
+  /* Reference UI fonts */
+  --app-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --app-font-serif: Georgia, serif;
-  --app-font-mono: Menlo, monospace;
-  --radius: .5rem;
+  --app-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --radius: 0.25rem; /* tight radius for dense UI */
   
-  --shadow-sm: 0px 2px 4px 0px rgba(26, 62, 110, 0.05);
-  --shadow: 0px 4px 8px -2px rgba(26, 62, 110, 0.1);
-  --shadow-md: 0px 8px 16px -4px rgba(26, 62, 110, 0.1);
-  --shadow-lg: 0px 12px 24px -6px rgba(26, 62, 110, 0.15);
+  --shadow-sm: 0px 1px 2px 0px rgba(27, 58, 107, 0.05);
+  --shadow: 0px 2px 4px -1px rgba(27, 58, 107, 0.1);
+  --shadow-md: 0px 4px 8px -2px rgba(27, 58, 107, 0.1);
+  --shadow-lg: 0px 8px 16px -4px rgba(27, 58, 107, 0.15);
 
   --sidebar-primary-border: hsl(var(--sidebar-primary));
   --sidebar-accent-border: hsl(var(--sidebar-accent));

@@ -1,147 +1,135 @@
-import { useGetOpponent } from "@workspace/api-client-react";
-import { useParams, Link } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link, useParams } from "wouter";
+import { useGetOpponent, getGetOpponentQueryKey } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
+import { ResultBadge } from "@/components/ui/result-badge";
+
+function pct(wins: number, total: number) {
+  if (!total) return "–";
+  return ((wins / total) * 100).toFixed(1) + "%";
+}
+
+function fmtDate(d: string) {
+  return new Date(d).toLocaleDateString("pt-BR");
+}
+
+function MiniRecord({ label, data: d }: { label: string; data: { matches: number; wins: number; draws: number; losses: number } }) {
+  return (
+    <div className="text-sm">
+      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{label}</p>
+      <div className="flex items-center gap-3">
+        <span className="font-bold">{d.matches}J</span>
+        <span className="text-green-600 font-medium">{d.wins}V</span>
+        <span className="text-amber-600">{d.draws}E</span>
+        <span className="text-red-600">{d.losses}D</span>
+        <span className="text-muted-foreground ml-1">{pct(d.wins, d.matches)}</span>
+      </div>
+    </div>
+  );
+}
 
 export default function OpponentDetail() {
   const params = useParams();
-  const id = parseInt(params.id || "0", 10);
+  const id = parseInt(params.id ?? "0", 10);
 
   const { data: opponent, isLoading, isError } = useGetOpponent(id, {
-    query: { enabled: !!id }
+    query: { enabled: !!id, queryKey: getGetOpponentQueryKey(id) },
   });
 
   if (isLoading) {
     return (
-      <div className="space-y-6 max-w-4xl mx-auto">
-        <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-32 w-full" />
-        <Skeleton className="h-64 w-full" />
+      <div className="space-y-5 max-w-3xl">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-60 w-full" />
       </div>
     );
   }
 
   if (isError || !opponent) {
-    return <div className="text-center p-8 text-destructive">Erro ao carregar adversário.</div>;
+    return <div className="text-center p-8 text-destructive">Adversário não encontrado.</div>;
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-5 max-w-3xl">
       <Link href="/adversarios">
-        <Button variant="ghost" className="-ml-4 text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="mr-2 h-4 w-4" />
-          Voltar para Adversários
-        </Button>
+        <span className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground cursor-pointer" data-testid="link-back">
+          <ChevronLeft className="h-4 w-4 mr-1" /> Voltar para Adversários
+        </span>
       </Link>
 
-      <h1 className="text-4xl font-bold text-foreground">CSA x {opponent.name}</h1>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-primary text-primary-foreground border-none">
-          <CardContent className="pt-6 text-center">
-            <p className="text-sm font-medium opacity-80 uppercase">Jogos</p>
-            <p className="text-4xl font-black mt-2">{opponent.matches}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <p className="text-sm font-medium text-muted-foreground uppercase">Vitórias</p>
-            <p className="text-4xl font-black text-green-600 mt-2">{opponent.wins}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <p className="text-sm font-medium text-muted-foreground uppercase">Empates</p>
-            <p className="text-4xl font-black text-gray-500 mt-2">{opponent.draws}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <p className="text-sm font-medium text-muted-foreground uppercase">Derrotas</p>
-            <p className="text-4xl font-black text-destructive mt-2">{opponent.losses}</p>
-          </CardContent>
-        </Card>
+      <div className="border-b pb-4">
+        <h1 className="text-2xl font-bold" data-testid="heading-opponent">CSA x {opponent.name}</h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-8">
-          {opponent.homeRecord && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm uppercase text-muted-foreground tracking-wider">Como Mandante</CardTitle>
-              </CardHeader>
-              <CardContent className="flex justify-between items-center">
-                <div className="text-center">
-                  <span className="block text-2xl font-bold">{opponent.homeRecord.matches}</span>
-                  <span className="text-xs text-muted-foreground">J</span>
-                </div>
-                <div className="text-center">
-                  <span className="block text-2xl font-bold text-green-600">{opponent.homeRecord.wins}</span>
-                  <span className="text-xs text-muted-foreground">V</span>
-                </div>
-                <div className="text-center">
-                  <span className="block text-2xl font-bold text-gray-500">{opponent.homeRecord.draws}</span>
-                  <span className="text-xs text-muted-foreground">E</span>
-                </div>
-                <div className="text-center">
-                  <span className="block text-2xl font-bold text-destructive">{opponent.homeRecord.losses}</span>
-                  <span className="text-xs text-muted-foreground">D</span>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+      {/* Overall stat bar */}
+      <div className="grid grid-cols-5 gap-px bg-border rounded overflow-hidden" data-testid="opponent-stat-bar">
+        {[
+          { label: "Partidas", value: opponent.matches, highlight: true },
+          { label: "Vitórias", value: opponent.wins, color: "text-green-600" },
+          { label: "Empates", value: opponent.draws, color: "text-amber-600" },
+          { label: "Derrotas", value: opponent.losses, color: "text-red-600" },
+          { label: "Aproveit.", value: pct(opponent.wins, opponent.matches), highlight: true },
+        ].map(({ label, value, color, highlight }) => (
+          <div key={label} className="bg-background p-3 text-center">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+            <p className={`text-xl font-bold mt-0.5 ${color ?? (highlight ? "text-primary" : "")}`}>{value}</p>
+          </div>
+        ))}
+      </div>
 
+      {/* Home/Away breakdown */}
+      {(opponent.homeRecord || opponent.awayRecord) && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {opponent.homeRecord && (
+            <div className="border rounded p-4 space-y-2">
+              <MiniRecord label="Como Mandante" data={opponent.homeRecord} />
+            </div>
+          )}
           {opponent.awayRecord && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm uppercase text-muted-foreground tracking-wider">Como Visitante</CardTitle>
-              </CardHeader>
-              <CardContent className="flex justify-between items-center">
-                <div className="text-center">
-                  <span className="block text-2xl font-bold">{opponent.awayRecord.matches}</span>
-                  <span className="text-xs text-muted-foreground">J</span>
-                </div>
-                <div className="text-center">
-                  <span className="block text-2xl font-bold text-green-600">{opponent.awayRecord.wins}</span>
-                  <span className="text-xs text-muted-foreground">V</span>
-                </div>
-                <div className="text-center">
-                  <span className="block text-2xl font-bold text-gray-500">{opponent.awayRecord.draws}</span>
-                  <span className="text-xs text-muted-foreground">E</span>
-                </div>
-                <div className="text-center">
-                  <span className="block text-2xl font-bold text-destructive">{opponent.awayRecord.losses}</span>
-                  <span className="text-xs text-muted-foreground">D</span>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="border rounded p-4 space-y-2">
+              <MiniRecord label="Como Visitante" data={opponent.awayRecord} />
+            </div>
           )}
         </div>
+      )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Últimos Confrontos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {opponent.recentMatches.map((match) => (
-                <div key={match.id} className="flex items-center justify-between p-3 bg-muted rounded-md text-sm">
-                  <span className="w-16">{new Date(match.date).getFullYear()}</span>
-                  <span className="flex-1 text-center font-bold">
-                    {match.homeAway === 'home' ? 'CSA' : match.opponent} {match.homeAway === 'home' ? match.goalsFor : match.goalsAgainst} - {match.homeAway === 'home' ? match.goalsAgainst : match.goalsFor} {match.homeAway === 'away' ? 'CSA' : match.opponent}
-                  </span>
-                  <span className="w-24 text-right text-muted-foreground">{match.competition}</span>
-                </div>
-              ))}
-              {opponent.recentMatches.length === 0 && (
-                <p className="text-muted-foreground text-center">Nenhum confronto recente.</p>
+      {/* Recent matches */}
+      <div>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Confrontos Recentes</h2>
+        <div className="border rounded">
+          <Table>
+            <TableHeader>
+              <TableRow className="text-xs">
+                <TableHead className="py-2">Data</TableHead>
+                <TableHead className="py-2 text-center">Res.</TableHead>
+                <TableHead className="py-2 text-center">Placar</TableHead>
+                <TableHead className="py-2">Mando</TableHead>
+                <TableHead className="py-2">Competição</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {opponent.recentMatches.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-16 text-center text-muted-foreground">Sem confrontos registrados.</TableCell>
+                </TableRow>
+              ) : (
+                opponent.recentMatches.map((match) => (
+                  <TableRow key={match.id} className="text-sm" data-testid={`row-match-${match.id}`}>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{fmtDate(match.date)}</TableCell>
+                    <TableCell className="py-2 text-center">
+                      <ResultBadge result={match.result} />
+                    </TableCell>
+                    <TableCell className="py-2 text-center font-mono font-bold">{match.goalsFor}–{match.goalsAgainst}</TableCell>
+                    <TableCell className="py-2 text-xs text-muted-foreground">{match.homeAway === "home" ? "Casa" : "Fora"}</TableCell>
+                    <TableCell className="py-2 text-xs text-muted-foreground">{match.competition}</TableCell>
+                  </TableRow>
+                ))
               )}
-            </div>
-          </CardContent>
-        </Card>
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );

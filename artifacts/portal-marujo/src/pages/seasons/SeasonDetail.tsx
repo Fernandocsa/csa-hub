@@ -1,143 +1,144 @@
-import { useGetSeason, useGetSquadBySeason } from "@workspace/api-client-react";
-import { useParams, Link } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link, useParams } from "wouter";
+import { useGetSeason, useGetSquadBySeason, getGetSeasonQueryKey } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
+
+function pct(wins: number, total: number) {
+  if (!total) return "–";
+  return ((wins / total) * 100).toFixed(1) + "%";
+}
 
 export default function SeasonDetail() {
   const params = useParams();
-  const year = params.year || "";
+  const year = params.year ?? "";
 
   const { data: season, isLoading, isError } = useGetSeason(year, {
-    query: { enabled: !!year }
+    query: { enabled: !!year, queryKey: getGetSeasonQueryKey(year) },
   });
-
-  const { data: squad, isLoading: isLoadingSquad } = useGetSquadBySeason(
+  const { data: squad, isLoading: loadSquad } = useGetSquadBySeason(
     { season: year },
     { query: { enabled: !!year } }
   );
 
-  if (isLoading || isLoadingSquad) {
+  if (isLoading) {
     return (
-      <div className="space-y-6 max-w-6xl mx-auto">
-        <Skeleton className="h-10 w-32" />
-        <Skeleton className="h-32 w-full" />
-        <Skeleton className="h-64 w-full" />
+      <div className="space-y-5">
+        <Skeleton className="h-8 w-36" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-60 w-full" />
       </div>
     );
   }
 
   if (isError || !season) {
-    return <div className="text-center p-8 text-destructive">Erro ao carregar temporada.</div>;
+    return <div className="text-center p-8 text-destructive">Temporada não encontrada.</div>;
   }
 
-  const winPct = ((season.wins / (season.matches || 1)) * 100).toFixed(1);
+  const gd = season.goalsScored - season.goalsConceded;
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-5">
       <Link href="/temporadas">
-        <Button variant="ghost" className="-ml-4 text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="mr-2 h-4 w-4" />
-          Voltar para Temporadas
-        </Button>
+        <span className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground cursor-pointer" data-testid="link-back">
+          <ChevronLeft className="h-4 w-4 mr-1" /> Voltar para Temporadas
+        </span>
       </Link>
 
-      <div>
-        <h1 className="text-4xl font-bold text-foreground">Temporada {season.year}</h1>
+      <div className="border-b pb-4">
+        <h1 className="text-2xl font-bold" data-testid="heading-season">Temporada {season.year}</h1>
+        {season.leagueName && season.leaguePosition && (
+          <p className="text-sm text-muted-foreground mt-1">
+            {season.leagueName} — {season.leaguePosition}º lugar
+          </p>
+        )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-primary text-primary-foreground border-none">
-          <CardContent className="pt-6 text-center">
-            <p className="text-sm font-medium opacity-80 uppercase">Aproveitamento</p>
-            <p className="text-4xl font-black mt-2">{winPct}%</p>
-            <p className="text-xs mt-1 opacity-80">{season.matches} Jogos</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <p className="text-sm font-medium text-muted-foreground uppercase">Vitórias</p>
-            <p className="text-4xl font-black text-green-600 mt-2">{season.wins}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <p className="text-sm font-medium text-muted-foreground uppercase">Empates</p>
-            <p className="text-4xl font-black text-gray-500 mt-2">{season.draws}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <p className="text-sm font-medium text-muted-foreground uppercase">Derrotas</p>
-            <p className="text-4xl font-black text-destructive mt-2">{season.losses}</p>
-          </CardContent>
-        </Card>
+      {/* Stat bar */}
+      <div className="grid grid-cols-4 sm:grid-cols-8 gap-px bg-border rounded overflow-hidden" data-testid="season-stat-bar">
+        {[
+          { label: "Partidas", value: season.matches, highlight: true },
+          { label: "Vitórias", value: season.wins, color: "text-green-600" },
+          { label: "Empates", value: season.draws, color: "text-amber-600" },
+          { label: "Derrotas", value: season.losses, color: "text-red-600" },
+          { label: "GP", value: season.goalsScored },
+          { label: "GC", value: season.goalsConceded },
+          { label: "Saldo", value: (gd >= 0 ? "+" : "") + gd, color: gd >= 0 ? "text-green-600" : "text-red-600" },
+          { label: "Aproveit.", value: pct(season.wins, season.matches), highlight: true },
+        ].map(({ label, value, color, highlight }) => (
+          <div key={label} className="bg-background p-3">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider leading-tight">{label}</p>
+            <p className={`text-lg font-bold mt-0.5 ${color ?? (highlight ? "text-primary" : "")}`}>{value}</p>
+          </div>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Elenco e Estatísticas</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Squad */}
+        <div className="lg:col-span-2 space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Elenco e Estatísticas</h2>
+          <div className="border rounded">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Jogador</TableHead>
-                  <TableHead className="text-right">Jogos</TableHead>
-                  <TableHead className="text-right">Gols</TableHead>
+                <TableRow className="text-xs">
+                  <TableHead className="py-2">#</TableHead>
+                  <TableHead className="py-2">Jogador</TableHead>
+                  <TableHead className="py-2 text-right">Jogos</TableHead>
+                  <TableHead className="py-2 text-right">Gols</TableHead>
+                  <TableHead className="py-2 text-right">Assistências</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {squad?.map((player) => (
-                  <TableRow key={player.id}>
-                    <TableCell className="font-medium">
-                      <Link href={`/jogadores/${player.id}`} className="hover:underline text-primary">
-                        {player.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-right">{player.appearances}</TableCell>
-                    <TableCell className="text-right">{player.goals}</TableCell>
-                  </TableRow>
-                ))}
-                {(!squad || squad.length === 0) && (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-4">Sem dados do elenco.</TableCell>
-                  </TableRow>
-                )}
+                {loadSquad
+                  ? Array.from({ length: 10 }).map((_, i) => (
+                      <TableRow key={i}><TableCell colSpan={5}><Skeleton className="h-4" /></TableCell></TableRow>
+                    ))
+                  : !squad || squad.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="h-16 text-center text-muted-foreground">Sem dados do elenco.</TableCell>
+                      </TableRow>
+                    )
+                  : squad.map((player, i) => (
+                      <TableRow key={player.id} className="text-sm" data-testid={`row-squad-${player.id}`}>
+                        <TableCell className="py-2 text-muted-foreground text-xs">{i + 1}</TableCell>
+                        <TableCell className="py-2 font-medium">
+                          <Link href={`/jogadores/${player.id}`} className="hover:text-primary hover:underline">
+                            {player.name}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="py-2 text-right font-medium">{player.appearances}</TableCell>
+                        <TableCell className="py-2 text-right text-primary font-bold">{player.goals}</TableCell>
+                        <TableCell className="py-2 text-right text-muted-foreground">{player.assists ?? "–"}</TableCell>
+                      </TableRow>
+                    ))}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Competições Disputadas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {season.competitions.map((comp, idx) => (
-                <div key={idx} className="p-3 border rounded-md font-medium">
+        {/* Competitions */}
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Competições</h2>
+          <div className="space-y-2">
+            {season.competitions.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nenhuma competição registrada.</p>
+            ) : (
+              season.competitions.map((comp, idx) => (
+                <div key={idx} className="border rounded px-3 py-2 text-sm font-medium" data-testid={`competition-${idx}`}>
                   {comp}
                 </div>
-              ))}
-              {season.competitions.length === 0 && (
-                <p className="text-muted-foreground">Nenhuma competição registrada.</p>
-              )}
-            </div>
-            
-            {season.leaguePosition !== null && season.leaguePosition !== undefined && (
-              <div className="mt-8">
-                <h3 className="font-semibold mb-2">Posição na Liga ({season.leagueName})</h3>
-                <div className="p-4 bg-muted rounded-md inline-flex items-center gap-4">
-                  <span className="text-3xl font-bold">{season.leaguePosition}º</span>
-                </div>
-              </div>
+              ))
             )}
-          </CardContent>
-        </Card>
+          </div>
+
+          {season.leaguePosition && (
+            <div className="border rounded p-4 mt-4">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Posição na Liga</p>
+              <p className="text-3xl font-black text-primary">{season.leaguePosition}º</p>
+              {season.leagueName && <p className="text-xs text-muted-foreground mt-1">{season.leagueName}</p>}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

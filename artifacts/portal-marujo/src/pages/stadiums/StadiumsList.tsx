@@ -2,65 +2,61 @@ import { useListStadiums } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 
+function pct(wins: number, total: number) {
+  if (!total) return "–";
+  return ((wins / total) * 100).toFixed(1) + "%";
+}
+
 export default function StadiumsList() {
   const { data: stadiums, isLoading } = useListStadiums();
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      <div>
-        <h1 className="text-3xl font-bold">Estádios</h1>
-        <p className="text-muted-foreground">Desempenho histórico do CSA em cada praça esportiva.</p>
+    <div className="space-y-5">
+      <div className="border-b pb-3">
+        <h1 className="text-xl font-bold" data-testid="heading-estadios">Estádios</h1>
+        <p className="text-sm text-muted-foreground">Desempenho histórico do CSA em cada praça esportiva</p>
       </div>
 
-      <div className="border rounded-md">
+      <div className="border rounded">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Estádio</TableHead>
-              <TableHead>Cidade</TableHead>
-              <TableHead className="text-right">Jogos</TableHead>
-              <TableHead className="text-right">Vitórias</TableHead>
-              <TableHead className="text-right">Empates</TableHead>
-              <TableHead className="text-right">Derrotas</TableHead>
-              <TableHead className="text-right">Aproveitamento</TableHead>
+            <TableRow className="text-xs">
+              <TableHead className="py-2">#</TableHead>
+              <TableHead className="py-2">Estádio</TableHead>
+              <TableHead className="py-2">Cidade</TableHead>
+              <TableHead className="py-2 text-right">J</TableHead>
+              <TableHead className="py-2 text-right text-green-600">V</TableHead>
+              <TableHead className="py-2 text-right text-amber-600">E</TableHead>
+              <TableHead className="py-2 text-right text-red-600">D</TableHead>
+              <TableHead className="py-2 text-right">GP</TableHead>
+              <TableHead className="py-2 text-right">GC</TableHead>
+              <TableHead className="py-2 text-right">Aproveit.</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              Array.from({ length: 10 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell><Skeleton className="h-5 w-40" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-12 ml-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-12 ml-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-12 ml-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-12 ml-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-16 ml-auto" /></TableCell>
-                </TableRow>
-              ))
-            ) : stadiums?.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">Nenhum estádio encontrado.</TableCell>
-              </TableRow>
-            ) : (
-              stadiums?.map((stadium) => {
-                const winPct = (((stadium.wins + (stadium.draws * 0.5)) / (stadium.matches || 1)) * 100).toFixed(1);
-                // using standard pts format or simple win %
-                const justWinPct = ((stadium.wins / (stadium.matches || 1)) * 100).toFixed(1);
-                
-                return (
-                  <TableRow key={stadium.id}>
-                    <TableCell className="font-bold text-foreground">{stadium.name}</TableCell>
-                    <TableCell className="text-muted-foreground">{stadium.city || "-"}</TableCell>
-                    <TableCell className="text-right font-medium">{stadium.matches}</TableCell>
-                    <TableCell className="text-right text-green-600">{stadium.wins}</TableCell>
-                    <TableCell className="text-right text-gray-500">{stadium.draws}</TableCell>
-                    <TableCell className="text-right text-destructive">{stadium.losses}</TableCell>
-                    <TableCell className="text-right font-bold">{justWinPct}%</TableCell>
+            {isLoading
+              ? Array.from({ length: 8 }).map((_, i) => (
+                  <TableRow key={i}><TableCell colSpan={10}><Skeleton className="h-4" /></TableCell></TableRow>
+                ))
+              : stadiums?.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={10} className="h-20 text-center text-muted-foreground">Nenhum estádio encontrado.</TableCell>
                   </TableRow>
-                );
-              })
-            )}
+                )
+              : stadiums?.map((s, i) => (
+                  <TableRow key={s.id} className="text-sm" data-testid={`row-stadium-${s.id}`}>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{i + 1}</TableCell>
+                    <TableCell className="py-2 font-medium">{s.name}</TableCell>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{s.city ?? "–"}</TableCell>
+                    <TableCell className="py-2 text-right">{s.matches}</TableCell>
+                    <TableCell className="py-2 text-right text-green-600 font-medium">{s.wins}</TableCell>
+                    <TableCell className="py-2 text-right text-amber-600">{s.draws}</TableCell>
+                    <TableCell className="py-2 text-right text-red-600">{s.losses}</TableCell>
+                    <TableCell className="py-2 text-right">{s.goalsFor ?? "–"}</TableCell>
+                    <TableCell className="py-2 text-right">{s.goalsAgainst ?? "–"}</TableCell>
+                    <TableCell className="py-2 text-right font-bold">{pct(s.wins, s.matches)}</TableCell>
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
       </div>

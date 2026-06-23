@@ -173,6 +173,34 @@ router.get("/competitions/:id", async (req, res) => {
   }
 });
 
+// Results by decade
+router.get("/records/by-decade", async (req, res) => {
+  try {
+    const rows = await db
+      .select({
+        decade: sql<string>`cast(floor(extract(year from ${matchesTable.matchDate}) / 10) * 10 as text)`,
+        matches: sql<number>`cast(count(*) as int)`,
+        wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+        draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+        losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+        goalsFor: sql<number>`cast(sum(${matchesTable.goalsFor}) as int)`,
+        goalsAgainst: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
+      })
+      .from(matchesTable)
+      .groupBy(sql`floor(extract(year from ${matchesTable.matchDate}) / 10) * 10`)
+      .orderBy(sql`floor(extract(year from ${matchesTable.matchDate}) / 10) * 10`);
+
+    res.json(rows.map((r) => ({
+      ...r,
+      decadeLabel: `${r.decade}s`,
+      winPercentage: r.matches > 0 ? Math.round((r.wins / r.matches) * 100 * 10) / 10 : 0,
+    })));
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
 // Home/Away records
 router.get("/records/home-away", async (req, res) => {
   try {

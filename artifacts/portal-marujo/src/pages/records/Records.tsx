@@ -1,105 +1,114 @@
-import { useGetHomeAwayRecords } from "@workspace/api-client-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useGetBiggestVictories, useGetBiggestDefeats, useGetStreaks } from "@workspace/api-client-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RecordsLayout } from "./RecordsLayout";
+
+function fmtDate(d: string) {
+  return new Date(d).toLocaleDateString("pt-BR");
+}
+
+function MatchTable({
+  data,
+  isLoading,
+  colorClass,
+}: {
+  data: any[] | undefined;
+  isLoading: boolean;
+  colorClass: string;
+}) {
+  return (
+    <div className="border rounded">
+      <Table>
+        <TableHeader>
+          <TableRow className="text-xs">
+            <TableHead className="py-2">#</TableHead>
+            <TableHead className="py-2">Adversário</TableHead>
+            <TableHead className="py-2 text-center">Placar</TableHead>
+            <TableHead className="py-2">Data</TableHead>
+            <TableHead className="py-2">Competição</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {isLoading
+            ? Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell colSpan={5}><Skeleton className="h-4" /></TableCell>
+                </TableRow>
+              ))
+            : data?.map((m, i) => (
+                <TableRow key={m.id} className="text-sm">
+                  <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
+                  <TableCell className="py-1.5 font-medium">{m.opponent}</TableCell>
+                  <TableCell className={`py-1.5 text-center font-bold ${colorClass}`}>
+                    {m.goalsFor}–{m.goalsAgainst}
+                  </TableCell>
+                  <TableCell className="py-1.5 text-muted-foreground">{fmtDate(m.date)}</TableCell>
+                  <TableCell className="py-1.5 text-muted-foreground text-xs">{m.competition}</TableCell>
+                </TableRow>
+              ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
 
 export default function Records() {
-  const { data: records, isLoading } = useGetHomeAwayRecords({});
+  const { data: victories, isLoading: lV } = useGetBiggestVictories({ limit: 10 });
+  const { data: defeats, isLoading: lD } = useGetBiggestDefeats({ limit: 10 });
+  const { data: streaks, isLoading: lS } = useGetStreaks();
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6 max-w-6xl mx-auto">
-        <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-64 w-full" />
-      </div>
-    );
-  }
+  const winStreak = streaks?.find((s) => s.type === "winning");
+  const unbeatenStreak = streaks?.find((s) => s.type === "unbeaten");
+  const losingStreak = streaks?.find((s) => s.type === "losing");
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
-      <div>
-        <h1 className="text-3xl font-bold">Recordes Gerais</h1>
-        <p className="text-muted-foreground">Desempenho histórico como mandante e visitante.</p>
-      </div>
+    <RecordsLayout title="Recordes Históricos" subtitle="Marcos e estatísticas de desempenho do CSA">
+      <div className="space-y-8">
+        {/* Streaks */}
+        <section>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Sequências</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {lS ? (
+              Array.from({ length: 3 }).map((_, i) => <div key={i} className="border rounded p-4"><Skeleton className="h-12" /></div>)
+            ) : (
+              <>
+                {winStreak && (
+                  <div className="border rounded p-4 space-y-1" data-testid="streak-winning">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Sequência de Vitórias</p>
+                    <p className="text-3xl font-black text-green-600">{winStreak.length} <span className="text-sm font-normal text-muted-foreground">jogos</span></p>
+                    <p className="text-xs text-muted-foreground">{fmtDate(winStreak.startDate)} — {fmtDate(winStreak.endDate)}</p>
+                  </div>
+                )}
+                {unbeatenStreak && (
+                  <div className="border rounded p-4 space-y-1" data-testid="streak-unbeaten">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Invencibilidade</p>
+                    <p className="text-3xl font-black text-primary">{unbeatenStreak.length} <span className="text-sm font-normal text-muted-foreground">jogos</span></p>
+                    <p className="text-xs text-muted-foreground">{fmtDate(unbeatenStreak.startDate)} — {fmtDate(unbeatenStreak.endDate)}</p>
+                  </div>
+                )}
+                {losingStreak && (
+                  <div className="border rounded p-4 space-y-1" data-testid="streak-losing">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Sequência de Derrotas</p>
+                    <p className="text-3xl font-black text-red-600">{losingStreak.length} <span className="text-sm font-normal text-muted-foreground">jogos</span></p>
+                    <p className="text-xs text-muted-foreground">{fmtDate(losingStreak.startDate)} — {fmtDate(losingStreak.endDate)}</p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </section>
 
-      {records && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Card>
-            <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
-              <CardTitle>Mandante</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-4 border rounded-md">
-                  <p className="text-sm text-muted-foreground uppercase mb-1">Partidas</p>
-                  <p className="text-3xl font-black">{records.home.matches}</p>
-                </div>
-                <div className="text-center p-4 border rounded-md">
-                  <p className="text-sm text-muted-foreground uppercase mb-1">Aproveitamento</p>
-                  <p className="text-3xl font-black text-primary">
-                    {((records.home.wins / (records.home.matches || 1)) * 100).toFixed(1)}%
-                  </p>
-                </div>
-              </div>
-              <div className="mt-6 grid grid-cols-3 gap-2">
-                <div className="text-center">
-                  <span className="block text-2xl font-bold text-green-600">{records.home.wins}</span>
-                  <span className="text-xs text-muted-foreground">Vitórias</span>
-                </div>
-                <div className="text-center border-l border-r">
-                  <span className="block text-2xl font-bold text-gray-500">{records.home.draws}</span>
-                  <span className="text-xs text-muted-foreground">Empates</span>
-                </div>
-                <div className="text-center">
-                  <span className="block text-2xl font-bold text-destructive">{records.home.losses}</span>
-                  <span className="text-xs text-muted-foreground">Derrotas</span>
-                </div>
-              </div>
-              <div className="mt-6 flex justify-between items-center text-sm border-t pt-4">
-                <div>Gols Pró: <span className="font-bold">{records.home.goalsFor}</span></div>
-                <div>Gols Contra: <span className="font-bold text-destructive">{records.home.goalsAgainst}</span></div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="bg-muted text-muted-foreground rounded-t-lg">
-              <CardTitle>Visitante</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-4 border rounded-md">
-                  <p className="text-sm text-muted-foreground uppercase mb-1">Partidas</p>
-                  <p className="text-3xl font-black">{records.away.matches}</p>
-                </div>
-                <div className="text-center p-4 border rounded-md">
-                  <p className="text-sm text-muted-foreground uppercase mb-1">Aproveitamento</p>
-                  <p className="text-3xl font-black text-primary">
-                    {((records.away.wins / (records.away.matches || 1)) * 100).toFixed(1)}%
-                  </p>
-                </div>
-              </div>
-              <div className="mt-6 grid grid-cols-3 gap-2">
-                <div className="text-center">
-                  <span className="block text-2xl font-bold text-green-600">{records.away.wins}</span>
-                  <span className="text-xs text-muted-foreground">Vitórias</span>
-                </div>
-                <div className="text-center border-l border-r">
-                  <span className="block text-2xl font-bold text-gray-500">{records.away.draws}</span>
-                  <span className="text-xs text-muted-foreground">Empates</span>
-                </div>
-                <div className="text-center">
-                  <span className="block text-2xl font-bold text-destructive">{records.away.losses}</span>
-                  <span className="text-xs text-muted-foreground">Derrotas</span>
-                </div>
-              </div>
-              <div className="mt-6 flex justify-between items-center text-sm border-t pt-4">
-                <div>Gols Pró: <span className="font-bold">{records.away.goalsFor}</span></div>
-                <div>Gols Contra: <span className="font-bold text-destructive">{records.away.goalsAgainst}</span></div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <section>
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">10 Maiores Vitórias</h2>
+            <MatchTable data={victories} isLoading={lV} colorClass="text-green-600" />
+          </section>
+          <section>
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">10 Maiores Derrotas</h2>
+            <MatchTable data={defeats} isLoading={lD} colorClass="text-red-600" />
+          </section>
         </div>
-      )}
-    </div>
+      </div>
+    </RecordsLayout>
   );
 }

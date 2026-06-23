@@ -1,1 +1,2 @@
 - [Portal Marujo setup](portal-marujo-setup.md) — CSA stats site: stack, data model, seeded data, key conventions
+- [Design subagent scope](design-subagent-scope.md) — design subagent may underdeliver on large multi-page rewrites; main agent should do the implementation directly with parallel file writes.

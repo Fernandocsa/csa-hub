@@ -1,124 +1,112 @@
-import { useGetCompetition } from "@workspace/api-client-react";
-import { useParams, Link } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link, useParams } from "wouter";
+import { useGetCompetition, getGetCompetitionQueryKey } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, Trophy } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
+
+function pct(wins: number, total: number) {
+  if (!total) return "–";
+  return ((wins / total) * 100).toFixed(1) + "%";
+}
 
 export default function CompetitionDetail() {
   const params = useParams();
-  const id = parseInt(params.id || "0", 10);
+  const id = parseInt(params.id ?? "0", 10);
 
   const { data: comp, isLoading, isError } = useGetCompetition(id, {
-    query: { enabled: !!id }
+    query: { enabled: !!id, queryKey: getGetCompetitionQueryKey(id) },
   });
 
   if (isLoading) {
     return (
-      <div className="space-y-6 max-w-4xl mx-auto">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-32 w-full" />
-        <Skeleton className="h-64 w-full" />
+      <div className="space-y-5 max-w-3xl">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-60 w-full" />
       </div>
     );
   }
 
   if (isError || !comp) {
-    return <div className="text-center p-8 text-destructive">Erro ao carregar competição.</div>;
+    return <div className="text-center p-8 text-destructive">Competição não encontrada.</div>;
   }
 
-  const winPct = ((comp.wins / (comp.matches || 1)) * 100).toFixed(1);
-
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-5 max-w-3xl">
       <Link href="/competicoes">
-        <Button variant="ghost" className="-ml-4 text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="mr-2 h-4 w-4" />
-          Voltar para Competições
-        </Button>
+        <span className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground cursor-pointer" data-testid="link-back">
+          <ChevronLeft className="h-4 w-4 mr-1" /> Voltar para Competições
+        </span>
       </Link>
 
-      <div className="flex items-center justify-between">
-        <h1 className="text-4xl font-bold text-foreground">{comp.name}</h1>
+      <div className="border-b pb-4 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold" data-testid="heading-competition">{comp.name}</h1>
+          {comp.type && <p className="text-sm text-muted-foreground mt-1">{comp.type}</p>}
+        </div>
         {comp.titles ? (
-          <div className="flex items-center gap-2 bg-accent/20 text-accent-foreground px-4 py-2 rounded-full font-bold text-lg">
-            <Trophy className="w-5 h-5 text-accent" />
-            {comp.titles} {comp.titles === 1 ? 'Título' : 'Títulos'}
-          </div>
+          <span className="text-sm bg-amber-100 text-amber-700 border border-amber-300 px-3 py-1.5 rounded font-bold whitespace-nowrap">
+            {comp.titles}x Campeão
+          </span>
         ) : null}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-primary text-primary-foreground border-none">
-          <CardContent className="pt-6 text-center">
-            <p className="text-sm font-medium opacity-80 uppercase">Aproveitamento</p>
-            <p className="text-4xl font-black mt-2">{winPct}%</p>
-            <p className="text-xs opacity-80 mt-1">{comp.matches} Jogos</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <p className="text-sm font-medium text-muted-foreground uppercase">Vitórias</p>
-            <p className="text-4xl font-black text-green-600 mt-2">{comp.wins}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <p className="text-sm font-medium text-muted-foreground uppercase">Empates</p>
-            <p className="text-4xl font-black text-gray-500 mt-2">{comp.draws}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <p className="text-sm font-medium text-muted-foreground uppercase">Derrotas</p>
-            <p className="text-4xl font-black text-destructive mt-2">{comp.losses}</p>
-          </CardContent>
-        </Card>
+      {/* Stat bar */}
+      <div className="grid grid-cols-5 gap-px bg-border rounded overflow-hidden" data-testid="competition-stat-bar">
+        {[
+          { label: "Partidas", value: comp.matches, highlight: true },
+          { label: "Vitórias", value: comp.wins, color: "text-green-600" },
+          { label: "Empates", value: comp.draws, color: "text-amber-600" },
+          { label: "Derrotas", value: comp.losses, color: "text-red-600" },
+          { label: "Aproveit.", value: pct(comp.wins, comp.matches), highlight: true },
+        ].map(({ label, value, color, highlight }) => (
+          <div key={label} className="bg-background p-3 text-center">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+            <p className={`text-xl font-bold mt-0.5 ${color ?? (highlight ? "text-primary" : "")}`}>{value}</p>
+          </div>
+        ))}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Histórico Anual</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Edição</TableHead>
-                <TableHead className="text-right">J</TableHead>
-                <TableHead className="text-right">V</TableHead>
-                <TableHead className="text-right">E</TableHead>
-                <TableHead className="text-right">D</TableHead>
-                <TableHead className="text-right">GP</TableHead>
-                <TableHead className="text-right">GC</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {comp.seasonStats?.map((season) => (
-                <TableRow key={season.year}>
-                  <TableCell className="font-bold">
-                    <Link href={`/temporadas/${season.year}`} className="text-primary hover:underline">
-                      {season.year}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="text-right">{season.matches}</TableCell>
-                  <TableCell className="text-right text-green-600">{season.wins}</TableCell>
-                  <TableCell className="text-right text-gray-500">{season.draws}</TableCell>
-                  <TableCell className="text-right text-destructive">{season.losses}</TableCell>
-                  <TableCell className="text-right">{season.goalsScored}</TableCell>
-                  <TableCell className="text-right">{season.goalsConceded}</TableCell>
+      {/* Season history */}
+      {comp.seasonStats && comp.seasonStats.length > 0 && (
+        <div>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Histórico por Edição</h2>
+          <div className="border rounded">
+            <Table>
+              <TableHeader>
+                <TableRow className="text-xs">
+                  <TableHead className="py-2">Edição</TableHead>
+                  <TableHead className="py-2 text-right">J</TableHead>
+                  <TableHead className="py-2 text-right text-green-600">V</TableHead>
+                  <TableHead className="py-2 text-right text-amber-600">E</TableHead>
+                  <TableHead className="py-2 text-right text-red-600">D</TableHead>
+                  <TableHead className="py-2 text-right">GP</TableHead>
+                  <TableHead className="py-2 text-right">GC</TableHead>
+                  <TableHead className="py-2 text-right">Aproveit.</TableHead>
                 </TableRow>
-              ))}
-              {(!comp.seasonStats || comp.seasonStats.length === 0) && (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-4">Nenhum dado por temporada encontrado.</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {comp.seasonStats.map((s) => (
+                  <TableRow key={s.year} className="text-sm" data-testid={`row-competition-season-${s.year}`}>
+                    <TableCell className="py-2 font-medium">
+                      <Link href={`/temporadas/${s.year}`} className="hover:text-primary hover:underline">
+                        {s.year}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="py-2 text-right">{s.matches}</TableCell>
+                    <TableCell className="py-2 text-right text-green-600">{s.wins}</TableCell>
+                    <TableCell className="py-2 text-right text-amber-600">{s.draws}</TableCell>
+                    <TableCell className="py-2 text-right text-red-600">{s.losses}</TableCell>
+                    <TableCell className="py-2 text-right">{s.goalsScored}</TableCell>
+                    <TableCell className="py-2 text-right">{s.goalsConceded}</TableCell>
+                    <TableCell className="py-2 text-right font-medium">{pct(s.wins, s.matches)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,90 +1,150 @@
 import { useState } from "react";
-import { Link } from "wouter";
-import { useListMatches } from "@workspace/api-client-react";
-import { Input } from "@/components/ui/input";
+import { useListMatches, useListSeasons } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ResultBadge } from "@/components/ui/result-badge";
+import { cn } from "@/lib/utils";
+
+function fmtDate(d: string) {
+  return new Date(d).toLocaleDateString("pt-BR");
+}
 
 export default function MatchesList() {
+  const [season, setSeason] = useState("all");
+  const [result, setResult] = useState("all");
+  const [homeAway, setHomeAway] = useState("all");
+  const [opponent, setOpponent] = useState("");
   const [page, setPage] = useState(1);
-  const limit = 20;
+  const limit = 30;
 
+  const { data: seasons } = useListSeasons();
   const { data, isLoading } = useListMatches({
+    season: season === "all" ? undefined : season,
+    result: result === "all" ? undefined : result,
+    home_away: homeAway === "all" ? undefined : homeAway,
+    opponent: opponent.length > 1 ? opponent : undefined,
     limit,
-    offset: (page - 1) * limit
+    offset: (page - 1) * limit,
   });
 
+  function resetFilters() {
+    setSeason("all"); setResult("all"); setHomeAway("all"); setOpponent(""); setPage(1);
+  }
+
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      <div>
-        <h1 className="text-3xl font-bold">Banco de Partidas</h1>
-        <p className="text-muted-foreground">Histórico completo de partidas do CSA.</p>
+    <div className="space-y-5">
+      <div className="border-b pb-3">
+        <h1 className="text-xl font-bold" data-testid="heading-partidas">Banco de Partidas</h1>
+        <p className="text-sm text-muted-foreground">Histórico completo de partidas do CSA</p>
       </div>
 
-      <div className="border rounded-md">
+      {/* Filter bar */}
+      <div className="flex flex-wrap gap-2 items-center">
+        <Select value={season} onValueChange={(v) => { setSeason(v); setPage(1); }}>
+          <SelectTrigger className="h-8 w-28 text-xs" data-testid="select-season"><SelectValue placeholder="Temporada" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Temporada</SelectItem>
+            {seasons?.map((s) => <SelectItem key={s.year} value={s.year}>{s.year}</SelectItem>)}
+          </SelectContent>
+        </Select>
+
+        <Select value={result} onValueChange={(v) => { setResult(v); setPage(1); }}>
+          <SelectTrigger className="h-8 w-28 text-xs" data-testid="select-result"><SelectValue placeholder="Resultado" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Resultado</SelectItem>
+            <SelectItem value="win">Vitória</SelectItem>
+            <SelectItem value="draw">Empate</SelectItem>
+            <SelectItem value="loss">Derrota</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={homeAway} onValueChange={(v) => { setHomeAway(v); setPage(1); }}>
+          <SelectTrigger className="h-8 w-28 text-xs" data-testid="select-home-away"><SelectValue placeholder="Mando" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Mando</SelectItem>
+            <SelectItem value="home">Mandante</SelectItem>
+            <SelectItem value="away">Visitante</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Input
+          placeholder="Adversário..."
+          value={opponent}
+          onChange={(e) => { setOpponent(e.target.value); setPage(1); }}
+          className="h-8 w-36 text-xs"
+          data-testid="input-opponent"
+        />
+
+        <Button variant="ghost" size="sm" onClick={resetFilters} className="h-8 text-xs text-muted-foreground" data-testid="button-reset">
+          Limpar
+        </Button>
+
+        {data && (
+          <span className="text-xs text-muted-foreground ml-auto">{data.total} partidas</span>
+        )}
+      </div>
+
+      <div className="border rounded">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Data</TableHead>
-              <TableHead>Adversário</TableHead>
-              <TableHead className="text-center">Placar</TableHead>
-              <TableHead>Competição</TableHead>
-              <TableHead>Local</TableHead>
+            <TableRow className="text-xs">
+              <TableHead className="py-2">Data</TableHead>
+              <TableHead className="py-2">Adversário</TableHead>
+              <TableHead className="py-2 text-center">Res.</TableHead>
+              <TableHead className="py-2 text-center">Placar</TableHead>
+              <TableHead className="py-2">Competição</TableHead>
+              <TableHead className="py-2 hidden sm:table-cell">Estádio</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              Array.from({ length: 10 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-32" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-16 mx-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                </TableRow>
-              ))
-            ) : data?.data.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">Nenhuma partida encontrada.</TableCell>
-              </TableRow>
-            ) : (
-              data?.data.map((match) => (
-                <TableRow key={match.id}>
-                  <TableCell>{new Date(match.date).toLocaleDateString('pt-BR')}</TableCell>
-                  <TableCell className="font-medium">
-                    {match.homeAway === 'home' ? (
-                      <span className="text-primary font-bold">CSA</span>
-                    ) : (
-                      match.opponent
-                    )}
-                    {" x "}
-                    {match.homeAway === 'away' ? (
-                      <span className="text-primary font-bold">CSA</span>
-                    ) : (
-                      match.opponent
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center font-bold">
-                    {match.homeAway === 'home' ? match.goalsFor : match.goalsAgainst} - {match.homeAway === 'home' ? match.goalsAgainst : match.goalsFor}
-                  </TableCell>
-                  <TableCell>{match.competition}</TableCell>
-                  <TableCell>{match.stadium || "-"}</TableCell>
-                </TableRow>
-              ))
-            )}
+            {isLoading
+              ? Array.from({ length: 15 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell colSpan={6}><Skeleton className="h-4" /></TableCell>
+                  </TableRow>
+                ))
+              : data?.data.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-20 text-center text-muted-foreground">Nenhuma partida encontrada.</TableCell>
+                  </TableRow>
+                )
+              : data?.data.map((match) => (
+                  <TableRow key={match.id} className="text-sm" data-testid={`row-match-${match.id}`}>
+                    <TableCell className="py-2 text-muted-foreground text-xs whitespace-nowrap">{fmtDate(match.date)}</TableCell>
+                    <TableCell className="py-2">
+                      <span className="font-medium">{match.opponent}</span>
+                      <span className={cn(
+                        "ml-2 text-xs px-1 py-0.5 rounded",
+                        match.homeAway === "home" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                      )}>
+                        {match.homeAway === "home" ? "Casa" : "Fora"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-2 text-center">
+                      <ResultBadge result={match.result} />
+                    </TableCell>
+                    <TableCell className="py-2 text-center font-mono font-bold">
+                      {match.goalsFor}–{match.goalsAgainst}
+                    </TableCell>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{match.competition}</TableCell>
+                    <TableCell className="py-2 text-muted-foreground text-xs hidden sm:table-cell">{match.stadium ?? "–"}</TableCell>
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
       </div>
 
       {data && data.total > limit && (
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">
-            Mostrando {(page - 1) * limit + 1} até {Math.min(page * limit, data.total)} de {data.total}
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">
+            {(page - 1) * limit + 1}–{Math.min(page * limit, data.total)} de {data.total}
           </span>
           <div className="flex gap-2">
-            <Button variant="outline" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Anterior</Button>
-            <Button variant="outline" disabled={page * limit >= data.total} onClick={() => setPage(p => p + 1)}>Próxima</Button>
+            <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)} data-testid="button-prev">Anterior</Button>
+            <Button variant="outline" size="sm" disabled={page * limit >= data.total} onClick={() => setPage((p) => p + 1)} data-testid="button-next">Próxima</Button>
           </div>
         </div>
       )}

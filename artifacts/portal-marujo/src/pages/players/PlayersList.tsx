@@ -7,39 +7,47 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
+type SortKey = "appearances" | "goals" | "seasons";
+
+const sortLabels: Record<SortKey, string> = {
+  appearances: "Partidas",
+  goals: "Gols",
+  seasons: "Temporadas",
+};
+
 export default function PlayersList() {
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<"appearances" | "goals" | "seasons">("appearances");
+  const [sort, setSort] = useState<SortKey>("appearances");
   const [page, setPage] = useState(1);
-  const limit = 20;
+  const limit = 30;
 
   const { data, isLoading } = useListPlayers({
-    search: search.length > 2 ? search : undefined,
+    search: search.length > 1 ? search : undefined,
     sort,
     limit,
-    offset: (page - 1) * limit
+    offset: (page - 1) * limit,
   });
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      <div>
-        <h1 className="text-3xl font-bold">Jogadores Históricos</h1>
-        <p className="text-muted-foreground">Todos os atletas que vestiram a camisa do CSA.</p>
+    <div className="space-y-5">
+      <div className="border-b pb-3">
+        <h1 className="text-xl font-bold" data-testid="heading-jogadores">Banco de Jogadores</h1>
+        <p className="text-sm text-muted-foreground">Todos os atletas que vestiram a camisa do CSA</p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="w-full sm:w-72">
-          <Input 
-            placeholder="Buscar jogador..." 
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          />
-        </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-sm text-muted-foreground">Ordenar por:</span>
-          <Select value={sort} onValueChange={(val: any) => { setSort(val); setPage(1); }}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Selecione" />
+      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <Input
+          placeholder="Buscar por nome..."
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          className="w-full sm:w-64 h-8 text-sm"
+          data-testid="input-search-player"
+        />
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground whitespace-nowrap">Ordenar por:</span>
+          <Select value={sort} onValueChange={(v: SortKey) => { setSort(v); setPage(1); }}>
+            <SelectTrigger className="w-36 h-8 text-sm" data-testid="select-sort">
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="appearances">Partidas</SelectItem>
@@ -50,56 +58,60 @@ export default function PlayersList() {
         </div>
       </div>
 
-      <div className="border rounded-md">
+      <div className="border rounded">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Jogador</TableHead>
-              <TableHead>Posição</TableHead>
-              <TableHead className="text-right">Jogos</TableHead>
-              <TableHead className="text-right">Gols</TableHead>
+            <TableRow className="text-xs">
+              <TableHead className="py-2">#</TableHead>
+              <TableHead className="py-2">Jogador</TableHead>
+              <TableHead className="py-2">Posição</TableHead>
+              <TableHead className="py-2 text-right">Temporadas</TableHead>
+              <TableHead className={`py-2 text-right ${sort === "appearances" ? "text-primary font-bold" : ""}`}>Jogos</TableHead>
+              <TableHead className={`py-2 text-right ${sort === "goals" ? "text-primary font-bold" : ""}`}>Gols</TableHead>
+              <TableHead className="py-2 text-right">Média/Jogo</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              Array.from({ length: 10 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell><Skeleton className="h-5 w-40" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-20" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-12 ml-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-12 ml-auto" /></TableCell>
-                </TableRow>
-              ))
-            ) : data?.data.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">Nenhum jogador encontrado.</TableCell>
-              </TableRow>
-            ) : (
-              data?.data.map((player) => (
-                <TableRow key={player.id}>
-                  <TableCell className="font-medium">
-                    <Link href={`/jogadores/${player.id}`} className="hover:underline hover:text-primary">
-                      {player.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell>{player.position || "-"}</TableCell>
-                  <TableCell className="text-right font-semibold">{player.appearances}</TableCell>
-                  <TableCell className="text-right font-semibold text-primary">{player.goals}</TableCell>
-                </TableRow>
-              ))
-            )}
+            {isLoading
+              ? Array.from({ length: 15 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell colSpan={7}><Skeleton className="h-4" /></TableCell>
+                  </TableRow>
+                ))
+              : data?.data.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-20 text-center text-muted-foreground">Nenhum jogador encontrado.</TableCell>
+                  </TableRow>
+                )
+              : data?.data.map((player, i) => (
+                  <TableRow key={player.id} className="text-sm" data-testid={`row-player-${player.id}`}>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{(page - 1) * limit + i + 1}</TableCell>
+                    <TableCell className="py-2 font-medium">
+                      <Link href={`/jogadores/${player.id}`} className="hover:text-primary hover:underline" data-testid={`link-player-${player.id}`}>
+                        {player.name}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{player.position ?? "–"}</TableCell>
+                    <TableCell className="py-2 text-right text-muted-foreground">{player.seasons ?? "–"}</TableCell>
+                    <TableCell className={`py-2 text-right font-medium ${sort === "appearances" ? "text-primary" : ""}`}>{player.appearances}</TableCell>
+                    <TableCell className={`py-2 text-right font-medium ${sort === "goals" ? "text-primary" : ""}`}>{player.goals}</TableCell>
+                    <TableCell className="py-2 text-right text-muted-foreground text-xs">
+                      {player.appearances > 0 ? (player.goals / player.appearances).toFixed(2) : "–"}
+                    </TableCell>
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
       </div>
 
       {data && data.total > limit && (
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">
-            Mostrando {(page - 1) * limit + 1} até Math.min(page * limit, data.total) de {data.total}
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">
+            {(page - 1) * limit + 1}–{Math.min(page * limit, data.total)} de {data.total} jogadores
           </span>
           <div className="flex gap-2">
-            <Button variant="outline" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Anterior</Button>
-            <Button variant="outline" disabled={page * limit >= data.total} onClick={() => setPage(p => p + 1)}>Próxima</Button>
+            <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)} data-testid="button-prev">Anterior</Button>
+            <Button variant="outline" size="sm" disabled={page * limit >= data.total} onClick={() => setPage((p) => p + 1)} data-testid="button-next">Próxima</Button>
           </div>
         </div>
       )}
