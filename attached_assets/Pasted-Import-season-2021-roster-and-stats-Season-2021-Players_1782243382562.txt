@@ -1,0 +1,130 @@
+Import season 2021 roster and stats.
+
+Season: 2021
+Players: 63
+
+Please import the following roster exactly as listed.
+
+1. Lucão — Defensor — 55J — 4G — 4758 min
+2. Geovane — Meia — 54J — 2G — 4553 min
+3. Gabriel — Meia — 53J — 6G — 4177 min
+4. Dellatorre — Atacante — 52J — 24G — 4023 min
+5. Iury Castilho — Atacante — 45J — 11G — 2654 min
+6. Marco Túlio — Atacante — 45J — 7G — 2503 min
+7. Bruno Mota — Meia — 45J — 10G — 2015 min
+8. Matheus Felipe — Defensor — 42J — 1G — 3744 min
+9. Thiago Rodrigues — Goleiro — 40J — 0G — 3473 min
+10. Silas — Meia — 32J — 3G — 1674 min
+11. Yuri Lara — Meia — 29J — 3G — 2203 min
+12. Renato Cajá — Meia — 28J — 4G — 1434 min
+13. Aylon — Atacante — 25J — 0G — 994 min
+14. Reinaldo — Atacante — 24J — 1G — 469 min
+15. Ernandes — Defensor — 22J — 1G — 1922 min
+16. Silvinho — Meia — 22J — 1G — 1015 min
+17. Vitor Costa — Defensor — 21J — 0G — 1514 min
+18. Cristovam — Defensor — 21J — 0G — 1318 min
+19. Giva — Meia — 21J — 0G — 629 min
+20. Norberto — Defensor — 20J — 2G — 1593 min
+21. Éverton Silva — Defensor — 19J — 0G — 1156 min
+22. Yago — Atacante — 17J — 0G — 669 min
+23. Rodrigo Pimpão — Atacante — 16J — 2G — 1057 min
+24. Ítalo — Meia — 16J — 0G — 440 min
+25. Fabrício — Defensor — 15J — 2G — 1082 min
+26. Gabriel Tonini — Meia — 15J — 0G — 424 min
+27. Kevyn — Defensor — 14J — 0G — 999 min
+28. Darley — Goleiro — 13J — 0G — 1162 min
+29. Nádson — Meia — 12J — 0G — 664 min
+30. Marquinhos — Meia — 12J — 0G — 570 min
+31. Rodolfo Filemon — Defensor — 10J — 1G — 872 min
+32. Tito — Defensor — 9J — 0G — 706 min
+33. Lucas Frigeri — Goleiro — 8J — 0G — 675 min
+34. João Victor — Meia — 7J — 0G — 373 min
+35. Wellington — Defensor — 7J — 1G — 327 min
+36. Clayton — Atacante — 7J — 0G — 254 min
+37. Didira — Meia — 7J — 0G — 244 min
+38. Cantionilo — Defensor — 6J — 0G — 399 min
+39. Wallace — Meia — 6J — 0G — 384 min
+40. Ewerthon — Defensor — 6J — 0G — 305 min
+41. Zé do Carmo — Meia — 5J — 0G — 405 min
+42. Almir Luan — Defensor — 5J — 0G — 405 min
+43. João Paulo — Atacante — 5J — 0G — 252 min
+44. Dudu Beberibe — Atacante — 5J — 0G — 140 min
+45. Athirson — Defensor — 4J — 0G — 360 min
+46. Bruno Tesouro — Meia — 4J — 0G — 291 min
+47. João — Meia — 4J — 0G — 284 min
+48. Patrick Brey — Defensor — 4J — 0G — 201 min
+49. Marquinhos — Meia — 4J — 1G — 171 min
+50. Alisson — Meia — 3J — 0G — 111 min
+51. Fernando Ferro — Meia — 3J — 0G — 105 min
+52. Ryan Gonzales — Atacante — 3J — 0G — 75 min
+53. Gustavo Martins — Meia — 3J — 0G — 64 min
+54. Rodrigo Rodrigues — Atacante — 3J — 0G — 50 min
+55. Yann Rolim — Meia — 3J — 0G — 30 min
+56. Lucas Dias — Defensor — 2J — 0G — 180 min
+57. Nilson — Atacante — 2J — 0G — 92 min
+58. Andrey Rafael — Meia — 2J — 0G — 64 min
+59. Vinicius José — Meia — 1J — 0G — 90 min
+60. Raul — Goleiro — 1J — 0G — 90 min
+61. Montanhas — Goleiro — 1J — 0G — 90 min
+62. Wykley — Atacante — 1J — 0G — 31 min
+63. Pedrinho — Defensor — 1J — 0G — 31 min
+
+Existing players that must be linked instead of recreated:
+
+* Geovane
+* Gabriel
+* Thiago Rodrigues
+* Yuri Lara
+* Norberto
+* Rodrigo Pimpão
+* Nádson
+* Rodolfo Filemon
+* Tito
+* Lucas Frigeri
+* Didira
+* Wallace
+* Almir Luan
+* Bruno Tesouro
+* Lucas Dias
+* Rodrigo Rodrigues
+
+Season summary:
+
+* Players: 63
+* Top scorer: Dellatorre (24 gols)
+* Most appearances: Lucão (55)
+* Most minutes: Lucão (4758)
+
+Top scorers:
+
+1. Dellatorre — 24 gols
+2. Iury Castilho — 11 gols
+3. Bruno Mota — 10 gols
+4. Marco Túlio — 7 gols
+5. Gabriel — 6 gols
+6. Iury Castilho — 11 gols
+7. Rodrigo Pimpão — 2 gols
+8. Norberto — 2 gols
+9. Fabrício — 2 gols
+
+Goalkeepers used:
+
+* Thiago Rodrigues
+* Darley
+* Lucas Frigeri
+* Raul
+* Montanhas
+
+Recalculate after import:
+
+* Season roster page
+* Season top scorers page
+* Season statistics page
+* Career appearances ranking
+* Career goals ranking
+* Career minutes ranking
+* Player profile pages
+* Team statistics page
+
+Expected result:
+2021 season imported with 63 players and all recurring athletes linked correctly.
