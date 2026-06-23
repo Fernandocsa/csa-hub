@@ -1,0 +1,98 @@
+Import the following real CSA 2019 matches and replace any fictional records for these dates.
+
+[
+{"date":"2019-04-14","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2019-04-21","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L","notes":"CSA won title on penalties (4-2)"},
+
+{"date":"2019-04-28","competition":"Brasileirão Série A","opponent":"Ceará","venue":"Away","goalsFor":0,"goalsAgainst":4,"result":"L"},
+
+{"date":"2019-05-01","competition":"Brasileirão Série A","opponent":"Palmeiras","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2019-05-05","competition":"Brasileirão Série A","opponent":"Santos","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2019-05-12","competition":"Brasileirão Série A","opponent":"Avaí","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2019-05-19","competition":"Brasileirão Série A","opponent":"Internacional","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+
+{"date":"2019-05-27","competition":"Brasileirão Série A","opponent":"Goiás","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2019-06-02","competition":"Brasileirão Série A","opponent":"Atlético Mineiro","venue":"Away","goalsFor":0,"goalsAgainst":4,"result":"L"},
+
+{"date":"2019-06-09","competition":"Brasileirão Série A","opponent":"Botafogo","venue":"Home","goalsFor":1,"goalsAgainst":2,"result":"L"},
+
+{"date":"2019-06-12","competition":"Brasileirão Série A","opponent":"Flamengo","venue":"Home","goalsFor":0,"goalsAgainst":2,"result":"L"},
+
+{"date":"2019-07-14","competition":"Brasileirão Série A","opponent":"Corinthians","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2019-07-20","competition":"Brasileirão Série A","opponent":"Athletico Paranaense","venue":"Home","goalsFor":0,"goalsAgainst":4,"result":"L"},
+
+{"date":"2019-07-29","competition":"Brasileirão Série A","opponent":"Grêmio","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2019-08-04","competition":"Brasileirão Série A","opponent":"Vasco","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2019-08-12","competition":"Brasileirão Série A","opponent":"Fortaleza","venue":"Home","goalsFor":0,"goalsAgainst":2,"result":"L"},
+
+{"date":"2019-08-18","competition":"Brasileirão Série A","opponent":"Fluminense","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2019-08-25","competition":"Brasileirão Série A","opponent":"Cruzeiro","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2019-08-31","competition":"Brasileirão Série A","opponent":"Bahia","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2019-09-08","competition":"Brasileirão Série A","opponent":"Chapecoense","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+
+{"date":"2019-09-15","competition":"Brasileirão Série A","opponent":"São Paulo","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2019-09-22","competition":"Brasileirão Série A","opponent":"Ceará","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2019-09-26","competition":"Brasileirão Série A","opponent":"Palmeiras","venue":"Away","goalsFor":2,"goalsAgainst":6,"result":"L"},
+
+{"date":"2019-09-29","competition":"Brasileirão Série A","opponent":"Santos","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+
+{"date":"2019-10-06","competition":"Brasileirão Série A","opponent":"Avaí","venue":"Home","goalsFor":3,"goalsAgainst":1,"result":"W"},
+
+{"date":"2019-10-09","competition":"Brasileirão Série A","opponent":"Internacional","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2019-10-12","competition":"Brasileirão Série A","opponent":"Goiás","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2019-10-16","competition":"Brasileirão Série A","opponent":"Atlético Mineiro","venue":"Home","goalsFor":2,"goalsAgainst":2,"result":"D"},
+
+{"date":"2019-10-21","competition":"Brasileirão Série A","opponent":"Botafogo","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+
+{"date":"2019-10-27","competition":"Brasileirão Série A","opponent":"Flamengo","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2019-10-30","competition":"Brasileirão Série A","opponent":"Corinthians","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+
+{"date":"2019-11-03","competition":"Brasileirão Série A","opponent":"Athletico Paranaense","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2019-11-07","competition":"Brasileirão Série A","opponent":"Grêmio","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+
+{"date":"2019-11-10","competition":"Brasileirão Série A","opponent":"Vasco","venue":"Home","goalsFor":0,"goalsAgainst":3,"result":"L"},
+
+{"date":"2019-11-17","competition":"Brasileirão Série A","opponent":"Fortaleza","venue":"Away","goalsFor":0,"goalsAgainst":3,"result":"L"},
+
+{"date":"2019-11-25","competition":"Brasileirão Série A","opponent":"Fluminense","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2019-11-28","competition":"Brasileirão Série A","opponent":"Cruzeiro","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2019-12-01","competition":"Brasileirão Série A","opponent":"Bahia","venue":"Home","goalsFor":1,"goalsAgainst":2,"result":"L"},
+
+{"date":"2019-12-04","competition":"Brasileirão Série A","opponent":"Chapecoense","venue":"Away","goalsFor":0,"goalsAgainst":3,"result":"L"},
+
+{"date":"2019-12-08","competition":"Brasileirão Série A","opponent":"São Paulo","venue":"Home","goalsFor":1,"goalsAgainst":2,"result":"L"}
+]
+
+Important:
+The match on 2019-04-21 should remain recorded as a defeat in normal time (0-1), with a note that CSA won the championship on penalties (4-2).
+
+After import, validate against the official 2019 totals:
+
+Matches: 59
+Wins: 18
+Draws: 15
+Losses: 26
+Goals For: 53
+Goals Against: 73
+
+Do not create fictional matches.
+Preserve exact dates, opponents and scores.
