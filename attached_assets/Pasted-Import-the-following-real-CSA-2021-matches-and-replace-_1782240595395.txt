@@ -1,0 +1,77 @@
+Import the following real CSA 2021 matches and replace any fictional records for these dates.
+
+[
+{"date":"2021-01-02","competition":"Brasileirão Série B 2020","opponent":"Sampaio Corrêa","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+
+{"date":"2021-01-05","competition":"Copa do Nordeste Qualificatória 2021","opponent":"Moto Club","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2021-01-08","competition":"Brasileirão Série B 2020","opponent":"Figueirense","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2021-01-12","competition":"Brasileirão Série B 2020","opponent":"Paraná","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+
+{"date":"2021-01-16","competition":"Brasileirão Série B 2020","opponent":"Avaí","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2021-01-19","competition":"Brasileirão Série B 2020","opponent":"Botafogo-SP","venue":"Away","goalsFor":3,"goalsAgainst":1,"result":"W"},
+
+{"date":"2021-01-22","competition":"Brasileirão Série B 2020","opponent":"Brasil de Pelotas","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2021-01-26","competition":"Copa do Nordeste Qualificatória 2021","opponent":"Moto Club","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+
+{"date":"2021-01-29","competition":"Brasileirão Série B 2020","opponent":"Náutico","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2021-01-30","competition":"Copa Alagoas","opponent":"CEO","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+
+{"date":"2021-02-04","competition":"Copa Alagoas","opponent":"Jaciobá","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2021-02-07","competition":"Copa Alagoas","opponent":"Coruripe","venue":"Home","goalsFor":0,"goalsAgainst":3,"result":"L"},
+
+{"date":"2021-02-20","competition":"Campeonato Alagoano","opponent":"Murici","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2021-02-25","competition":"Campeonato Alagoano","opponent":"Jaciobá","venue":"Away","goalsFor":4,"goalsAgainst":1,"result":"W"},
+
+{"date":"2021-02-28","competition":"Copa do Nordeste","opponent":"Treze","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2021-03-03","competition":"Campeonato Alagoano","opponent":"CEO","venue":"Home","goalsFor":5,"goalsAgainst":0,"result":"W"},
+
+{"date":"2021-03-07","competition":"Copa do Nordeste","opponent":"Confiança","venue":"Away","goalsFor":2,"goalsAgainst":2,"result":"D"},
+
+{"date":"2021-03-14","competition":"Copa do Nordeste","opponent":"CRB","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2021-03-17","competition":"Copa do Brasil","opponent":"Guarany de Sobral","venue":"Away","goalsFor":5,"goalsAgainst":1,"result":"W"},
+
+{"date":"2021-03-20","competition":"Copa do Nordeste","opponent":"Santa Cruz","venue":"Away","goalsFor":2,"goalsAgainst":1,"result":"W"},
+
+{"date":"2021-03-23","competition":"Copa do Nordeste","opponent":"Bahia","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+
+{"date":"2021-03-27","competition":"Campeonato Alagoano","opponent":"ASA","venue":"Away","goalsFor":2,"goalsAgainst":2,"result":"D"},
+
+{"date":"2021-03-31","competition":"Copa do Nordeste","opponent":"Ceará","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+
+{"date":"2021-04-03","competition":"Copa do Nordeste","opponent":"4 de Julho","venue":"Home","goalsFor":2,"goalsAgainst":2,"result":"D"},
+
+{"date":"2021-04-06","competition":"Campeonato Alagoano","opponent":"Coruripe","venue":"Home","goalsFor":5,"goalsAgainst":0,"result":"W"},
+
+{"date":"2021-04-10","competition":"Copa do Nordeste","opponent":"Sampaio Corrêa","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2021-04-13","competition":"Copa do Brasil","opponent":"Remo","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D","notes":"Eliminated on penalties 5-6"},
+
+{"date":"2021-04-17","competition":"Copa do Nordeste","opponent":"Fortaleza","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+
+{"date":"2021-04-20","competition":"Campeonato Alagoano","opponent":"Desportivo Aliança","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2021-05-01","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2021-05-05","competition":"Campeonato Alagoano","opponent":"CSE","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+
+{"date":"2021-05-08","competition":"Campeonato Alagoano","opponent":"CSE","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2021-05-11","competition":"Campeonato Alagoano","opponent":"CSE","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"}
+]
+
+Important:
+The 7 matches from "Brasileirão Série B 2020" played in January 2021 must remain part of the 2021 calendar-year database, exactly as OGol reports.
+
+The match against Remo (13/04/2021) should be recorded as a draw (1-1), with a note that CSA was eliminated on penalties (5-6).
+
+Do not create fictional matches.
+Preserve exact dates, opponents and scores.

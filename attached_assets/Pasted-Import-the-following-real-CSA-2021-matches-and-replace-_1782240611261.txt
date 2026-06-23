@@ -1,0 +1,61 @@
+Import the following real CSA 2021 matches and replace any fictional records for these dates.
+
+[
+{"date":"2021-05-15","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2021-05-22","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D","notes":"CSA won championship on penalties 4-3"},
+
+{"date":"2021-05-28","competition":"Brasileirão Série B","opponent":"Náutico","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2021-06-05","competition":"Brasileirão Série B","opponent":"Sampaio Corrêa","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2021-06-12","competition":"Brasileirão Série B","opponent":"Vila Nova","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2021-06-15","competition":"Brasileirão Série B","opponent":"Guarani","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2021-06-20","competition":"Brasileirão Série B","opponent":"Londrina","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2021-06-27","competition":"Brasileirão Série B","opponent":"Cruzeiro","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2021-06-30","competition":"Brasileirão Série B","opponent":"Ponte Preta","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2021-07-03","competition":"Brasileirão Série B","opponent":"CRB","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2021-07-11","competition":"Brasileirão Série B","opponent":"Brusque","venue":"Away","goalsFor":3,"goalsAgainst":2,"result":"W"},
+{"date":"2021-07-14","competition":"Brasileirão Série B","opponent":"Goiás","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2021-07-17","competition":"Brasileirão Série B","opponent":"Operário Ferroviário","venue":"Away","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2021-07-21","competition":"Brasileirão Série B","opponent":"Vasco","venue":"Home","goalsFor":2,"goalsAgainst":2,"result":"D"},
+{"date":"2021-07-24","competition":"Brasileirão Série B","opponent":"Vitória","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2021-07-27","competition":"Brasileirão Série B","opponent":"Botafogo","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+{"date":"2021-08-01","competition":"Brasileirão Série B","opponent":"Remo","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2021-08-07","competition":"Brasileirão Série B","opponent":"Avaí","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2021-08-10","competition":"Brasileirão Série B","opponent":"Confiança","venue":"Away","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2021-08-14","competition":"Brasileirão Série B","opponent":"Coritiba","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"},
+{"date":"2021-08-19","competition":"Brasileirão Série B","opponent":"Brasil de Pelotas","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2021-08-24","competition":"Brasileirão Série B","opponent":"Náutico","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2021-08-28","competition":"Brasileirão Série B","opponent":"Sampaio Corrêa","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+{"date":"2021-09-03","competition":"Brasileirão Série B","opponent":"Vila Nova","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2021-09-07","competition":"Brasileirão Série B","opponent":"Guarani","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2021-09-18","competition":"Brasileirão Série B","opponent":"Londrina","venue":"Away","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2021-09-23","competition":"Brasileirão Série B","opponent":"Botafogo","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2021-09-26","competition":"Brasileirão Série B","opponent":"Cruzeiro","venue":"Away","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2021-09-29","competition":"Brasileirão Série B","opponent":"Ponte Preta","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2021-10-02","competition":"Brasileirão Série B","opponent":"CRB","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2021-10-09","competition":"Brasileirão Série B","opponent":"Brusque","venue":"Home","goalsFor":4,"goalsAgainst":1,"result":"W"},
+{"date":"2021-10-15","competition":"Brasileirão Série B","opponent":"Goiás","venue":"Away","goalsFor":1,"goalsAgainst":3,"result":"L"},
+{"date":"2021-10-23","competition":"Brasileirão Série B","opponent":"Operário Ferroviário","venue":"Home","goalsFor":2,"goalsAgainst":4,"result":"L"},
+{"date":"2021-10-29","competition":"Brasileirão Série B","opponent":"Vasco","venue":"Away","goalsFor":3,"goalsAgainst":1,"result":"W"},
+{"date":"2021-11-02","competition":"Brasileirão Série B","opponent":"Vitória","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2021-11-05","competition":"Brasileirão Série B","opponent":"Remo","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2021-11-08","competition":"Brasileirão Série B","opponent":"Avaí","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2021-11-12","competition":"Brasileirão Série B","opponent":"Confiança","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2021-11-21","competition":"Brasileirão Série B","opponent":"Coritiba","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2021-11-28","competition":"Brasileirão Série B","opponent":"Brasil de Pelotas","venue":"Home","goalsFor":4,"goalsAgainst":0,"result":"W"}
+]
+
+Important:
+The match on 2021-05-22 must remain recorded as a draw (1-1), with a note that CSA won the Campeonato Alagoano title on penalties (4-3).
+
+Validate after import against OGol totals:
+
+Matches: 73
+Wins: 29
+Draws: 26
+Losses: 18
+Goals For: 97
+Goals Against: 65
+
+Do not create fictional matches.
+Preserve exact dates, opponents and scores.
