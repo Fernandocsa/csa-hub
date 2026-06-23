@@ -1,0 +1,120 @@
+Import season 2019 roster and stats.
+
+Season: 2019
+Players: 57
+
+Please import the following roster exactly as listed.
+
+1. Luciano Castán — Defensor — 52J — 0G — 4680 min
+2. Dawhan — Meia — 51J — 1G — 4143 min
+3. Apodi — Defensor — 42J — 5G — 3515 min
+4. Didira — Meia — 33J — 3G — 2598 min
+5. Carlinhos — Defensor — 31J — 2G — 2531 min
+6. João Carlos — Goleiro — 30J — 0G — 2610 min
+7. Jordi — Goleiro — 29J — 0G — 2520 min
+8. Alan Costa — Defensor — 26J — 1G — 2278 min
+9. Gerson — Defensor — 26J — 0G — 2233 min
+10. Matheus Sávio — Meia — 26J — 4G — 2177 min
+11. Jonathan Gómez — Meia — 26J — 5G — 2167 min
+12. Naldo — Meia — 25J — 0G — 1807 min
+13. Patrick Fabiano — Atacante — 24J — 9G — 1881 min
+14. Celsinho — Defensor — 24J — 0G — 1796 min
+15. Jean Cléber — Meia — 24J — 0G — 1231 min
+16. Ricardo Bueno — Atacante — 23J — 4G — 1608 min
+17. Rafinha — Defensor — 22J — 1G — 1503 min
+18. Victor Paraíba — Meia — 22J — 3G — 736 min
+19. João Vitor — Meia — 20J — 0G — 1702 min
+20. Alecsandro — Atacante — 20J — 2G — 1171 min
+21. Héctor Bustamante — Atacante — 19J — 1G — 1174 min
+22. Cassiano — Atacante — 17J — 1G — 984 min
+23. Euller Silva — Meia — 16J — 0G — 896 min
+24. Warley — Atacante — 13J — 0G — 676 min
+25. Ronaldo Alves — Defensor — 12J — 1G — 981 min
+26. Nilton — Meia — 12J — 1G — 892 min
+27. Bruno Alves — Atacante — 12J — 0G — 434 min
+28. Andrés Escobar — Atacante — 11J — 2G — 728 min
+29. Maranhão — Atacante — 11J — 1G — 684 min
+30. Mauro Silva — Meia — 11J — 0G — 517 min
+31. Robinho — Atacante — 9J — 2G — 415 min
+32. Jhon Cley — Meia — 9J — 0G — 368 min
+33. Régis Souza — Defensor — 8J — 2G — 675 min
+34. Madson — Meia — 7J — 0G — 375 min
+35. Bruno Ramires — Meia — 7J — 0G — 277 min
+36. Lohan — Atacante — 7J — 1G — 235 min
+37. Alisson Safira — Atacante — 7J — 0G — 148 min
+38. Ramon — Atacante — 7J — 0G — 54 min
+39. Amaral — Meia — 6J — 0G — 414 min
+40. Pedro Rosa — Defensor — 6J — 0G — 392 min
+41. Hiago Ramiro — Atacante — 6J — 0G — 386 min
+42. Gersinho — Atacante — 6J — 0G — 156 min
+43. Jarro Pedroso — Atacante — 5J — 1G — 115 min
+44. Rony Fernandes — Defensor — 4J — 0G — 360 min
+45. Pablo Armero — Defensor — 4J — 0G — 293 min
+46. Joazi — Defensor — 3J — 0G — 165 min
+47. Fabrício Santana — Goleiro — 2J — 0G — 167 min
+48. Lucas Dias — Defensor — 2J — 0G — 99 min
+49. Leandro Souza — Defensor — 2J — 0G — 97 min
+50. Rodolfo Gamarra — Atacante — 2J — 0G — 52 min
+51. Matheus Prado — Atacante — 2J — 0G — 14 min
+52. Léo Santos — Meia — 1J — 0G — 65 min
+53. Lucca Motta — Meia — 1J — 0G — 32 min
+54. Jhonnatan — Meia — 1J — 0G — 28 min
+55. Cristian Maidana — Meia — 1J — 0G — 25 min
+56. Vital — Defensor — 1J — 0G — 22 min
+57. Igo Gabriel — Goleiro — 1J — 0G — 13 min
+
+Existing players that must be linked instead of recreated:
+
+* Dawhan
+* Didira
+* Celsinho
+* Jean Cléber
+* Rafinha
+* Jhon Cley
+* Leandro Souza
+* Rony Fernandes
+* Vital
+
+Season summary:
+
+* Players: 57
+* Top scorer: Patrick Fabiano (9 gols)
+* Most appearances: Luciano Castán (52 jogos)
+* Most minutes: Luciano Castán (4680 minutos)
+
+Top scorers:
+
+1. Patrick Fabiano — 9 gols
+2. Apodi — 5 gols
+3. Jonathan Gómez — 5 gols
+4. Matheus Sávio — 4 gols
+5. Ricardo Bueno — 4 gols
+6. Didira — 3 gols
+7. Victor Paraíba — 3 gols
+
+Players with 40+ appearances:
+
+* Luciano Castán — 52
+* Dawhan — 51
+* Apodi — 42
+
+Goalkeepers used:
+
+* João Carlos
+* Jordi
+* Fabrício Santana
+* Igo Gabriel
+
+Recalculate after import:
+
+* Season roster page
+* Season top scorers page
+* Season statistics page
+* Career appearances ranking
+* Career goals ranking
+* Career minutes ranking
+* Player profile pages
+* Team statistics page
+
+Expected result:
+2019 season imported with 57 players and linked correctly to all existing player records.
