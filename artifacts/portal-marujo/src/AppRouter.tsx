@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { MainLayout } from "./components/layout/MainLayout";
 import Home from "./pages/Home";
 import PlayersList from "./pages/players/PlayersList";
@@ -22,9 +22,16 @@ import ByDecade from "./pages/records/ByDecade";
 import ByCompetition from "./pages/records/ByCompetition";
 import Streaks from "./pages/records/Streaks";
 import HomeAway from "./pages/records/HomeAway";
+import AdminRoot from "./pages/admin/AdminRoot";
 import NotFound from "./pages/not-found";
 
 export default function AppRouter() {
+  const [location] = useLocation();
+
+  if (location.startsWith("/admin")) {
+    return <AdminRoot />;
+  }
+
   return (
     <MainLayout>
       <Switch>

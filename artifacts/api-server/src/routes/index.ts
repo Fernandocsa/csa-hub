@@ -7,6 +7,7 @@ import seasonsRouter from "./seasons";
 import opponentsRouter from "./opponents";
 import managersRouter from "./managers";
 import miscRouter from "./misc";
+import adminRouter from "./admin";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(seasonsRouter);
 router.use(opponentsRouter);
 router.use(managersRouter);
 router.use(miscRouter);
+router.use(adminRouter);
 
 export default router;
