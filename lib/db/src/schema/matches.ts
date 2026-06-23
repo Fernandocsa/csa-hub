@@ -1,0 +1,65 @@
+import { pgTable, text, serial, integer, date } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod/v4";
+
+export const opponentsTable = pgTable("opponents", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+});
+
+export const stadiumsTable = pgTable("stadiums", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  city: text("city"),
+  capacity: integer("capacity"),
+});
+
+export const competitionsTable = pgTable("competitions", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  type: text("type"), // league, cup, state, friendly
+});
+
+export const managersTable = pgTable("managers", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  nationality: text("nationality"),
+  startYear: integer("start_year"),
+  endYear: integer("end_year"),
+});
+
+export const matchesTable = pgTable("matches", {
+  id: serial("id").primaryKey(),
+  matchDate: date("match_date", { mode: "string" }).notNull(),
+  season: text("season").notNull(),
+  opponentId: integer("opponent_id").notNull().references(() => opponentsTable.id),
+  goalsFor: integer("goals_for").notNull(),
+  goalsAgainst: integer("goals_against").notNull(),
+  result: text("result").notNull(), // win, draw, loss
+  homeAway: text("home_away").notNull(), // home, away, neutral
+  competitionId: integer("competition_id").notNull().references(() => competitionsTable.id),
+  stadiumId: integer("stadium_id").references(() => stadiumsTable.id),
+  managerId: integer("manager_id").references(() => managersTable.id),
+  attendance: integer("attendance"),
+  scorers: text("scorers"), // comma-separated player names
+});
+
+export const insertOpponentSchema = createInsertSchema(opponentsTable).omit({ id: true });
+export type InsertOpponent = z.infer<typeof insertOpponentSchema>;
+export type Opponent = typeof opponentsTable.$inferSelect;
+
+export const insertStadiumSchema = createInsertSchema(stadiumsTable).omit({ id: true });
+export type InsertStadium = z.infer<typeof insertStadiumSchema>;
+export type Stadium = typeof stadiumsTable.$inferSelect;
+
+export const insertCompetitionSchema = createInsertSchema(competitionsTable).omit({ id: true });
+export type InsertCompetition = z.infer<typeof insertCompetitionSchema>;
+export type Competition = typeof competitionsTable.$inferSelect;
+
+export const insertManagerSchema = createInsertSchema(managersTable).omit({ id: true });
+export type InsertManager = z.infer<typeof insertManagerSchema>;
+export type Manager = typeof managersTable.$inferSelect;
+
+export const insertMatchSchema = createInsertSchema(matchesTable).omit({ id: true });
+export type InsertMatch = z.infer<typeof insertMatchSchema>;
+export type Match = typeof matchesTable.$inferSelect;

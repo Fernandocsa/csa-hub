@@ -1,0 +1,1 @@
+- [Portal Marujo setup](portal-marujo-setup.md) — CSA stats site: stack, data model, seeded data, key conventions

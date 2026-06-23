@@ -1,22 +1,41 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Portal Marujo - CSA Statistics API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: summary
+    description: Homepage summary statistics
+  - name: players
+    description: Player statistics
+  - name: matches
+    description: Match records
+  - name: seasons
+    description: Season statistics
+  - name: opponents
+    description: Head-to-head records
+  - name: managers
+    description: Manager statistics
+  - name: goalkeepers
+    description: Goalkeeper statistics
+  - name: stadiums
+    description: Stadium statistics
+  - name: competitions
+    description: Competition records
+  - name: records
+    description: Streaks and records
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +43,1092 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /summary:
+    get:
+      operationId: getSummary
+      tags: [summary]
+      summary: Homepage summary statistics
+      responses:
+        "200":
+          description: Summary statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SummaryStats"
+
+  /players:
+    get:
+      operationId: listPlayers
+      tags: [players]
+      summary: List all players with statistics
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [appearances, goals, seasons]
+        - name: season
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Players list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedPlayers"
+
+  /players/{id}:
+    get:
+      operationId: getPlayer
+      tags: [players]
+      summary: Get player details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Player details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlayerDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /players/top-scorers:
+    get:
+      operationId: getTopScorers
+      tags: [players]
+      summary: All-time top scorers
+      parameters:
+        - name: season
+          in: query
+          schema:
+            type: string
+        - name: competition
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Top scorers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlayerStat"
+
+  /players/top-appearances:
+    get:
+      operationId: getTopAppearances
+      tags: [players]
+      summary: All-time appearance leaders
+      parameters:
+        - name: season
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Appearance leaders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlayerStat"
+
+  /matches:
+    get:
+      operationId: listMatches
+      tags: [matches]
+      summary: List matches with filters
+      parameters:
+        - name: season
+          in: query
+          schema:
+            type: string
+        - name: competition
+          in: query
+          schema:
+            type: string
+        - name: opponent
+          in: query
+          schema:
+            type: string
+        - name: home_away
+          in: query
+          schema:
+            type: string
+            enum: [home, away, neutral]
+        - name: result
+          in: query
+          schema:
+            type: string
+            enum: [win, draw, loss]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Matches list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedMatches"
+
+  /matches/{id}:
+    get:
+      operationId: getMatch
+      tags: [matches]
+      summary: Get match details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Match details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /matches/biggest-victories:
+    get:
+      operationId: getBiggestVictories
+      tags: [matches]
+      summary: Biggest victories in history
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Biggest victories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Match"
+
+  /matches/biggest-defeats:
+    get:
+      operationId: getBiggestDefeats
+      tags: [matches]
+      summary: Biggest defeats in history
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Biggest defeats
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Match"
+
+  /seasons:
+    get:
+      operationId: listSeasons
+      tags: [seasons]
+      summary: List all seasons
+      responses:
+        "200":
+          description: Seasons list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Season"
+
+  /seasons/{year}:
+    get:
+      operationId: getSeason
+      tags: [seasons]
+      summary: Get season details and stats
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Season details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SeasonDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /seasons/league-positions:
+    get:
+      operationId: getLeaguePositions
+      tags: [seasons]
+      summary: Historical league positions
+      responses:
+        "200":
+          description: League positions by year
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaguePosition"
+
+  /opponents:
+    get:
+      operationId: listOpponents
+      tags: [opponents]
+      summary: List all opponents with head-to-head stats
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [matches, wins, goals]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Opponents list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedOpponents"
+
+  /opponents/{id}:
+    get:
+      operationId: getOpponent
+      tags: [opponents]
+      summary: Get opponent head-to-head details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Opponent head-to-head record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpponentDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /managers:
+    get:
+      operationId: listManagers
+      tags: [managers]
+      summary: List all managers with statistics
+      responses:
+        "200":
+          description: Managers list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Manager"
+
+  /managers/{id}:
+    get:
+      operationId: getManager
+      tags: [managers]
+      summary: Get manager statistics
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Manager details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManagerDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /goalkeepers:
+    get:
+      operationId: listGoalkeepers
+      tags: [goalkeepers]
+      summary: List goalkeeper statistics
+      parameters:
+        - name: season
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Goalkeepers list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GoalkeeperStat"
+
+  /stadiums:
+    get:
+      operationId: listStadiums
+      tags: [stadiums]
+      summary: List stadiums with statistics
+      responses:
+        "200":
+          description: Stadiums list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Stadium"
+
+  /competitions:
+    get:
+      operationId: listCompetitions
+      tags: [competitions]
+      summary: List competitions with records
+      responses:
+        "200":
+          description: Competitions list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Competition"
+
+  /competitions/{id}:
+    get:
+      operationId: getCompetition
+      tags: [competitions]
+      summary: Get competition records
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Competition details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompetitionDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /records/home-away:
+    get:
+      operationId: getHomeAwayRecords
+      tags: [records]
+      summary: Home and away records
+      parameters:
+        - name: season
+          in: query
+          schema:
+            type: string
+        - name: competition
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Home and away records
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HomeAwayRecord"
+
+  /records/streaks:
+    get:
+      operationId: getStreaks
+      tags: [records]
+      summary: Winning streaks and unbeaten runs
+      responses:
+        "200":
+          description: Historical streaks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Streak"
+
+  /records/squad-by-season:
+    get:
+      operationId: getSquadBySeason
+      tags: [records]
+      summary: Squad statistics by season
+      parameters:
+        - name: season
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Squad statistics for season
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlayerStat"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    SummaryStats:
+      type: object
+      required:
+        - totalMatches
+        - wins
+        - draws
+        - losses
+        - goalsScored
+        - goalsConceded
+        - winPercentage
+        - appearanceLeader
+        - topScorer
+        - mostCommonOpponents
+        - foundedYear
+      properties:
+        totalMatches:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        goalsScored:
+          type: integer
+        goalsConceded:
+          type: integer
+        winPercentage:
+          type: number
+        appearanceLeader:
+          $ref: "#/components/schemas/PlayerStat"
+        topScorer:
+          $ref: "#/components/schemas/PlayerStat"
+        mostCommonOpponents:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpponentSummary"
+        foundedYear:
+          type: integer
+
+    PlayerStat:
+      type: object
+      required: [id, name, appearances, goals]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        position:
+          type: ["string", "null"]
+        nationality:
+          type: ["string", "null"]
+        appearances:
+          type: integer
+        goals:
+          type: integer
+        assists:
+          type: ["integer", "null"]
+        seasons:
+          type: ["integer", "null"]
+        season:
+          type: ["string", "null"]
+
+    Player:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        position:
+          type: ["string", "null"]
+        nationality:
+          type: ["string", "null"]
+        birthYear:
+          type: ["integer", "null"]
+
+    PlayerDetail:
+      type: object
+      required: [id, name, totalAppearances, totalGoals, seasonStats]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        position:
+          type: ["string", "null"]
+        nationality:
+          type: ["string", "null"]
+        birthYear:
+          type: ["integer", "null"]
+        totalAppearances:
+          type: integer
+        totalGoals:
+          type: integer
+        totalAssists:
+          type: ["integer", "null"]
+        seasonStats:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlayerStat"
+
+    PaginatedPlayers:
+      type: object
+      required: [data, total, limit, offset]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlayerStat"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    Match:
+      type: object
+      required: [id, date, opponent, goalsFor, goalsAgainst, result, homeAway, competition, season]
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        opponent:
+          type: string
+        goalsFor:
+          type: integer
+        goalsAgainst:
+          type: integer
+        result:
+          type: string
+          enum: [win, draw, loss]
+        homeAway:
+          type: string
+          enum: [home, away, neutral]
+        competition:
+          type: string
+        season:
+          type: string
+        stadium:
+          type: ["string", "null"]
+
+    MatchDetail:
+      type: object
+      required: [id, date, opponent, goalsFor, goalsAgainst, result, homeAway, competition, season, scorers]
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        opponent:
+          type: string
+        goalsFor:
+          type: integer
+        goalsAgainst:
+          type: integer
+        result:
+          type: string
+          enum: [win, draw, loss]
+        homeAway:
+          type: string
+          enum: [home, away, neutral]
+        competition:
+          type: string
+        season:
+          type: string
+        stadium:
+          type: ["string", "null"]
+        manager:
+          type: ["string", "null"]
+        scorers:
+          type: array
+          items:
+            type: string
+        attendance:
+          type: ["integer", "null"]
+
+    PaginatedMatches:
+      type: object
+      required: [data, total, limit, offset]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Match"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    Season:
+      type: object
+      required: [year, matches, wins, draws, losses, goalsScored, goalsConceded]
+      properties:
+        year:
+          type: string
+        matches:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        goalsScored:
+          type: integer
+        goalsConceded:
+          type: integer
+        topScorer:
+          type: ["string", "null"]
+        topScorerGoals:
+          type: ["integer", "null"]
+        topAppearances:
+          type: ["string", "null"]
+        topAppearancesCount:
+          type: ["integer", "null"]
+
+    SeasonDetail:
+      type: object
+      required: [year, matches, wins, draws, losses, goalsScored, goalsConceded, players, competitions]
+      properties:
+        year:
+          type: string
+        matches:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        goalsScored:
+          type: integer
+        goalsConceded:
+          type: integer
+        players:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlayerStat"
+        competitions:
+          type: array
+          items:
+            type: string
+        leaguePosition:
+          type: ["integer", "null"]
+        leagueName:
+          type: ["string", "null"]
+
+    LeaguePosition:
+      type: object
+      required: [year, position, league, matches, wins, draws, losses, points]
+      properties:
+        year:
+          type: string
+        position:
+          type: ["integer", "null"]
+        league:
+          type: string
+        matches:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        points:
+          type: integer
+
+    OpponentSummary:
+      type: object
+      required: [id, name, matches, wins, draws, losses]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        matches:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        goalsFor:
+          type: integer
+        goalsAgainst:
+          type: integer
+
+    OpponentDetail:
+      type: object
+      required: [id, name, matches, wins, draws, losses, goalsFor, goalsAgainst, recentMatches]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        matches:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        goalsFor:
+          type: integer
+        goalsAgainst:
+          type: integer
+        homeRecord:
+          $ref: "#/components/schemas/RecordLine"
+        awayRecord:
+          $ref: "#/components/schemas/RecordLine"
+        recentMatches:
+          type: array
+          items:
+            $ref: "#/components/schemas/Match"
+        biggestVictory:
+          type: ["string", "null"]
+        biggestDefeat:
+          type: ["string", "null"]
+
+    PaginatedOpponents:
+      type: object
+      required: [data, total, limit, offset]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpponentSummary"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    RecordLine:
+      type: object
+      required: [matches, wins, draws, losses, goalsFor, goalsAgainst]
+      properties:
+        matches:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        goalsFor:
+          type: integer
+        goalsAgainst:
+          type: integer
+
+    Manager:
+      type: object
+      required: [id, name, matches, wins, draws, losses, winPercentage]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nationality:
+          type: ["string", "null"]
+        startYear:
+          type: ["integer", "null"]
+        endYear:
+          type: ["integer", "null"]
+        matches:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        winPercentage:
+          type: number
+        goalsScored:
+          type: integer
+        goalsConceded:
+          type: integer
+
+    ManagerDetail:
+      type: object
+      required: [id, name, matches, wins, draws, losses, winPercentage, seasonStats]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nationality:
+          type: ["string", "null"]
+        startYear:
+          type: ["integer", "null"]
+        endYear:
+          type: ["integer", "null"]
+        matches:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        winPercentage:
+          type: number
+        goalsScored:
+          type: integer
+        goalsConceded:
+          type: integer
+        seasonStats:
+          type: array
+          items:
+            $ref: "#/components/schemas/Season"
+
+    GoalkeeperStat:
+      type: object
+      required: [id, name, matches, cleanSheets, goalsConceeded]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        matches:
+          type: integer
+        cleanSheets:
+          type: integer
+        goalsConceeded:
+          type: integer
+        cleanSheetPercentage:
+          type: number
+        season:
+          type: ["string", "null"]
+
+    Stadium:
+      type: object
+      required: [id, name, matches, wins, draws, losses, goalsScored, goalsConceded]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        city:
+          type: ["string", "null"]
+        capacity:
+          type: ["integer", "null"]
+        matches:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        goalsScored:
+          type: integer
+        goalsConceded:
+          type: integer
+        firstMatch:
+          type: ["string", "null"]
+        lastMatch:
+          type: ["string", "null"]
+
+    Competition:
+      type: object
+      required: [id, name, matches, wins, draws, losses, goalsScored, goalsConceded]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: ["string", "null"]
+        matches:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        goalsScored:
+          type: integer
+        goalsConceded:
+          type: integer
+        titles:
+          type: ["integer", "null"]
+        lastParticipation:
+          type: ["string", "null"]
+
+    CompetitionDetail:
+      type: object
+      required: [id, name, matches, wins, draws, losses, goalsScored, goalsConceded, seasonStats]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: ["string", "null"]
+        matches:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        goalsScored:
+          type: integer
+        goalsConceded:
+          type: integer
+        titles:
+          type: ["integer", "null"]
+        seasonStats:
+          type: array
+          items:
+            $ref: "#/components/schemas/Season"
+
+    HomeAwayRecord:
+      type: object
+      required: [home, away, neutral]
+      properties:
+        home:
+          $ref: "#/components/schemas/RecordLine"
+        away:
+          $ref: "#/components/schemas/RecordLine"
+        neutral:
+          $ref: "#/components/schemas/RecordLine"
+
+    Streak:
+      type: object
+      required: [type, length, startDate, endDate, description]
+      properties:
+        type:
+          type: string
+          enum: [winning, unbeaten, winless, losing]
+        length:
+          type: integer
+        startDate:
+          type: string
+        endDate:
+          type: string
+        description:
+          type: string
+        isCurrent:
+          type: boolean
