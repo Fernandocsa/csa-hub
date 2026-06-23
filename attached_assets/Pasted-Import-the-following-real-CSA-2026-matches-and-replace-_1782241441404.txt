@@ -1,0 +1,71 @@
+Import the following real CSA 2026 matches and replace any fictional records for these dates.
+
+[
+{"date":"2026-01-11","competition":"Campeonato Alagoano 2026","opponent":"Coruripe","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"},
+{"date":"2026-01-14","competition":"Campeonato Alagoano 2026","opponent":"Penedense","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2026-01-17","competition":"Campeonato Alagoano 2026","opponent":"ASA","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2026-01-21","competition":"Campeonato Alagoano 2026","opponent":"Murici Sport","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2026-01-24","competition":"Campeonato Alagoano 2026","opponent":"CRB","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2026-02-01","competition":"Campeonato Alagoano 2026","opponent":"CSE","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2026-02-04","competition":"Copa Alagoas 2026","opponent":"Cruzeiro-AL","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"},
+{"date":"2026-02-07","competition":"Campeonato Alagoano 2026","opponent":"Cruzeiro-AL","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2026-02-12","competition":"Copa Alagoas 2026","opponent":"Coruripe","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2026-02-18","competition":"Campeonato Alagoano 2026","opponent":"CRB","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+{"date":"2026-02-21","competition":"Campeonato Alagoano 2026","opponent":"CRB","venue":"Home","goalsFor":0,"goalsAgainst":2,"result":"L"},
+{"date":"2026-02-24","competition":"Copa do Brasil 2026","opponent":"Joinville","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2026-03-05","competition":"Copa Alagoas 2026","opponent":"Dimensão Saúde","venue":"Home","goalsFor":4,"goalsAgainst":0,"result":"W"},
+{"date":"2026-03-18","competition":"Copa Alagoas 2026","opponent":"CRB B","venue":"Away","goalsFor":3,"goalsAgainst":1,"result":"W"},
+{"date":"2026-03-21","competition":"Copa Alagoas 2026","opponent":"CSE","venue":"Home","goalsFor":5,"goalsAgainst":0,"result":"W"},
+{"date":"2026-04-01","competition":"Copa Alagoas 2026","opponent":"ASA","venue":"Away","goalsFor":3,"goalsAgainst":2,"result":"W"},
+
+{"date":"2026-04-05","competition":"Brasileirão Série D 2026","opponent":"Atlético-BA","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"},
+{"date":"2026-04-11","competition":"Brasileirão Série D 2026","opponent":"Jacuipense","venue":"Away","goalsFor":3,"goalsAgainst":1,"result":"W"},
+{"date":"2026-04-19","competition":"Brasileirão Série D 2026","opponent":"ASA","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2026-04-25","competition":"Brasileirão Série D 2026","opponent":"CSE","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2026-05-02","competition":"Brasileirão Série D 2026","opponent":"Juazeirense","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2026-05-10","competition":"Brasileirão Série D 2026","opponent":"Juazeirense","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2026-05-17","competition":"Brasileirão Série D 2026","opponent":"CSE","venue":"Away","goalsFor":5,"goalsAgainst":1,"result":"W"},
+{"date":"2026-05-23","competition":"Brasileirão Série D 2026","opponent":"ASA","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2026-05-31","competition":"Brasileirão Série D 2026","opponent":"Jacuipense","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2026-06-14","competition":"Brasileirão Série D 2026","opponent":"Atlético-BA","venue":"Away","goalsFor":7,"goalsAgainst":1,"result":"W"},
+{"date":"2026-06-21","competition":"Brasileirão Série D 2026","opponent":"Lagarto-SE","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2026-06-27","competition":"Brasileirão Série D 2026","opponent":"Lagarto-SE","venue":"Home","status":"scheduled","phase":"2F"}
+]
+
+Important:
+
+* Keep CRB B separate from CRB.
+* Keep Murici Sport exactly as written.
+* 2026-06-27 vs Lagarto-SE is NOT played yet. Store as a scheduled fixture, not a result.
+* Do not count scheduled fixtures in statistics.
+
+Validate against OGol 2026 totals (through 21-Jun-2026):
+
+* Copa do Brasil: 1 match, 0W 0D 1L, GF 0, GA 1
+* Campeonato Alagoano: 9 matches, 5W 2D 2L, GF 10, GA 5
+* Copa Alagoas: 6 matches, 5W 0D 1L, GF 19, GA 5
+* Série D (through Lagarto away): 11 matches, 6W 4D 1L, GF 26, GA 9
+
+Season total:
+
+* 27 matches played
+* 16 wins
+* 6 draws
+* 5 losses
+* 55 goals scored
+* 20 goals conceded
+
+Recalculate:
+
+* Opponent H2H records
+* Competition records
+* Home/Away records
+* Biggest wins
+* Unbeaten streaks
+* Goals scored and conceded rankings
+
+Do not create fictional matches.
