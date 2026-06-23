@@ -1,0 +1,68 @@
+Import the following real CSA 2022 matches and replace any fictional records for these dates.
+
+[
+{"date":"2022-01-20","competition":"Campeonato Alagoano","opponent":"Desportivo Aliança","venue":"Away","goalsFor":3,"goalsAgainst":1,"result":"W"},
+
+{"date":"2022-01-23","competition":"Copa do Nordeste","opponent":"Sousa","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2022-01-27","competition":"Campeonato Alagoano","opponent":"Jaciobá","venue":"Home","goalsFor":5,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-01-30","competition":"Copa do Nordeste","opponent":"Botafogo-PB","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-02-05","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-02-08","competition":"Copa do Nordeste","opponent":"Floresta-CE","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-02-13","competition":"Copa do Nordeste","opponent":"CRB","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2022-02-16","competition":"Copa do Nordeste","opponent":"Bahia","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2022-02-20","competition":"Copa do Nordeste","opponent":"Náutico","venue":"Home","goalsFor":3,"goalsAgainst":1,"result":"W"},
+
+{"date":"2022-02-23","competition":"Copa do Brasil","opponent":"Atlético-BA","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D","notes":"CSA advanced on away-goals rule / competition regulation"},
+
+{"date":"2022-02-26","competition":"Campeonato Alagoano","opponent":"ASA","venue":"Away","goalsFor":2,"goalsAgainst":2,"result":"D"},
+
+{"date":"2022-03-02","competition":"Campeonato Alagoano","opponent":"Cruzeiro-AL","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-03-05","competition":"Copa do Nordeste","opponent":"Ceará","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+
+{"date":"2022-03-09","competition":"Campeonato Alagoano","opponent":"CSE","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2022-03-12","competition":"Campeonato Alagoano","opponent":"Murici","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-03-16","competition":"Copa do Brasil","opponent":"Paysandu","venue":"Home","goalsFor":4,"goalsAgainst":1,"result":"W"},
+
+{"date":"2022-03-19","competition":"Copa do Nordeste","opponent":"Altos","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-03-22","competition":"Copa do Nordeste","opponent":"Sport","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D","notes":"Eliminated on penalties 1-3"},
+
+{"date":"2022-04-02","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-04-06","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L","notes":"Eliminated on penalties 2-4"},
+
+{"date":"2022-04-09","competition":"Campeonato Alagoano","opponent":"Murici","venue":"Away","goalsFor":2,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-04-12","competition":"Campeonato Alagoano","opponent":"Murici","venue":"Home","goalsFor":8,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-04-16","competition":"Brasileirão Série B","opponent":"Ituano","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2022-04-19","competition":"Copa do Brasil","opponent":"América Mineiro","venue":"Home","goalsFor":0,"goalsAgainst":3,"result":"L"}
+]
+
+Important:
+
+* 2022-03-22 vs Sport must remain a DRAW (0-0) with elimination on penalties (1-3).
+* 2022-04-06 vs CRB must remain a LOSS (0-1) with elimination on penalties (2-4).
+* Do not convert penalty shootouts into wins or losses in historical statistics.
+* Preserve exact dates, opponents, competitions and scores.
+
+After import, update:
+
+* Match database
+* Competition statistics
+* Opponent statistics
+* Home/Away records
+* Historical club records
+
+Do not create fictional matches.

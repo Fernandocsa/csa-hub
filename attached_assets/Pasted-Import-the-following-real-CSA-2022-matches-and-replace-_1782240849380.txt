@@ -1,0 +1,101 @@
+Import the following real CSA 2022 matches and replace any fictional records for these dates.
+
+[
+{"date":"2022-04-22","competition":"Brasileirão Série B","opponent":"Bahia","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2022-04-23","competition":"Campeonato Alagoano","opponent":"Cruzeiro-AL","venue":"Away","goalsFor":2,"goalsAgainst":1,"result":"W"},
+
+{"date":"2022-04-26","competition":"Brasileirão Série B","opponent":"Brusque","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+
+{"date":"2022-04-30","competition":"Brasileirão Série B","opponent":"Sport","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-05-02","competition":"Campeonato Alagoano","opponent":"Cruzeiro-AL","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W","notes":"3rd place playoff"},
+
+{"date":"2022-05-04","competition":"Brasileirão Série B","opponent":"Criciúma","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2022-05-07","competition":"Brasileirão Série B","opponent":"Vasco","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2022-05-10","competition":"Copa do Brasil","opponent":"América Mineiro","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+
+{"date":"2022-05-14","competition":"Brasileirão Série B","opponent":"Operário Ferroviário","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2022-05-19","competition":"Brasileirão Série B","opponent":"Náutico","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2022-05-28","competition":"Brasileirão Série B","opponent":"Grêmio Novorizontino","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+
+{"date":"2022-06-01","competition":"Brasileirão Série B","opponent":"CRB","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2022-06-07","competition":"Brasileirão Série B","opponent":"Chapecoense","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2022-06-12","competition":"Brasileirão Série B","opponent":"Tombense","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+
+{"date":"2022-06-19","competition":"Brasileirão Série B","opponent":"Guarani","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2022-06-23","competition":"Brasileirão Série B","opponent":"Grêmio","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2022-06-27","competition":"Brasileirão Série B","opponent":"Sampaio Corrêa","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+
+{"date":"2022-07-02","competition":"Brasileirão Série B","opponent":"Londrina","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2022-07-07","competition":"Brasileirão Série B","opponent":"Ponte Preta","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2022-07-15","competition":"Brasileirão Série B","opponent":"Vila Nova","venue":"Away","goalsFor":2,"goalsAgainst":1,"result":"W"},
+
+{"date":"2022-07-20","competition":"Brasileirão Série B","opponent":"Cruzeiro","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2022-07-25","competition":"Brasileirão Série B","opponent":"Criciúma","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+
+{"date":"2022-07-30","competition":"Brasileirão Série B","opponent":"Ituano","venue":"Home","goalsFor":1,"goalsAgainst":3,"result":"L"},
+
+{"date":"2022-08-06","competition":"Brasileirão Série B","opponent":"Bahia","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2022-08-09","competition":"Brasileirão Série B","opponent":"Brusque","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-08-13","competition":"Brasileirão Série B","opponent":"Sport","venue":"Away","goalsFor":0,"goalsAgainst":4,"result":"L"},
+
+{"date":"2022-08-18","competition":"Brasileirão Série B","opponent":"Vasco","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-08-27","competition":"Brasileirão Série B","opponent":"Operário Ferroviário","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2022-08-30","competition":"Brasileirão Série B","opponent":"Náutico","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-09-03","competition":"Brasileirão Série B","opponent":"Grêmio Novorizontino","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2022-09-10","competition":"Brasileirão Série B","opponent":"CRB","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2022-09-17","competition":"Brasileirão Série B","opponent":"Chapecoense","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2022-09-26","competition":"Brasileirão Série B","opponent":"Tombense","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-09-30","competition":"Brasileirão Série B","opponent":"Guarani","venue":"Home","goalsFor":1,"goalsAgainst":2,"result":"L"},
+
+{"date":"2022-10-04","competition":"Brasileirão Série B","opponent":"Grêmio","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+
+{"date":"2022-10-07","competition":"Brasileirão Série B","opponent":"Sampaio Corrêa","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2022-10-14","competition":"Brasileirão Série B","opponent":"Londrina","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2022-10-20","competition":"Brasileirão Série B","opponent":"Ponte Preta","venue":"Away","goalsFor":2,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-10-25","competition":"Brasileirão Série B","opponent":"Vila Nova","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2022-11-06","competition":"Brasileirão Série B","opponent":"Cruzeiro","venue":"Away","goalsFor":2,"goalsAgainst":3,"result":"L"}
+]
+
+Important:
+
+* 2022-05-02 vs Cruzeiro-AL is part of the Campeonato Alagoano 3rd-place playoff.
+* Keep "Cruzeiro" and "Cruzeiro-AL" as separate opponents.
+* Keep "Grêmio Novorizontino" as the official opponent name.
+
+After import, validate against official OGol 2022 totals:
+
+Matches: 64
+Wins: 24
+Draws: 21
+Losses: 19
+Goals For: 77
+Goals Against: 55
+
+Do not create fictional matches.
+Preserve exact dates, opponents, competitions and scores.
