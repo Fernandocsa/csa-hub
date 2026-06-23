@@ -1,0 +1,69 @@
+Import the following real CSA 2023 matches and replace any fictional records for these dates.
+
+[
+{"date":"2023-02-02","competition":"Campeonato Alagoano","opponent":"Desportivo Aliança","venue":"Home","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2023-02-04","competition":"Copa Alagoas","opponent":"CRB","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2023-02-05","competition":"Copa do Nordeste","opponent":"Vitória","venue":"Home","goalsFor":3,"goalsAgainst":1,"result":"W"},
+{"date":"2023-02-11","competition":"Campeonato Alagoano","opponent":"Cruzeiro-AL","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2023-02-14","competition":"Copa do Nordeste","opponent":"Ferroviário","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2023-02-16","competition":"Copa Alagoas","opponent":"Zumbi","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2023-02-17","competition":"Copa do Nordeste","opponent":"Fortaleza","venue":"Away","goalsFor":0,"goalsAgainst":3,"result":"L"},
+{"date":"2023-02-22","competition":"Copa do Nordeste","opponent":"Sampaio Corrêa","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2023-02-26","competition":"Campeonato Alagoano","opponent":"Coruripe","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2023-03-01","competition":"Copa do Brasil","opponent":"Tuna Luso","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2023-03-04","competition":"Copa Alagoas","opponent":"Murici","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+{"date":"2023-03-04","competition":"Copa do Nordeste","opponent":"CRB","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2023-03-07","competition":"Copa do Nordeste","opponent":"Atlético-BA","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2023-03-11","competition":"Copa Alagoas","opponent":"CSE","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2023-03-16","competition":"Copa do Brasil","opponent":"Brusque","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2023-03-18","competition":"Copa Alagoas","opponent":"Miguelense","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"},
+{"date":"2023-03-22","competition":"Copa do Nordeste","opponent":"Sport","venue":"Home","goalsFor":1,"goalsAgainst":3,"result":"L"},
+{"date":"2023-03-23","competition":"Copa Alagoas","opponent":"Coruripe","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D","notes":"CSA advanced on penalties 5-4"},
+{"date":"2023-03-26","competition":"Copa Alagoas","opponent":"ASA","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D","notes":"Eliminated on penalties 1-4"},
+
+{"date":"2023-04-11","competition":"Copa do Brasil","opponent":"Internacional","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2023-04-27","competition":"Copa do Brasil","opponent":"Internacional","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W","notes":"Eliminated on penalties 6-7"},
+
+{"date":"2023-05-04","competition":"Brasileirão Série C","opponent":"Confiança","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2023-05-07","competition":"Brasileirão Série C","opponent":"Ypiranga-RS","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2023-05-14","competition":"Brasileirão Série C","opponent":"Floresta-CE","venue":"Away","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2023-05-20","competition":"Brasileirão Série C","opponent":"Brusque","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2023-05-28","competition":"Brasileirão Série C","opponent":"São Bernardo","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2023-06-03","competition":"Brasileirão Série C","opponent":"Altos","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2023-06-08","competition":"Brasileirão Série C","opponent":"Manaus FC","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2023-06-11","competition":"Brasileirão Série C","opponent":"Operário Ferroviário","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2023-06-20","competition":"Brasileirão Série C","opponent":"Aparecidense","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2023-06-28","competition":"Brasileirão Série C","opponent":"América-RN","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2023-07-02","competition":"Brasileirão Série C","opponent":"Volta Redonda","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2023-07-09","competition":"Brasileirão Série C","opponent":"Figueirense","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2023-07-16","competition":"Brasileirão Série C","opponent":"São José-RS","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2023-07-23","competition":"Brasileirão Série C","opponent":"Paysandu","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2023-07-30","competition":"Brasileirão Série C","opponent":"Pouso Alegre","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+
+{"date":"2023-08-06","competition":"Brasileirão Série C","opponent":"Náutico","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2023-08-13","competition":"Brasileirão Série C","opponent":"Botafogo-PB","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2023-08-20","competition":"Brasileirão Série C","opponent":"Remo","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2023-08-26","competition":"Brasileirão Série C","opponent":"Amazonas FC","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"}
+]
+
+Important:
+
+* 2023-03-23 vs Coruripe = DRAW (1-1), qualified on penalties (5-4).
+* 2023-03-26 vs ASA = DRAW (1-1), eliminated on penalties (1-4).
+* 2023-04-27 vs Internacional = WIN (2-1), eliminated on penalties (6-7).
+* Do not convert penalty shootouts into wins/losses in historical statistics.
+
+After import, validate against OGol 2023 totals:
+
+Matches: 48
+Wins: 14
+Draws: 19
+Losses: 15
+Goals For: 43
+Goals Against: 40
+
+Do not create fictional matches.
+Preserve exact dates, opponents, competitions and scores.
