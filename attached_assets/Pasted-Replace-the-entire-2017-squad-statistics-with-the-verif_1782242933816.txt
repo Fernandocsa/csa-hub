@@ -1,0 +1,73 @@
+Replace the entire 2017 squad statistics with the verified OGol data below.
+
+Season: 2017
+
+Fields:
+
+* Name
+* Position
+* Appearances
+* Goals
+* Minutes Played
+
+Players:
+
+Dawhan (MF) — 40 apps, 2 goals, 3499 min
+Daniel Costa (MF) — 40 apps, 7 goals, 2790 min
+Marcos Antônio (MF) — 38 apps, 2 goals, 2375 min
+Didira (MF) — 38 apps, 3 goals, 2092 min
+Willis Mota (GK) — 37 apps, 0 goals, 3315 min
+Celsinho (DF) — 35 apps, 2 goals, 3070 min
+Thales (DF) — 33 apps, 4 goals, 2807 min
+Rafinha (DF) — 31 apps, 2 goals, 2566 min
+Leandro Souza (DF) — 30 apps, 0 goals, 2568 min
+Everton Heleno (MF) — 27 apps, 14 goals, 2228 min
+Michel Douglas (FW) — 23 apps, 8 goals, 1933 min
+Douglas Marques (DF) — 22 apps, 0 goals, 1890 min
+Thiago Potiguar (FW) — 22 apps, 1 goal, 1327 min
+Boquita (MF) — 21 apps, 1 goal, 1647 min
+Rayro (DF) — 19 apps, 0 goals, 1422 min
+Cleyton Lima (MF) — 19 apps, 4 goals, 950 min
+Edinho (MF) — 17 apps, 2 goals, 1334 min
+Jacó (FW) — 17 apps, 3 goals, 1078 min
+Vanger (FW) — 17 apps, 2 goals, 924 min
+Jorge Fellipe (DF) — 16 apps, 1 goal, 1369 min
+Raul (DF) — 14 apps, 0 goals, 982 min
+Alex Henrique (MF) — 14 apps, 2 goals, 720 min
+Dick (DF) — 13 apps, 1 goal, 937 min
+Caíque (MF) — 13 apps, 0 goals, 366 min
+Jeferson (GK) — 12 apps, 0 goals, 1035 min
+Luís Soares (FW) — 10 apps, 2 goals, 660 min
+Gustavinho (FW) — 10 apps, 1 goal, 433 min
+Panda (DF) — 9 apps, 0 goals, 597 min
+Denilson (DF) — 8 apps, 0 goals, 720 min
+Jeam (FW) — 8 apps, 0 goals, 357 min
+Maxuell Samurai (FW) — 8 apps, 1 goal, 340 min
+Mateus Lima (DF) — 8 apps, 0 goals, 290 min
+Daniel Angulo (FW) — 7 apps, 1 goal, 294 min
+Rosinei (MF) — 7 apps, 0 goals, 256 min
+Daniel Cruz (FW) — 6 apps, 1 goal, 482 min
+Rodrigo Lobão (DF) — 6 apps, 1 goal, 418 min
+Francisco Alex (MF) — 5 apps, 0 goals, 199 min
+Geovani (MF) — 5 apps, 1 goal, 176 min
+Alexandre Cajuru (GK) — 4 apps, 0 goals, 360 min
+Kelvin (MF) — 4 apps, 0 goals, 171 min
+Michel Schmöller (MF) — 4 apps, 0 goals, 145 min
+Cristiano (MF) — 3 apps, 0 goals, 194 min
+Cassiano (FW) — 3 apps, 0 goals, 102 min
+Serginho (MF) — 2 apps, 0 goals, 135 min
+Jonathan (FW) — 2 apps, 0 goals, 46 min
+Luís Maranhão (FW) — 2 apps, 0 goals, 43 min
+Joãozinho (MF) — 1 app, 0 goals, 60 min
+Giancarlo (FW) — 1 app, 0 goals, 45 min
+Lucas Silva (DF) — 1 app, 0 goals
+
+Important:
+
+* Set Everton Heleno as the verified top scorer of 2017 with 14 goals.
+* Recalculate season statistics.
+* Recalculate player leaderboards.
+* Recalculate appearance rankings.
+* Recalculate scoring rankings.
+* Replace any generated player data with these verified records.
+* Use only imported data for 2017.

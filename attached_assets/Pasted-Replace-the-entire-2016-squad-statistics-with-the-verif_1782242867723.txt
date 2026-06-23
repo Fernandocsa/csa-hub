@@ -1,0 +1,65 @@
+Replace the entire 2016 squad statistics with the verified OGol data below.
+
+Season: 2016
+
+Fields:
+
+* Name
+* Position
+* Appearances
+* Goals
+* Minutes Played
+* Yellow Cards
+* Second Yellow Cards
+* Red Cards
+
+Players:
+
+Jeferson (GK) — 33 apps, 0 goals, 2904 min
+Leandro Souza (DF) — 31 apps, 4 goals, 2756 min
+Douglas Marques (DF) — 26 apps, 4 goals, 2340 min
+Rafinha (DF) — 28 apps, 0 goals, 2314 min
+Jean Cléber (MF) — 21 apps, 3 goals, 1890 min
+Didira (MF) — 26 apps, 6 goals, 1877 min
+Cleyton Lima (MF) — 29 apps, 11 goals, 1865 min
+Panda (DF) — 22 apps, 2 goals, 1865 min
+Bismarck (MF) — 32 apps, 4 goals, 1606 min
+Henrique Choco (DF) — 18 apps, 1 goal, 1550 min
+Luís Soares (FW) — 16 apps, 7 goals, 1392 min
+Jônatas Obina (FW) — 15 apps, 4 goals, 1275 min
+Denilson (DF) — 15 apps, 0 goals, 1246 min
+David Dener (FW) — 13 apps, 3 goals, 855 min
+João Paulo (MF) — 14 apps, 2 goals, 850 min
+Marcos Antônio (MF) — 12 apps, 0 goals, 827 min
+Everton Heleno (MF) — 10 apps, 0 goals, 819 min
+Rayro (DF) — 9 apps, 1 goal, 658 min
+Rafael Oliveira (FW) — 11 apps, 4 goals, 594 min
+Jefferson Maranhense (FW) — 11 apps, 0 goals, 576 min
+Leandro Cardoso (DF) — 6 apps, 1 goal, 477 min
+Hudson (DF) — 10 apps, 0 goals, 447 min
+Kelvin (MF) — 10 apps, 0 goals, 425 min
+Walter (DF) — 5 apps, 0 goals, 384 min
+Xandão (DF) — 4 apps, 0 goals, 336 min
+Marcelo Nicácio (FW) — 10 apps, 3 goals, 328 min
+David Oliveira (MF) — 5 apps, 0 goals, 302 min
+Kauhan (FW) — 9 apps, 3 goals, 282 min
+Pantera (GK) — 3 apps, 0 goals, 246 min
+Washington (MF) — 4 apps, 0 goals, 235 min
+Katê (MF) — 8 apps, 1 goal, 233 min
+Azul (FW) — 6 apps, 1 goal, 158 min
+Ronaldo Caetano (MF) — 2 apps, 0 goals, 126 min
+Thiago Santos (MF) — 3 apps, 0 goals, 121 min
+Sorin (MF) — 3 apps, 0 goals, 106 min
+Santa Rosa (DF) — 3 apps, 0 goals, 104 min
+Escobar (MF) — 3 apps, 0 goals, 96 min
+Elizeu (MF) — 2 apps, 0 goals, 74 min
+Zé Romário (DF) — 1 app, 0 goals, 45 min
+Tiago Chulapa (FW) — 1 app, 0 goals, 4 min
+
+After importing:
+
+* Recalculate season statistics.
+* Recalculate player leaderboards.
+* Recalculate appearance rankings.
+* Recalculate scoring rankings.
+* Use only imported data, not generated values.
