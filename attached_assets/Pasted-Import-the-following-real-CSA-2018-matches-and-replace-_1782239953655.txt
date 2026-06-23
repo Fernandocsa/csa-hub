@@ -1,0 +1,52 @@
+Import the following real CSA 2018 matches and replace any fictional records for these dates.
+
+[
+{"date":"2018-01-18","competition":"Copa do Nordeste","opponent":"Sampaio Corrêa","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2018-01-21","competition":"Campeonato Alagoano","opponent":"Santa Rita","venue":"Away","goalsFor":2,"goalsAgainst":2,"result":"D"},
+
+{"date":"2018-01-24","competition":"Campeonato Alagoano","opponent":"Murici","venue":"Home","goalsFor":4,"goalsAgainst":0,"result":"W"},
+
+{"date":"2018-01-30","competition":"Copa do Nordeste","opponent":"Ceará","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2018-02-04","competition":"Campeonato Alagoano","opponent":"ASA","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+
+{"date":"2018-02-07","competition":"Copa do Brasil","opponent":"Manaus FC","venue":"Away","goalsFor":2,"goalsAgainst":2,"result":"D"},
+
+{"date":"2018-02-10","competition":"Campeonato Alagoano","opponent":"CSE","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2018-02-15","competition":"Copa do Brasil","opponent":"São Paulo","venue":"Home","goalsFor":0,"goalsAgainst":2,"result":"L"},
+
+{"date":"2018-02-18","competition":"Campeonato Alagoano","opponent":"Dimensão Saúde","venue":"Home","goalsFor":5,"goalsAgainst":0,"result":"W"},
+
+{"date":"2018-02-21","competition":"Copa do Nordeste","opponent":"Salgueiro","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2018-02-25","competition":"Campeonato Alagoano","opponent":"CEO","venue":"Away","goalsFor":2,"goalsAgainst":0,"result":"W"},
+
+{"date":"2018-03-04","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2018-03-07","competition":"Campeonato Alagoano","opponent":"Coruripe","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2018-03-10","competition":"Copa do Nordeste","opponent":"Salgueiro","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2018-03-14","competition":"Campeonato Alagoano","opponent":"ASA","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2018-03-20","competition":"Copa do Nordeste","opponent":"Ceará","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2018-03-24","competition":"Campeonato Alagoano","opponent":"ASA","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+
+{"date":"2018-03-29","competition":"Copa do Nordeste","opponent":"Sampaio Corrêa","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"}
+]
+
+Do not generate fictional matches.
+Preserve exact dates, opponents, competitions and scores.
+
+Update:
+
+* Match database
+* Opponent statistics
+* Competition records
+* Home/Away records
+* Historical club statistics
+
+Validate imported records after completion.

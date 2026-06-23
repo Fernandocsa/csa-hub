@@ -1,0 +1,57 @@
+Import the following real CSA 2018 matches and replace any fictional records for these dates.
+
+[
+{"date":"2018-04-01","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2018-04-08","competition":"Campeonato Alagoano","opponent":"CRB","venue":"Away","goalsFor":2,"goalsAgainst":0,"result":"W"},
+
+{"date":"2018-04-14","competition":"Brasileirão Série B","opponent":"Goiás","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2018-04-20","competition":"Brasileirão Série B","opponent":"São Bento","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2018-04-27","competition":"Brasileirão Série B","opponent":"Oeste","venue":"Home","goalsFor":5,"goalsAgainst":1,"result":"W"},
+{"date":"2018-05-01","competition":"Brasileirão Série B","opponent":"Criciúma","venue":"Away","goalsFor":3,"goalsAgainst":1,"result":"W"},
+{"date":"2018-05-12","competition":"Brasileirão Série B","opponent":"Boa Esporte","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2018-05-19","competition":"Brasileirão Série B","opponent":"Londrina","venue":"Away","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2018-05-22","competition":"Brasileirão Série B","opponent":"Figueirense","venue":"Home","goalsFor":1,"goalsAgainst":4,"result":"L"},
+{"date":"2018-06-01","competition":"Brasileirão Série B","opponent":"Vila Nova","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2018-06-05","competition":"Brasileirão Série B","opponent":"Guarani","venue":"Home","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2018-06-09","competition":"Brasileirão Série B","opponent":"CRB","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2018-06-16","competition":"Brasileirão Série B","opponent":"Paysandu","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2018-06-19","competition":"Brasileirão Série B","opponent":"Ponte Preta","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2018-06-29","competition":"Brasileirão Série B","opponent":"Coritiba","venue":"Home","goalsFor":2,"goalsAgainst":2,"result":"D"},
+{"date":"2018-07-05","competition":"Brasileirão Série B","opponent":"GE Brasil","venue":"Away","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2018-07-13","competition":"Brasileirão Série B","opponent":"Sampaio Corrêa","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2018-07-20","competition":"Brasileirão Série B","opponent":"Fortaleza","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2018-07-23","competition":"Brasileirão Série B","opponent":"Atlético Goianiense","venue":"Away","goalsFor":2,"goalsAgainst":2,"result":"D"},
+{"date":"2018-07-27","competition":"Brasileirão Série B","opponent":"Avaí","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2018-08-03","competition":"Brasileirão Série B","opponent":"Juventude","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2018-08-10","competition":"Brasileirão Série B","opponent":"Goiás","venue":"Away","goalsFor":0,"goalsAgainst":3,"result":"L"},
+{"date":"2018-08-18","competition":"Brasileirão Série B","opponent":"São Bento","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2018-08-21","competition":"Brasileirão Série B","opponent":"Oeste","venue":"Away","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2018-08-25","competition":"Brasileirão Série B","opponent":"Criciúma","venue":"Home","goalsFor":3,"goalsAgainst":0,"result":"W"},
+{"date":"2018-09-01","competition":"Brasileirão Série B","opponent":"Boa Esporte","venue":"Away","goalsFor":0,"goalsAgainst":3,"result":"L"},
+{"date":"2018-09-04","competition":"Brasileirão Série B","opponent":"Londrina","venue":"Home","goalsFor":4,"goalsAgainst":1,"result":"W"},
+{"date":"2018-09-08","competition":"Brasileirão Série B","opponent":"Figueirense","venue":"Away","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2018-09-11","competition":"Brasileirão Série B","opponent":"Vila Nova","venue":"Home","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2018-09-22","competition":"Brasileirão Série B","opponent":"Guarani","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2018-09-29","competition":"Brasileirão Série B","opponent":"CRB","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2018-10-02","competition":"Brasileirão Série B","opponent":"Paysandu","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2018-10-12","competition":"Brasileirão Série B","opponent":"Ponte Preta","venue":"Home","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2018-10-16","competition":"Brasileirão Série B","opponent":"Coritiba","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2018-10-23","competition":"Brasileirão Série B","opponent":"GE Brasil","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2018-11-02","competition":"Brasileirão Série B","opponent":"Sampaio Corrêa","venue":"Away","goalsFor":3,"goalsAgainst":2,"result":"W"},
+{"date":"2018-11-06","competition":"Brasileirão Série B","opponent":"Fortaleza","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2018-11-10","competition":"Brasileirão Série B","opponent":"Atlético Goianiense","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2018-11-17","competition":"Brasileirão Série B","opponent":"Avaí","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2018-11-24","competition":"Brasileirão Série B","opponent":"Juventude","venue":"Away","goalsFor":4,"goalsAgainst":0,"result":"W"}
+]
+
+After import, recalculate all 2018 statistics and validate against the official season totals:
+
+Matches: 58
+Wins: 24
+Draws: 19
+Losses: 15
+Goals For: 76
+Goals Against: 52
+
+Do not create fictional matches.
+Preserve exact dates, opponents and scores.
