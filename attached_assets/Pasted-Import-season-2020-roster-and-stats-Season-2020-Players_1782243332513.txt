@@ -1,0 +1,116 @@
+Import season 2020 roster and stats.
+
+Season: 2020
+Players: 54
+
+Please import the following roster exactly as listed.
+
+1. Rodrigo Pimpão — Atacante — 50J — 10G — 3530 min
+2. Luciano Castán — Defensor — 49J — 3G — 4334 min
+3. Yago Henrique — Meia — 47J — 5G — 3164 min
+4. Diego Renan — Defensor — 45J — 0G — 3472 min
+5. Geovane — Meia — 40J — 1G — 3270 min
+6. Rafael Bilu — Atacante — 40J — 4G — 1969 min
+7. Rafinha — Defensor — 37J — 2G — 2896 min
+8. Nádson — Meia — 37J — 4G — 2324 min
+9. Norberto — Defensor — 32J — 1G — 2062 min
+10. Andrigo — Meia — 29J — 2G — 1429 min
+11. Matheus Mendes — Goleiro — 28J — 0G — 2520 min
+12. Paulo Sérgio — Atacante — 27J — 10G — 2069 min
+13. Allano — Atacante — 27J — 5G — 1465 min
+14. Cleberson — Defensor — 26J — 1G — 2047 min
+15. Marquinhos — Meia — 26J — 2G — 994 min
+16. Pedro Lucas — Atacante — 25J — 5G — 958 min
+17. Alan Costa — Defensor — 21J — 2G — 1883 min
+18. Pedro Júnior — Atacante — 21J — 5G — 1027 min
+19. Thiago Rodrigues — Goleiro — 18J — 0G — 1620 min
+20. Gabriel — Meia — 16J — 0G — 1026 min
+21. Cedric — Defensor — 16J — 1G — 911 min
+22. Rone — Atacante — 16J — 1G — 605 min
+23. Victor Paraíba — Atacante — 15J — 1G — 410 min
+24. Márcio Araújo — Meia — 14J — 0G — 1060 min
+25. Renatinho — Meia — 14J — 1G — 869 min
+26. Igor Fernandes — Defensor — 13J — 0G — 919 min
+27. Jean Cléber — Meia — 12J — 1G — 803 min
+28. Michel Douglas — Atacante — 12J — 2G — 767 min
+29. Richard Franco — Meia — 12J — 1G — 628 min
+30. Leandro Souza — Defensor — 11J — 0G — 854 min
+31. Diego Maurício — Atacante — 11J — 0G — 633 min
+32. Lucas Dias — Defensor — 11J — 0G — 536 min
+33. Rodolfo Filemon — Defensor — 9J — 1G — 686 min
+34. Alecsandro — Atacante — 9J — 1G — 355 min
+35. Bruno José — Atacante — 9J — 0G — 224 min
+36. Bruno Grassi — Goleiro — 8J — 0G — 675 min
+37. Rodrigo Andrade — Meia — 7J — 0G — 228 min
+38. Caio Felipe — Defensor — 5J — 0G — 346 min
+39. Schutz — Atacante — 5J — 0G — 227 min
+40. João Paulo — Atacante — 5J — 0G — 63 min
+41. Willian Rocha — Defensor — 4J — 0G — 187 min
+42. Jarro Pedroso — Atacante — 4J — 0G — 159 min
+43. Gustavo Hebling — Meia — 4J — 1G — 56 min
+44. Caíque — Goleiro — 3J — 0G — 270 min
+45. Netto — Atacante — 3J — 0G — 144 min
+46. Ignácio — Defensor — 3J — 0G — 143 min
+47. Alexandre Cajuru — Goleiro — 2J — 0G — 135 min
+48. Héctor Bustamante — Atacante — 2J — 0G — 103 min
+49. Wallace — Meia — 2J — 0G — 92 min
+50. Tito — Defensor — 1J — 0G — 90 min
+51. João Victor — Meia — 1J — 0G — 34 min
+52. Bruno Tesouro — Meia — 1J — 0G — 3 min
+53. Cantionilo — Defensor — 1J — 0G — 3 min
+54. Almir Luan — Defensor — 1J — 0G — 3 min
+
+Existing players that must be linked instead of recreated:
+
+* Luciano Castán
+* Rafinha
+* Alan Costa
+* Jean Cléber
+* Michel Douglas
+* Leandro Souza
+* Lucas Dias
+* Alecsandro
+* Alexandre Cajuru
+* Héctor Bustamante
+* Victor Paraíba
+* Jarro Pedroso
+
+Season summary:
+
+* Players: 54
+* Top scorers: Rodrigo Pimpão (10) and Paulo Sérgio (10)
+* Most appearances: Rodrigo Pimpão (50)
+* Most minutes: Luciano Castán (4334)
+
+Top scorers:
+
+1. Rodrigo Pimpão — 10 gols
+2. Paulo Sérgio — 10 gols
+3. Yago Henrique — 5 gols
+4. Allano — 5 gols
+5. Pedro Lucas — 5 gols
+6. Pedro Júnior — 5 gols
+7. Rafael Bilu — 4 gols
+8. Nádson — 4 gols
+
+Goalkeepers used:
+
+* Matheus Mendes
+* Thiago Rodrigues
+* Bruno Grassi
+* Caíque
+* Alexandre Cajuru
+
+Recalculate after import:
+
+* Season roster page
+* Season top scorers page
+* Season statistics page
+* Career appearances ranking
+* Career goals ranking
+* Career minutes ranking
+* Player profile pages
+* Team statistics page
+
+Expected result:
+2020 season imported with 54 players and all existing athletes linked correctly.
