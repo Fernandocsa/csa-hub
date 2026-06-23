@@ -1,0 +1,91 @@
+Import season 2018 roster and stats.
+
+Season: 2018
+Players: 55
+
+Please import the following roster exactly as listed.
+
+1. Didira — Meia — 52J — 13G — 4182 min
+2. Daniel Costa — Meia — 50J — 9G — 3847 min
+3. Celsinho — Defensor — 49J — 2G — 4041 min
+4. Leandro Souza — Defensor — 47J — 5G — 4074 min
+5. Rafinha — Defensor — 44J — 2G — 3814 min
+6. Yuri Lara — Meia — 42J — 0G — 3481 min
+7. Xandão — Defensor — 38J — 0G — 3188 min
+8. Dawhan — Meia — 32J — 1G — 2123 min
+9. Michel Douglas — Atacante — 27J — 6G — 1862 min
+10. Hugo Cabral — Atacante — 27J — 4G — 1182 min
+11. Eduardo Echeverría — Meia — 19J — 2G — 1045 min
+12. Lucas Frigeri — Goleiro — 18J — 0G — 1575 min
+13. Juan — Meia — 18J — 1G — 1033 min
+14. Willis Mota — Goleiro — 17J — 0G — 1512 min
+15. Alexandre Cajuru — Goleiro — 17J — 0G — 1458 min
+16. Niltinho — Atacante — 17J — 2G — 1425 min
+17. Walter — Atacante — 15J — 2G — 809 min
+18. Ferrugem — Meia — 14J — 0G — 1032 min
+19. Pio — Meia — 14J — 1G — 903 min
+20. Rubens — Atacante — 14J — 1G — 837 min
+21. Giva — Atacante — 14J — 3G — 833 min
+22. Roger — Defensor — 14J — 0G — 823 min
+23. Edinho — Meia — 13J — 1G — 1170 min
+24. Matheus Lopes — Defensor — 13J — 2G — 1142 min
+25. Boquita — Meia — 13J — 1G — 905 min
+26. Jhon Cley — Meia — 13J — 4G — 556 min
+27. Alemão Júnior — Atacante — 12J — 0G — 803 min
+28. Neto Berola — Atacante — 12J — 5G — 516 min
+29. Bruno Veiga — Atacante — 11J — 1G — 431 min
+30. Taiberson — Atacante — 11J — 0G — 280 min
+31. Paulinho — Defensor — 9J — 0G — 749 min
+32. Rodrigo Lobão — Defensor — 9J — 1G — 688 min
+33. John Lennon — Defensor — 9J — 0G — 581 min
+34. Josimar — Atacante — 9J — 1G — 550 min
+35. Felipe Garcia — Goleiro — 8J — 0G — 675 min
+36. Elivelton — Defensor — 7J — 0G — 499 min
+37. Leandro Kivel — Atacante — 7J — 2G — 450 min
+38. Yago — Atacante — 7J — 0G — 261 min
+39. Talisson Calcinha — Defensor — 6J — 0G — 332 min
+40. Marcos Antônio — Meia — 5J — 0G — 402 min
+41. Caíque — Meia — 5J — 0G — 265 min
+42. Velicka — Defensor — 5J — 0G — 121 min
+43. Joílson — Meia — 4J — 0G — 117 min
+44. Judivan — Atacante — 4J — 0G — 104 min
+45. Muriel — Defensor — 4J — 0G — 97 min
+46. Pingo — Atacante — 4J — 0G — 86 min
+47. Wellington Silva — Defensor — 3J — 0G — 113 min
+48. Rony Fernandes — Defensor — 2J — 0G — 95 min
+49. Maxuell Samurai — Atacante — 2J — 0G — 33 min
+50. Da Silva — Meia — 1J — 0G — 90 min
+51. Vital — Defensor — 1J — 0G — 54 min
+52. Charles — Meia — 1J — 0G — 36 min
+53. Elly — Atacante — 1J — 0G — 29 min
+54. Victor Paraíba — Atacante — 1J — 0G — 13 min
+55. Daniel Alagoano — Meia — 1J — 0G — 11 min
+
+Existing players that must be linked instead of recreated:
+
+* Didira
+* Daniel Costa
+* Celsinho
+* Leandro Souza
+* Rafinha
+* Dawhan
+* Michel Douglas
+* Willis Mota
+* Alexandre Cajuru
+* Edinho
+* Boquita
+* Marcos Antônio
+* Caíque
+* Maxuell Samurai
+* Rodrigo Lobão
+* Rony Fernandes
+* Vital
+
+Season summary:
+
+* Players: 55
+* Top scorer: Didira (13 gols)
+* Most appearances: Didira (52 jogos)
+* Most minutes: Didira (4182 minutos)
+
+Recalculate all season, career and player-profile statistics after import.
