@@ -1,0 +1,79 @@
+Import the following real CSA 2025 matches and replace any fictional records for these dates.
+
+[
+{"date":"2025-01-29","competition":"Campeonato Alagoano 2025","opponent":"Coruripe","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+
+{"date":"2025-02-01","competition":"Campeonato Alagoano 2025","opponent":"ASA","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2025-02-05","competition":"Copa do Nordeste 2025","opponent":"Ceará","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2025-02-08","competition":"Campeonato Alagoano 2025","opponent":"Penedense","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"},
+{"date":"2025-02-13","competition":"Copa do Nordeste 2025","opponent":"Sampaio Corrêa","venue":"Home","goalsFor":4,"goalsAgainst":0,"result":"W"},
+{"date":"2025-02-16","competition":"Campeonato Alagoano 2025","opponent":"ASA","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2025-02-19","competition":"Copa do Brasil 2025","opponent":"Boavista-RJ","venue":"Away","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2025-02-22","competition":"Campeonato Alagoano 2025","opponent":"ASA","venue":"Home","goalsFor":1,"goalsAgainst":0,"result":"W","notes":"Eliminated on penalties (2-3)"},
+
+{"date":"2025-02-26","competition":"Copa do Nordeste 2025","opponent":"Náutico","venue":"Home","goalsFor":4,"goalsAgainst":1,"result":"W"},
+{"date":"2025-03-06","competition":"Copa do Nordeste 2025","opponent":"Juazeirense","venue":"Away","goalsFor":2,"goalsAgainst":2,"result":"D"},
+{"date":"2025-03-13","competition":"Copa do Brasil 2025","opponent":"Tuna Luso","venue":"Home","goalsFor":5,"goalsAgainst":0,"result":"W"},
+{"date":"2025-03-19","competition":"Copa do Nordeste 2025","opponent":"Bahia","venue":"Home","goalsFor":1,"goalsAgainst":2,"result":"L"},
+
+{"date":"2025-04-02","competition":"Campeonato Alagoano 2025","opponent":"CSE","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2025-04-06","competition":"Campeonato Alagoano 2025","opponent":"CSE","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+
+{"date":"2025-04-12","competition":"Brasileirão Série C 2025","opponent":"Anápolis","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2025-04-21","competition":"Brasileirão Série C 2025","opponent":"ABC","venue":"Away","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2025-04-26","competition":"Brasileirão Série C 2025","opponent":"Náutico","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2025-04-30","competition":"Copa do Brasil 2025","opponent":"Grêmio","venue":"Home","goalsFor":3,"goalsAgainst":2,"result":"W"},
+
+{"date":"2025-05-04","competition":"Brasileirão Série C 2025","opponent":"Ypiranga-RS","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2025-05-11","competition":"Brasileirão Série C 2025","opponent":"Maringá","venue":"Home","goalsFor":3,"goalsAgainst":2,"result":"W"},
+{"date":"2025-05-17","competition":"Brasileirão Série C 2025","opponent":"Tombense","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2025-05-20","competition":"Copa do Brasil 2025","opponent":"Grêmio","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2025-05-24","competition":"Brasileirão Série C 2025","opponent":"Confiança","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2025-06-02","competition":"Brasileirão Série C 2025","opponent":"São Bernardo","venue":"Away","goalsFor":3,"goalsAgainst":1,"result":"W"},
+{"date":"2025-06-07","competition":"Copa do Nordeste 2025","opponent":"América-RN","venue":"Away","goalsFor":1,"goalsAgainst":0,"result":"W"},
+{"date":"2025-06-16","competition":"Brasileirão Série C 2025","opponent":"Floresta-CE","venue":"Home","goalsFor":2,"goalsAgainst":0,"result":"W"},
+{"date":"2025-06-28","competition":"Brasileirão Série C 2025","opponent":"Guarani","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+
+{"date":"2025-07-05","competition":"Brasileirão Série C 2025","opponent":"Caxias","venue":"Home","goalsFor":2,"goalsAgainst":3,"result":"L"},
+{"date":"2025-07-09","competition":"Copa do Nordeste 2025","opponent":"Ferroviário","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2025-07-14","competition":"Brasileirão Série C 2025","opponent":"Retrô FC","venue":"Away","goalsFor":0,"goalsAgainst":0,"result":"D"},
+{"date":"2025-07-20","competition":"Brasileirão Série C 2025","opponent":"Figueirense","venue":"Home","goalsFor":1,"goalsAgainst":1,"result":"D"},
+{"date":"2025-07-26","competition":"Brasileirão Série C 2025","opponent":"Londrina","venue":"Away","goalsFor":1,"goalsAgainst":3,"result":"L"},
+{"date":"2025-07-30","competition":"Copa do Brasil 2025","opponent":"Vasco","venue":"Home","goalsFor":0,"goalsAgainst":0,"result":"D"},
+
+{"date":"2025-08-02","competition":"Brasileirão Série C 2025","opponent":"Botafogo-PB","venue":"Home","goalsFor":2,"goalsAgainst":1,"result":"W"},
+{"date":"2025-08-07","competition":"Copa do Brasil 2025","opponent":"Vasco","venue":"Away","goalsFor":1,"goalsAgainst":3,"result":"L"},
+{"date":"2025-08-11","competition":"Brasileirão Série C 2025","opponent":"Itabaiana","venue":"Away","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2025-08-16","competition":"Brasileirão Série C 2025","opponent":"Ituano","venue":"Home","goalsFor":2,"goalsAgainst":2,"result":"D"},
+{"date":"2025-08-20","competition":"Copa do Nordeste 2025","opponent":"Confiança","venue":"Home","goalsFor":0,"goalsAgainst":1,"result":"L"},
+{"date":"2025-08-25","competition":"Brasileirão Série C 2025","opponent":"Ponte Preta","venue":"Home","goalsFor":1,"goalsAgainst":2,"result":"L"},
+{"date":"2025-08-30","competition":"Brasileirão Série C 2025","opponent":"Brusque","venue":"Away","goalsFor":0,"goalsAgainst":2,"result":"L"}
+]
+
+Important:
+
+* 2025-02-22 vs ASA = WIN 1-0, but eliminated on penalties (2-3). Match result remains a WIN in historical records.
+* 2025-05-20 vs Grêmio = DRAW 0-0.
+* 2025-07-30 vs Vasco = DRAW 0-0.
+* Do not transform penalty shootouts into wins/losses for historical statistics.
+
+After import, validate against OGol 2025 totals:
+
+Competitions:
+
+* Alagoano: 11 matches, 6W 3D 2L, 14 GF, 6 GA
+* Copa do Nordeste (incl. qualifying): 11 matches, 8W 1D 2L in official tournament + 2 qualifying wins
+* Copa do Brasil: 6 matches, 3W 2D 1L, 11 GF, 5 GA
+* Série C: 19 matches, 5W 7D 7L, 21 GF, 23 GA
+
+Season total:
+
+* 47 matches
+* 21 wins
+* 13 draws
+* 13 losses
+* 64 goals scored
+* 43 goals conceded
+
+Do not create fictional matches.
