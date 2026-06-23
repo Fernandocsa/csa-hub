@@ -875,7 +875,7 @@ components:
 
     OpponentDetail:
       type: object
-      required: [id, name, matches, wins, draws, losses, goalsFor, goalsAgainst, recentMatches]
+      required: [id, name, matches, wins, draws, losses, goalsFor, goalsAgainst, allMatches]
       properties:
         id:
           type: integer
@@ -897,7 +897,7 @@ components:
           $ref: "#/components/schemas/RecordLine"
         awayRecord:
           $ref: "#/components/schemas/RecordLine"
-        recentMatches:
+        allMatches:
           type: array
           items:
             $ref: "#/components/schemas/Match"

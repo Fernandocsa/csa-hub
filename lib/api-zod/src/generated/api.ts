@@ -393,7 +393,7 @@ export const GetOpponentResponse = zod.object({
   "goalsFor": zod.number(),
   "goalsAgainst": zod.number()
 }).optional(),
-  "recentMatches": zod.array(zod.object({
+  "allMatches": zod.array(zod.object({
   "id": zod.number(),
   "date": zod.string(),
   "opponent": zod.string(),

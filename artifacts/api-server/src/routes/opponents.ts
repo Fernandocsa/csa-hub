@@ -97,7 +97,7 @@ router.get("/opponents/:id", async (req, res) => {
       .from(matchesTable)
       .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.homeAway, "away")));
 
-    const recentMatches = await db
+    const allMatchRows = await db
       .select({
         id: matchesTable.id,
         matchDate: matchesTable.matchDate,
@@ -115,8 +115,7 @@ router.get("/opponents/:id", async (req, res) => {
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
       .where(eq(matchesTable.opponentId, id))
-      .orderBy(desc(matchesTable.matchDate))
-      .limit(10);
+      .orderBy(desc(matchesTable.matchDate));
 
     const victoryRows = await db
       .select({
@@ -152,7 +151,7 @@ router.get("/opponents/:id", async (req, res) => {
       goalsAgainst: stats?.goalsAgainst || 0,
       homeRecord: homeRecord[0] || { matches: 0, wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 },
       awayRecord: awayRecord[0] || { matches: 0, wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 },
-      recentMatches: recentMatches.map((r) => ({
+      allMatches: allMatchRows.map((r) => ({
         id: r.id,
         date: r.matchDate,
         opponent: r.opponentName,

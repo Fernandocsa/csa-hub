@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { Link, useParams } from "wouter";
 import { useGetOpponent, getGetOpponentQueryKey } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronLeft as PrevIcon, ChevronRight } from "lucide-react";
 import { ResultBadge } from "@/components/ui/result-badge";
+import { Button } from "@/components/ui/button";
+
+const PAGE_SIZE = 25;
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -32,6 +36,7 @@ function MiniRecord({ label, data: d }: { label: string; data: { matches: number
 export default function OpponentDetail() {
   const params = useParams();
   const id = parseInt(params.id ?? "0", 10);
+  const [page, setPage] = useState(0);
 
   const { data: opponent, isLoading, isError } = useGetOpponent(id, {
     query: { enabled: !!id, queryKey: getGetOpponentQueryKey(id) },
@@ -50,6 +55,11 @@ export default function OpponentDetail() {
   if (isError || !opponent) {
     return <div className="text-center p-8 text-destructive">Adversário não encontrado.</div>;
   }
+
+  const allMatches = opponent.allMatches ?? [];
+  const totalPages = Math.ceil(allMatches.length / PAGE_SIZE);
+  const currentPage = Math.min(page, Math.max(0, totalPages - 1));
+  const pageMatches = allMatches.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
 
   return (
     <div className="space-y-5 max-w-3xl">
@@ -95,14 +105,43 @@ export default function OpponentDetail() {
         </div>
       )}
 
-      {/* Recent matches */}
+      {/* All matches */}
       <div>
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Confrontos Recentes</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Histórico de Confrontos
+            <span className="ml-2 font-normal text-xs">({allMatches.length} {allMatches.length === 1 ? "jogo" : "jogos"})</span>
+          </h2>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2"
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={currentPage === 0}
+              >
+                <PrevIcon className="h-3.5 w-3.5" />
+              </Button>
+              <span>{currentPage + 1}/{totalPages}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2"
+                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                disabled={currentPage >= totalPages - 1}
+              >
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          )}
+        </div>
         <div className="border rounded">
           <Table>
             <TableHeader>
               <TableRow className="text-xs">
                 <TableHead className="py-2">Data</TableHead>
+                <TableHead className="py-2">Temporada</TableHead>
                 <TableHead className="py-2 text-center">Res.</TableHead>
                 <TableHead className="py-2 text-center">Placar</TableHead>
                 <TableHead className="py-2">Mando</TableHead>
@@ -110,14 +149,15 @@ export default function OpponentDetail() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {opponent.recentMatches.length === 0 ? (
+              {pageMatches.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-16 text-center text-muted-foreground">Sem confrontos registrados.</TableCell>
+                  <TableCell colSpan={6} className="h-16 text-center text-muted-foreground">Sem confrontos registrados.</TableCell>
                 </TableRow>
               ) : (
-                opponent.recentMatches.map((match) => (
+                pageMatches.map((match) => (
                   <TableRow key={match.id} className="text-sm" data-testid={`row-match-${match.id}`}>
                     <TableCell className="py-2 text-muted-foreground text-xs">{fmtDate(match.date)}</TableCell>
+                    <TableCell className="py-2 text-xs text-muted-foreground">{match.season}</TableCell>
                     <TableCell className="py-2 text-center">
                       <ResultBadge result={match.result} />
                     </TableCell>
@@ -130,6 +170,11 @@ export default function OpponentDetail() {
             </TableBody>
           </Table>
         </div>
+        {totalPages > 1 && (
+          <p className="text-xs text-muted-foreground mt-2 text-right">
+            Exibindo {currentPage * PAGE_SIZE + 1}–{Math.min((currentPage + 1) * PAGE_SIZE, allMatches.length)} de {allMatches.length} jogos
+          </p>
+        )}
       </div>
     </div>
   );

@@ -19,7 +19,7 @@ export interface OpponentDetail {
   goalsAgainst: number;
   homeRecord?: RecordLine;
   awayRecord?: RecordLine;
-  recentMatches: Match[];
+  allMatches: Match[];
   /** @nullable */
   biggestVictory?: string | null;
   /** @nullable */
