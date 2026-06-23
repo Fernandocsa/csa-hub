@@ -1,0 +1,136 @@
+Import season 2023 roster and stats.
+
+Season: 2023
+Players: 74
+
+Please import the following roster exactly as listed.
+
+1. Tomas Bastos — Meia — 40J — 8G — 2820 min
+2. Dalberson — Goleiro — 38J — 0G — 3420 min
+3. Bruno Matias — Meia — 33J — 0G — 2762 min
+4. Robinho — Atacante — 25J — 3G — 1189 min
+5. Éverton Silva — Defensor — 24J — 0G — 1380 min
+6. Rafael Forster — Defensor — 21J — 0G — 1838 min
+7. Iago Teles — Atacante — 21J — 1G — 1490 min
+8. Ruan — Atacante — 21J — 1G — 815 min
+9. Moisés Ribeiro — Meia — 20J — 0G — 1428 min
+10. Thiaguinho — Atacante — 20J — 2G — 785 min
+11. Xandão — Defensor — 19J — 2G — 1710 min
+12. Gabriel Taliari — Meia — 19J — 7G — 1563 min
+13. Kaio Nunes — Atacante — 19J — 3G — 1274 min
+14. Rhuan — Defensor — 19J — 0G — 914 min
+15. Ednei — Defensor — 18J — 0G — 1472 min
+16. Paulo César — Defensor — 18J — 0G — 1346 min
+17. Cedric — Defensor — 18J — 0G — 1308 min
+18. Almir Luan — Defensor — 17J — 0G — 994 min
+19. Celsinho — Defensor — 16J — 1G — 920 min
+20. João Felipe — Atacante — 16J — 2G — 732 min
+21. Jô — Atacante — 16J — 2G — 598 min
+22. Arnaldo — Defensor — 15J — 0G — 974 min
+23. Yago Henrique — Meia — 15J — 0G — 635 min
+24. Ernandes — Defensor — 14J — 0G — 1167 min
+25. Pará — Defensor — 13J — 1G — 1056 min
+26. Geovane Silva — Meia — 13J — 0G — 756 min
+27. Luis Felipe — Atacante — 13J — 1G — 361 min
+28. Guilherme Rend — Meia — 12J — 0G — 603 min
+29. William Oliveira — Meia — 12J — 0G — 571 min
+30. Jonathan — Defensor — 12J — 0G — 450 min
+31. Thales — Defensor — 10J — 1G — 900 min
+32. Rodriguinho — Atacante — 10J — 1G — 479 min
+33. Jean Carlo — Atacante — 10J — 2G — 409 min
+34. Douglas — Defensor — 9J — 1G — 740 min
+35. João Victor — Meia — 9J — 0G — 453 min
+36. Dedé — Atacante — 8J — 1G — 406 min
+37. Marciel — Meia — 8J — 1G — 339 min
+38. Rodolfo — Meia — 8J — 0G — 171 min
+39. Paulo Ricardo — Goleiro — 7J — 0G — 630 min
+40. Jefferson Oliveira — Atacante — 6J — 0G — 540 min
+41. Erik — Meia — 6J — 0G — 495 min
+42. Vitão — Meia — 6J — 0G — 378 min
+43. Lucas Ryan — Defensor — 6J — 0G — 351 min
+44. Ray Vanegas — Atacante — 6J — 0G — 282 min
+45. Moisés Gaúcho — Meia — 6J — 0G — 153 min
+46. Elvis — Atacante — 6J — 1G — 148 min
+47. Pedro Victor — Meia — 5J — 0G — 326 min
+48. Júnior Todinho — Atacante — 4J — 1G — 305 min
+49. Wenderson — Atacante — 4J — 0G — 167 min
+50. Eduardo — Goleiro — 3J — 0G — 270 min
+51. Pedrão — Meia — 3J — 0G — 244 min
+52. Rodrigo Rodrigues — Atacante — 3J — 0G — 237 min
+53. Gabriel Oliveira — Defensor — 3J — 0G — 225 min
+54. Rhayner — Meia — 3J — 0G — 116 min
+55. Ramires — Meia — 3J — 0G — 115 min
+56. Gabriel Tonini — Meia — 3J — 0G — 95 min
+57. Tito — Defensor — 3J — 0G — 79 min
+58. Erick Melo — Meia — 3J — 0G — 28 min
+59. Vinicius Peixoto — Atacante — 3J — 0G — 10 min
+60. Gabryel — Defensor — 2J — 0G — 180 min
+61. Matheus Lima — Atacante — 2J — 0G — 161 min
+62. José Cleverton — Meia — 2J — 0G — 74 min
+63. Abner Vinicius — Atacante — 2J — 0G — 55 min
+64. Vinicius Toledo — Meia — 2J — 0G — 46 min
+65. Eduardo Jacone — Defensor — 1J — 0G — 90 min
+66. Kauã — Defensor — 1J — 0G — 90 min
+67. Giresse — Defensor — 1J — 0G — 72 min
+68. Wesley — Defensor — 1J — 0G — 63 min
+69. Fabrício Santos — Meia — 1J — 0G — 62 min
+70. Mateus Santos — Defensor — 1J — 0G — 28 min
+71. William — Defensor — 1J — 0G — 27 min
+72. Alex Matheus — Defensor — 1J — 0G — 18 min
+73. Victor Ramalho — Defensor — 1J — 0G — 14 min
+74. Kleiton — Meia — 1J — 0G — 9 min
+
+Existing players that must be linked instead of recreated:
+
+* Rodrigo Rodrigues
+* Éverton Silva
+* Cedric
+* Almir Luan
+* Yago Henrique
+* Ernandes
+* Jonathan
+* João Victor
+* Paulo Ricardo
+* Gabriel Tonini
+* Tito
+* Xandão
+* Celsinho
+
+Season summary:
+
+* Players: 74
+* Top scorer: Tomas Bastos (8 gols)
+* Most appearances: Tomas Bastos (40)
+* Most minutes: Dalberson (3420)
+
+Top scorers:
+
+1. Tomas Bastos — 8 gols
+2. Gabriel Taliari — 7 gols
+3. Robinho — 3 gols
+4. Kaio Nunes — 3 gols
+5. Thiaguinho — 2 gols
+6. Xandão — 2 gols
+7. João Felipe — 2 gols
+8. Jô — 2 gols
+9. Jean Carlo — 2 gols
+
+Goalkeepers used:
+
+* Dalberson
+* Paulo Ricardo
+* Eduardo
+
+Recalculate after import:
+
+* Season roster page
+* Season top scorers page
+* Season statistics page
+* Career appearances ranking
+* Career goals ranking
+* Career minutes ranking
+* Player profile pages
+* Team statistics page
+
+Expected result:
+2023 season imported with 74 players and all recurring athletes linked correctly.

@@ -1,0 +1,120 @@
+Import season 2024 roster and stats.
+
+Season: 2024
+Players: 62
+
+Please import the following roster exactly as listed.
+
+1. Tiago Marques — Atacante — 34J — 18G — 2401 min
+2. Eduardo Biazus — Defensor — 31J — 0G — 2622 min
+3. Lucas Marques — Defensor — 26J — 1G — 1887 min
+4. Marquinhos — Atacante — 22J — 4G — 1471 min
+5. Gustavo Xuxa — Meia — 22J — 6G — 1453 min
+6. Erik — Meia — 22J — 0G — 1291 min
+7. Juninho Valoura — Meia — 21J — 2G — 1607 min
+8. Marlon — Meia — 19J — 0G — 1441 min
+9. Pedro Favela — Meia — 18J — 0G — 924 min
+10. Jean Cléber — Meia — 18J — 0G — 846 min
+11. Vitor Leque — Atacante — 17J — 1G — 852 min
+12. Almir Luan — Defensor — 16J — 1G — 1299 min
+13. Raphinha — Defensor — 16J — 0G — 1049 min
+14. Wellington Carvalho — Defensor — 15J — 3G — 1204 min
+15. Alisson Farias — Atacante — 15J — 2G — 753 min
+16. Buga — Meia — 14J — 0G — 883 min
+17. Yuri Reis — Goleiro — 12J — 0G — 1080 min
+18. Vinicius Popó — Atacante — 12J — 1G — 349 min
+19. Deivity — Goleiro — 11J — 0G — 977 min
+20. Matheus Santos — Defensor — 11J — 0G — 859 min
+21. Brayann — Meia — 11J — 0G — 673 min
+22. Kevin — Defensor — 11J — 0G — 648 min
+23. Guilherme Dal Pian — Defensor — 11J — 0G — 631 min
+24. Richard — Atacante — 11J — 1G — 606 min
+25. Dudu Miraíma — Meia — 11J — 0G — 446 min
+26. Roberto — Defensor — 10J — 1G — 873 min
+27. Gustavo Nicola — Meia — 10J — 0G — 760 min
+28. Gustavo Cabral — Meia — 10J — 1G — 645 min
+29. Iury Tanque — Atacante — 10J — 1G — 499 min
+30. Fernando Castro — Goleiro — 9J — 0G — 763 min
+31. Jefferson Oliveira — Atacante — 9J — 1G — 532 min
+32. Rafinha — Meia — 9J — 2G — 327 min
+33. Thomazella — Goleiro — 8J — 0G — 720 min
+34. Robinho — Atacante — 8J — 3G — 282 min
+35. Rômulo — Atacante — 7J — 0G — 457 min
+36. Eduardo — Defensor — 7J — 0G — 339 min
+37. Mateus Buiate — Defensor — 6J — 0G — 413 min
+38. Allyson — Meia — 6J — 0G — 173 min
+39. Douglas Skilo — Atacante — 5J — 0G — 200 min
+40. Miqueias — Atacante — 5J — 0G — 123 min
+41. Calebe Costa — Meia — 5J — 0G — 116 min
+42. Bruno Cardoso — Defensor — 4J — 1G — 360 min
+43. Thiago Lopes — Defensor — 4J — 0G — 315 min
+44. Jean Pierre — Defensor — 4J — 0G — 315 min
+45. Igor Dutra — Defensor — 4J — 0G — 241 min
+46. Ricardo Sena — Defensor — 4J — 0G — 232 min
+47. Niltinho — Atacante — 4J — 1G — 187 min
+48. Caio Vitor — Meia — 4J — 0G — 167 min
+49. Luan Martins — Meia — 3J — 0G — 231 min
+50. Matheus Mega — Defensor — 3J — 0G — 205 min
+51. Foguinho — Meia — 3J — 0G — 91 min
+52. Guilherme Rend — Meia — 3J — 1G — 75 min
+53. Roger Modesto — Atacante — 3J — 0G — 38 min
+54. Denílson — Defensor — 1J — 0G — 90 min
+55. Mateus Santos — Defensor — 1J — 0G — 89 min
+56. José Cleverton — Meia — 1J — 0G — 45 min
+57. Ismael Nunes — Defensor — 1J — 0G — 31 min
+58. Álvaro — Meia — 1J — 0G — 20 min
+59. Paulo César — Defensor — 1J — 0G — 19 min
+60. Alan Pedro — Meia — 1J — 0G — 12 min
+61. Jefferson Júnior — Atacante — 1J — 0G — 1 min
+62. Wesley — Meia — 1J — 0G — 1 min
+
+Existing players that must be linked instead of recreated:
+
+* Jean Cléber
+* Almir Luan
+* Erik
+* Jefferson Oliveira
+* Robinho
+* Guilherme Rend
+* Denílson
+* José Cleverton
+* Paulo César
+
+Season summary:
+
+* Players: 62
+* Top scorer: Tiago Marques (18 gols)
+* Most appearances: Tiago Marques (34 jogos)
+* Most minutes: Eduardo Biazus (2622 minutos)
+
+Top scorers:
+
+1. Tiago Marques — 18 gols
+2. Gustavo Xuxa — 6 gols
+3. Marquinhos — 4 gols
+4. Wellington Carvalho — 3 gols
+5. Robinho — 3 gols
+6. Juninho Valoura — 2 gols
+7. Alisson Farias — 2 gols
+8. Rafinha — 2 gols
+
+Goalkeepers used:
+
+* Yuri Reis
+* Deivity
+* Fernando Castro
+* Thomazella
+
+Recalculate after import:
+
+* Season roster page
+* Season top scorers page
+* Season statistics page
+* Career appearances ranking
+* Career goals ranking
+* Career minutes ranking
+* Player profile pages
+* Team statistics page
+
+Expected result:
+2024 season imported with 62 players and all recurring athletes linked correctly.
