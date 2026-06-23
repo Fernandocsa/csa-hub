@@ -1,0 +1,84 @@
+Import season 2026 roster and statistics.
+
+Season: 2026
+Players: 47
+
+Top scorer:
+
+* Rian Santana — 26J — 15G
+
+Players:
+
+1. Rian Santana — Atacante — 26J — 15G — 1958 min
+2. Kayllan — Meia — 22J — 1G — 1975 min
+3. Fabrício Bigode — Meia — 22J — 2G — 1385 min
+4. Matheus Melo — Meia — 22J — 5G — 1260 min
+5. Wellerson — Goleiro — 21J — 0G — 1890 min
+6. Rayan — Defensor — 21J — 2G — 1856 min
+7. Dudu Figueiredo — Meia — 20J — 4G — 1451 min
+8. Kaike — Defensor — 18J — 0G — 1338 min
+9. Matheus Souza — Atacante — 16J — 0G — 727 min
+10. Lucão — Defensor — 14J — 0G — 1248 min
+11. Marcos Ytalo — Defensor — 14J — 0G — 598 min
+12. Ramon Batista — Meia — 14J — 0G — 494 min
+13. Félix Jorge — Defensor — 13J — 1G — 774 min
+14. Robinho — Atacante — 13J — 2G — 416 min
+15. Camacho — Meia — 12J — 2G — 1010 min
+16. Samuel Reis — Atacante — 12J — 1G — 328 min
+17. Caio Hila — Defensor — 10J — 0G — 849 min
+18. Buba — Atacante — 10J — 1G — 710 min
+19. Ronaldo Mendes — Meia — 10J — 2G — 395 min
+20. Ciel — Atacante — 9J — 3G — 773 min
+21. Ailton Santos — Defensor — 9J — 2G — 737 min
+22. Gustavo — Defensor — 9J — 3G — 309 min
+23. Lucas Silva — Atacante — 9J — 1G — 264 min
+24. Lucas Serafini — Defensor — 8J — 0G — 363 min
+25. Wesley — Meia — 8J — 0G — 323 min
+26. Lucas Lima — Atacante — 7J — 2G — 410 min
+27. Marlon Lopes — Defensor — 6J — 1G — 389 min
+28. Igor Guilherme — Meia — 6J — 1G — 372 min
+29. Arthur Silveira — Goleiro — 5J — 0G — 387 min
+30. Luiz Guilherme — Meia — 5J — 0G — 168 min
+31. Vitinho — Atacante — 5J — 2G — 131 min
+32. Matheus Sacramento — Atacante — 4J — 0G — 108 min
+33. Cauã Soares — Defensor — 3J — 0G — 228 min
+34. Amorim — Defensor — 3J — 0G — 213 min
+35. Renato Pitbull — Meia — 3J — 0G — 175 min
+36. Thiago Medeiros — Meia — 3J — 0G — 152 min
+37. Luquinhas — Atacante — 3J — 0G — 61 min
+38. Yago Oliveira — Goleiro — 2J — 0G — 153 min
+39. Davi Agra — Defensor — 2J — 0G — 95 min
+40. Gabriel Boquinha — Defensor — 2J — 0G — 56 min
+41. Felipe Rodrigues — Meia — 2J — 0G — 56 min
+42. Calyl — Defensor — 2J — 1G — 31 min
+43. Francisco Serrate — Defensor — 2J — 0G — 16 min
+44. Petrucio — Meia — 1J — 0G — 45 min
+45. Everton Heleno — Meia — 1J — 0G — 45 min
+46. Mikael — Defensor — 1J — 0G — 16 min
+47. Marcos Vinicius — Atacante — 1J — 0G — 1 min
+
+Existing players that should be linked instead of recreated:
+
+* Robinho
+* Ramon Batista
+* Camacho
+* Wesley
+* Ciel
+* Cauã Soares
+* Davi Agra
+* Francisco Serrate
+* Luiz Guilherme
+* Gustavo
+* Marcos Vinicius
+* Everton Heleno
+* Lucão
+
+Recalculate:
+
+* Season roster
+* Season statistics
+* Career appearances
+* Career goals
+* Career minutes
+* Player profile pages
+* Historical rankings
