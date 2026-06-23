@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -26,3 +26,15 @@ export type Player = typeof playersTable.$inferSelect;
 export const insertPlayerSeasonStatSchema = createInsertSchema(playerSeasonStatsTable).omit({ id: true });
 export type InsertPlayerSeasonStat = z.infer<typeof insertPlayerSeasonStatSchema>;
 export type PlayerSeasonStat = typeof playerSeasonStatsTable.$inferSelect;
+
+export const seasonTopScorersTable = pgTable("season_top_scorers", {
+  id: serial("id").primaryKey(),
+  season: text("season").notNull(),
+  playerName: text("player_name").notNull(),
+  goals: integer("goals").notNull(),
+  verified: boolean("verified").notNull().default(true),
+});
+
+export const insertSeasonTopScorerSchema = createInsertSchema(seasonTopScorersTable).omit({ id: true });
+export type InsertSeasonTopScorer = z.infer<typeof insertSeasonTopScorerSchema>;
+export type SeasonTopScorer = typeof seasonTopScorersTable.$inferSelect;

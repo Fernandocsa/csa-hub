@@ -314,7 +314,12 @@ export const GetSeasonResponse = zod.object({
 })),
   "competitions": zod.array(zod.string()),
   "leaguePosition": zod.number().nullish(),
-  "leagueName": zod.string().nullish()
+  "leagueName": zod.string().nullish(),
+  "topScorers": zod.array(zod.object({
+  "name": zod.string(),
+  "goals": zod.number(),
+  "verified": zod.boolean().optional()
+})).optional()
 })
 
 

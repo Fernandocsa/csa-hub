@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { matchesTable, opponentsTable, competitionsTable, playerSeasonStatsTable, playersTable, leaguePositionsTable } from "@workspace/db";
+import { matchesTable, opponentsTable, competitionsTable, playerSeasonStatsTable, playersTable, leaguePositionsTable, seasonTopScorersTable } from "@workspace/db";
 import { sql, eq, desc } from "drizzle-orm";
 
 const router = Router();
@@ -34,27 +34,18 @@ router.get("/seasons", async (req, res) => {
 
         const topScorerRows = await db
           .select({
-            name: playersTable.name,
-            goals: sql<number>`cast(sum(${playerSeasonStatsTable.goals}) as int)`,
+            name: seasonTopScorersTable.playerName,
+            goals: seasonTopScorersTable.goals,
           })
-          .from(playerSeasonStatsTable)
-          .innerJoin(playersTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
-          .where(eq(playerSeasonStatsTable.season, season))
-          .groupBy(playersTable.name)
-          .orderBy(sql`sum(${playerSeasonStatsTable.goals}) desc`)
-          .limit(1);
+          .from(seasonTopScorersTable)
+          .where(eq(seasonTopScorersTable.season, season))
+          .orderBy(desc(seasonTopScorersTable.goals));
 
-        const topAppRows = await db
-          .select({
-            name: playersTable.name,
-            appearances: sql<number>`cast(sum(${playerSeasonStatsTable.appearances}) as int)`,
-          })
-          .from(playerSeasonStatsTable)
-          .innerJoin(playersTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
-          .where(eq(playerSeasonStatsTable.season, season))
-          .groupBy(playersTable.name)
-          .orderBy(sql`sum(${playerSeasonStatsTable.appearances}) desc`)
-          .limit(1);
+        // Build joined display name for ties (e.g. "Rodrigo Pimpão / Paulo Sérgio")
+        const topGoals = topScorerRows[0]?.goals ?? null;
+        const topNames = topScorerRows
+          .filter((r) => r.goals === topGoals)
+          .map((r) => r.name);
 
         return {
           year: season,
@@ -64,10 +55,10 @@ router.get("/seasons", async (req, res) => {
           losses: stats?.losses || 0,
           goalsScored: stats?.goalsScored || 0,
           goalsConceded: stats?.goalsConceded || 0,
-          topScorer: topScorerRows[0]?.name ?? null,
-          topScorerGoals: topScorerRows[0]?.goals ?? null,
-          topAppearances: topAppRows[0]?.name ?? null,
-          topAppearancesCount: topAppRows[0]?.appearances ?? null,
+          topScorer: topNames.length > 0 ? topNames.join(" / ") : null,
+          topScorerGoals: topGoals,
+          topAppearances: null,
+          topAppearancesCount: null,
         };
       }),
     );
@@ -139,6 +130,16 @@ router.get("/seasons/:year", async (req, res) => {
       .where(eq(leaguePositionsTable.year, year))
       .limit(1);
 
+    const topScorers = await db
+      .select({
+        name: seasonTopScorersTable.playerName,
+        goals: seasonTopScorersTable.goals,
+        verified: seasonTopScorersTable.verified,
+      })
+      .from(seasonTopScorersTable)
+      .where(eq(seasonTopScorersTable.season, year))
+      .orderBy(desc(seasonTopScorersTable.goals));
+
     res.json({
       year,
       matches: stats.totalMatches || 0,
@@ -151,6 +152,7 @@ router.get("/seasons/:year", async (req, res) => {
       competitions: compRows.map((c) => c.name),
       leaguePosition: leaguePos[0]?.position ?? null,
       leagueName: leaguePos[0]?.league ?? null,
+      topScorers,
     });
   } catch (err) {
     req.log.error(err);

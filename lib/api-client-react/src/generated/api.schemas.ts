@@ -183,6 +183,12 @@ export interface Season {
   topAppearancesCount?: number | null;
 }
 
+export interface TopScorerEntry {
+  name: string;
+  goals: number;
+  verified?: boolean;
+}
+
 export interface SeasonDetail {
   year: string;
   matches: number;
@@ -197,6 +203,7 @@ export interface SeasonDetail {
   leaguePosition?: number | null;
   /** @nullable */
   leagueName?: string | null;
+  topScorers?: TopScorerEntry[];
 }
 
 export interface LeaguePosition {

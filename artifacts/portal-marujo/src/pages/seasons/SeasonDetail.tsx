@@ -116,7 +116,7 @@ export default function SeasonDetail() {
           </div>
         </div>
 
-        {/* Competitions */}
+        {/* Competitions + Top Scorer */}
         <div className="space-y-3">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Competições</h2>
           <div className="space-y-2">
@@ -131,8 +131,28 @@ export default function SeasonDetail() {
             )}
           </div>
 
+          {/* Top Scorer Card */}
+          <div className="border rounded p-4 mt-2">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Artilheiro da Temporada</p>
+            {season.topScorers && season.topScorers.length > 0 ? (
+              <div className="space-y-1">
+                {season.topScorers.map((scorer, i) => (
+                  <div key={i} className="flex items-baseline justify-between gap-2">
+                    <span className="font-semibold text-sm">{scorer.name}</span>
+                    <span className="text-primary font-black text-lg tabular-nums">{scorer.goals}</span>
+                  </div>
+                ))}
+                {season.topScorers.length > 1 && (
+                  <p className="text-xs text-muted-foreground">Artilheiros empatados</p>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Dados não disponíveis</p>
+            )}
+          </div>
+
           {season.leaguePosition && (
-            <div className="border rounded p-4 mt-4">
+            <div className="border rounded p-4">
               <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Posição na Liga</p>
               <p className="text-3xl font-black text-primary">{season.leaguePosition}º</p>
               {season.leagueName && <p className="text-xs text-muted-foreground mt-1">{season.leagueName}</p>}

@@ -50,3 +50,4 @@ export * from './stadium';
 export * from './streak';
 export * from './streakType';
 export * from './summaryStats';
+export * from './topScorerEntry';

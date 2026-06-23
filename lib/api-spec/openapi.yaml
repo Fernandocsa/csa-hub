@@ -800,6 +800,17 @@ components:
         topAppearancesCount:
           type: ["integer", "null"]
 
+    TopScorerEntry:
+      type: object
+      required: [name, goals]
+      properties:
+        name:
+          type: string
+        goals:
+          type: integer
+        verified:
+          type: boolean
+
     SeasonDetail:
       type: object
       required: [year, matches, wins, draws, losses, goalsScored, goalsConceded, players, competitions]
@@ -830,6 +841,10 @@ components:
           type: ["integer", "null"]
         leagueName:
           type: ["string", "null"]
+        topScorers:
+          type: array
+          items:
+            $ref: "#/components/schemas/TopScorerEntry"
 
     LeaguePosition:
       type: object

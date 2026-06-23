@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { PlayerStat } from './playerStat';
+import type { TopScorerEntry } from './topScorerEntry';
 
 export interface SeasonDetail {
   year: string;
@@ -21,4 +22,5 @@ export interface SeasonDetail {
   leaguePosition?: number | null;
   /** @nullable */
   leagueName?: string | null;
+  topScorers?: TopScorerEntry[];
 }
