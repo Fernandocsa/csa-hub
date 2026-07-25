@@ -24,13 +24,15 @@ args = ["pnpm", "--filter", "@workspace/portal-marujo", "run", "build"]
 NODE_ENV = "production"
 BASE_PATH = "/"
 
-[services.production]
-publicDir = "artifacts/portal-marujo/dist/public"
-serve = "static"
+[services.production.run]
+args = ["node", "artifacts/portal-marujo/serve.mjs"]
 
-[[services.production.rewrites]]
-from = "/*"
-to = "/index.html"
+[services.production.run.env]
+PORT = "25984"
+NODE_ENV = "production"
+
+[services.production.health.startup]
+path = "/"
 
 [services.env]
 PORT = "25984"
