@@ -491,6 +491,10 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
       managerId?: number | null;
       attendance?: number | null;
       scorers?: string | null;
+      isWalkover?: boolean;
+      isFriendly?: boolean;
+      grossRevenue?: number | null;
+      grossRevenueText?: string | null;
     };
     const [updated] = await db
       .update(matchesTable)
@@ -507,6 +511,10 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
         managerId: body.managerId ?? null,
         attendance: body.attendance ?? null,
         scorers: body.scorers ?? null,
+        isWalkover: body.isWalkover ?? false,
+        isFriendly: body.isFriendly ?? false,
+        grossRevenue: body.grossRevenue ?? null,
+        grossRevenueText: body.grossRevenueText ?? null,
       })
       .where(eq(matchesTable.id, id))
       .returning();
@@ -967,6 +975,8 @@ router.post("/admin/import/matches", requireAdmin, async (req, res) => {
         scorers: row.scorers || null,
         grossRevenue: isNaN(grossRevenue as number) ? null : grossRevenue,
         grossRevenueText,
+        isWalkover: row.is_walkover === "true",
+        isFriendly: row.is_friendly === "true",
       });
       created++;
     }

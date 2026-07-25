@@ -1,0 +1,53 @@
+| Data       | Competição          | Partida                              | Estádio             | Público    | Renda                    |
+| ---------- | ------------------- | ------------------------------------ | ------------------- | ---------- | ------------------------ |
+| 07/03/1993 | Campeonato Alagoano | CSA 0x1 CSE                          | José Gomes (Murici) | **1.770**  | **Cr$ 48.855.000,00**    |
+| 14/03/1993 | Campeonato Alagoano | Ipanema 1x2 CSA                      | Arnon de Mello      | —          | **Cr$ 23.000.000,00**    |
+| 21/03/1993 | Campeonato Alagoano | CSA 1x1 Capela                       | José Gomes (Murici) | —          | —                        |
+| 28/03/1993 | Campeonato Alagoano | CSA 1x3 CRB                          | José Gomes (Murici) | **3.890**  | **Cr$ 169.100.000,00**   |
+| 31/03/1993 | Campeonato Alagoano | CSA 3x0 Cruzeiro                     | José Gomes (Murici) | —          | —                        |
+| 04/04/1993 | Campeonato Alagoano | Comercial 0x1 CSA                    | Teotônio Vilela     | —          | —                        |
+| 11/04/1993 | Campeonato Alagoano | CSA 1x1 Santa Cruz                   | José Gomes (Murici) | —          | —                        |
+| 18/04/1993 | Campeonato Alagoano | ASA 0x0 CSA                          | Coaracy da Mata     | —          | —                        |
+| 25/04/1993 | Campeonato Alagoano | CRB 0x3 CSA                          | José Gomes (Murici) | **3.994**  | **Cr$ 241.450.000,00**   |
+| 02/05/1993 | Campeonato Alagoano | Capela 2x2 CSA                       | Manoel Moreira      | —          | —                        |
+| 05/05/1993 | Campeonato Alagoano | CSA 1x0 Capela                       | José Gomes (Murici) | —          | —                        |
+| 09/05/1993 | Campeonato Alagoano | ASA 0x1 CSA                          | Coaracy da Mata     | **5.322**  | **Cr$ 225.500.000,00**   |
+| 16/05/1993 | Campeonato Alagoano | CSA 1x0 ASA                          | José Gomes (Murici) | **3.193**  | **Cr$ 191.680.000,00**   |
+| 23/05/1993 | Campeonato Alagoano | Cruzeiro 0x1 CSA                     | Coaracy da Mata     | **1.044**  | **Cr$ 46.075.000,00**    |
+| 30/05/1993 | Campeonato Alagoano | CSA 3x1 7 de Setembro                | José Gomes (Murici) | **601**    | **Cr$ 40.720.000,00**    |
+| 06/06/1993 | Campeonato Alagoano | Capela 0x0 CSA                       | Manoel Moreira      | —          | —                        |
+| 09/06/1993 | Campeonato Alagoano | CSE 2x3 CSA                          | Juca Sampaio        | —          | —                        |
+| 13/06/1993 | Campeonato Alagoano | CRB 2x2 CSA                          | Pajuçara            | **3.585**  | **Cr$ 516.900.000,00**   |
+| 16/06/1993 | Campeonato Alagoano | CSA 1x0 Comercial                    | Pajuçara            | **1.511**  | **Cr$ 127.400.000,00**   |
+| 20/06/1993 | Campeonato Alagoano | CSA 0x0 ASA                          | Pajuçara            | **3.592**  | **Cr$ 297.950.000,00**   |
+| 29/06/1993 | Campeonato Alagoano | CSA 1x0 Santa Cruz                   | Pajuçara            | **2.092**  | **Cr$ 172.550.000,00**   |
+| 04/07/1993 | Campeonato Alagoano | CSA 4x1 Ipanema                      | Pajuçara            | **2.429**  | **Cr$ 323.650.000,00**   |
+| 11/07/1993 | Campeonato Alagoano | CSA 1x0 CRB                          | Pajuçara            | **6.645**  | **Cr$ 1.025.400.000,00** |
+| 18/07/1993 | Campeonato Alagoano | CSE 2x3 CSA                          | Juca Sampaio        | **1.953**  | **Cr$ 73.250.000,00**    |
+| 21/07/1993 | Campeonato Alagoano | CSA x CSE *(resultado desconhecido)* | Pajuçara            | —          | —                        |
+| 25/07/1993 | Campeonato Alagoano | CRB 1x0 CSA                          | Pajuçara            | **3.480**  | **Cr$ 520.700.000,00**   |
+| 08/08/1993 | Campeonato Alagoano | CSA 2x1 Cruzeiro                     | Rei Pelé            | —          | —                        |
+| 11/08/1993 | Campeonato Alagoano | CSA 0x0 CRB                          | Rei Pelé            | **18.875** | **Cr$ 5.415.400.000,00** |
+| 14/08/1993 | Campeonato Alagoano | 7 de Setembro 0x1 CSA                | João Batista        | —          | —                        |
+| 18/08/1993 | Campeonato Alagoano | CSA 0x1 CRB                          | Rei Pelé            | **17.301** | **Cr$ 4.726.200.000,00** |
+| 22/08/1993 | Campeonato Alagoano | CSA 1x1 CSE                          | Pajuçara            | —          | —                        |
+| 31/08/1993 | Campeonato Alagoano | CSA 1x2 CRB                          | Rei Pelé            | —          | —                        |
+| 01/09/1993 | Campeonato Alagoano | CSA W.O. Santa Cruz                  | Rei Pelé            | —          | —                        |
+| 04/09/1993 | Campeonato Alagoano | ASA 2x0 CSA                          | Coaracy da Mata     | —          | —                        |
+| 12/09/1993 | Campeonato Alagoano | CSA 1x1 Capela                       | Rei Pelé            | **1.520**  | **Cr$ 329.500,00**       |
+| 16/09/1993 | Campeonato Alagoano | Comercial 0x0 CSA                    | Teotônio Vilela     | —          | —                        |
+| 19/09/1993 | Campeonato Alagoano | Ipanema 0x0 CSA                      | Arnon de Melo       | —          | —                        |
+| 26/09/1993 | Campeonato Alagoano | CRB 1x0 CSA                          | Rei Pelé            | **5.229**  | **Cr$ 1.126.000,00**     |
+| 03/10/1993 | Campeonato Alagoano | Cruzeiro 0x1 CSA                     | Coaracy da Mata     | —          | —                        |
+| 10/10/1993 | Campeonato Alagoano | CSA 3x0 Cruzeiro                     | Rei Pelé            | **4.651**  | **Cr$ 1.737.400,00**     |
+| 17/10/1993 | Campeonato Alagoano | Ipanema 0x1 CSA                      | Arnon de Melo       | **474**    | **Cr$ 67.600,00**        |
+| 20/10/1993 | Campeonato Alagoano | CSA 3x0 Ipanema                      | Rei Pelé            | —          | —                        |
+| 31/10/1993 | Campeonato Alagoano | CRB 0x0 CSA                          | Rei Pelé            | **5.393**  | **Cr$ 2.155.400,00**     |
+| 03/11/1993 | Campeonato Alagoano | CSA 1x0 CRB                          | Rei Pelé            | —          | —                        |
+| 07/11/1993 | Campeonato Alagoano | CSA 3x1 CSE                          | Rei Pelé            | **6.336**  | **Cr$ 2.445.800,00**     |
+| 14/11/1993 | Campeonato Alagoano | Ipanema 1x0 CSA                      | Arnon de Melo       | —          | —                        |
+| 18/11/1993 | Campeonato Alagoano | CSA 1x2 CSE                          | Rei Pelé            | **7.151**  | **Cr$ 2.800.000,00**     |
+| 21/11/1993 | Campeonato Alagoano | CRB 0x0 CSA                          | Rei Pelé            | **10.578** | **Cr$ 4.236.900,00**     |
+| 28/11/1993 | Campeonato Alagoano | CSE 1x3 CSA                          | Juca Sampaio        | **422**    | **Cr$ 79.900,00**        |
+| 04/12/1993 | Campeonato Alagoano | CSA 2x0 Ipanema                      | Rei Pelé            | —          | —                        |
+| 15/12/1993 | Campeonato Alagoano | CSA 1x3 CRB                          | Rei Pelé            | **22.494** | **Cr$ 11.823.500,00**    |
