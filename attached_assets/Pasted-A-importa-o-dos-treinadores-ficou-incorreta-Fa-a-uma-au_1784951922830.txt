@@ -1,0 +1,56 @@
+A importação dos treinadores ficou incorreta. Faça uma auditoria completa e corrija a tabela utilizando exclusivamente a lista oficial que enviei.
+
+Encontrei erros que indicam que houve acúmulo de estatísticas e mistura de registros:
+
+Marcelo Cabo está com 327 jogos, mas o correto é 98 jogos.
+Nêdo Xavier está com 60 jogos, mas o correto é 15 jogos.
+Luizinho Vieira aparece no banco, porém ele não faz parte da lista oficial e não deveria existir após essa importação.
+O que deve ser feito
+1. Limpar a tabela de treinadores
+Exclua todos os treinadores que não estejam presentes na lista oficial que enviei.
+A tabela deve conter exatamente os 68 treinadores da lista.
+Não mantenha treinadores antigos por compatibilidade.
+Não preserve registros de importações anteriores.
+2. Corrigir todos os treinadores
+
+Para cada treinador da lista:
+
+Utilize exatamente os números oficiais enviados.
+Corrija Jogos, Vitórias, Empates, Derrotas, Gols Marcados e Gols Sofridos.
+Associe apenas às temporadas indicadas.
+Não acumule estatísticas de outras passagens.
+Não some registros antigos.
+Não mescle treinadores diferentes.
+Não crie registros duplicados.
+3. Regra permanente
+
+A lista que enviei passa a ser a única fonte oficial da tabela de treinadores.
+
+Se existir qualquer divergência entre o banco e essa lista:
+
+prevalece a lista;
+nunca o banco.
+4. Nunca faça isso novamente
+
+Assim como determinei para os jogadores:
+
+Nunca estime estatísticas.
+Nunca invente números.
+Nunca acumule dados antigos automaticamente.
+Nunca preserve registros conflitantes.
+Nunca importe treinadores que não estejam na lista oficial.
+
+Se um treinador estiver na lista, seus totais devem ser exatamente os informados.
+
+Se não estiver na lista, ele deve ser removido.
+
+5. Validação final
+
+Antes de finalizar, verifique:
+
+Existem exatamente 68 treinadores no banco.
+Nenhum treinador fora da lista permanece.
+Marcelo Cabo possui 98 jogos.
+Nêdo Xavier possui 15 jogos.
+Luizinho Vieira não existe mais no banco.
+Todos os demais treinadores possuem exatamente os totais da lista oficial, sem qualquer acúmulo ou alteração.

@@ -5,17 +5,15 @@ import { sql, eq, desc } from "drizzle-orm";
 
 const router = Router();
 
-// Merge computed (from match data) with stored (manual input) stats.
-// Stored stats are used when computed match count is less than stored_games,
-// meaning match data for some seasons hasn't been imported yet.
+// Stored stats are the authoritative source whenever they exist.
+// Computed stats (from match data) are only used when no stored values are set.
 function resolveStats(
   computed: { matches: number; wins: number; draws: number; losses: number; goalsScored: number; goalsConceded: number },
   stored: { storedGames: number | null; storedWins: number | null; storedDraws: number | null; storedLosses: number | null; storedGoalsFor: number | null; storedGoalsAgainst: number | null }
 ) {
-  const hasStored = stored.storedGames != null && stored.storedGames > computed.matches;
-  if (hasStored) {
+  if (stored.storedGames != null) {
     return {
-      matches: stored.storedGames!,
+      matches: stored.storedGames,
       wins: stored.storedWins ?? 0,
       draws: stored.storedDraws ?? 0,
       losses: stored.storedLosses ?? 0,
