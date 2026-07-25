@@ -22,7 +22,7 @@ router.get("/summary", async (req, res) => {
         goalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
-      .where(eq(matchesTable.isWalkover, false));
+      .where(eq(matchesTable.isFriendly, false));
 
     const stats = matchStats[0];
     const total = stats.totalMatches || 0;
@@ -72,7 +72,7 @@ router.get("/summary", async (req, res) => {
       })
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
-      .where(eq(matchesTable.isWalkover, false))
+      .where(eq(matchesTable.isFriendly, false))
       .groupBy(opponentsTable.id, opponentsTable.name)
       .orderBy(sql`count(*) desc`)
       .limit(5);

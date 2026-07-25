@@ -22,6 +22,7 @@ function buildMatchRow(row: any) {
     grossRevenue: row.grossRevenue ?? null,
     grossRevenueText: row.grossRevenueText ?? null,
     isWalkover: row.isWalkover ?? false,
+    isFriendly: row.isFriendly ?? false,
   };
 }
 
@@ -34,6 +35,7 @@ const matchSelectFields = {
   result: matchesTable.result,
   homeAway: matchesTable.homeAway,
   isWalkover: matchesTable.isWalkover,
+  isFriendly: matchesTable.isFriendly,
   opponentName: opponentsTable.name,
   competitionName: competitionsTable.name,
   stadiumName: stadiumsTable.name,
@@ -45,7 +47,7 @@ const matchSelectFields = {
 
 router.get("/matches", async (req, res) => {
   try {
-    const { season, competition, opponent, home_away, result, walkover, limit = "50", offset = "0" } = req.query as Record<string, string>;
+    const { season, competition, opponent, home_away, result, walkover, friendly, limit = "50", offset = "0" } = req.query as Record<string, string>;
     const lim = Math.min(parseInt(limit) || 50, 200);
     const off = parseInt(offset) || 0;
 
@@ -58,8 +60,15 @@ router.get("/matches", async (req, res) => {
       .$dynamic();
 
     const conditions = [];
-    // By default show only official matches; pass walkover=true to get W.O. matches
-    conditions.push(eq(matchesTable.isWalkover, walkover === "true"));
+    // Mode: friendly=true → amistosos | walkover=true → W.O. | default → oficiais
+    if (friendly === "true") {
+      conditions.push(eq(matchesTable.isFriendly, true));
+    } else if (walkover === "true") {
+      conditions.push(eq(matchesTable.isWalkover, true));
+    } else {
+      conditions.push(eq(matchesTable.isWalkover, false));
+      conditions.push(eq(matchesTable.isFriendly, false));
+    }
     if (season) conditions.push(eq(matchesTable.season, season));
     if (competition) conditions.push(ilike(competitionsTable.name, `%${competition}%`));
     if (opponent) conditions.push(ilike(opponentsTable.name, `%${opponent}%`));
@@ -158,7 +167,7 @@ router.get("/matches/milestones", async (req, res) => {
         .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
         .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
         .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
-        .where(eq(matchesTable.isWalkover, false));
+        .where(eq(matchesTable.isFriendly, false));
 
     const [firstRows, lastRows] = await Promise.all([
       joins().orderBy(matchesTable.matchDate).limit(1),

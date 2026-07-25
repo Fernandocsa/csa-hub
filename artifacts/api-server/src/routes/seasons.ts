@@ -16,7 +16,7 @@ async function getSeasonStats(season: string) {
       totalMatches: sql<number>`cast(count(*) as int)`,
     })
     .from(matchesTable)
-    .where(and(eq(matchesTable.season, season), eq(matchesTable.isWalkover, false)));
+    .where(and(eq(matchesTable.season, season), eq(matchesTable.isFriendly, false)));
   return rows[0];
 }
 
@@ -121,7 +121,7 @@ router.get("/seasons/:year", async (req, res) => {
       .select({ name: competitionsTable.name })
       .from(matchesTable)
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
-      .where(and(eq(matchesTable.season, year), eq(matchesTable.isWalkover, false)))
+      .where(and(eq(matchesTable.season, year), eq(matchesTable.isFriendly, false)))
       .groupBy(competitionsTable.name);
 
     const leaguePos = await db

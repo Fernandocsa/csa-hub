@@ -55,6 +55,7 @@ export const matchesTable = pgTable("matches", {
   grossRevenueText: text("gross_revenue_text"), // for historical currencies (Cr$, Cz$, etc.)
   scorers: text("scorers"), // comma-separated player names
   isWalkover: boolean("is_walkover").notNull().default(false),
+  isFriendly: boolean("is_friendly").notNull().default(false),
 });
 
 export const insertOpponentSchema = createInsertSchema(opponentsTable).omit({ id: true });

@@ -6,3 +6,4 @@ export * from "./milestones";
 export * from "./foreign-players";
 export * from "./attendance-assists";
 export * from "./walkovers";
+export * from "./friendlies";

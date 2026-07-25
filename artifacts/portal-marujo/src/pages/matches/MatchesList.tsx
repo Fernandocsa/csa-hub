@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useListMatches, useListSeasons, useListWalkovers } from "@workspace/api-client-react";
+import { useListMatches, useListSeasons, useListWalkovers, useListFriendlies } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -29,7 +29,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
 }
 
 export default function MatchesList() {
-  const [tab, setTab] = useState<"official" | "walkover">("official");
+  const [tab, setTab] = useState<"official" | "walkover" | "friendly">("official");
   const [season, setSeason] = useState("all");
   const [result, setResult] = useState("all");
   const [homeAway, setHomeAway] = useState("all");
@@ -57,15 +57,16 @@ export default function MatchesList() {
 
   const { data: officialData, isLoading: officialLoading } = useListMatches(officialParams);
   const { data: walkoverData, isLoading: walkoverLoading } = useListWalkovers(walkoverParams);
+  const { data: friendlyData, isLoading: friendlyLoading } = useListFriendlies(walkoverParams);
 
-  const data = tab === "official" ? officialData : walkoverData;
-  const isLoading = tab === "official" ? officialLoading : walkoverLoading;
+  const data = tab === "official" ? officialData : tab === "walkover" ? walkoverData : friendlyData;
+  const isLoading = tab === "official" ? officialLoading : tab === "walkover" ? walkoverLoading : friendlyLoading;
 
   function resetFilters() {
     setSeason("all"); setResult("all"); setHomeAway("all"); setOpponent(""); setPage(1);
   }
 
-  function switchTab(t: "official" | "walkover") {
+  function switchTab(t: "official" | "walkover" | "friendly") {
     setTab(t);
     setPage(1);
   }
@@ -85,12 +86,21 @@ export default function MatchesList() {
         <TabButton active={tab === "walkover"} onClick={() => switchTab("walkover")}>
           W.O.
         </TabButton>
+        <TabButton active={tab === "friendly"} onClick={() => switchTab("friendly")}>
+          Amistosos
+        </TabButton>
       </div>
 
       {tab === "walkover" && (
         <div className="flex items-start gap-2 rounded-md border border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-700 px-4 py-3 text-sm text-yellow-800 dark:text-yellow-300 mt-0">
           <span className="mt-0.5 shrink-0">⚠️</span>
-          <span>Partidas decididas por W.O. (Walkover). Não houve disputa em campo. Esses jogos não são contabilizados nas estatísticas oficiais.</span>
+          <span>Partidas decididas por W.O. (Walkover). Não houve disputa em campo. Esses jogos são contabilizados nas estatísticas oficiais.</span>
+        </div>
+      )}
+      {tab === "friendly" && (
+        <div className="flex items-start gap-2 rounded-md border border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-700 px-4 py-3 text-sm text-blue-800 dark:text-blue-300 mt-0">
+          <span className="mt-0.5 shrink-0">ℹ️</span>
+          <span>Partidas amistosas. Esses jogos <strong>não</strong> são contabilizados nas estatísticas oficiais (jogos, vitórias, gols, aproveitamento etc.).</span>
         </div>
       )}
 
@@ -104,7 +114,7 @@ export default function MatchesList() {
           </SelectContent>
         </Select>
 
-        {tab === "official" && (
+        {(tab === "official" || tab === "friendly") && (
           <>
             <Select value={result} onValueChange={(v) => { setResult(v); setPage(1); }}>
               <SelectTrigger className="h-8 w-28 text-xs" data-testid="select-result"><SelectValue placeholder="Resultado" /></SelectTrigger>
@@ -172,7 +182,7 @@ export default function MatchesList() {
               : data?.data.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={tab === "official" ? 6 : 5} className="h-20 text-center text-muted-foreground">
-                      {tab === "walkover" ? "Nenhum W.O. registrado." : "Nenhuma partida encontrada."}
+                      {tab === "walkover" ? "Nenhum W.O. registrado." : tab === "friendly" ? "Nenhum amistoso registrado." : "Nenhuma partida encontrada."}
                     </TableCell>
                   </TableRow>
                 )
