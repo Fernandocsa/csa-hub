@@ -6,7 +6,7 @@ import {
   playersTable,
   playerSeasonStatsTable,
 } from "@workspace/db";
-import { sql, desc, eq, sum, count } from "drizzle-orm";
+import { sql, desc, eq, and, sum, count } from "drizzle-orm";
 
 const router = Router();
 
@@ -21,7 +21,8 @@ router.get("/summary", async (req, res) => {
         goalsScored: sql<number>`cast(sum(${matchesTable.goalsFor}) as int)`,
         goalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
-      .from(matchesTable);
+      .from(matchesTable)
+      .where(eq(matchesTable.isWalkover, false));
 
     const stats = matchStats[0];
     const total = stats.totalMatches || 0;
@@ -71,6 +72,7 @@ router.get("/summary", async (req, res) => {
       })
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .where(eq(matchesTable.isWalkover, false))
       .groupBy(opponentsTable.id, opponentsTable.name)
       .orderBy(sql`count(*) desc`)
       .limit(5);

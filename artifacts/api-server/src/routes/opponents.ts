@@ -26,9 +26,9 @@ router.get("/opponents", async (req, res) => {
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
       .$dynamic();
 
-    if (search) {
-      query = query.where(ilike(opponentsTable.name, `%${search}%`));
-    }
+    const conditions = [eq(matchesTable.isWalkover, false)];
+    if (search) conditions.push(ilike(opponentsTable.name, `%${search}%`));
+    query = query.where(and(...conditions));
 
     query = query.groupBy(opponentsTable.id, opponentsTable.name);
 
@@ -71,7 +71,7 @@ router.get("/opponents/:id", async (req, res) => {
         goalsAgainst: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
-      .where(eq(matchesTable.opponentId, id));
+      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.isWalkover, false)));
 
     const homeRecord = await db
       .select({
@@ -83,7 +83,7 @@ router.get("/opponents/:id", async (req, res) => {
         goalsAgainst: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
-      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.homeAway, "home")));
+      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.homeAway, "home"), eq(matchesTable.isWalkover, false)));
 
     const awayRecord = await db
       .select({
@@ -95,7 +95,7 @@ router.get("/opponents/:id", async (req, res) => {
         goalsAgainst: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
-      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.homeAway, "away")));
+      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.homeAway, "away"), eq(matchesTable.isWalkover, false)));
 
     const allMatchRows = await db
       .select({
@@ -114,7 +114,7 @@ router.get("/opponents/:id", async (req, res) => {
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
-      .where(eq(matchesTable.opponentId, id))
+      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.isWalkover, false)))
       .orderBy(desc(matchesTable.matchDate));
 
     const victoryRows = await db

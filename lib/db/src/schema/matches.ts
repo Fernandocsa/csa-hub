@@ -42,9 +42,9 @@ export const matchesTable = pgTable("matches", {
   matchDate: date("match_date", { mode: "string" }).notNull(),
   season: text("season").notNull(),
   opponentId: integer("opponent_id").notNull().references(() => opponentsTable.id),
-  goalsFor: integer("goals_for").notNull(),
-  goalsAgainst: integer("goals_against").notNull(),
-  result: text("result").notNull(), // win, draw, loss
+  goalsFor: integer("goals_for"),
+  goalsAgainst: integer("goals_against"),
+  result: text("result").notNull(), // win, draw, loss, walkover
   homeAway: text("home_away").notNull(), // home, away, neutral
   competitionId: integer("competition_id").notNull().references(() => competitionsTable.id),
   stadiumId: integer("stadium_id").references(() => stadiumsTable.id),

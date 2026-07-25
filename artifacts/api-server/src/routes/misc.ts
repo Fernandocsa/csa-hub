@@ -67,7 +67,7 @@ router.get("/stadiums", async (req, res) => {
         lastMatch: sql<string>`cast(max(${matchesTable.matchDate}) as text)`,
       })
       .from(stadiumsTable)
-      .leftJoin(matchesTable, eq(matchesTable.stadiumId, stadiumsTable.id))
+      .leftJoin(matchesTable, and(eq(matchesTable.stadiumId, stadiumsTable.id), eq(matchesTable.isWalkover, false)))
       .groupBy(stadiumsTable.id, stadiumsTable.name, stadiumsTable.city, stadiumsTable.capacity)
       .orderBy(sql`count(${matchesTable.id}) desc`);
 
@@ -95,7 +95,7 @@ router.get("/competitions", async (req, res) => {
         lastParticipation: sql<string>`cast(max(${matchesTable.season}) as text)`,
       })
       .from(competitionsTable)
-      .leftJoin(matchesTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .leftJoin(matchesTable, and(eq(matchesTable.competitionId, competitionsTable.id), eq(matchesTable.isWalkover, false)))
       .groupBy(competitionsTable.id, competitionsTable.name, competitionsTable.type)
       .orderBy(sql`count(${matchesTable.id}) desc`);
 
@@ -124,7 +124,7 @@ router.get("/competitions/:id", async (req, res) => {
         goalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
-      .where(eq(matchesTable.competitionId, id));
+      .where(and(eq(matchesTable.competitionId, id), eq(matchesTable.isWalkover, false)));
 
     const seasonRows = await db
       .select({
@@ -137,7 +137,7 @@ router.get("/competitions/:id", async (req, res) => {
         goalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
-      .where(eq(matchesTable.competitionId, id))
+      .where(and(eq(matchesTable.competitionId, id), eq(matchesTable.isWalkover, false)))
       .groupBy(matchesTable.season)
       .orderBy(desc(matchesTable.season));
 
@@ -187,6 +187,7 @@ router.get("/records/by-decade", async (req, res) => {
         goalsAgainst: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
+      .where(eq(matchesTable.isWalkover, false))
       .groupBy(sql`floor(extract(year from ${matchesTable.matchDate}) / 10) * 10`)
       .orderBy(sql`floor(extract(year from ${matchesTable.matchDate}) / 10) * 10`);
 
@@ -217,7 +218,7 @@ router.get("/records/home-away", async (req, res) => {
           goalsAgainst: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
         })
         .from(matchesTable)
-        .where(eq(matchesTable.homeAway, homeAway))
+        .where(and(eq(matchesTable.homeAway, homeAway), eq(matchesTable.isWalkover, false)))
         .$dynamic();
       const rows = await q;
       return rows[0] || { matches: 0, wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 };
@@ -246,6 +247,7 @@ router.get("/records/streaks", async (req, res) => {
         result: matchesTable.result,
       })
       .from(matchesTable)
+      .where(eq(matchesTable.isWalkover, false))
       .orderBy(matchesTable.matchDate);
 
     const streaks: any[] = [];

@@ -157,7 +157,8 @@ router.get("/matches/milestones", async (req, res) => {
         .from(matchesTable)
         .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
         .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
-        .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id));
+        .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
+        .where(eq(matchesTable.isWalkover, false));
 
     const [firstRows, lastRows] = await Promise.all([
       joins().orderBy(matchesTable.matchDate).limit(1),

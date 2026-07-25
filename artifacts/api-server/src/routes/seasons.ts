@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { matchesTable, opponentsTable, competitionsTable, playerSeasonStatsTable, playersTable, leaguePositionsTable, seasonTopScorersTable } from "@workspace/db";
-import { sql, eq, desc } from "drizzle-orm";
+import { sql, eq, and, desc } from "drizzle-orm";
 
 const router = Router();
 
@@ -16,7 +16,7 @@ async function getSeasonStats(season: string) {
       totalMatches: sql<number>`cast(count(*) as int)`,
     })
     .from(matchesTable)
-    .where(eq(matchesTable.season, season));
+    .where(and(eq(matchesTable.season, season), eq(matchesTable.isWalkover, false)));
   return rows[0];
 }
 
@@ -121,7 +121,7 @@ router.get("/seasons/:year", async (req, res) => {
       .select({ name: competitionsTable.name })
       .from(matchesTable)
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
-      .where(eq(matchesTable.season, year))
+      .where(and(eq(matchesTable.season, year), eq(matchesTable.isWalkover, false)))
       .groupBy(competitionsTable.name);
 
     const leaguePos = await db

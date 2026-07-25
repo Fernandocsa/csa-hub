@@ -87,6 +87,13 @@ export default function MatchesList() {
         </TabButton>
       </div>
 
+      {tab === "walkover" && (
+        <div className="flex items-start gap-2 rounded-md border border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-700 px-4 py-3 text-sm text-yellow-800 dark:text-yellow-300 mt-0">
+          <span className="mt-0.5 shrink-0">⚠️</span>
+          <span>Partidas decididas por W.O. (Walkover). Não houve disputa em campo. Esses jogos não são contabilizados nas estatísticas oficiais.</span>
+        </div>
+      )}
+
       {/* Filter bar */}
       <div className="flex flex-wrap gap-2 items-center pt-2">
         <Select value={season} onValueChange={(v) => { setSeason(v); setPage(1); }}>
