@@ -703,6 +703,44 @@ router.post("/admin/import/matches", requireAdmin, async (req, res) => {
   }
 });
 
+// Merge two opponents: reassign all matches from removeId to keepId, then delete removeId
+router.post("/admin/opponents/merge", requireAdmin, async (req, res) => {
+  try {
+    const { keepId, removeId } = req.body as { keepId: number; removeId: number };
+    if (!keepId || !removeId) return res.status(400).json({ error: "keepId e removeId obrigatórios" });
+    await db.update(matchesTable).set({ opponentId: keepId }).where(eq(matchesTable.opponentId, removeId));
+    await db.delete(opponentsTable).where(eq(opponentsTable.id, removeId));
+    const [kept] = await db.select({ name: opponentsTable.name }).from(opponentsTable).where(eq(opponentsTable.id, keepId));
+    res.json({ ok: true, kept: kept?.name, removedId: removeId });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+// Replace all player_season_stats for a player with a single aggregate entry
+router.put("/admin/players/:id/stats", requireAdmin, async (req, res) => {
+  try {
+    const playerId = parseInt(req.params.id);
+    const { season, appearances, goals, assists } = req.body as {
+      season: string; appearances: number; goals: number; assists?: number;
+    };
+    if (!season) return res.status(400).json({ error: "season obrigatório" });
+    await db.delete(playerSeasonStatsTable).where(eq(playerSeasonStatsTable.playerId, playerId));
+    await db.insert(playerSeasonStatsTable).values({
+      playerId,
+      season,
+      appearances: appearances ?? 0,
+      goals: goals ?? 0,
+      assists: assists ?? 0,
+    });
+    res.json({ ok: true, playerId, season, appearances: appearances ?? 0, goals: goals ?? 0 });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 router.post("/admin/import/opponents", requireAdmin, async (req, res) => {
   try {
     const { csv } = req.body as { csv: string };
