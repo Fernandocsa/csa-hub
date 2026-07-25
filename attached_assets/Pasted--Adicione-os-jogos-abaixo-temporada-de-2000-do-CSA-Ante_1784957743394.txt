@@ -1,0 +1,70 @@
+
+Adicione os jogos abaixo à temporada de 2000 do CSA.
+
+Antes de inserir, verifique se cada partida já existe no banco de dados (mesma data, adversário, competição, fase, mando e placar). Caso já exista, apenas ignore aquele registro. Caso não exista, cadastre-o.
+
+Utilize exatamente este formato para cada partida:
+
+### Copa do Nordeste
+2000-01-19 | Casa | Sport-PE | Derrota 0-2 | 1ª Fase
+2000-01-22 | Fora | Poções-BA | Empate 2-2 | 1ª Fase
+2000-01-27 | Casa | Botafogo-PB | Empate 0-0 | 1ª Fase
+2000-01-30 | Fora | Botafogo-PB | Derrota 0-3 | 1ª Fase
+2000-02-02 | Casa | Poções-BA | Derrota 1-2 | 1ª Fase
+2000-02-05 | Fora | Sport-PE | Derrota 1-6 | 1ª Fase
+
+### Campeonato Alagoano – 1ª Fase
+2000-02-20 | Fora | Comercial-AL | Empate 0-0 | 1ª Fase
+2000-02-26 | Casa | Capela-AL | Empate 1-1 | 1ª Fase
+2000-03-01 | Casa | Murici-AL | Empate 2-2 | 1ª Fase
+2000-03-12 | Fora | São Domingos-AL | Vitória 4-1 | 1ª Fase
+2000-03-15 | Casa | ASA-AL | Vitória 3-1 | 1ª Fase
+2000-03-26 | Fora | Corinthians-AL | Vitória 2-1 | 1ª Fase
+2000-04-02 | Casa | Miguelense-AL | Vitória 2-0 | 1ª Fase
+2000-04-09 | Fora | CRB-AL | Derrota 1-2 | 1ª Fase
+2000-04-16 | Casa | Comercial-AL | Vitória 8-0 | 1ª Fase
+2000-04-19 | Fora | Capela-AL | Vitória 1-0 | 1ª Fase
+2000-04-23 | Fora | Murici-AL | Vitória 2-0 | 1ª Fase
+2000-04-30 | Casa | São Domingos-AL | Vitória 3-0 | 1ª Fase
+2000-05-14 | Fora | ASA-AL | Empate 0-0 | 1ª Fase
+2000-05-21 | Casa | Corinthians-AL | Vitória 1-0 | 1ª Fase
+2000-05-28 | Fora | Miguelense-AL | Vitória 4-3 | 1ª Fase
+2000-06-04 | Casa | CRB-AL | Empate 1-1 | 1ª Fase
+
+### Campeonato Alagoano – 2ª Fase
+2000-06-11 | Fora | Murici-AL | Vitória 2-0 | 2ª Fase
+2000-06-15 | Casa | Corinthians-AL | Vitória 3-2 | 2ª Fase
+2000-06-18 | Fora | ASA-AL | Derrota 0-1 | 2ª Fase
+2000-06-21 | Casa | Murici-AL | Derrota 0-1 | 2ª Fase
+2000-06-25 | Casa | Corinthians-AL | Vitória 3-2 | 2ª Fase
+2000-06-29 | Casa | ASA-AL | Empate 1-1 | 2ª Fase
+
+### Campeonato Alagoano – Final
+2000-07-02 | Fora | ASA-AL | Vitória 3-1 | Final
+2000-07-06 | Casa | ASA-AL | Derrota 1-2 | Final
+2000-07-09 | Casa | ASA-AL | Derrota 0-1 | Final
+
+### Copa do Brasil
+2000-03-22 | Fora | Náutico-PE | Derrota 1-2 | 1ª Fase
+2000-03-29 | Casa | Náutico-PE | Derrota 0-1 | 1ª Fase
+
+### Campeonato Brasileiro Série B
+2000-08-09 | Casa | River-PI | Derrota 1-2 | 1ª Fase
+2000-08-13 | Fora | ABC-RN | Vitória 3-1 | 1ª Fase
+2000-08-16 | Fora | Náutico-PE | Derrota 0-3 | 1ª Fase
+2000-08-20 | Casa | Paysandu-PA | Derrota 0-3 | 1ª Fase
+2000-08-23 | Casa | Nacional-AM | Vitória 4-3 | 1ª Fase
+2000-08-26 | Fora | Ceará-CE | Derrota 0-1 | 1ª Fase
+2000-08-30 | Casa | Vila Nova-GO | Vitória 3-2 | 1ª Fase
+2000-09-04 | Fora | Sampaio Corrêa-MA | Derrota 0-1 | 1ª Fase
+2000-09-07 | Casa | CRB-AL | Derrota 0-2 | 1ª Fase
+2000-09-10 | Fora | São Raimundo-AM | Derrota 0-2 | 1ª Fase
+2000-09-13 | Casa | América-RN | Vitória 5-2 | 1ª Fase
+2000-09-17 | Casa | Fortaleza-CE | Empate 1-1 | 1ª Fase
+2000-09-20 | Fora | Desportiva-ES | Empate 1-1 | 1ª Fase
+2000-09-24 | Casa | Anapolina-GO | Vitória 1-0 | 1ª Fase
+2000-09-27 | Casa | Serra-ES | Derrota 0-2 | 1ª Fase
+2000-10-04 | Fora | Remo-PA | Derrota 0-1 | 1ª Fase
+2000-10-07 | Fora | Bandeirante-DF | Vitória 3-2 | 1ª Fase
+
+Ao finalizar, recalcule todas as estatísticas da temporada, dos jogadores, dos adversários e das competições.
