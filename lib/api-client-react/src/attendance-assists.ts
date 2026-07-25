@@ -29,16 +29,26 @@ export interface TopAssistPlayer {
   assists: number;
 }
 
-export const getBiggestAttendance = async (limit?: number): Promise<AttendanceMatch[]> =>
-  customFetch<AttendanceMatch[]>(`/api/matches/biggest-attendance${limit ? `?limit=${limit}` : ""}`);
+export type AttendanceSortBy = "attendance" | "attendance_paid" | "gross_revenue";
 
-export const getBiggestAttendanceQueryKey = (limit?: number) =>
-  ["/api/matches/biggest-attendance", limit] as const;
+export const getBiggestAttendance = async (
+  limit?: number,
+  sortBy?: AttendanceSortBy,
+): Promise<AttendanceMatch[]> => {
+  const qs = new URLSearchParams();
+  if (limit) qs.set("limit", String(limit));
+  if (sortBy && sortBy !== "attendance") qs.set("sort_by", sortBy);
+  const q = qs.toString();
+  return customFetch<AttendanceMatch[]>(`/api/matches/biggest-attendance${q ? `?${q}` : ""}`);
+};
 
-export const useGetBiggestAttendance = (limit?: number) =>
+export const getBiggestAttendanceQueryKey = (limit?: number, sortBy?: AttendanceSortBy) =>
+  ["/api/matches/biggest-attendance", limit, sortBy ?? "attendance"] as const;
+
+export const useGetBiggestAttendance = (limit?: number, sortBy?: AttendanceSortBy) =>
   useQuery({
-    queryKey: getBiggestAttendanceQueryKey(limit),
-    queryFn: () => getBiggestAttendance(limit),
+    queryKey: getBiggestAttendanceQueryKey(limit, sortBy),
+    queryFn: () => getBiggestAttendance(limit, sortBy),
   });
 
 export const getTopAssists = async (limit?: number): Promise<TopAssistPlayer[]> =>

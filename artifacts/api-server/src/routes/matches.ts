@@ -144,8 +144,14 @@ router.get("/matches/biggest-defeats", async (req, res) => {
 
 router.get("/matches/biggest-attendance", async (req, res) => {
   try {
-    const { limit = "50" } = req.query as Record<string, string>;
+    const { limit = "50", sort_by = "attendance" } = req.query as Record<string, string>;
     const lim = Math.min(parseInt(limit) || 50, 200);
+
+    // Determine which column to sort/filter by
+    const sortCol =
+      sort_by === "attendance_paid" ? matchesTable.attendancePaid
+      : sort_by === "gross_revenue"  ? matchesTable.grossRevenue
+      : matchesTable.attendance;
 
     const rows = await db
       .select(matchSelectFields)
@@ -154,10 +160,10 @@ router.get("/matches/biggest-attendance", async (req, res) => {
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
       .where(and(
-        sql`${matchesTable.attendance} is not null`,
+        sql`${sortCol} is not null`,
         eq(matchesTable.homeAway, "home"),
       ))
-      .orderBy(desc(matchesTable.attendance))
+      .orderBy(desc(sortCol))
       .limit(lim);
 
     res.json(rows.map(buildMatchRow));

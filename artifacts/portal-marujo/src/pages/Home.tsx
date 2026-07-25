@@ -345,7 +345,7 @@ export default function Home() {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Maiores Públicos</h2>
-          <Link href="/publicos" className="text-xs text-primary hover:underline">ver ranking completo</Link>
+          <Link href="/publicos" className="text-xs text-primary hover:underline">ver todos</Link>
         </div>
         <div className="border rounded">
           <Table>
@@ -354,15 +354,13 @@ export default function Home() {
                 <TableHead className="py-2 w-6">#</TableHead>
                 <TableHead className="py-2">Partida</TableHead>
                 <TableHead className="py-2 text-right font-bold text-primary">Público</TableHead>
-                <TableHead className="py-2 text-right hidden sm:table-cell">Pagante</TableHead>
-                <TableHead className="py-2 text-right hidden md:table-cell">Renda</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loadAtt
                 ? Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                      <TableCell colSpan={5}><Skeleton className="h-4" /></TableCell>
+                      <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                     </TableRow>
                   ))
                 : biggestAttendance?.slice(0, 10).map((m, i) => {
@@ -378,16 +376,6 @@ export default function Home() {
                         </TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary">
                           {m.attendance.toLocaleString("pt-BR")}
-                        </TableCell>
-                        <TableCell className="py-1.5 text-right text-muted-foreground hidden sm:table-cell">
-                          {m.attendancePaid != null ? m.attendancePaid.toLocaleString("pt-BR") : <span className="text-xs">—</span>}
-                        </TableCell>
-                        <TableCell className="py-1.5 text-right text-muted-foreground hidden md:table-cell">
-                          {(m as any).grossRevenueText
-                            ? (m as any).grossRevenueText
-                            : m.grossRevenue != null
-                              ? m.grossRevenue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
-                              : <span className="text-xs">—</span>}
                         </TableCell>
                       </TableRow>
                     );
