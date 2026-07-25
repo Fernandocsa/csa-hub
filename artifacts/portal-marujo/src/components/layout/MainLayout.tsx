@@ -7,7 +7,6 @@ import {
   CalendarDays,
   Shield,
   Trophy,
-  Hand,
   MapPin,
   Medal,
   Award,
@@ -44,7 +43,6 @@ const navigation: NavItem[] = [
   { name: "Temporadas", href: "/temporadas", icon: CalendarDays },
   { name: "Adversários", href: "/adversarios", icon: Shield },
   { name: "Técnicos", href: "/tecnicos", icon: Trophy },
-  { name: "Goleiros", href: "/goleiros", icon: Hand },
   { name: "Competições", href: "/competicoes", icon: Medal },
   { name: "Estádios", href: "/estadios", icon: MapPin },
   {

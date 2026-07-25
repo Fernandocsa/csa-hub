@@ -13,7 +13,6 @@ import OpponentsList from "./pages/opponents/OpponentsList";
 import OpponentDetail from "./pages/opponents/OpponentDetail";
 import ManagersList from "./pages/managers/ManagersList";
 import ManagerDetail from "./pages/managers/ManagerDetail";
-import GoalkeepersList from "./pages/goalkeepers/GoalkeepersList";
 import StadiumsList from "./pages/stadiums/StadiumsList";
 import CompetitionsList from "./pages/competitions/CompetitionsList";
 import CompetitionDetail from "./pages/competitions/CompetitionDetail";
@@ -48,7 +47,6 @@ export default function AppRouter() {
         <Route path="/adversarios/:id" component={OpponentDetail} />
         <Route path="/tecnicos" component={ManagersList} />
         <Route path="/tecnicos/:id" component={ManagerDetail} />
-        <Route path="/goleiros" component={GoalkeepersList} />
         <Route path="/estadios" component={StadiumsList} />
         <Route path="/competicoes" component={CompetitionsList} />
         <Route path="/competicoes/:id" component={CompetitionDetail} />
