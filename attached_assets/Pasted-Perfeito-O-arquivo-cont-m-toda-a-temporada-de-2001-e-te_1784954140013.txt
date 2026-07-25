@@ -1,0 +1,64 @@
+Perfeito. O arquivo contém toda a temporada de **2001** e termina com o resumo oficial: **50 jogos, 20 vitórias, 7 empates, 23 derrotas, 65 gols marcados e 68 sofridos.** 
+
+Segue o prompt no mesmo padrão das temporadas anteriores:
+
+---
+
+> **Importe a temporada de 2001 para o banco de dados utilizando exclusivamente os dados abaixo.**
+>
+> ### Regras
+>
+> * Crie a temporada **2001**.
+> * Importe **todos os 50 jogos oficiais** exatamente como informados.
+> * Cadastre data, mandante/visitante, adversário, placar, competição e fase.
+> * Após importar todas as partidas, recalcule automaticamente as estatísticas da temporada.
+> * **Não estime, complete ou altere nenhum resultado.**
+> * Os totais da temporada devem ser obtidos **exclusivamente a partir dos jogos importados**.
+> * Caso já exista algum jogo de 2001 cadastrado, evite duplicidades.
+>
+> ### O resultado final deve ser:
+>
+> * Jogos: **50**
+> * Vitórias: **20**
+> * Empates: **7**
+> * Derrotas: **23**
+> * Gols marcados: **65**
+> * Gols sofridos: **68**
+>
+> Se os totais finais forem diferentes desses números, revise toda a importação antes de concluir.
+>
+> ### Competições da temporada
+>
+> Importe todas as partidas pertencentes às seguintes competições:
+>
+> * **Copa do Nordeste 2001** (1ª Fase) 
+> * **Copa do Brasil 2001** (1ª Fase) 
+> * **Campeonato Alagoano 2001**
+>
+>   * 1ª Fase
+>   * 2ª Fase
+>   * Final 
+> * **Campeonato Brasileiro Série C 2001** (1ª Fase) 
+>
+> ### Regras de importação
+>
+> * Preserve exatamente as datas, placares, adversários, competições e fases.
+> * Quando houver horário informado, mantenha-o.
+> * Não invente estádios, árbitros, escalações, público, renda ou qualquer outro dado que não faça parte do modelo do banco.
+> * Caso o banco possua campos específicos para público, renda, árbitro ou escalações, esses dados podem ser importados exatamente como aparecem no documento; caso contrário, ignore-os sem alterar os resultados das partidas.
+> * Utilize os nomes dos adversários exatamente como aparecem no histórico oficial.
+> * Converta as abreviações das fases para nomes completos quando necessário (1ª Fase, 2ª Fase, Final etc.).
+> * Antes de concluir, verifique se não existem partidas duplicadas.
+>
+> ### Validação obrigatória
+>
+> Ao finalizar a importação, confirme que a temporada possui exatamente:
+>
+> * **50 jogos**
+> * **20 vitórias**
+> * **7 empates**
+> * **23 derrotas**
+> * **65 gols marcados**
+> * **68 gols sofridos**
+>
+> Caso qualquer total seja diferente, revise toda a importação antes de finalizar utilizando o resumo oficial da temporada como referência. 
