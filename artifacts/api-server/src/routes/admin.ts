@@ -1,6 +1,6 @@
 import { Router } from "express";
 import crypto from "node:crypto";
-import { db } from "@workspace/db";
+import { db, pool as pgPool } from "@workspace/db";
 import {
   playersTable,
   playerSeasonStatsTable,
@@ -960,11 +960,7 @@ router.post("/admin/import/opponents", requireAdmin, async (req, res) => {
   }
 });
 
-export default router;
-
 // ── Sync Apply ────────────────────────────────────────────────────────────────
-
-import { pool as pgPool } from "@workspace/db";
 
 router.post("/admin/sync/apply", requireAdmin, async (req, res) => {
   const {
@@ -1139,3 +1135,5 @@ router.post("/admin/sync/apply", requireAdmin, async (req, res) => {
   }
 });
 
+
+export default router;
