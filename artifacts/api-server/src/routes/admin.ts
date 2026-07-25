@@ -544,6 +544,61 @@ router.post("/admin/stadiums", requireAdmin, async (req, res) => {
   }
 });
 
+router.put("/admin/stadiums/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const { name } = req.body as { name: string };
+    if (!name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+    const result = await pgPool.query(
+      `UPDATE stadiums SET name=$1 WHERE id=$2 RETURNING *`,
+      [name.trim(), id]
+    );
+    if (result.rowCount === 0) return res.status(404).json({ error: "Estádio não encontrado" });
+    res.json(result.rows[0]);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+// Merge multiple stadiums into one: move all match references, rename, delete duplicates
+router.post("/admin/stadiums/merge", requireAdmin, async (req, res) => {
+  try {
+    const { keepId, mergeIds, newName } = req.body as {
+      keepId: number;
+      mergeIds: number[];
+      newName?: string;
+    };
+    if (!keepId || !Array.isArray(mergeIds) || mergeIds.length === 0) {
+      return res.status(400).json({ error: "keepId e mergeIds obrigatórios" });
+    }
+    let matchesMoved = 0;
+    // Move all match references from mergeIds to keepId
+    for (const oldId of mergeIds) {
+      const r = await pgPool.query(
+        `UPDATE matches SET stadium_id=$1 WHERE stadium_id=$2`,
+        [keepId, oldId]
+      );
+      matchesMoved += r.rowCount ?? 0;
+    }
+    // Rename if requested
+    if (newName?.trim()) {
+      await pgPool.query(`UPDATE stadiums SET name=$1 WHERE id=$2`, [newName.trim(), keepId]);
+    }
+    // Delete merged stadiums
+    await pgPool.query(
+      `DELETE FROM stadiums WHERE id = ANY($1::int[])`,
+      [mergeIds]
+    );
+    const kept = await pgPool.query(`SELECT * FROM stadiums WHERE id=$1`, [keepId]);
+    res.json({ ok: true, matchesMoved, deletedIds: mergeIds, kept: kept.rows[0] });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 // Bulk update matches by date+opponent — fix stadium_id, gross_revenue, gross_revenue_text
 router.post("/admin/matches/bulk-patch", requireAdmin, async (req, res) => {
   try {
