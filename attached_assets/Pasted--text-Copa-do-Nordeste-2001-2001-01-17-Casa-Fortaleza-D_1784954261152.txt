@@ -1,0 +1,69 @@
+```text
+Copa do Nordeste 2001
+
+2001-01-17 | Casa | Fortaleza | Derrota 0-1 | 1ª Fase
+2001-01-25 | Fora | Sport | Empate 0-0 | 1ª Fase
+2001-02-01 | Casa | Confiança | Empate 1-1 | 1ª Fase
+2001-02-07 | Casa | Santa Cruz | Vitória 1-0 | 1ª Fase
+2001-02-11 | Casa | CRB | Vitória 2-0 | 1ª Fase
+2001-02-15 | Casa | ABC | Derrota 0-2 | 1ª Fase
+2001-02-22 | Fora | Sergipe | Vitória 2-0 | 1ª Fase
+2001-02-28 | Fora | Náutico | Derrota 0-3 | 1ª Fase
+2001-03-04 | Casa | Fluminense-BA | Vitória 3-2 | 1ª Fase
+2001-03-11 | Fora | Botafogo-PB | Vitória 2-1 | 1ª Fase
+2001-03-17 | Casa | Bahia | Derrota 0-3 | 1ª Fase
+2001-03-26 | Fora | Ceará | Derrota 2-3 | 1ª Fase
+2001-04-01 | Fora | América-RN | Derrota 1-2 | 1ª Fase
+2001-04-08 | Casa | Treze | Empate 1-1 | 1ª Fase
+2001-04-14 | Fora | Vitória | Derrota 2-3 | 1ª Fase
+
+Copa do Brasil 2001
+
+2001-04-04 | Casa | Sport | Derrota 3-4 | 1ª Fase
+2001-04-11 | Fora | Sport | Vitória 1-0 | 1ª Fase
+
+Campeonato Alagoano 2001
+
+2001-03-29 | Casa | Corinthians | Vitória 3-0 | 1ª Fase
+2001-04-18 | Fora | ASA | Empate 2-2 | 1ª Fase
+2001-04-22 | Casa | Capela | Vitória 1-0 | 1ª Fase
+2001-04-25 | Fora | Murici | Empate 0-0 | 1ª Fase
+2001-04-29 | Fora | Miguelense | Vitória 4-3 | 1ª Fase
+2001-05-02 | Casa | Penedense | Derrota 2-3 | 1ª Fase
+2001-05-06 | Fora | CRB | Vitória 2-1 | 1ª Fase
+2001-05-13 | Fora | Corinthians | Derrota 1-3 | 1ª Fase
+2001-05-19 | Casa | Murici | Vitória 2-0 | 1ª Fase
+2001-05-28 | Fora | Penedense | Derrota 0-1 | 1ª Fase
+2001-06-03 | Casa | ASA | Vitória 2-0 | 1ª Fase
+2001-06-10 | Fora | Capela | Derrota 1-4 | 1ª Fase
+2001-06-17 | Casa | Miguelense | Empate 1-1 | 1ª Fase
+2001-06-24 | Casa | CRB | Derrota 0-2 | 1ª Fase
+
+Campeonato Alagoano 2001 - 2ª Fase
+
+2001-06-28 | Casa | Penedense | Vitória 1-0 | 2ª Fase
+2001-07-01 | Fora | ASA | Empate 0-0 | 2ª Fase
+2001-07-05 | Casa | Corinthians | Vitória 2-0 | 2ª Fase
+2001-07-08 | Fora | Penedense | Derrota 0-1 | 2ª Fase
+2001-07-12 | Casa | ASA | Vitória 3-0 | 2ª Fase
+2001-07-15 | Fora | Corinthians | Vitória 2-1 | 2ª Fase
+
+Campeonato Alagoano 2001 - Final
+
+2001-07-22 | Casa | ASA | Empate 1-1 | Final
+2001-07-25 | Fora | ASA | Derrota 0-1 | Final
+2001-07-29 | Fora | ASA | Derrota 1-2 | Final
+
+Série C 2001
+
+2001-09-16 | Fora | Corinthians-AL | Derrota 2-3 | 1ª Fase
+2001-09-19 | Fora | ASA | Vitória 3-1 | 1ª Fase
+2001-09-23 | Casa | Itabaiana | Derrota 2-3 | 1ª Fase
+2001-09-26 | Casa | Confiança | Derrota 0-2 | 1ª Fase
+2001-09-30 | Fora | Central | Vitória 2-1 | 1ª Fase
+2001-10-07 | Fora | Confiança | Derrota 0-1 | 1ª Fase
+2001-10-11 | Fora | Itabaiana | Derrota 0-3 | 1ª Fase
+2001-10-14 | Casa | ASA | Derrota 0-2 | 1ª Fase
+2001-10-18 | Casa | Corinthians-AL | Vitória 1-0 | 1ª Fase
+2001-10-28 | Casa | Central | Vitória 3-0 | 1ª Fase
+```
