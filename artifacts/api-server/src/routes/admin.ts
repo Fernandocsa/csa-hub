@@ -245,6 +245,56 @@ router.delete("/admin/player-stats/:statId", requireAdmin, async (req, res) => {
 
 // ── Matches ───────────────────────────────────────────────────────────────────
 
+// Standardize Alagoano club names: append -AL to all clubs that play in Alagoano competitions
+router.post("/admin/fix/alagoano-names", requireAdmin, async (req, res) => {
+  try {
+    // Alagoano competition IDs: Campeonato Alagoano (5), Copa Alagoas (12), Alagoano 2ª Divisão (14)
+    const ALAGOANO_COMPS = [5, 12, 14];
+
+    // Step 1: Move Corinthians-SP (national) Alagoano matches to Corinthians-AL
+    // Find Corinthians-SP and Corinthians-AL by name
+    const [corpSP] = await db.select().from(opponentsTable).where(eq(opponentsTable.name, "Corinthians-SP"));
+    const [corpAL] = await db.select().from(opponentsTable).where(eq(opponentsTable.name, "Corinthians-AL"));
+    let corinthiansLog = "Corinthians-SP not found or Corinthians-AL not found — skipped";
+    if (corpSP && corpAL) {
+      const result = await db.update(matchesTable)
+        .set({ opponentId: corpAL.id })
+        .where(sql`${matchesTable.opponentId} = ${corpSP.id} AND ${matchesTable.competitionId} IN (${sql.join(ALAGOANO_COMPS.map(id => sql`${id}`), sql`, `)})`);
+      corinthiansLog = `Moved Corinthians-SP Alagoano matches → Corinthians-AL`;
+    }
+
+    // Step 2: Find all opponents in Alagoano competitions without -AL suffix (and not CSA or state-suffixed)
+    const alagoanoOpponents = await db
+      .selectDistinct({ id: matchesTable.opponentId })
+      .from(matchesTable)
+      .where(sql`${matchesTable.competitionId} = ANY(ARRAY[5,12,14]::int[])`);
+
+    const ids = alagoanoOpponents.map(r => r.id);
+    if (ids.length === 0) return res.json({ ok: true, renamed: 0, log: [corinthiansLog] });
+
+    const candidates = await db.select().from(opponentsTable)
+      .where(sql`${opponentsTable.id} = ANY(ARRAY[${sql.join(ids.map(id => sql`${id}`), sql`, `)}]::int[])`);
+
+    const EXCLUDED_SUFFIXES = ["-AL", "-SP", "-MG", "-PE", "-BA", "-RN", "-RS", "-ES", "-PI"];
+    const toRename = candidates.filter(o =>
+      o.name !== "CSA" &&
+      !EXCLUDED_SUFFIXES.some(suffix => o.name.endsWith(suffix))
+    );
+
+    const log: string[] = [corinthiansLog];
+    for (const opp of toRename) {
+      const newName = opp.name + "-AL";
+      await db.update(opponentsTable).set({ name: newName }).where(eq(opponentsTable.id, opp.id));
+      log.push(`${opp.id}: "${opp.name}" → "${newName}"`);
+    }
+
+    res.json({ ok: true, renamed: toRename.length, log });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 // One-shot fix for 2015 Campeonato Alagoano inconsistencies
 router.post("/admin/fix/2015-alagoano", requireAdmin, async (req, res) => {
   try {
