@@ -42,7 +42,7 @@ export default function Home() {
     <div className="space-y-6">
       <div className="border-b pb-3">
         <h1 className="text-xl font-bold text-foreground" data-testid="heading-visao-geral">Portal Marujo — Base de dados do CSA</h1>
-        <p className="text-sm text-muted-foreground">Atualmente, o portal contempla apenas as temporadas a partir de 2016. As demais temporadas serão adicionadas gradualmente, conforme os dados históricos forem pesquisados e validados.</p>
+        <p className="text-sm text-muted-foreground">O portal contempla temporadas desde 2012, com dados históricos sendo adicionados gradualmente conforme são pesquisados e validados.</p>
       </div>
       {/* Stat bar */}
       {loadSum ? (
