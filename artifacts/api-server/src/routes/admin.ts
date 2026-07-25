@@ -961,3 +961,181 @@ router.post("/admin/import/opponents", requireAdmin, async (req, res) => {
 });
 
 export default router;
+
+// ── Sync Apply ────────────────────────────────────────────────────────────────
+
+import { pool as pgPool } from "@workspace/db";
+
+router.post("/admin/sync/apply", requireAdmin, async (req, res) => {
+  const {
+    competitions_upsert = [],
+    opponents_update = [],
+    opponents_insert = [],
+    managers_upsert = [],
+    players_upsert = [],
+    pss_upsert = [],
+    matches_insert = [],
+    static_opponent_map = {},
+  } = req.body as {
+    competitions_upsert: { id: number; name: string; type: string | null }[];
+    opponents_update:    { id: number; name: string }[];
+    opponents_insert:    { devId: number; name: string }[];
+    managers_upsert:     Record<string, unknown>[];
+    players_upsert:      { id: number; name: string; position?: string; nationality?: string }[];
+    pss_upsert:          { player_id: number; season: string; goals: number; appearances: number; assists: number }[];
+    matches_insert:      Record<string, unknown>[];
+    static_opponent_map: Record<string, number>;
+  };
+
+  const client = await (pgPool as any).connect();
+  const report: Record<string, unknown> = {};
+
+  try {
+    await client.query("BEGIN");
+
+    // 1. Competitions upsert
+    let compUpserted = 0;
+    for (const c of competitions_upsert) {
+      await client.query(
+        `INSERT INTO competitions (id, name, type) VALUES ($1, $2, $3)
+         ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, type = COALESCE(EXCLUDED.type, competitions.type)`,
+        [c.id, c.name, c.type ?? null]
+      );
+      compUpserted++;
+    }
+    report.competitions_upserted = compUpserted;
+
+    // 2. Opponent name updates
+    let oppUpdated = 0;
+    for (const o of opponents_update) {
+      await client.query(`UPDATE opponents SET name = $1 WHERE id = $2`, [o.name, o.id]);
+      oppUpdated++;
+    }
+    report.opponents_updated = oppUpdated;
+
+    // 3. Opponent inserts — collect new IDs for remapping
+    const newOppMap: Record<number, number> = {};
+    let oppInserted = 0;
+    for (const o of opponents_insert) {
+      const { rows } = await client.query(
+        `INSERT INTO opponents (name) VALUES ($1) ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id`,
+        [o.name]
+      );
+      newOppMap[o.devId] = rows[0].id;
+      oppInserted++;
+    }
+    report.opponents_inserted = oppInserted;
+    report.new_opponent_id_map = newOppMap;
+
+    // Build full opponent remapping
+    const oppRemap: Record<number, number> = {};
+    for (const [devId, prodId] of Object.entries(static_opponent_map)) {
+      oppRemap[Number(devId)] = Number(prodId);
+    }
+    Object.assign(oppRemap, newOppMap);
+
+    // 4. Managers upsert
+    let mgrUpserted = 0;
+    for (const m of managers_upsert as any[]) {
+      await client.query(
+        `INSERT INTO managers (id, name, nationality, start_year, end_year, seasons,
+           stored_games, stored_wins, stored_draws, stored_losses, stored_goals_for, stored_goals_against)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+         ON CONFLICT (id) DO UPDATE SET
+           name = EXCLUDED.name,
+           nationality = EXCLUDED.nationality,
+           start_year = EXCLUDED.start_year,
+           end_year = EXCLUDED.end_year,
+           seasons = EXCLUDED.seasons,
+           stored_games = COALESCE(EXCLUDED.stored_games, managers.stored_games),
+           stored_wins = COALESCE(EXCLUDED.stored_wins, managers.stored_wins),
+           stored_draws = COALESCE(EXCLUDED.stored_draws, managers.stored_draws),
+           stored_losses = COALESCE(EXCLUDED.stored_losses, managers.stored_losses),
+           stored_goals_for = COALESCE(EXCLUDED.stored_goals_for, managers.stored_goals_for),
+           stored_goals_against = COALESCE(EXCLUDED.stored_goals_against, managers.stored_goals_against)`,
+        [m.id, m.name, m.nationality, m.start_year, m.end_year, m.seasons,
+         m.stored_games, m.stored_wins, m.stored_draws, m.stored_losses,
+         m.stored_goals_for, m.stored_goals_against]
+      );
+      mgrUpserted++;
+    }
+    report.managers_upserted = mgrUpserted;
+
+    // 5. Players upsert
+    let playersUpserted = 0;
+    for (const p of players_upsert) {
+      await client.query(
+        `INSERT INTO players (id, name, position, nationality, birth_year)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, position = EXCLUDED.position, nationality = EXCLUDED.nationality`,
+        [p.id, (p as any).name, (p as any).position, (p as any).nationality, (p as any).birth_year ?? null]
+      );
+      playersUpserted++;
+    }
+    report.players_upserted = playersUpserted;
+
+    // 6. Player season stats insert (no unique constraint — check existence first)
+    let pssInserted = 0, pssSkipped = 0;
+    for (const s of pss_upsert) {
+      const exists = await client.query(
+        `SELECT 1 FROM player_season_stats WHERE player_id=$1 AND season=$2 LIMIT 1`,
+        [s.player_id, s.season]
+      );
+      if (exists.rows.length === 0) {
+        await client.query(
+          `INSERT INTO player_season_stats (player_id, season, appearances, goals, assists)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [s.player_id, s.season, s.appearances ?? 0, s.goals ?? 0, s.assists ?? 0]
+        );
+        pssInserted++;
+      } else {
+        pssSkipped++;
+      }
+    }
+    report.pss_inserted = pssInserted;
+    report.pss_skipped = pssSkipped;
+
+    // 7. Matches insert — auto-increment ID, deduplicate by content
+    let matchesInserted = 0, matchesSkipped = 0;
+    for (const m of matches_insert as any[]) {
+      const finalOppId = oppRemap[Number(m.opponent_id)] ?? Number(m.opponent_id);
+      // Deduplicate: skip if same date/competition/opponent/home_away/season already exists
+      const exists = await client.query(
+        `SELECT 1 FROM matches WHERE match_date=$1 AND competition_id=$2 AND opponent_id=$3 AND home_away=$4 AND season=$5 LIMIT 1`,
+        [m.match_date, m.competition_id, finalOppId, m.home_away, m.season]
+      );
+      if (exists.rows.length === 0) {
+        await client.query(
+          `INSERT INTO matches (match_date, season, competition_id, opponent_id,
+             home_away, goals_for, goals_against, result, stadium_id, manager_id, attendance, scorers)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
+          [m.match_date, m.season, m.competition_id, finalOppId,
+           m.home_away, m.goals_for, m.goals_against, m.result,
+           m.stadium_id ?? null, m.manager_id ?? null, m.attendance ?? null, m.scorers ?? null]
+        );
+        matchesInserted++;
+      } else {
+        matchesSkipped++;
+      }
+    }
+    report.matches_inserted = matchesInserted;
+    report.matches_skipped = matchesSkipped;
+
+    // Reset sequences to max ID + 1 to avoid future conflicts
+    for (const tbl of ['competitions','opponents','managers','players','player_season_stats','matches']) {
+      await client.query(`SELECT setval(pg_get_serial_sequence('${tbl}', 'id'), COALESCE(MAX(id), 1)) FROM ${tbl}`);
+    }
+    report.sequences_reset = true;
+
+    await client.query("COMMIT");
+    report.success = true;
+    res.json(report);
+  } catch (err: any) {
+    await client.query("ROLLBACK");
+    req.log.error(err);
+    res.status(500).json({ error: err.message, report });
+  } finally {
+    client.release();
+  }
+});
+
