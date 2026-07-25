@@ -1,0 +1,48 @@
+1998-01-27 | Casa | Palmeiras-SP | Derrota 0-1 | Copa do Brasil 1998 | 1ª Fase Preliminar
+1998-02-01 | Fora | Palmeiras-SP | Derrota 0-3 | Copa do Brasil 1998 | 1ª Fase Preliminar
+1998-02-04 | Fora | Ceará-CE | Derrota 2-3 | Nordestão 1998 | Grupo A
+1998-02-11 | Casa | Bahia-BA | Derrota 0-2 | Nordestão 1998 | Grupo A
+1998-02-26 | Fora | Confiança-SE | Vitória 3-1 | Nordestão 1998 | Grupo A
+1998-03-05 | Casa | Ceará-CE | Empate 3-3 | Nordestão 1998 | Grupo A
+1998-03-08 | Fora | CRB-AL | Vitória 2-1 | Alagoano 1998 | 1ª Fase
+1998-03-12 | Fora | Bahia-BA | Derrota 0-2 | Nordestão 1998 | Grupo A
+1998-03-15 | Casa | Capela-AL | Vitória 3-1 | Alagoano 1998 | 1ª Fase
+1998-03-17 | Fora | Dínamo EC-AL | Vitória 2-0 | Alagoano 1998 | 1ª Fase
+1998-03-19 | Casa | Confiança-SE | Vitória 3-2 | Nordestão 1998 | Grupo A
+1998-03-22 | Fora | ASA-AL | Empate 2-2 | Alagoano 1998 | 1ª Fase
+1998-03-24 | Casa | São Domingos-AL | Vitória 5-0 | Alagoano 1998 | 1ª Fase
+1998-03-26 | Fora | Zumbi-AL | Derrota 1-2 | Alagoano 1998 | 1ª Fase
+1998-03-28 | Fora | Comercial-AL | Empate 0-0 | Alagoano 1998 | 1ª Fase
+1998-04-01 | Casa | Corinthians-AL | Empate 0-0 | Alagoano 1998 | 1ª Fase
+1998-04-05 | Casa | Sete de Setembro-AL | Vitória 4-0 | Alagoano 1998 | 1ª Fase
+1998-04-08 | Casa | Miguelense-AL | Vitória 4-0 | Alagoano 1998 | 1ª Fase
+1998-04-12 | Casa | CSE-AL | Vitória 8-1 | Alagoano 1998 | 1ª Fase
+1998-04-19 | Fora | CSE-AL | Derrota 2-3 | Alagoano 1998 | 1ª Fase
+1998-04-22 | Fora | Miguelense-AL | Empate 1-1 | Alagoano 1998 | 1ª Fase
+1998-04-26 | Fora | Sete de Setembro-AL | Vitória 4-1 | Alagoano 1998 | 1ª Fase
+1998-04-29 | Fora | Corinthians-AL | Empate 1-1 | Alagoano 1998 | 1ª Fase
+1998-05-03 | Casa | Comercial-AL | Vitória 3-1 | Alagoano 1998 | 1ª Fase
+1998-05-07 | Fora | São Domingos-AL | Vitória 3-1 | Alagoano 1998 | 1ª Fase
+1998-05-09 | Casa | ASA-AL | Vitória 1-0 | Alagoano 1998 | 1ª Fase
+1998-05-13 | Casa | Dínamo EC-AL | Empate 2-2 | Alagoano 1998 | 1ª Fase
+1998-05-16 | Fora | Capela-AL | Empate 3-3 | Alagoano 1998 | 1ª Fase
+1998-05-20 | Casa | Zumbi-AL | Vitória 2-0 | Alagoano 1998 | 1ª Fase
+1998-05-23 | Casa | CRB-AL | Vitória 3-0 | Alagoano 1998 | 1ª Fase
+1998-05-27 | Fora | Capela-AL | Empate 0-0 | Alagoano 1998 | 2ª Fase
+1998-05-30 | Casa | Corinthians-AL | Vitória 3-1 | Alagoano 1998 | 2ª Fase
+1998-06-03 | Casa | Capela-AL | Vitória 1-0 | Alagoano 1998 | 2ª Fase
+1998-06-07 | Casa | CRB-AL | Vitória 4-1 | Alagoano 1998 | 2ª Fase
+1998-06-11 | Casa | Corinthians-AL | Vitória 1-0 | Alagoano 1998 | 2ª Fase
+1998-06-14 | Fora | CRB-AL | Derrota 0-2 | Alagoano 1998 | 2ª Fase
+1998-06-17 | Casa | CRB-AL | Vitória 2-0 | Alagoano 1998 | Final
+1998-06-21 | Fora | CRB-AL | Empate 2-2 | Alagoano 1998 | Final
+1998-08-09 | Fora | Itabaiana-SE | Derrota 1-2 | Série C 1998 | Grupo 4
+1998-08-12 | Casa | Botafogo-PB | Vitória 1-0 | Série C 1998 | Grupo 4
+1998-08-16 | Casa | Confiança-SE | Derrota 1-2 | Série C 1998 | Grupo 4
+1998-08-19 | Casa | Treze-PB | Vitória 2-0 | Série C 1998 | Grupo 4
+1998-08-30 | Fora | Catuense-BA | Derrota 0-2 | Série C 1998 | Grupo 4
+1998-09-05 | Casa | Catuense-BA | Vitória 2-1 | Série C 1998 | Grupo 4
+1998-09-09 | Fora | Botafogo-PB | Derrota 1-2 | Série C 1998 | Grupo 4
+1998-09-13 | Fora | Treze-PB | Vitória 2-1 | Série C 1998 | Grupo 4
+1998-09-20 | Fora | Confiança-SE | Derrota 0-1 | Série C 1998 | Grupo 4
+1998-09-27 | Casa | Itabaiana-SE | Derrota 1-2 | Série C 1998 | Grupo 4
