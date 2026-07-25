@@ -84,7 +84,6 @@ export default function Home() {
                 <TableRow className="text-xs">
                   <TableHead className="py-2 w-6">#</TableHead>
                   <TableHead className="py-2">Jogador</TableHead>
-                  <TableHead className="py-2 text-right">J</TableHead>
                   <TableHead className="py-2 text-right">Gols</TableHead>
                 </TableRow>
               </TableHeader>
@@ -92,7 +91,7 @@ export default function Home() {
                 {loadSc
                   ? Array.from({ length: 8 }).map((_, i) => (
                       <TableRow key={i}>
-                        <TableCell colSpan={4}><Skeleton className="h-4" /></TableCell>
+                        <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                       </TableRow>
                     ))
                   : topScorers?.slice(0, 10).map((p, i) => (
@@ -103,7 +102,6 @@ export default function Home() {
                             {p.name}
                           </Link>
                         </TableCell>
-                        <TableCell className="py-1.5 text-right text-muted-foreground">{p.appearances}</TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary">{p.goals}</TableCell>
                       </TableRow>
                     ))}
@@ -115,7 +113,7 @@ export default function Home() {
         {/* Top Appearances */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Mais Presenças</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Mais Jogos</h2>
             <Link href="/jogadores/presencas" className="text-xs text-primary hover:underline">ver todos</Link>
           </div>
           <div className="border rounded">
@@ -124,15 +122,14 @@ export default function Home() {
                 <TableRow className="text-xs">
                   <TableHead className="py-2 w-6">#</TableHead>
                   <TableHead className="py-2">Jogador</TableHead>
-                  <TableHead className="py-2 text-right">Gols</TableHead>
-                  <TableHead className="py-2 text-right">J</TableHead>
+                  <TableHead className="py-2 text-right">Jogos</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loadAp
                   ? Array.from({ length: 8 }).map((_, i) => (
                       <TableRow key={i}>
-                        <TableCell colSpan={4}><Skeleton className="h-4" /></TableCell>
+                        <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                       </TableRow>
                     ))
                   : topAppearances?.slice(0, 10).map((p, i) => (
@@ -143,7 +140,6 @@ export default function Home() {
                             {p.name}
                           </Link>
                         </TableCell>
-                        <TableCell className="py-1.5 text-right text-muted-foreground">{p.goals}</TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary">{p.appearances}</TableCell>
                       </TableRow>
                     ))}
