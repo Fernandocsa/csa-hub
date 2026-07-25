@@ -914,6 +914,29 @@ router.post("/admin/opponents/merge", requireAdmin, async (req, res) => {
   }
 });
 
+// Update a single season entry for a player (upsert)
+router.put("/admin/players/:id/season-stats/:season", requireAdmin, async (req, res) => {
+  try {
+    const playerId = parseInt(req.params.id);
+    const season = req.params.season;
+    const { appearances, goals, assists } = req.body as {
+      appearances?: number; goals?: number; assists?: number;
+    };
+    if (!season) return res.status(400).json({ error: "season obrigatório" });
+    const result = await pgPool.query(
+      `UPDATE player_season_stats SET appearances=$1, goals=$2, assists=$3 WHERE player_id=$4 AND season=$5 RETURNING *`,
+      [appearances ?? 0, goals ?? 0, assists ?? 0, playerId, season]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Entrada não encontrada para esse jogador/temporada" });
+    }
+    res.json({ ok: true, row: result.rows[0] });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 // Replace all player_season_stats for a player with a single aggregate entry
 router.put("/admin/players/:id/stats", requireAdmin, async (req, res) => {
   try {

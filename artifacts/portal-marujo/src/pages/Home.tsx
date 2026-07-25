@@ -20,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 
 function pct(wins: number, total: number) {
   if (!total) return "0.0%";
@@ -164,11 +165,12 @@ export default function Home() {
                       <TableRow key={p.id} className="text-sm">
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
                         <TableCell className="py-1.5 font-medium">
-                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-baseline gap-0.5" data-testid={`link-player-${p.id}`}>
+                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1" data-testid={`link-player-${p.id}`}>
                             {flag && (
                               <span className="mr-0.5 text-base leading-none">{flag}</span>
                             )}
                             {p.name}
+                            <VerifiedBadge status={(p as any).verificationStatus} />
                           </Link>
                         </TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary">{p.goals}</TableCell>
@@ -208,11 +210,12 @@ export default function Home() {
                       <TableRow key={p.id} className="text-sm">
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
                         <TableCell className="py-1.5 font-medium">
-                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-baseline gap-0.5">
+                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
                             {flag && (
                               <span className="mr-0.5 text-base leading-none">{flag}</span>
                             )}
                             {p.name}
+                            <VerifiedBadge status={(p as any).verificationStatus} />
                           </Link>
                         </TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary">{p.appearances}</TableCell>
@@ -386,11 +389,12 @@ export default function Home() {
                       <TableRow key={p.id} className="text-sm">
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
                         <TableCell className="py-1.5 font-medium">
-                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-baseline gap-0.5">
+                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
                             {flag && p.nationality !== "Brasil" && (
                               <span className="mr-0.5 text-base leading-none">{flag}</span>
                             )}
                             {p.name}
+                            <VerifiedBadge status={(p as any).verificationStatus} />
                           </Link>
                         </TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary">{p.assists}</TableCell>
