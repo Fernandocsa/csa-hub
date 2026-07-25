@@ -17,8 +17,14 @@ localPort = 25984
 [services.development]
 run = "pnpm --filter @workspace/portal-marujo run dev"
 
+[services.production.build]
+args = ["pnpm", "--filter", "@workspace/portal-marujo", "run", "build"]
+
+[services.production.build.env]
+NODE_ENV = "production"
+BASE_PATH = "/"
+
 [services.production]
-build = [ "pnpm", "--filter", "@workspace/portal-marujo", "run", "build" ]
 publicDir = "artifacts/portal-marujo/dist/public"
 serve = "static"
 
