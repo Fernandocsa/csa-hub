@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearch } from "wouter";
 import {
   useListMatches,
   useListSeasons,
@@ -53,13 +54,25 @@ function UnknownResultBadge({ className }: { className?: string }) {
 type StatusFilter = "all" | "unknown" | "walkover";
 
 export default function MatchesList() {
+  const search = useSearch();
+  const initialStatus = (() => {
+    const s = new URLSearchParams(search).get("status");
+    return (s === "unknown" || s === "walkover") ? (s as StatusFilter) : "all";
+  })();
+
   const [tab, setTab] = useState<"official" | "walkover" | "friendly">("official");
   const [season, setSeason] = useState("all");
   const [result, setResult] = useState("all");
   const [homeAway, setHomeAway] = useState("all");
   const [opponent, setOpponent] = useState("");
-  const [status, setStatus] = useState<StatusFilter>("all");
+  const [status, setStatus] = useState<StatusFilter>(initialStatus);
   const [page, setPage] = useState(1);
+
+  // Sync status from URL on first render (e.g. deep-link from homepage)
+  useEffect(() => {
+    if (initialStatus !== "all") setStatus(initialStatus);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const limit = 30;
 
   const { data: seasons } = useListSeasons();
