@@ -46,8 +46,8 @@ export default function Home() {
       </div>
       {/* Stat bar */}
       {loadSum ? (
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-px bg-border rounded overflow-hidden">
-          {Array.from({ length: 6 }).map((_, i) => (
+        <div className="grid grid-cols-3 sm:grid-cols-7 gap-px bg-border rounded overflow-hidden">
+          {Array.from({ length: 7 }).map((_, i) => (
             <div key={i} className="bg-background p-3">
               <Skeleton className="h-3 w-16 mb-1" />
               <Skeleton className="h-6 w-12" />
@@ -55,13 +55,14 @@ export default function Home() {
           ))}
         </div>
       ) : summary ? (
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-px bg-border rounded overflow-hidden text-sm" data-testid="stat-bar">
+        <div className="grid grid-cols-3 sm:grid-cols-7 gap-px bg-border rounded overflow-hidden text-sm" data-testid="stat-bar">
           {[
             { label: "Partidas", value: summary.totalMatches },
             { label: "Vitórias", value: summary.wins, color: "text-green-600" },
             { label: "Empates", value: summary.draws, color: "text-amber-600" },
             { label: "Derrotas", value: summary.losses, color: "text-red-600" },
             { label: "Gols Marcados", value: summary.goalsScored },
+            { label: "Gols Sofridos", value: summary.goalsConceded },
             { label: "Aproveitamento", value: `${summary.winPercentage.toFixed(1)}%`, color: "text-primary font-bold" },
           ].map(({ label, value, color }) => (
             <div key={label} className="bg-background p-3" data-testid={`stat-${label.toLowerCase().replace(/\s/g, "-")}`}>
