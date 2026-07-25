@@ -530,6 +530,61 @@ router.delete("/admin/matches/:id", requireAdmin, async (req, res) => {
   }
 });
 
+// ── Stadiums ──────────────────────────────────────────────────────────────────
+
+router.post("/admin/stadiums", requireAdmin, async (req, res) => {
+  try {
+    const { name } = req.body as { name: string };
+    if (!name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+    const [stadium] = await db.insert(stadiumsTable).values({ name: name.trim() }).returning();
+    res.status(201).json(stadium);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+// Bulk update matches by date+opponent — fix stadium_id, gross_revenue, gross_revenue_text
+router.post("/admin/matches/bulk-patch", requireAdmin, async (req, res) => {
+  try {
+    const { patches } = req.body as {
+      patches: {
+        match_date: string;
+        opponent_id: number;
+        season: string;
+        stadium_id?: number | null;
+        gross_revenue?: number | null;
+        gross_revenue_text?: string | null;
+      }[];
+    };
+    if (!Array.isArray(patches)) return res.status(400).json({ error: "patches obrigatório" });
+    let updated = 0; let notFound = 0;
+    for (const p of patches) {
+      const result = await pgPool.query(
+        `UPDATE matches SET
+           stadium_id        = COALESCE($1, stadium_id),
+           gross_revenue     = COALESCE($2, gross_revenue),
+           gross_revenue_text = COALESCE($3, gross_revenue_text)
+         WHERE match_date = $4 AND opponent_id = $5 AND season = $6
+         RETURNING id`,
+        [
+          p.stadium_id ?? null,
+          p.gross_revenue ?? null,
+          p.gross_revenue_text ?? null,
+          p.match_date,
+          p.opponent_id,
+          p.season,
+        ]
+      );
+      if (result.rowCount && result.rowCount > 0) updated += result.rowCount; else notFound++;
+    }
+    res.json({ updated, notFound });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 // ── Opponents ─────────────────────────────────────────────────────────────────
 
 router.get("/admin/opponents", requireAdmin, async (req, res) => {
@@ -823,12 +878,24 @@ router.post("/admin/import/matches", requireAdmin, async (req, res) => {
         competitionMap.set(row.competition.toLowerCase(), competitionId);
       }
 
-      const stadiumId = row.stadium ? stadiumMap.get(row.stadium.toLowerCase()) ?? null : null;
+      // Auto-create stadium if not found
+      let stadiumId: number | null = null;
+      if (row.stadium) {
+        stadiumId = stadiumMap.get(row.stadium.toLowerCase()) ?? null;
+        if (!stadiumId) {
+          const [newStad] = await db.insert(stadiumsTable).values({ name: row.stadium }).returning();
+          stadiumId = newStad.id;
+          stadiumMap.set(row.stadium.toLowerCase(), stadiumId);
+        }
+      }
       const managerId = row.manager ? managerMap.get(row.manager.toLowerCase()) ?? null : null;
 
       const gf = parseInt(row.goals_for);
       const ga = parseInt(row.goals_against);
       const result = row.result || (gf > ga ? "win" : gf < ga ? "loss" : "draw");
+
+      const grossRevenue = row.gross_revenue ? parseInt(row.gross_revenue) : null;
+      const grossRevenueText = row.gross_revenue_text || null;
 
       await db.insert(matchesTable).values({
         matchDate: row.date,
@@ -843,6 +910,8 @@ router.post("/admin/import/matches", requireAdmin, async (req, res) => {
         managerId,
         attendance: row.attendance ? parseInt(row.attendance) : null,
         scorers: row.scorers || null,
+        grossRevenue: isNaN(grossRevenue as number) ? null : grossRevenue,
+        grossRevenueText,
       });
       created++;
     }

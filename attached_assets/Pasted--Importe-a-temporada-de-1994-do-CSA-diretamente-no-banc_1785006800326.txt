@@ -1,0 +1,54 @@
+
+Importe a temporada de 1994 do CSA diretamente no banco de dados de PRODUÇÃO.
+
+IMPORTANTE:
+- NÃO utilize o ambiente de desenvolvimento.
+- Reutilize clubes, competições e estádios já existentes, criando apenas os que ainda não existirem.
+- Utilize apenas o nome oficial das competições (sem "1ª fase", "2ª fase", etc.).
+- Caso alguma data, estádio, árbitro, público ou renda não esteja disponível, mantenha o campo como NULL, sem inventar informações.
+
+Competições da temporada:
+
+- Campeonato Alagoano 1994
+- Campeonato Brasileiro Série C 1994
+- Campeonato do Nordeste 1994
+
+Importe todas as partidas abaixo.
+
+CAMPEONATO DO NORDESTE
+
+04/12/1994 — CSA 4x1 Náutico-PE
+07/12/1994 — CSA 0x1 Botafogo-PB
+09/12/1994 — Bahia 2x2 CSA
+
+CAMPEONATO BRASILEIRO SÉRIE C
+
+18/09/1994 — Itabaiana-SE 2x1 CSA
+21/09/1994 — CSA 3x0 Maruinense-SE
+25/09/1994 — CSA 3x1 Confiança-SE
+02/10/1994 — Confiança-SE 2x0 CSA
+09/10/1994 — Maruinense-SE 0x1 CSA
+16/10/1994 — CSA 0x1 Itabaiana-SE
+
+23/10/1994 — Sousa-PB 0x4 CSA
+30/10/1994 — CSA 3x1 Sousa-PB
+
+06/11/1994 — Catuense-BA 3x0 CSA
+09/11/1994 — CSA 2x3 Catuense-BA
+
+CAMPEONATO ALAGOANO
+
+Importe TODAS as partidas do CSA constantes no material fornecido (1º turno, 2º turno, 3º turno, fases finais e decisões), preservando placares, datas, estádios, escalações, técnicos, arbitragem, expulsões, gols, rendas, públicos e demais informações disponíveis. Utilize as informações presentes no arquivo enviado como fonte principal. :contentReference[oaicite:0]{index=0}
+
+IMPORTANTE SOBRE PÚBLICO E RENDA
+
+Sempre que uma partida do CSA como mandante possuir informação de público total e/ou renda, importe esses dados para o banco. Esses campos serão utilizados posteriormente nas estatísticas e rankings de público do Portal Marujo.
+
+Ao finalizar:
+
+- Recalcule todas as estatísticas dos jogadores.
+- Atualize artilharia, assistências, jogos, vitórias, derrotas e empates.
+- Atualize rankings históricos.
+- Atualize páginas de jogadores, temporadas, adversários, competições, estádios, técnicos e recordes.
+- Atualize os caches necessários.
+- Faça uma validação final para garantir que todas as partidas da temporada de 1994 foram importadas corretamente.

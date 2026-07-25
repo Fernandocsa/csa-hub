@@ -1,0 +1,45 @@
+| Data       | Competição          | Partida           | Estádio                     | Público    | Renda                                |
+| ---------- | ------------------- | ----------------- | --------------------------- | ---------- | ------------------------------------ |
+| 06/03/1994 | Campeonato Alagoano | Comercial 0x0 CSA | Teotônio Vilela             | —          | —                                    |
+| 13/03/1994 | Campeonato Alagoano | CSA 1x0 Bom Jesus | Trapichão                   | —          | —                                    |
+| 16/03/1994 | Campeonato Alagoano | CSA 3x0 Capela    | Trapichão                   | —          | —                                    |
+| 20/03/1994 | Campeonato Alagoano | ASA 2x6 CSA       | Fumeirão                    | —          | —                                    |
+| 27/03/1994 | Campeonato Alagoano | CRB 1x4 CSA       | Trapichão                   | —          | —                                    |
+| 30/03/1994 | Campeonato Alagoano | CSA 5x2 Cruzeiro  | Trapichão                   | —          | —                                    |
+| 03/04/1994 | Campeonato Alagoano | CSA 2x1 CSE       | Trapichão                   | **3.177**  | **Cr$ 4.954.500,00**                 |
+| 06/04/1994 | Campeonato Alagoano | Linense 1x5 CSA   | Trapichão                   | —          | —                                    |
+| 10/04/1994 | Campeonato Alagoano | Ipanema 0x2 CSA   | Aloísio Rodrigues (Batalha) | —          | —                                    |
+| 17/04/1994 | Campeonato Alagoano | CSA 1x3 CRB       | Trapichão                   | **7.632**  | **Cr$ 12.407.000,00**                |
+| 21/04/1994 | Campeonato Alagoano | Bom Jesus 1x1 CSA | Dênis Loureiro              | —          | —                                    |
+| 24/04/1994 | Campeonato Alagoano | CSA 1x0 Bom Jesus | Trapichão                   | **3.359**  | **Cr$ 5.287.000,00**                 |
+| 28/04/1994 | Campeonato Alagoano | Cruzeiro 1x2 CSA  | Fumeirão                    | —          | —                                    |
+| 01/05/1994 | Campeonato Alagoano | CSA 1x1 Cruzeiro  | Trapichão                   | **4.714**  | **Cr$ 9.804.000,00**                 |
+| 11/05/1994 | Campeonato Alagoano | CSA 1x0 Ipanema   | Trapichão                   | —          | —                                    |
+| 15/05/1994 | Campeonato Alagoano | Capela 1x0 CSA    | Manoel Moreira              | —          | —                                    |
+| 19/05/1994 | Campeonato Alagoano | Bom Jesus 1x2 CSA | Dênis Loureiro              | —          | —                                    |
+| 22/05/1994 | Campeonato Alagoano | CSE 1x5 CSA       | Juca Sampaio                | —          | —                                    |
+| 25/05/1994 | Campeonato Alagoano | CSA 4x0 Linense   | Trapichão                   | —          | —                                    |
+| 29/05/1994 | Campeonato Alagoano | CSA 2x2 CRB       | Trapichão                   | —          | —                                    |
+| 02/06/1994 | Campeonato Alagoano | CSA 7x1 Comercial | Trapichão                   | —          | —                                    |
+| 05/06/1994 | Campeonato Alagoano | Cruzeiro 0x2 CSA  | Fumeirão                    | —          | —                                    |
+| 11/06/1994 | Campeonato Alagoano | CSA 7x1 ASA       | Trapichão                   | —          | —                                    |
+| 19/06/1994 | Campeonato Alagoano | CRB 0x1 CSA       | Trapichão                   | —          | —                                    |
+| 23/06/1994 | Campeonato Alagoano | Capela 2x2 CSA    | Manoel Moreira              | —          | —                                    |
+| 26/06/1994 | Campeonato Alagoano | CSA 4x2 Capela    | Trapichão                   | **12.639** | **Cr$ 17.980.000,00**                |
+| 29/06/1994 | Campeonato Alagoano | CRB 0x2 CSA       | Trapichão                   | —          | —                                    |
+| 03/07/1994 | Campeonato Alagoano | CSA 3x2 CRB       | Trapichão                   | **25.950** | **Cr$ 73.342.000,00 (R$ 26.670,00)** |
+| 08/07/1994 | Campeonato Alagoano | CSA 1x0 Capela    | Trapichão                   | —          | —                                    |
+| 15/07/1994 | Campeonato Alagoano | Linense 1x6 CSA   | Rei Pelé                    | —          | —                                    |
+| 24/07/1994 | Campeonato Alagoano | CSA 3x1 Cruzeiro  | Trapichão                   | —          | —                                    |
+| 27/07/1994 | Campeonato Alagoano | ASA 3x3 CSA       | Fumeirão                    | —          | —                                    |
+| 31/07/1994 | Campeonato Alagoano | CRB 1x1 CSA       | Trapichão                   | —          | —                                    |
+| 03/08/1994 | Campeonato Alagoano | CSA 2x0 Bom Jesus | Trapichão                   | —          | —                                    |
+| 07/08/1994 | Campeonato Alagoano | Ipanema 0x0 CSA   | Édson Matias (Olho D'Água)  | —          | —                                    |
+| 10/08/1994 | Campeonato Alagoano | Comercial 0x1 CSA | Teotônio Vilela             | —          | —                                    |
+| 14/08/1994 | Campeonato Alagoano | CSA 2x2 CSE       | Trapichão                   | **10.835** | **R$ 11.436,00**                     |
+| 24/08/1994 | Campeonato Alagoano | CSA 1x2 CRB       | Trapichão                   | **11.215** | **R$ 26.500,00**                     |
+| 04/09/1994 | Campeonato Alagoano | CSA 4x0 CSE       | Trapichão                   | **13.505** | **R$ 13.553,00**                     |
+| 07/09/1994 | Campeonato Alagoano | CSE 0x3 CSA       | Juca Sampaio                | —          | —                                    |
+| 14/09/1994 | Campeonato Alagoano | CRB 0x0 CSA       | Trapichão                   | —          | —                                    |
+| 21/09/1994 | Campeonato Alagoano | CSA 3x0 CRB       | Trapichão                   | —          | —                                    |
+| 28/09/1994 | Campeonato Alagoano | CSA 2x1 CRB       | Trapichão                   | **28.158** | **R$ 54.800,00**                     |
