@@ -76,18 +76,9 @@ function NextMatchCard() {
         <p className="text-xs text-muted-foreground">{fmtDate(NEXT_MATCH.date)} · {NEXT_MATCH.competition}</p>
         <p className="font-semibold text-sm mt-0.5 truncate">{NEXT_MATCH.home} × {NEXT_MATCH.away}</p>
       </div>
-      <div className="flex items-center gap-3">
-        <div className="text-center">
-          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary leading-none">CSA</div>
-        </div>
-        <div className="flex-1 text-center">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">vs</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">A disputar</p>
-        </div>
-        <div className="text-center">
-          <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground leading-none text-center px-1">SLI</div>
-        </div>
-      </div>
+      <p className="text-2xl font-black text-muted-foreground">
+        –<span className="text-muted-foreground font-normal text-lg mx-1">×</span>–
+      </p>
       <p className="text-xs text-muted-foreground">{new Date(NEXT_MATCH.date + "T12:00:00").getFullYear()}</p>
     </div>
   );
