@@ -18,6 +18,7 @@ router.get("/players", async (req, res) => {
         position: playersTable.position,
         nationality: playersTable.nationality,
         nationalityFlag: playersTable.nationalityFlag,
+        verificationStatus: playersTable.verificationStatus,
         appearances: sql<number>`cast(sum(${playerSeasonStatsTable.appearances}) as int)`,
         goals: sql<number>`cast(sum(${playerSeasonStatsTable.goals}) as int)`,
         assists: sql<number>`cast(sum(${playerSeasonStatsTable.assists}) as int)`,
@@ -44,6 +45,7 @@ router.get("/players", async (req, res) => {
       playersTable.position,
       playersTable.nationality,
       playersTable.nationalityFlag,
+      playersTable.verificationStatus,
     );
 
     if (sort === "goals") {
@@ -77,6 +79,7 @@ router.get("/players/top-scorers", async (req, res) => {
         position: playersTable.position,
         nationality: playersTable.nationality,
         nationalityFlag: playersTable.nationalityFlag,
+        verificationStatus: playersTable.verificationStatus,
         appearances: sql<number>`cast(sum(${playerSeasonStatsTable.appearances}) as int)`,
         goals: sql<number>`cast(sum(${playerSeasonStatsTable.goals}) as int)`,
         assists: sql<number>`cast(sum(${playerSeasonStatsTable.assists}) as int)`,
@@ -97,6 +100,7 @@ router.get("/players/top-scorers", async (req, res) => {
         playersTable.position,
         playersTable.nationality,
         playersTable.nationalityFlag,
+        playersTable.verificationStatus,
       )
       .orderBy(sql`sum(${playerSeasonStatsTable.goals}) desc`)
       .limit(lim);
@@ -120,6 +124,7 @@ router.get("/players/top-appearances", async (req, res) => {
         position: playersTable.position,
         nationality: playersTable.nationality,
         nationalityFlag: playersTable.nationalityFlag,
+        verificationStatus: playersTable.verificationStatus,
         appearances: sql<number>`cast(sum(${playerSeasonStatsTable.appearances}) as int)`,
         goals: sql<number>`cast(sum(${playerSeasonStatsTable.goals}) as int)`,
         assists: sql<number>`cast(sum(${playerSeasonStatsTable.assists}) as int)`,
@@ -140,6 +145,7 @@ router.get("/players/top-appearances", async (req, res) => {
         playersTable.position,
         playersTable.nationality,
         playersTable.nationalityFlag,
+        playersTable.verificationStatus,
       )
       .orderBy(sql`sum(${playerSeasonStatsTable.appearances}) desc`)
       .limit(lim);
@@ -163,6 +169,7 @@ router.get("/players/top-assists", async (req, res) => {
         position: playersTable.position,
         nationality: playersTable.nationality,
         nationalityFlag: playersTable.nationalityFlag,
+        verificationStatus: playersTable.verificationStatus,
         appearances: sql<number>`cast(sum(${playerSeasonStatsTable.appearances}) as int)`,
         goals: sql<number>`cast(sum(${playerSeasonStatsTable.goals}) as int)`,
         assists: sql<number>`cast(sum(${playerSeasonStatsTable.assists}) as int)`,
@@ -175,6 +182,7 @@ router.get("/players/top-assists", async (req, res) => {
         playersTable.position,
         playersTable.nationality,
         playersTable.nationalityFlag,
+        playersTable.verificationStatus,
       )
       .having(sql`sum(${playerSeasonStatsTable.assists}) > 0`)
       .orderBy(sql`sum(${playerSeasonStatsTable.assists}) desc`, sql`sum(${playerSeasonStatsTable.appearances}) desc`)
@@ -329,6 +337,9 @@ router.get("/players/:id", async (req, res) => {
       nationality: player.nationality,
       nationalityFlag: player.nationalityFlag,
       birthYear: player.birthYear,
+      verificationStatus: player.verificationStatus,
+      verifiedAt: player.verifiedAt,
+      verifiedBy: player.verifiedBy,
       totalAppearances,
       totalGoals,
       totalAssists,

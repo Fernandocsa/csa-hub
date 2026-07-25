@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useGetTopAppearances, useListSeasons } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -66,11 +67,12 @@ export default function TopAppearances() {
                     <TableRow key={p.id} className="text-sm" data-testid={`row-appearances-${p.id}`}>
                       <TableCell className="py-2 text-muted-foreground font-mono text-xs">{i + 1}</TableCell>
                       <TableCell className="py-2 font-medium">
-                        <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-baseline gap-0.5">
+                        <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
                           {flag && p.nationality !== "Brasil" && (
                             <span className="mr-0.5 text-base leading-none">{flag}</span>
                           )}
                           {p.name}
+                          <VerifiedBadge status={(p as any).verificationStatus} />
                         </Link>
                       </TableCell>
                       <TableCell className="py-2 text-muted-foreground text-xs">{p.position ?? "–"}</TableCell>

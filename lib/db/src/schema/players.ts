@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -9,6 +9,9 @@ export const playersTable = pgTable("players", {
   nationality: text("nationality"),
   nationalityFlag: text("nationality_flag"),
   birthYear: integer("birth_year"),
+  verificationStatus: text("verification_status").notNull().default("unverified"),
+  verifiedAt: timestamp("verified_at", { withTimezone: true }),
+  verifiedBy: text("verified_by"),
 });
 
 export const playerSeasonStatsTable = pgTable("player_season_stats", {

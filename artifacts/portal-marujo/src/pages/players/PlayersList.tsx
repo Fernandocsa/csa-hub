@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useListPlayers } from "@workspace/api-client-react";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -89,11 +90,12 @@ export default function PlayersList() {
                     <TableRow key={player.id} className="text-sm" data-testid={`row-player-${player.id}`}>
                       <TableCell className="py-2 text-muted-foreground text-xs">{(page - 1) * limit + i + 1}</TableCell>
                       <TableCell className="py-2 font-medium">
-                        <Link href={`/jogadores/${player.id}`} className="hover:text-primary hover:underline inline-flex items-baseline gap-0.5" data-testid={`link-player-${player.id}`}>
+                        <Link href={`/jogadores/${player.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1" data-testid={`link-player-${player.id}`}>
                           {flag && player.nationality !== "Brasil" && (
                             <span className="mr-0.5 text-base leading-none">{flag}</span>
                           )}
                           {player.name}
+                          <VerifiedBadge status={(player as any).verificationStatus} />
                         </Link>
                       </TableCell>
                       <TableCell className="py-2 text-muted-foreground text-xs">{player.position ?? "–"}</TableCell>

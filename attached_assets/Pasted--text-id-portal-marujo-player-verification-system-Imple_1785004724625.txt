@@ -1,0 +1,103 @@
+```text id="portal-marujo-player-verification-system"
+
+Implemente um sistema oficial de verificação de estatísticas de jogadores.
+
+## Objetivo
+
+Permitir identificar quais jogadores possuem estatísticas revisadas manualmente e consideradas 100% confiáveis.
+
+---
+
+## Banco de dados
+
+Adicionar os seguintes campos (ou criar uma tabela específica, caso seja mais adequado):
+
+verification_status
+verified_at
+verified_by
+
+Status possíveis:
+
+- unverified
+- partial
+- verified
+
+---
+
+## Interface
+
+Na página do jogador, ao lado do nome, exibir um selo quando:
+
+verification_status = verified
+
+Exemplo:
+
+🟢 ✔ Verificado
+
+O selo deve combinar visualmente com o restante do Portal Marujo (elegante, discreto e responsivo).
+
+Ao passar o mouse sobre o selo, mostrar:
+
+"Todas as estatísticas deste jogador foram revisadas manualmente e conferidas com fontes históricas."
+
+---
+
+## Card de verificação
+
+Na página do jogador, adicionar um card semelhante a um certificado.
+
+### Verificação das estatísticas
+
+Status:
+
+🟢 Verificado
+
+Fontes utilizadas:
+
+✓ OGol
+✓ RSSSF Brasil
+✓ Blog do Sorrentino
+✓ jogosdocsa.wordpress.com
+✓ Federação Alagoana de Futebol (FAF)
+✓ Confederação Brasileira de Futebol (CBF)
+✓ Acervo da Gazeta de Alagoas
+✓ Acervo do Jornal de Alagoas
+✓ Acervo da Tribuna de Alagoas
+✓ Hemeroteca Digital Brasileira (Biblioteca Nacional)
+✓ GE / Globo Esporte (quando aplicável)
+✓ Arquivos oficiais do CSA
+✓ Súmulas oficiais
+✓ Conferência manual jogo a jogo
+
+Texto:
+
+"Todas as estatísticas apresentadas nesta página foram revisadas manualmente utilizando múltiplas fontes históricas independentes. Quando necessário, divergências entre fontes foram analisadas individualmente até a confirmação dos dados."
+
+---
+
+## Jogadores que devem receber imediatamente o selo "Verificado"
+
+- Didira
+- Rafinha
+- Daniel Costa
+- Gabriel
+- Rodrigo Pimpão
+
+Para esses cinco jogadores:
+
+verification_status = verified
+
+verified_by = "Portal Marujo"
+
+verified_at = data atual
+
+---
+
+## Observações
+
+- O sistema deve ser reutilizável para qualquer jogador no futuro.
+- Futuramente outros jogadores poderão receber o selo sem necessidade de alterações no código.
+- O selo deve aparecer automaticamente em rankings, páginas de jogadores, listas de artilheiros, assistências, recordes, pesquisas e qualquer outro local onde o nome do jogador seja exibido, preferencialmente através de um componente reutilizável.
+- O card de verificação deve ficar oculto para jogadores que ainda não possuem o selo "Verificado".
+- A arquitetura deve permitir adicionar novas fontes de verificação futuramente sem necessidade de alterações estruturais no banco de dados.
+```

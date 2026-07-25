@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useGetTopAssists } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -51,6 +52,7 @@ export default function TopAssists() {
                               <span className="mr-0.5 text-base leading-none">{flag}</span>
                             )}
                             {p.name}
+                            <VerifiedBadge status={(p as any).verificationStatus} />
                           </Link>
                         </TableCell>
                         <TableCell className="py-2 text-muted-foreground text-xs hidden sm:table-cell">{p.position ?? "–"}</TableCell>

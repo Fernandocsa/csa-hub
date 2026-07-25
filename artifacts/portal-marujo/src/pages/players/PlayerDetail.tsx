@@ -3,6 +3,8 @@ import { useGetPlayer, getGetPlayerQueryKey } from "@workspace/api-client-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { VerificationCard } from "@/components/VerificationCard";
 
 export default function PlayerDetail() {
   const params = useParams();
@@ -32,6 +34,9 @@ export default function PlayerDetail() {
 
   const flag = (player as any).nationalityFlag as string | null | undefined;
   const isForeign = player.nationality && player.nationality !== "Brasil";
+  const verificationStatus = (player as any).verificationStatus as string | null | undefined;
+  const verifiedAt = (player as any).verifiedAt as string | null | undefined;
+  const verifiedBy = (player as any).verifiedBy as string | null | undefined;
 
   return (
     <div className="space-y-5 max-w-3xl">
@@ -47,6 +52,7 @@ export default function PlayerDetail() {
             <span className="text-3xl leading-none">{flag}</span>
           )}
           <h1 className="text-2xl font-bold" data-testid="heading-player-name">{player.name}</h1>
+          <VerifiedBadge status={verificationStatus} size="md" />
         </div>
         <div className="flex items-center gap-3 mt-1.5 text-sm text-muted-foreground">
           {player.position && <span className="border rounded px-2 py-0.5 text-xs font-medium">{player.position}</span>}
@@ -78,6 +84,9 @@ export default function PlayerDetail() {
           </div>
         ))}
       </div>
+
+      {/* Verification card */}
+      <VerificationCard status={verificationStatus} verifiedBy={verifiedBy} verifiedAt={verifiedAt} />
 
       {/* Season stats table */}
       <div>
