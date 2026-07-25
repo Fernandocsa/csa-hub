@@ -245,6 +245,106 @@ router.delete("/admin/player-stats/:statId", requireAdmin, async (req, res) => {
 
 // ── Matches ───────────────────────────────────────────────────────────────────
 
+// One-shot fix for 2015 Campeonato Alagoano inconsistencies
+router.post("/admin/fix/2015-alagoano", requireAdmin, async (req, res) => {
+  try {
+    const COMP = 5; // Campeonato Alagoano
+    const SEASON = "2015";
+    const CEO_ID = 85;
+    const MURICI_ID = 44;
+
+    // Find all 2015 Alagoano matches involving CEO
+    const ceoMatches = await db
+      .select()
+      .from(matchesTable)
+      .where(
+        sql`${matchesTable.season} = ${SEASON}
+        AND ${matchesTable.competitionId} = ${COMP}
+        AND ${matchesTable.opponentId} = ${CEO_ID}`
+      )
+      .orderBy(matchesTable.matchDate);
+
+    // Find any Murici match on 2015-02-01
+    const muriciOnFeb1 = await db
+      .select()
+      .from(matchesTable)
+      .where(
+        sql`${matchesTable.season} = ${SEASON}
+        AND ${matchesTable.competitionId} = ${COMP}
+        AND ${matchesTable.opponentId} = ${MURICI_ID}
+        AND ${matchesTable.matchDate} = '2015-02-01'`
+      );
+
+    const log: string[] = [];
+
+    // Fix 1: CEO match on 01/03 that is home+1-1+draw → should be 08/02 (game #4)
+    const wrongDateMatch = ceoMatches.find(
+      m => m.matchDate === "2015-03-01" && m.homeAway === "home" && m.goalsFor === 1 && m.goalsAgainst === 1
+    );
+    if (wrongDateMatch) {
+      await db.update(matchesTable)
+        .set({ matchDate: "2015-02-08" })
+        .where(eq(matchesTable.id, wrongDateMatch.id));
+      log.push(`Fixed date of match ${wrongDateMatch.id}: 2015-03-01 → 2015-02-08`);
+    }
+
+    // Fix 2: Delete duplicate CEO match on 17/04 (wrong, erroneously classified)
+    const dupMatch = ceoMatches.find(
+      m => m.matchDate === "2015-04-17" && m.homeAway === "away"
+    );
+    if (dupMatch) {
+      await db.delete(matchesTable).where(eq(matchesTable.id, dupMatch.id));
+      log.push(`Deleted duplicate CEO match ${dupMatch.id} (2015-04-17)`);
+    }
+
+    // Fix 3: Insert missing Murici 01/02 (away, 1-1, draw) if not present
+    if (muriciOnFeb1.length === 0) {
+      const [m] = await db.insert(matchesTable).values({
+        matchDate: "2015-02-01", season: SEASON, opponentId: MURICI_ID,
+        goalsFor: 1, goalsAgainst: 1, result: "draw",
+        homeAway: "away", competitionId: COMP, stadiumId: null,
+      }).returning();
+      log.push(`Inserted missing Murici 01/02 match (id=${m.id})`);
+    } else {
+      log.push(`Murici 01/02 already present (id=${muriciOnFeb1[0].id})`);
+    }
+
+    // Fix 4: Insert missing CEO 01/03 away loss (Semifinal 1º Turno) if not present
+    const ceoApr1Away = ceoMatches.find(
+      m => m.matchDate === "2015-03-01" && m.homeAway === "away"
+    );
+    const ceoFeb8Fixed = ceoMatches.find(m => m.id === wrongDateMatch?.id);
+    if (!ceoApr1Away) {
+      const [m] = await db.insert(matchesTable).values({
+        matchDate: "2015-03-01", season: SEASON, opponentId: CEO_ID,
+        goalsFor: 0, goalsAgainst: 1, result: "loss",
+        homeAway: "away", competitionId: COMP, stadiumId: null,
+      }).returning();
+      log.push(`Inserted missing CEO 01/03 away loss (id=${m.id})`);
+    } else {
+      log.push(`CEO 01/03 away already present (id=${ceoApr1Away.id})`);
+    }
+
+    // Verify totals
+    const [totals] = await db
+      .select({
+        total: sql<number>`cast(count(*) as int)`,
+        wins:  sql<number>`cast(count(*) filter (where result='win') as int)`,
+        draws: sql<number>`cast(count(*) filter (where result='draw') as int)`,
+        losses:sql<number>`cast(count(*) filter (where result='loss') as int)`,
+        gf:    sql<number>`cast(sum(goals_for) as int)`,
+        gc:    sql<number>`cast(sum(goals_against) as int)`,
+      })
+      .from(matchesTable)
+      .where(sql`season=${SEASON} AND competition_id=${COMP}`);
+
+    res.json({ ok: true, log, totals });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 router.get("/admin/matches", requireAdmin, async (req, res) => {
   try {
     const { limit = "100", offset = "0" } = req.query as Record<string, string>;
