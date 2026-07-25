@@ -1,0 +1,70 @@
+Treinador	J
+	V	E	D	% V	% E	% D	GM	GC	MG	MGS	 
+1.		Marcelo Cabo[2018-2019,-2024]	98	37	32	29	37.8	32.7	29.6	114	91	1.16	0.93	detalhes
+2.		Mozart[2020-2022]	98	45	34	19	45.9	34.7	19.4	149	78	1.52	0.80	detalhes
+3.		Oliveira Canindé[2014,-2017]	73	40	14	19	54.8	19.2	26	124	65	1.70	0.89	detalhes
+4.		Higo Magalhães[2024-2025]	55	24	16	15	43.6	29.1	27.3	74	52	1.35	0.95	detalhes
+5.		Lino[2009-2011,-2014]	46	25	8	13	54.4	17.4	28.3	89	58	1.93	1.26	detalhes
+6.		Lorival Santos[2009,-2013]	32	18	8	6	56.3	25	18.8	53	28	1.66	0.88	detalhes
+7.		Freitas Nascimento[1994-1995,-2009]	32	14	5	13	43.8	15.6	40.6	48	41	1.50	1.28	detalhes
+8.		Argel Fuchs[2019-2020]	30	7	6	17	23.3	20	56.7	23	43	0.77	1.43	detalhes
+9.		Beto Almeida[2013]	23	8	7	8	34.8	30.4	34.8	29	30	1.26	1.30	detalhes
+10.		Pinho[2000]	22	13	3	6	59.1	13.6	27.3	43	22	1.95	1.00	detalhes
+11.		Vinícius Bergantin[2023]	21	8	8	5	38.1	38.1	23.8	22	16	1.05	0.76	detalhes
+12.		Heriberto da Cunha[2002]	21	10	7	4	47.6	33.3	19.1	36	29	1.71	1.38	detalhes
+13.		Ney da Matta[2017]	19	10	7	2	52.6	36.8	10.5	25	11	1.32	0.58	detalhes
+14.		Celso Teixeira[1999,-2009,-2012]	19	5	5	9	26.3	26.3	47.4	19	23	1.00	1.21	detalhes
+15.		Moacir Júnior[2026]	17	10	5	2	58.8	29.4	11.8	40	12	2.35	0.71	detalhes
+16.		Cláudio Adão[2001]	17	6	3	8	35.3	17.7	47.1	22	26	1.29	1.53	detalhes
+17.		Agnaldo Liz[2006]	16	9	4	3	56.3	25	18.8	26	14	1.62	0.88	detalhes
+18.		Eduardo Baptista[2020]	15	6	1	8	40	6.7	53.3	17	14	1.13	0.93	detalhes
+19.		Nêdo Xavier[2015]	15	4	5	6	26.7	33.3	40	13	13	0.87	0.87	detalhes
+20.		Flávio Araújo[2017-2018]	14	6	5	3	42.9	35.7	21.4	17	11	1.21	0.79	detalhes
+21.		Laerte Dória[1980]	13	8	2	3	61.5	15.4	23.1	20	15	1.54	1.15	detalhes
+22.		Adriano Rodrigues[2020-2022]	12	6	3	3	50	25	25	15	13	1.25	1.08	detalhes
+23.		Itamar Schülle[2026]	12	6	2	4	50	16.7	33.3	14	8	1.17	0.67	detalhes
+24.		Bruno Pivetti[2021]	12	3	5	4	25	41.7	33.3	10	9	0.83	0.75	detalhes
+25.		Ney Franco[2021]	12	5	2	5	41.7	16.7	41.7	12	10	1.00	0.83	detalhes
+26.		Roberto Fernandes[2022]	12	3	4	5	25	33.3	41.7	9	12	0.75	1.00	detalhes
+27.		Valmir Louruz[1981,-1983,-1986]	12	4	3	5	33.3	25	41.7	18	15	1.50	1.25	detalhes
+28.		Alberto Valentim[2022]	11	2	4	5	18.2	36.4	45.5	7	12	0.64	1.09	detalhes
+29.		Otávio Quadros[1999-2000]	11	6	2	3	54.6	18.2	27.3	20	11	1.82	1.00	detalhes
+30.		Ubirajara Veiga[2002]	10	4	2	4	40	20	40	15	17	1.50	1.70	detalhes
+31.		Cristian Souza[2024]	10	3	4	3	30	40	30	15	17	1.50	1.70	detalhes
+32.		Bebeto Moraes[2023-2024]	10	3	3	4	30	30	40	7	10	0.70	1.00	detalhes
+33.		Flávio Barros[2008-2009]	9	4	4	1	44.4	44.4	11.1	15	10	1.67	1.11	detalhes
+34.		Roberto Fonseca[2023]	9	3	3	3	33.3	33.3	33.3	11	8	1.22	0.89	detalhes
+35.		Luiz Felipe Scolari[1982]	8	1	4	3	12.5	50	37.5	10	17	1.25	2.12	detalhes
+36.		Marcos Magalhães[2006]	8	4	2	2	50	25	25	15	8	1.88	1.00	detalhes
+37.		Zé do Carmo[2008]	8	4	2	2	50	25	25	14	9	1.75	1.12	detalhes
+38.		Orlando Peçanha[1977]	8	2	3	3	25	37.5	37.5	6	7	0.75	0.88	detalhes
+39.		Bagé[2015]	7	2	3	2	28.6	42.9	28.6	7	8	1.00	1.14	detalhes
+40.		Mario Juliatto[2002]	6	4	1	1	66.7	16.7	16.7	15	5	2.50	0.83	detalhes
+41.		Mário Tilico[2011]	6	2	0	4	33.3	0	66.7	8	12	1.33	2.00	detalhes
+42.		Hugo Sales[2009]	6	3	1	2	50	16.7	33.3	10	10	1.67	1.67	detalhes
+43.		Mauricio Barbieri[2020]	6	2	1	3	33.3	16.7	50	7	9	1.17	1.50	detalhes
+44.		Edson Ferreira[2011]	6	1	0	5	16.7	0	83.3	6	12	1.00	2.00	detalhes
+45.		Círio Quadros[2012]	6	3	2	1	50	33.3	16.7	11	2	1.83	0.33	detalhes
+46.		Júlio Espinosa[2009]	5	1	1	3	20	20	60	5	9	1.00	1.80	detalhes
+47.		Gilmar Batista[2009]	5	2	0	3	40	0	60	5	11	1.00	2.20	detalhes
+48.		Estevam Soares[2001,-2014]	5	1	2	2	20	40	40	5	5	1.00	1.00	detalhes
+49.		Jacozinho[2017,-2019]	4	0	1	3	0	25	75	3	8	0.75	2.00	detalhes
+50.		Gil Baiano[2008]	4	1	0	3	25	0	75	2	6	0.50	1.50	detalhes
+51.		Gilberto Pereira[2006]	4	2	1	1	50	25	25	7	6	1.75	1.50	detalhes
+52.		Márcio Fernandes[2025]	4	1	1	2	25	25	50	3	5	0.75	1.25	detalhes
+53.		Jorge Vasconcelos[1982]	3	1	0	2	33.3	0	66.7	5	8	1.67	2.67	detalhes
+54.		Roberval Davino[1996,-2008]	3	1	0	2	33.3	0	66.7	11	4	3.67	1.33	detalhes
+55.		Rogério Corrêa[2024]	2	1	1	0	50	50	0	2	1	1.00	0.50	detalhes
+56.		Marlon Araújo[2014]	2	0	0	2	0	0	100	0	4	0.00	2.00	detalhes
+57.		Levi Gomes[1998]	2	0	0	2	0	0	100	0	4	0.00	2.00	detalhes
+58.		Rodrigo Ramos[2026]	2	2	0	0	100	0	0	7	1	3.50	0.50	detalhes
+59.		Denis Iwamura[2022]	2	2	0	0	100	0	0	8	0	4.00	0.00	detalhes
+60.		Dorian Junior[2023]	2	0	1	1	0	50	50	0	1	0.00	0.50	detalhes
+61.		Mauro Fernandes[1991]	2	1	0	1	50	0	50	1	1	0.50	0.50	detalhes
+62.		Laelson Lopes[2002]	1	0	0	1	0	0	100	0	2	0.00	2.00	detalhes
+63.		Lauro Martins[2025]	1	1	0	0	100	0	0	2	1	2.00	1.00	detalhes
+64.		Márcio Goiano[2020]	1	0	0	1	0	0	100	1	2	1.00	2.00	detalhes
+65.		Valdemar Carabina[1985]	1	1	0	0	100	0	0	4	0	4.00	0.00	detalhes
+66.		Robertinho[2003]	1	0	0	1	0	0	100	1	2	1.00	2.00	detalhes
+67.		Alberto Meneses[1981]	1	1	0	0	100	0	0	1	0	1.00	0.00	detalhes
+68.		Lucio Flavio[2021]	1	0	0	1	0	0	100	0	2	0.00	2.00	detalhes

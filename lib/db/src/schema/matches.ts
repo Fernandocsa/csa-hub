@@ -26,6 +26,15 @@ export const managersTable = pgTable("managers", {
   nationality: text("nationality"),
   startYear: integer("start_year"),
   endYear: integer("end_year"),
+  // Comma-separated season years, e.g. "2018,2019,2024"
+  seasons: text("seasons"),
+  // Stored aggregate stats — used as fallback when match data is incomplete
+  storedGames:      integer("stored_games"),
+  storedWins:       integer("stored_wins"),
+  storedDraws:      integer("stored_draws"),
+  storedLosses:     integer("stored_losses"),
+  storedGoalsFor:   integer("stored_goals_for"),
+  storedGoalsAgainst: integer("stored_goals_against"),
 });
 
 export const matchesTable = pgTable("matches", {

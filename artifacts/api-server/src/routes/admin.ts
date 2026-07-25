@@ -438,6 +438,68 @@ router.delete("/admin/opponents/:id", requireAdmin, async (req, res) => {
   }
 });
 
+// ── Managers ──────────────────────────────────────────────────────────────────
+
+router.post("/admin/managers", requireAdmin, async (req, res) => {
+  try {
+    const body = req.body as {
+      name: string; nationality?: string;
+      startYear?: number; endYear?: number; seasons?: string;
+      storedGames?: number; storedWins?: number; storedDraws?: number;
+      storedLosses?: number; storedGoalsFor?: number; storedGoalsAgainst?: number;
+    };
+    if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+    const [manager] = await db.insert(managersTable).values({
+      name: body.name.trim(),
+      nationality: body.nationality ?? "Brasileiro",
+      startYear: body.startYear ?? null,
+      endYear: body.endYear ?? null,
+      seasons: body.seasons ?? null,
+      storedGames: body.storedGames ?? null,
+      storedWins: body.storedWins ?? null,
+      storedDraws: body.storedDraws ?? null,
+      storedLosses: body.storedLosses ?? null,
+      storedGoalsFor: body.storedGoalsFor ?? null,
+      storedGoalsAgainst: body.storedGoalsAgainst ?? null,
+    }).returning();
+    res.status(201).json(manager);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const body = req.body as {
+      name?: string; nationality?: string;
+      startYear?: number | null; endYear?: number | null; seasons?: string | null;
+      storedGames?: number | null; storedWins?: number | null; storedDraws?: number | null;
+      storedLosses?: number | null; storedGoalsFor?: number | null; storedGoalsAgainst?: number | null;
+    };
+    const [updated] = await db.update(managersTable).set({
+      ...(body.name !== undefined && { name: body.name.trim() }),
+      ...(body.nationality !== undefined && { nationality: body.nationality }),
+      ...(body.startYear !== undefined && { startYear: body.startYear }),
+      ...(body.endYear !== undefined && { endYear: body.endYear }),
+      ...(body.seasons !== undefined && { seasons: body.seasons }),
+      ...(body.storedGames !== undefined && { storedGames: body.storedGames }),
+      ...(body.storedWins !== undefined && { storedWins: body.storedWins }),
+      ...(body.storedDraws !== undefined && { storedDraws: body.storedDraws }),
+      ...(body.storedLosses !== undefined && { storedLosses: body.storedLosses }),
+      ...(body.storedGoalsFor !== undefined && { storedGoalsFor: body.storedGoalsFor }),
+      ...(body.storedGoalsAgainst !== undefined && { storedGoalsAgainst: body.storedGoalsAgainst }),
+    }).where(eq(managersTable.id, id)).returning();
+    if (!updated) return res.status(404).json({ error: "Técnico não encontrado" });
+    res.json(updated);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 // ── CSV Export ────────────────────────────────────────────────────────────────
 
 router.get("/admin/export/players", requireAdmin, async (req, res) => {

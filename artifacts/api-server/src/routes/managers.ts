@@ -5,6 +5,27 @@ import { sql, eq, desc } from "drizzle-orm";
 
 const router = Router();
 
+// Merge computed (from match data) with stored (manual input) stats.
+// Stored stats are used when computed match count is less than stored_games,
+// meaning match data for some seasons hasn't been imported yet.
+function resolveStats(
+  computed: { matches: number; wins: number; draws: number; losses: number; goalsScored: number; goalsConceded: number },
+  stored: { storedGames: number | null; storedWins: number | null; storedDraws: number | null; storedLosses: number | null; storedGoalsFor: number | null; storedGoalsAgainst: number | null }
+) {
+  const hasStored = stored.storedGames != null && stored.storedGames > computed.matches;
+  if (hasStored) {
+    return {
+      matches: stored.storedGames!,
+      wins: stored.storedWins ?? 0,
+      draws: stored.storedDraws ?? 0,
+      losses: stored.storedLosses ?? 0,
+      goalsScored: stored.storedGoalsFor ?? 0,
+      goalsConceded: stored.storedGoalsAgainst ?? 0,
+    };
+  }
+  return computed;
+}
+
 router.get("/managers", async (req, res) => {
   try {
     const rows = await db
@@ -14,22 +35,47 @@ router.get("/managers", async (req, res) => {
         nationality: managersTable.nationality,
         startYear: managersTable.startYear,
         endYear: managersTable.endYear,
-        matches: sql<number>`cast(count(${matchesTable.id}) as int)`,
-        wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
-        draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
-        losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
-        goalsScored: sql<number>`cast(sum(${matchesTable.goalsFor}) as int)`,
-        goalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
+        seasons: managersTable.seasons,
+        storedGames: managersTable.storedGames,
+        storedWins: managersTable.storedWins,
+        storedDraws: managersTable.storedDraws,
+        storedLosses: managersTable.storedLosses,
+        storedGoalsFor: managersTable.storedGoalsFor,
+        storedGoalsAgainst: managersTable.storedGoalsAgainst,
+        computedMatches: sql<number>`cast(count(${matchesTable.id}) as int)`,
+        computedWins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+        computedDraws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+        computedLosses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+        computedGoalsScored: sql<number>`cast(sum(${matchesTable.goalsFor}) as int)`,
+        computedGoalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(managersTable)
       .leftJoin(matchesTable, eq(matchesTable.managerId, managersTable.id))
-      .groupBy(managersTable.id, managersTable.name, managersTable.nationality, managersTable.startYear, managersTable.endYear)
-      .orderBy(sql`count(${matchesTable.id}) desc`);
+      .groupBy(
+        managersTable.id, managersTable.name, managersTable.nationality,
+        managersTable.startYear, managersTable.endYear, managersTable.seasons,
+        managersTable.storedGames, managersTable.storedWins, managersTable.storedDraws,
+        managersTable.storedLosses, managersTable.storedGoalsFor, managersTable.storedGoalsAgainst
+      )
+      .orderBy(sql`GREATEST(COALESCE(${managersTable.storedGames}, 0), cast(count(${matchesTable.id}) as int)) desc`);
 
-    res.json(rows.map((r) => ({
-      ...r,
-      winPercentage: r.matches > 0 ? Math.round((r.wins / r.matches) * 100 * 10) / 10 : 0,
-    })));
+    res.json(rows.map((r) => {
+      const computed = {
+        matches: r.computedMatches, wins: r.computedWins, draws: r.computedDraws,
+        losses: r.computedLosses, goalsScored: r.computedGoalsScored, goalsConceded: r.computedGoalsConceded,
+      };
+      const stats = resolveStats(computed, r);
+      return {
+        id: r.id,
+        name: r.name,
+        nationality: r.nationality,
+        startYear: r.startYear,
+        endYear: r.endYear,
+        seasons: r.seasons,
+        ...stats,
+        winPercentage: stats.matches > 0 ? Math.round((stats.wins / stats.matches) * 100 * 10) / 10 : 0,
+      };
+    }));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno do servidor" });
@@ -73,20 +119,18 @@ router.get("/managers/:id", async (req, res) => {
       .groupBy(matchesTable.season)
       .orderBy(desc(matchesTable.season));
 
-    const stats = overall[0];
+    const computed = overall[0] ?? { matches: 0, wins: 0, draws: 0, losses: 0, goalsScored: 0, goalsConceded: 0 };
+    const stats = resolveStats(computed, manager);
+
     res.json({
       id: manager.id,
       name: manager.name,
       nationality: manager.nationality,
       startYear: manager.startYear,
       endYear: manager.endYear,
-      matches: stats?.matches || 0,
-      wins: stats?.wins || 0,
-      draws: stats?.draws || 0,
-      losses: stats?.losses || 0,
-      goalsScored: stats?.goalsScored || 0,
-      goalsConceded: stats?.goalsConceded || 0,
-      winPercentage: (stats?.matches || 0) > 0 ? Math.round(((stats?.wins || 0) / (stats?.matches || 1)) * 100 * 10) / 10 : 0,
+      seasons: manager.seasons,
+      ...stats,
+      winPercentage: stats.matches > 0 ? Math.round((stats.wins / stats.matches) * 100 * 10) / 10 : 0,
       seasonStats: seasonRows.map((r) => ({
         year: r.season,
         matches: r.matches,
