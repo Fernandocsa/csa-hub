@@ -161,7 +161,7 @@ export default function Home() {
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
                         <TableCell className="py-1.5 font-medium">
                           <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-baseline gap-0.5" data-testid={`link-player-${p.id}`}>
-                            {flag && p.nationality !== "Brasil" && (
+                            {flag && (
                               <span className="mr-0.5 text-base leading-none">{flag}</span>
                             )}
                             {p.name}
@@ -205,7 +205,7 @@ export default function Home() {
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
                         <TableCell className="py-1.5 font-medium">
                           <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-baseline gap-0.5">
-                            {flag && p.nationality !== "Brasil" && (
+                            {flag && (
                               <span className="mr-0.5 text-base leading-none">{flag}</span>
                             )}
                             {p.name}
