@@ -1,0 +1,51 @@
+Adicione a temporada de 2014 do CSA ao banco de dados.
+
+IMPORTANTE:
+- NÃO altere nenhuma temporada já cadastrada.
+- NÃO modifique jogadores existentes.
+- Caso um jogador de 2014 já exista no banco, apenas vincule-o à temporada 2014.
+- Caso não exista, crie o jogador e faça o vínculo.
+- Recalcule automaticamente todas as estatísticas históricas após a importação.
+
+Temporada:
+- Ano: 2014
+- Jogos: 20
+- Vitórias: 7
+- Empates: 5
+- Derrotas: 8
+- Gols pró: 28
+- Gols contra: 25
+
+Partidas:
+
+19/01/2014 - CSA 4x1 Bahia (Copa do Nordeste - Fase de Grupos)
+22/01/2014 - Vitória da Conquista 2x2 CSA (Copa do Nordeste - Fase de Grupos)
+25/01/2014 - Santa Cruz 0x1 CSA (Copa do Nordeste - Fase de Grupos)
+30/01/2014 - CSA 1x1 Santa Cruz (Copa do Nordeste - Fase de Grupos)
+02/02/2014 - CSA 2x1 Vitória da Conquista (Copa do Nordeste - Fase de Grupos)
+05/02/2014 - Bahia 1x0 CSA (Copa do Nordeste - Fase de Grupos)
+
+16/02/2014 - Sport 2x0 CSA (Copa do Nordeste - Quartas de Final)
+25/02/2014 - CSA 1x0 Sport (Copa do Nordeste - Quartas de Final)
+
+19/02/2014 - CSA 1x1 CRB (Campeonato Alagoano)
+22/02/2014 - ASA 3x2 CSA (Campeonato Alagoano)
+08/03/2014 - CSA 7x1 CSE (Campeonato Alagoano)
+15/03/2014 - Comercial-AL 0x2 CSA (Campeonato Alagoano)
+19/03/2014 - CSA 2x2 Santa Rita (Campeonato Alagoano)
+22/03/2014 - Santa Rita 0x0 CSA (Campeonato Alagoano)
+26/03/2014 - CSA 3x0 Comercial-AL (Campeonato Alagoano)
+29/03/2014 - CSE 2x0 CSA (Campeonato Alagoano)
+06/04/2014 - CSA 0x3 ASA (Campeonato Alagoano)
+13/04/2014 - CRB 1x0 CSA (Campeonato Alagoano)
+
+12/03/2014 - CSA 0x1 São Paulo (Copa do Brasil - 1ª Fase)
+09/04/2014 - São Paulo 3x0 CSA (Copa do Brasil - 1ª Fase)
+
+Após a importação:
+- Atualize todas as estatísticas históricas do clube.
+- Atualize os retrospectos contra todos os adversários.
+- Atualize as estatísticas por competição.
+- Atualize sequências, médias e demais indicadores do site.
+- Não crie partidas duplicadas.
+- Preserve toda a estrutura existente do banco de dados.
