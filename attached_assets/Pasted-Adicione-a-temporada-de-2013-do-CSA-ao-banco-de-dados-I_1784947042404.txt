@@ -1,0 +1,70 @@
+Adicione a temporada de 2013 do CSA ao banco de dados.
+
+IMPORTANTE:
+- NÃO altere nenhuma temporada já cadastrada.
+- NÃO modifique jogadores existentes.
+- Caso um jogador de 2013 já exista no banco, apenas vincule-o à temporada 2013.
+- Caso não exista, crie o jogador e faça o vínculo.
+- Recalcule automaticamente todas as estatísticas históricas após a importação.
+
+Temporada:
+- Ano: 2013
+- Jogos: 37
+- Vitórias: 13
+- Empates: 11
+- Derrotas: 13
+- Gols pró: 50
+- Gols contra: 48
+
+Partidas:
+
+12/01/2013 - Comercial-AL 0x0 CSA (Campeonato Alagoano)
+16/01/2013 - CSA 1x0 Murici (Campeonato Alagoano)
+19/01/2013 - CSE 0x1 CSA (Campeonato Alagoano)
+23/01/2013 - CSA 2x4 Corinthians-AL (Campeonato Alagoano)
+27/01/2013 - CSA 6x0 Sport Atalaia (Campeonato Alagoano)
+30/01/2013 - União-AL 1x1 CSA (Campeonato Alagoano)
+02/02/2013 - CEO 1x2 CSA (Campeonato Alagoano)
+06/02/2013 - CSA 1x3 CEO (Campeonato Alagoano)
+16/02/2013 - Sport Atalaia 2x0 CSA (Campeonato Alagoano)
+21/02/2013 - Corinthians-AL 1x1 CSA (Campeonato Alagoano)
+23/02/2013 - CSA 3x1 CSE (Campeonato Alagoano)
+25/02/2013 - CSA 3x0 União-AL (Campeonato Alagoano)
+27/02/2013 - CSA 1x2 Comercial-AL (Campeonato Alagoano)
+02/03/2013 - Murici 1x1 CSA (Campeonato Alagoano)
+
+10/03/2013 - CSA 2x0 CEO (2ª Fase)
+17/03/2013 - CSA 1x1 CRB (2ª Fase)
+19/03/2013 - Murici 1x2 CSA (2ª Fase)
+24/03/2013 - Corinthians-AL 2x2 CSA (2ª Fase)
+27/03/2013 - CSA 3x2 Corinthians-AL (2ª Fase)
+31/03/2013 - CSA 2x2 Murici (2ª Fase)
+06/04/2013 - CRB 1x0 CSA (2ª Fase)
+14/04/2013 - CSA 2x0 ASA (2ª Fase)
+17/04/2013 - ASA 1x1 CSA (2ª Fase)
+20/04/2013 - CEO 1x1 CSA (2ª Fase)
+
+27/04/2013 - ASA 0x1 CSA (Semifinal)
+05/05/2013 - CSA 1x1 ASA (Semifinal)
+
+11/05/2013 - CSA 2x4 CRB (Final)
+18/05/2013 - CRB 0x1 CSA (CRB campeão nos pênaltis por 4x3)
+
+10/04/2013 - CSA 0x3 Cruzeiro (Copa do Brasil - 1ª Fase)
+
+08/06/2013 - Vitória da Conquista 2x0 CSA (Série D)
+07/07/2013 - CSA 0x1 Botafogo-PB (Série D)
+13/07/2013 - CSA 0x2 Sergipe (Série D)
+21/07/2013 - Juazeirense 1x0 CSA (Série D)
+28/07/2013 - Sergipe 2x0 CSA (Série D)
+04/08/2013 - CSA 4x1 Juazeirense (Série D)
+11/08/2013 - Botafogo-PB 2x0 CSA (Série D)
+17/08/2013 - CSA 2x2 Vitória da Conquista (Série D)
+
+Após a importação:
+- Atualize todas as estatísticas históricas do clube.
+- Atualize os retrospectos contra todos os adversários.
+- Atualize as estatísticas por competição.
+- Atualize sequências, médias e demais indicadores do site.
+- Não crie partidas duplicadas.
+- Preserve toda a estrutura existente do banco de dados.
