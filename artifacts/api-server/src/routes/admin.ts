@@ -703,6 +703,52 @@ router.post("/admin/import/matches", requireAdmin, async (req, res) => {
   }
 });
 
+// Competition management
+router.post("/admin/competitions/merge", requireAdmin, async (req, res) => {
+  try {
+    const { keepId, removeId } = req.body as { keepId: number; removeId: number };
+    if (!keepId || !removeId) return res.status(400).json({ error: "keepId e removeId obrigatórios" });
+    await db.update(matchesTable).set({ competitionId: keepId }).where(eq(matchesTable.competitionId, removeId));
+    await db.delete(competitionsTable).where(eq(competitionsTable.id, removeId));
+    const [kept] = await db.select({ name: competitionsTable.name }).from(competitionsTable).where(eq(competitionsTable.id, keepId));
+    res.json({ ok: true, kept: kept?.name, removedId: removeId });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.delete("/admin/competitions/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    // Only delete if no matches reference it
+    const [{ count }] = await db.select({ count: sql<number>`cast(count(*) as int)` }).from(matchesTable).where(eq(matchesTable.competitionId, id));
+    if (count > 0) return res.status(400).json({ error: `Competição possui ${count} partidas vinculadas` });
+    await db.delete(competitionsTable).where(eq(competitionsTable.id, id));
+    res.json({ ok: true, deletedId: id });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put("/admin/competitions/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { name, type } = req.body as { name?: string; type?: string };
+    const updates: Record<string, unknown> = {};
+    if (name !== undefined) updates.name = name;
+    if (type !== undefined) updates.type = type;
+    if (!Object.keys(updates).length) return res.status(400).json({ error: "Nenhum campo para atualizar" });
+    await db.update(competitionsTable).set(updates).where(eq(competitionsTable.id, id));
+    const [updated] = await db.select().from(competitionsTable).where(eq(competitionsTable.id, id));
+    res.json({ ok: true, competition: updated });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 // Merge two opponents: reassign all matches from removeId to keepId, then delete removeId
 router.post("/admin/opponents/merge", requireAdmin, async (req, res) => {
   try {

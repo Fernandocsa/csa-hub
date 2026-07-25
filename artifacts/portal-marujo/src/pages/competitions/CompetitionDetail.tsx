@@ -9,6 +9,17 @@ function pct(wins: number, total: number) {
   return ((wins / total) * 100).toFixed(1) + "%";
 }
 
+const NIVEL: Record<string, string> = {
+  state: "Estadual",
+  league: "Nacional",
+  regional: "Regional",
+  cup: "Copa",
+  friendly: "Amistoso",
+};
+function nivel(type?: string | null) {
+  return type ? (NIVEL[type] ?? type) : null;
+}
+
 export default function CompetitionDetail() {
   const params = useParams();
   const id = parseInt(params.id ?? "0", 10);
@@ -42,7 +53,7 @@ export default function CompetitionDetail() {
       <div className="border-b pb-4 flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold" data-testid="heading-competition">{comp.name}</h1>
-          {comp.type && <p className="text-sm text-muted-foreground mt-1">{comp.type}</p>}
+          {nivel(comp.type) && <p className="text-sm text-muted-foreground mt-1">{nivel(comp.type)}</p>}
         </div>
         {comp.titles ? (
           <span className="text-sm bg-amber-100 text-amber-700 border border-amber-300 px-3 py-1.5 rounded font-bold whitespace-nowrap">

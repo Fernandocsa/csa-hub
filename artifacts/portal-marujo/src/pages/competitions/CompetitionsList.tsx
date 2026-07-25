@@ -8,6 +8,17 @@ function pct(wins: number, total: number) {
   return ((wins / total) * 100).toFixed(1) + "%";
 }
 
+const NIVEL: Record<string, string> = {
+  state: "Estadual",
+  league: "Nacional",
+  regional: "Regional",
+  cup: "Copa",
+  friendly: "Amistoso",
+};
+function nivel(type?: string | null) {
+  return type ? (NIVEL[type] ?? type) : "–";
+}
+
 export default function CompetitionsList() {
   const { data: competitions, isLoading } = useListCompetitions();
 
@@ -24,7 +35,7 @@ export default function CompetitionsList() {
             <TableRow className="text-xs">
               <TableHead className="py-2">#</TableHead>
               <TableHead className="py-2">Competição</TableHead>
-              <TableHead className="py-2">Tipo</TableHead>
+              <TableHead className="py-2">Nível</TableHead>
               <TableHead className="py-2 text-right">J</TableHead>
               <TableHead className="py-2 text-right text-green-600">V</TableHead>
               <TableHead className="py-2 text-right text-amber-600">E</TableHead>
@@ -58,7 +69,7 @@ export default function CompetitionsList() {
                         </span>
                       ) : null}
                     </TableCell>
-                    <TableCell className="py-2 text-muted-foreground text-xs">{c.type ?? "–"}</TableCell>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{nivel(c.type)}</TableCell>
                     <TableCell className="py-2 text-right">{c.matches}</TableCell>
                     <TableCell className="py-2 text-right text-green-600 font-medium">{c.wins}</TableCell>
                     <TableCell className="py-2 text-right text-amber-600">{c.draws}</TableCell>
