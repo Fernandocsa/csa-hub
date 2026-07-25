@@ -1,0 +1,65 @@
+Adicione a temporada de 2012 do CSA ao banco de dados.
+
+IMPORTANTE:
+- NÃO altere nenhuma temporada já cadastrada.
+- NÃO modifique jogadores existentes.
+- Caso um jogador de 2012 já exista no banco, apenas vincule-o à temporada 2012.
+- Caso não exista, crie o jogador e faça o vínculo.
+- Recalcule automaticamente todas as estatísticas históricas após a importação.
+
+Temporada:
+- Ano: 2012
+- Jogos: 32
+- Vitórias: 18
+- Empates: 8
+- Derrotas: 6
+- Gols pró: 52
+- Gols contra: 24
+
+Partidas:
+
+14/01/2012 - CRB 3x0 CSA (Campeonato Alagoano)
+18/01/2012 - CSA 2x1 CSE (Campeonato Alagoano)
+21/01/2012 - Murici 2x1 CSA (Campeonato Alagoano)
+25/01/2012 - CSA 2x0 Coruripe (Campeonato Alagoano)
+28/01/2012 - Sport Atalaia 1x0 CSA (Campeonato Alagoano)
+01/02/2012 - ASA 0x0 CSA (Campeonato Alagoano)
+05/02/2012 - CSA 4x0 Corinthians-AL (Campeonato Alagoano)
+08/02/2012 - Penedense 0x2 CSA (Campeonato Alagoano)
+12/02/2012 - CSA 0x0 CEO (Campeonato Alagoano)
+
+07/03/2012 - CEO 2x1 CSA (2º Turno)
+11/03/2012 - CSA 4x0 Penedense (2º Turno)
+17/03/2012 - Corinthians-AL 1x2 CSA (2º Turno)
+25/03/2012 - CSA 3x2 ASA (2º Turno)
+28/03/2012 - CSA 2x0 Sport Atalaia (2º Turno)
+31/03/2012 - Coruripe 0x1 CSA (2º Turno)
+08/04/2012 - CSA 2x1 Murici (2º Turno)
+14/04/2012 - CSE 0x5 CSA (2º Turno)
+21/04/2012 - CSA 2x2 CRB (2º Turno)
+
+25/04/2012 - Sport Atalaia 0x0 CSA (Semifinal)
+29/04/2012 - CSA 3x2 Sport Atalaia (Semifinal)
+
+01/05/2012 - ASA 2x0 CSA (Final)
+05/05/2012 - CSA 0x0 ASA (Final)
+
+24/06/2012 - CSA 3x1 Vitória da Conquista (Série D)
+08/07/2012 - Feirense 1x3 CSA (Série D)
+15/07/2012 - Sousa 0x0 CSA (Série D)
+22/07/2012 - CSA 1x0 Itabaiana (Série D)
+29/07/2012 - CSA 2x1 Sousa (Série D)
+05/08/2012 - Itabaiana 0x0 CSA (Série D)
+12/08/2012 - CSA 5x0 Feirense (Série D)
+26/08/2012 - Vitória da Conquista 0x1 CSA (Série D)
+
+01/09/2012 - Campinense 2x1 CSA (Série D - Oitavas de Final)
+09/09/2012 - CSA 0x0 Campinense (Série D - Oitavas de Final)
+
+Após a importação:
+- Atualize todas as estatísticas históricas do clube.
+- Atualize os retrospectos contra todos os adversários.
+- Atualize as estatísticas por competição.
+- Atualize sequências, médias e demais indicadores do site.
+- Não crie partidas duplicadas.
+- Preserve toda a estrutura existente do banco de dados.
