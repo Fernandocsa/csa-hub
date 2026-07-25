@@ -42,7 +42,9 @@ export default function Home() {
     <div className="space-y-6">
       <div className="border-b pb-3">
         <h1 className="text-xl font-bold text-foreground" data-testid="heading-visao-geral">Portal Marujo — Base de dados do CSA</h1>
-        <p className="text-sm text-muted-foreground">O portal contempla temporadas desde 2012, com dados históricos sendo adicionados gradualmente conforme são pesquisados e validados.</p>
+        <p className="text-sm text-muted-foreground">O Portal Marujo está em constante atualização. Temporadas, partidas e estatísticas históricas são adicionadas gradualmente após pesquisa e validação.
+
+        Os rankings de artilheiros históricos e de jogadores com mais partidas apresentam os valores mínimos comprovados até o momento. Esses números poderão ser atualizados à medida que novas temporadas forem adicionadas e validadas.</p>
       </div>
       {/* Stat bar */}
       {loadSum ? (
