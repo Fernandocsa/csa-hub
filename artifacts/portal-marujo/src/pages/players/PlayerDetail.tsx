@@ -30,6 +30,9 @@ export default function PlayerDetail() {
     ? (player.totalGoals / player.totalAppearances).toFixed(2)
     : "–";
 
+  const flag = (player as any).nationalityFlag as string | null | undefined;
+  const isForeign = player.nationality && player.nationality !== "Brasil";
+
   return (
     <div className="space-y-5 max-w-3xl">
       <Link href="/jogadores">
@@ -39,10 +42,25 @@ export default function PlayerDetail() {
       </Link>
 
       <div className="border-b pb-4">
-        <h1 className="text-2xl font-bold" data-testid="heading-player-name">{player.name}</h1>
-        <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+        <div className="flex items-baseline gap-2">
+          {isForeign && flag && (
+            <span className="text-3xl leading-none">{flag}</span>
+          )}
+          <h1 className="text-2xl font-bold" data-testid="heading-player-name">{player.name}</h1>
+        </div>
+        <div className="flex items-center gap-3 mt-1.5 text-sm text-muted-foreground">
           {player.position && <span className="border rounded px-2 py-0.5 text-xs font-medium">{player.position}</span>}
-          {player.nationality && <span>{player.nationality}</span>}
+          {player.nationality && (
+            <span className="flex items-center gap-1">
+              {isForeign && flag && <span className="text-base">{flag}</span>}
+              <Link
+                href={isForeign ? `/jogadores/estrangeiros/${encodeURIComponent(player.nationality)}` : "#"}
+                className={isForeign ? "hover:text-primary hover:underline" : "pointer-events-none"}
+              >
+                {player.nationality}
+              </Link>
+            </span>
+          )}
         </div>
       </div>
 

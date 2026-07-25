@@ -30,6 +30,7 @@ const navigation: NavItem[] = [
       { name: "Banco de Jogadores", href: "/jogadores" },
       { name: "Artilheiros", href: "/jogadores/artilheiros" },
       { name: "Presenças", href: "/jogadores/presencas" },
+      { name: "Estrangeiros", href: "/jogadores/estrangeiros" },
     ],
   },
   {

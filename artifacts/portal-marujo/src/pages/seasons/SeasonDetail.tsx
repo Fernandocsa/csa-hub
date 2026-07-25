@@ -98,11 +98,16 @@ export default function SeasonDetail() {
                         <TableCell colSpan={5} className="h-16 text-center text-muted-foreground">Sem dados do elenco.</TableCell>
                       </TableRow>
                     )
-                  : squad.map((player, i) => (
+                  : squad.map((player, i) => {
+                      const flag = (player as any).nationalityFlag as string | null | undefined;
+                      return (
                       <TableRow key={player.id} className="text-sm" data-testid={`row-squad-${player.id}`}>
                         <TableCell className="py-2 text-muted-foreground text-xs">{i + 1}</TableCell>
                         <TableCell className="py-2 font-medium">
-                          <Link href={`/jogadores/${player.id}`} className="hover:text-primary hover:underline">
+                          <Link href={`/jogadores/${player.id}`} className="hover:text-primary hover:underline inline-flex items-baseline gap-0.5">
+                            {flag && player.nationality !== "Brasil" && (
+                              <span className="mr-0.5 text-base leading-none">{flag}</span>
+                            )}
                             {player.name}
                           </Link>
                         </TableCell>
@@ -110,7 +115,8 @@ export default function SeasonDetail() {
                         <TableCell className="py-2 text-right text-primary font-bold">{player.goals}</TableCell>
                         <TableCell className="py-2 text-right text-muted-foreground">{player.assists ?? "–"}</TableCell>
                       </TableRow>
-                    ))}
+                    );
+                  })}
               </TableBody>
             </Table>
           </div>

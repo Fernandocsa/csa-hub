@@ -2,3 +2,4 @@
 - [Design subagent scope](design-subagent-scope.md) — design subagent may underdeliver on large multi-page rewrites; main agent should do the implementation directly with parallel file writes.
 - [CSA 2025 data sources](csa-2025-data-sources.md) — ESPN Brasil (static HTML) for Série C + Copa do Brasil; Olympics.com for Copa Nordeste; AI webSearch for Alagoano + Pré-Copa. All 47 matches imported, totals verified against OGol.
 - [Sync DEV→PROD status](sync-dev-prod-status.md) — sync bloqueado aguardando redeploy (senha ADMIN_PASSWORD antiga em PROD); tudo preparado para executar pós-deploy
+- [Nationalities feature](nationalities-feature.md) — flag stored as emoji in nationality_flag column; 15 foreign players; Escobar ID 75 ambiguous; new endpoints + Estrangeiros page

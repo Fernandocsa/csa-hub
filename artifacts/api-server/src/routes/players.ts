@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { playersTable, playerSeasonStatsTable } from "@workspace/db";
-import { sql, eq, ilike, and, desc, asc } from "drizzle-orm";
+import { sql, eq, ilike, and, desc, asc, ne } from "drizzle-orm";
 
 const router = Router();
 
@@ -17,6 +17,7 @@ router.get("/players", async (req, res) => {
         name: playersTable.name,
         position: playersTable.position,
         nationality: playersTable.nationality,
+        nationalityFlag: playersTable.nationalityFlag,
         appearances: sql<number>`cast(sum(${playerSeasonStatsTable.appearances}) as int)`,
         goals: sql<number>`cast(sum(${playerSeasonStatsTable.goals}) as int)`,
         assists: sql<number>`cast(sum(${playerSeasonStatsTable.assists}) as int)`,
@@ -37,7 +38,13 @@ router.get("/players", async (req, res) => {
       baseQuery = baseQuery.where(and(...conditions));
     }
 
-    baseQuery = baseQuery.groupBy(playersTable.id, playersTable.name, playersTable.position, playersTable.nationality);
+    baseQuery = baseQuery.groupBy(
+      playersTable.id,
+      playersTable.name,
+      playersTable.position,
+      playersTable.nationality,
+      playersTable.nationalityFlag,
+    );
 
     if (sort === "goals") {
       baseQuery = baseQuery.orderBy(sql`sum(${playerSeasonStatsTable.goals}) desc`);
@@ -60,7 +67,7 @@ router.get("/players", async (req, res) => {
 
 router.get("/players/top-scorers", async (req, res) => {
   try {
-    const { season, competition, limit = "20" } = req.query as Record<string, string>;
+    const { season, limit = "20" } = req.query as Record<string, string>;
     const lim = Math.min(parseInt(limit) || 20, 100);
 
     let query = db
@@ -69,6 +76,7 @@ router.get("/players/top-scorers", async (req, res) => {
         name: playersTable.name,
         position: playersTable.position,
         nationality: playersTable.nationality,
+        nationalityFlag: playersTable.nationalityFlag,
         appearances: sql<number>`cast(sum(${playerSeasonStatsTable.appearances}) as int)`,
         goals: sql<number>`cast(sum(${playerSeasonStatsTable.goals}) as int)`,
         assists: sql<number>`cast(sum(${playerSeasonStatsTable.assists}) as int)`,
@@ -83,7 +91,13 @@ router.get("/players/top-scorers", async (req, res) => {
     }
 
     const rows = await query
-      .groupBy(playersTable.id, playersTable.name, playersTable.position, playersTable.nationality)
+      .groupBy(
+        playersTable.id,
+        playersTable.name,
+        playersTable.position,
+        playersTable.nationality,
+        playersTable.nationalityFlag,
+      )
       .orderBy(sql`sum(${playerSeasonStatsTable.goals}) desc`)
       .limit(lim);
 
@@ -105,6 +119,7 @@ router.get("/players/top-appearances", async (req, res) => {
         name: playersTable.name,
         position: playersTable.position,
         nationality: playersTable.nationality,
+        nationalityFlag: playersTable.nationalityFlag,
         appearances: sql<number>`cast(sum(${playerSeasonStatsTable.appearances}) as int)`,
         goals: sql<number>`cast(sum(${playerSeasonStatsTable.goals}) as int)`,
         assists: sql<number>`cast(sum(${playerSeasonStatsTable.assists}) as int)`,
@@ -119,9 +134,119 @@ router.get("/players/top-appearances", async (req, res) => {
     }
 
     const rows = await query
-      .groupBy(playersTable.id, playersTable.name, playersTable.position, playersTable.nationality)
+      .groupBy(
+        playersTable.id,
+        playersTable.name,
+        playersTable.position,
+        playersTable.nationality,
+        playersTable.nationalityFlag,
+      )
       .orderBy(sql`sum(${playerSeasonStatsTable.appearances}) desc`)
       .limit(lim);
+
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+// Foreign players (non-Brazilian)
+router.get("/players/foreign", async (req, res) => {
+  try {
+    const rows = await db
+      .select({
+        id: playersTable.id,
+        name: playersTable.name,
+        position: playersTable.position,
+        nationality: playersTable.nationality,
+        nationalityFlag: playersTable.nationalityFlag,
+        appearances: sql<number>`cast(coalesce(sum(${playerSeasonStatsTable.appearances}), 0) as int)`,
+        goals: sql<number>`cast(coalesce(sum(${playerSeasonStatsTable.goals}), 0) as int)`,
+        firstSeason: sql<string | null>`cast(min(${playerSeasonStatsTable.season}) as text)`,
+        lastSeason: sql<string | null>`cast(max(${playerSeasonStatsTable.season}) as text)`,
+      })
+      .from(playersTable)
+      .leftJoin(playerSeasonStatsTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
+      .where(ne(playersTable.nationality, "Brasil"))
+      .groupBy(
+        playersTable.id,
+        playersTable.name,
+        playersTable.position,
+        playersTable.nationality,
+        playersTable.nationalityFlag,
+      )
+      .orderBy(
+        sql`coalesce(sum(${playerSeasonStatsTable.appearances}), 0) desc`,
+        asc(playersTable.name),
+      );
+
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+// Nationality summaries (non-Brazilian)
+router.get("/players/nationalities", async (req, res) => {
+  try {
+    const rows = await db
+      .select({
+        nationality: playersTable.nationality,
+        nationalityFlag: playersTable.nationalityFlag,
+        playerCount: sql<number>`cast(count(distinct ${playersTable.id}) as int)`,
+        totalAppearances: sql<number>`cast(coalesce(sum(${playerSeasonStatsTable.appearances}), 0) as int)`,
+        totalGoals: sql<number>`cast(coalesce(sum(${playerSeasonStatsTable.goals}), 0) as int)`,
+      })
+      .from(playersTable)
+      .leftJoin(playerSeasonStatsTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
+      .where(ne(playersTable.nationality, "Brasil"))
+      .groupBy(playersTable.nationality, playersTable.nationalityFlag)
+      .orderBy(sql`count(distinct ${playersTable.id}) desc`);
+
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+// Players by nationality
+router.get("/players/by-nationality/:country", async (req, res) => {
+  try {
+    const country = decodeURIComponent(req.params.country);
+
+    const rows = await db
+      .select({
+        id: playersTable.id,
+        name: playersTable.name,
+        position: playersTable.position,
+        nationality: playersTable.nationality,
+        nationalityFlag: playersTable.nationalityFlag,
+        appearances: sql<number>`cast(coalesce(sum(${playerSeasonStatsTable.appearances}), 0) as int)`,
+        goals: sql<number>`cast(coalesce(sum(${playerSeasonStatsTable.goals}), 0) as int)`,
+        firstSeason: sql<string | null>`cast(min(${playerSeasonStatsTable.season}) as text)`,
+        lastSeason: sql<string | null>`cast(max(${playerSeasonStatsTable.season}) as text)`,
+      })
+      .from(playersTable)
+      .leftJoin(playerSeasonStatsTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
+      .where(eq(playersTable.nationality, country))
+      .groupBy(
+        playersTable.id,
+        playersTable.name,
+        playersTable.position,
+        playersTable.nationality,
+        playersTable.nationalityFlag,
+      )
+      .orderBy(
+        sql`coalesce(sum(${playerSeasonStatsTable.appearances}), 0) desc`,
+        asc(playersTable.name),
+      );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Nenhum jogador encontrado para essa nacionalidade" });
+    }
 
     res.json(rows);
   } catch (err) {
@@ -146,6 +271,7 @@ router.get("/players/:id", async (req, res) => {
         name: playersTable.name,
         position: playersTable.position,
         nationality: playersTable.nationality,
+        nationalityFlag: playersTable.nationalityFlag,
         season: playerSeasonStatsTable.season,
         appearances: playerSeasonStatsTable.appearances,
         goals: playerSeasonStatsTable.goals,
@@ -165,6 +291,7 @@ router.get("/players/:id", async (req, res) => {
       name: player.name,
       position: player.position,
       nationality: player.nationality,
+      nationalityFlag: player.nationalityFlag,
       birthYear: player.birthYear,
       totalAppearances,
       totalGoals,

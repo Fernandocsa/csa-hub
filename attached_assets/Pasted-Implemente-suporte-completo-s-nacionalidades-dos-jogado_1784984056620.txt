@@ -1,0 +1,157 @@
+Implemente suporte completo às nacionalidades dos jogadores no Portal Marujo.
+
+## Atualização dos jogadores estrangeiros
+
+Atualize o banco de dados com os seguintes jogadores estrangeiros do CSA.
+
+Regras:
+
+- Se o jogador JÁ EXISTIR no banco de dados, atualize o registro existente (não criar duplicados).
+- Se o jogador NÃO EXISTIR, crie um novo registro.
+- Utilize apenas informações comprovadas por fontes confiáveis.
+- Nunca invente dados.
+- Atualize também nacionalidade, bandeira, período no clube e demais informações biográficas quando disponíveis.
+
+Jogadores:
+
+- 🇨🇴 Pablo Armero — Colômbia — CSA (2019)
+- 🇨🇴 Andrés "Manga" Escobar — Colômbia — CSA (2019)
+- 🇦🇷 Cristian Maidana — Argentina — CSA (2019)
+- 🇦🇷 Jonatan Gómez — Argentina — CSA (2019)
+- 🇵🇾 Rodolfo Gamarra — Paraguai — CSA (2019)
+- 🇵🇾 Julián Benítez — Paraguai — CSA (2019)
+- 🇵🇾 Héctor Bustamante — Paraguai — CSA (2019–2020)
+- 🇵🇾 Richard Franco — Paraguai — CSA (2020)
+- 🇦🇷 Héctor Canteros — Argentina — CSA (2022)
+- 🇪🇨 Jhon Mercado — Equador — CSA (2022)
+- 🇨🇴 Ray Vanegas — Colômbia — CSA (2023)
+- 🇨🇴 Daniel Angulo — Colômbia — CSA (2017)
+- 🇵🇾 Eduardo Echeverría — Paraguai — CSA (2018)
+- 🇨🇱 Matías Cavalleri — Chile — CSA (2025)
+
+Para cada jogador, preencher ou atualizar, quando disponível:
+
+- Nome completo;
+- Nacionalidade;
+- Bandeira;
+- Data de nascimento;
+- Cidade/país de nascimento;
+- Posição;
+- Foto;
+- Período correto no CSA;
+- Estatísticas já existentes na base.
+
+Caso exista qualquer divergência entre fontes sobre o período no CSA, utilize fontes oficiais do clube, CBF, OGol, Transfermarkt ou outras bases confiáveis e informe a divergência no relatório final.
+
+---
+
+## Padronização das nacionalidades
+
+Após concluir a atualização dos jogadores estrangeiros:
+
+1. Todos os jogadores do banco devem possuir uma nacionalidade cadastrada.
+
+2. Para TODOS os jogadores que NÃO pertencem à lista de estrangeiros acima, atribua automaticamente:
+
+- Nacionalidade: Brasil
+- Bandeira: 🇧🇷
+
+3. Utilize exclusivamente a tabela de nacionalidades já existente no banco de dados.
+
+- Não criar países duplicados.
+- Apenas relacionar cada jogador ao país correspondente.
+
+4. Caso durante a validação seja identificado qualquer outro jogador estrangeiro que não esteja na lista acima, NÃO altere sua nacionalidade para Brasil.
+
+Nesse caso:
+- mantenha a nacionalidade correta;
+- inclua esse jogador em um relatório final para minha aprovação.
+
+---
+
+## Exibição das bandeiras
+
+Após atualizar o banco:
+
+Exibir automaticamente a bandeira da nacionalidade ao lado do nome do jogador em:
+
+- Página individual do jogador;
+- Listagem de jogadores;
+- Elenco por temporada;
+- Ranking de artilheiros;
+- Ranking de presenças;
+- Qualquer tabela ou card onde o nome do jogador apareça.
+
+Na página individual do atleta exibir:
+
+🇨🇴 Pablo Armero
+Colômbia
+
+(utilizando esse padrão para todos os jogadores).
+
+---
+
+## Página "Estrangeiros"
+
+Criar uma página chamada **Estrangeiros**.
+
+Listar automaticamente todos os jogadores cuja nacionalidade seja diferente de Brasil.
+
+Para cada jogador exibir:
+
+- Bandeira;
+- Nome;
+- Nacionalidade;
+- Jogos;
+- Gols;
+- Período no CSA;
+- Link para a página do jogador.
+
+Ordenação:
+
+1. Mais jogos;
+2. Ordem alfabética em caso de empate.
+
+Adicionar um resumo contendo:
+
+- Total de jogadores estrangeiros;
+- Quantidade de países representados no CSA.
+
+---
+
+## Página de cada nacionalidade
+
+Ao clicar na bandeira ou na nacionalidade abrir uma página do país.
+
+Exemplo:
+
+Brasil
+Argentina
+Colômbia
+Paraguai
+Chile
+Equador
+
+Cada página deve conter:
+
+- Bandeira grande;
+- Nome do país;
+- Quantidade de jogadores do CSA daquela nacionalidade;
+- Total de jogos;
+- Total de gols;
+- Lista completa dos jogadores daquele país.
+
+---
+
+## Relatório final
+
+Ao concluir informar:
+
+- Quantos jogadores foram atualizados;
+- Quantos jogadores foram criados;
+- Quantos jogadores receberam a nacionalidade Brasil;
+- Quantos estrangeiros ficaram cadastrados;
+- Quais jogadores já existiam;
+- Quais foram criados do zero;
+- Quais possíveis estrangeiros adicionais foram encontrados;
+- Quais registros não puderam ser identificados com segurança.

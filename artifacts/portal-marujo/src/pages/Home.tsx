@@ -154,17 +154,23 @@ export default function Home() {
                         <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                       </TableRow>
                     ))
-                  : topScorers?.slice(0, 10).map((p, i) => (
+                  : topScorers?.slice(0, 10).map((p, i) => {
+                      const flag = (p as any).nationalityFlag as string | null | undefined;
+                      return (
                       <TableRow key={p.id} className="text-sm">
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
                         <TableCell className="py-1.5 font-medium">
-                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline" data-testid={`link-player-${p.id}`}>
+                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-baseline gap-0.5" data-testid={`link-player-${p.id}`}>
+                            {flag && p.nationality !== "Brasil" && (
+                              <span className="mr-0.5 text-base leading-none">{flag}</span>
+                            )}
                             {p.name}
                           </Link>
                         </TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary">{p.goals}</TableCell>
                       </TableRow>
-                    ))}
+                      );
+                    })}
               </TableBody>
             </Table>
           </div>
@@ -192,17 +198,23 @@ export default function Home() {
                         <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                       </TableRow>
                     ))
-                  : topAppearances?.slice(0, 10).map((p, i) => (
+                  : topAppearances?.slice(0, 10).map((p, i) => {
+                      const flag = (p as any).nationalityFlag as string | null | undefined;
+                      return (
                       <TableRow key={p.id} className="text-sm">
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
                         <TableCell className="py-1.5 font-medium">
-                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline">
+                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-baseline gap-0.5">
+                            {flag && p.nationality !== "Brasil" && (
+                              <span className="mr-0.5 text-base leading-none">{flag}</span>
+                            )}
                             {p.name}
                           </Link>
                         </TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary">{p.appearances}</TableCell>
                       </TableRow>
-                    ))}
+                      );
+                    })}
               </TableBody>
             </Table>
           </div>

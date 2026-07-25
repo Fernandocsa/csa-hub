@@ -7,6 +7,7 @@ export const playersTable = pgTable("players", {
   name: text("name").notNull(),
   position: text("position"),
   nationality: text("nationality"),
+  nationalityFlag: text("nationality_flag"),
   birthYear: integer("birth_year"),
 });
 

@@ -60,22 +60,28 @@ export default function TopScorers() {
                     <TableCell colSpan={6} className="h-20 text-center text-muted-foreground">Nenhum dado disponível.</TableCell>
                   </TableRow>
                 )
-              : scorers?.map((p, i) => (
-                  <TableRow key={p.id} className="text-sm" data-testid={`row-scorer-${p.id}`}>
-                    <TableCell className="py-2 text-muted-foreground font-mono text-xs">{i + 1}</TableCell>
-                    <TableCell className="py-2 font-medium">
-                      <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline">
-                        {p.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="py-2 text-muted-foreground text-xs">{p.position ?? "–"}</TableCell>
-                    <TableCell className="py-2 text-right">{p.appearances}</TableCell>
-                    <TableCell className="py-2 text-right font-bold text-primary">{p.goals}</TableCell>
-                    <TableCell className="py-2 text-right text-muted-foreground">
-                      {p.appearances > 0 ? (p.goals / p.appearances).toFixed(2) : "–"}
-                    </TableCell>
-                  </TableRow>
-                ))}
+              : scorers?.map((p, i) => {
+                  const flag = (p as any).nationalityFlag as string | null | undefined;
+                  return (
+                    <TableRow key={p.id} className="text-sm" data-testid={`row-scorer-${p.id}`}>
+                      <TableCell className="py-2 text-muted-foreground font-mono text-xs">{i + 1}</TableCell>
+                      <TableCell className="py-2 font-medium">
+                        <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-baseline gap-0.5">
+                          {flag && p.nationality !== "Brasil" && (
+                            <span className="mr-0.5 text-base leading-none">{flag}</span>
+                          )}
+                          {p.name}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="py-2 text-muted-foreground text-xs">{p.position ?? "–"}</TableCell>
+                      <TableCell className="py-2 text-right">{p.appearances}</TableCell>
+                      <TableCell className="py-2 text-right font-bold text-primary">{p.goals}</TableCell>
+                      <TableCell className="py-2 text-right text-muted-foreground">
+                        {p.appearances > 0 ? (p.goals / p.appearances).toFixed(2) : "–"}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
           </TableBody>
         </Table>
       </div>
