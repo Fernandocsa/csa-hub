@@ -1,0 +1,153 @@
+```text id="portal-marujo-import-1997"
+
+Vamos adicionar a temporada de 1997 ao Portal Marujo.
+
+IMPORTANTE:
+
+- Trabalhe diretamente no banco de PRODUÇÃO.
+- Importe apenas os jogos do CSA.
+- Reutilize clubes, competições e estádios já existentes.
+- Crie apenas registros que ainda não existirem.
+- Não gere partidas duplicadas.
+- Para todos os jogos utilize apenas o nome da competição, sem incluir fase, turno, semifinal ou final no nome da competição.
+
+Formato:
+
+DATA | CASA/FORA | ADVERSÁRIO | RESULTADO | COMPETIÇÃO
+
+==================================================
+CAMPEONATO DO NORDESTE 1997
+==================================================
+
+1997-01-29 | Fora | Santa Cruz-PE | Derrota 1-2 | Campeonato do Nordeste 1997
+
+1997-02-05 | Casa | Santa Cruz-PE | Vitória 2-1 | Campeonato do Nordeste 1997
+
+Observação:
+A classificação foi decidida nos pênaltis.
+Placar dos pênaltis: CSA 3x5 Santa Cruz-PE.
+
+==================================================
+COPA DO BRASIL 1997
+==================================================
+
+1997-02-20 | Casa | Atlético-PR | Derrota 2-6 | Copa do Brasil 1997
+
+==================================================
+CAMPEONATO ALAGOANO 1997
+==================================================
+
+1997-03-09 | Casa | São Domingos-AL | Vitória 2-0 | Campeonato Alagoano 1997
+
+1997-03-16 | Fora | Sete de Setembro-AL | Vitória 2-0 | Campeonato Alagoano 1997
+
+1997-03-23 | Casa | ASA-AL | Vitória 2-0 | Campeonato Alagoano 1997
+
+1997-03-30 | Fora | Capela-AL | Vitória 3-1 | Campeonato Alagoano 1997
+
+1997-04-06 | Fora | CRB-AL | Vitória 3-2 | Campeonato Alagoano 1997
+
+1997-04-09 | Fora | Miguelense-AL | Vitória 3-2 | Campeonato Alagoano 1997
+
+1997-04-13 | Casa | Miguelense-AL | Vitória 2-0 | Campeonato Alagoano 1997
+
+1997-04-16 | Casa | CRB-AL | Vitória 2-0 | Campeonato Alagoano 1997
+
+1997-04-21 | Fora | CRB-AL | Derrota 1-2 | Campeonato Alagoano 1997
+
+1997-04-27 | Casa | Dínamo-AL | Vitória 5-0 | Campeonato Alagoano 1997
+
+1997-05-04 | Casa | Zumbi-AL | Vitória 5-1 | Campeonato Alagoano 1997
+
+1997-05-11 | Fora | Comercial-AL | Empate 1-1 | Campeonato Alagoano 1997
+
+1997-05-21 | Casa | Miguelense-AL | Empate 3-3 | Campeonato Alagoano 1997
+
+1997-05-28 | Fora | CRB-AL | Derrota 0-1 | Campeonato Alagoano 1997
+
+1997-06-02 | Casa | CRB-AL | Derrota 1-2 | Campeonato Alagoano 1997
+
+1997-06-14 | Fora | CRB-AL | Vitória 1-0 | Campeonato Alagoano 1997
+
+1997-06-18 | Casa | CRB-AL | Empate 1-1 | Campeonato Alagoano 1997
+
+1997-06-22 | Fora | São Domingos-AL | Vitória 7-2 | Campeonato Alagoano 1997
+
+1997-06-27 | Casa | Sete de Setembro-AL | Vitória 2-1 | Campeonato Alagoano 1997
+
+1997-07-06 | Fora | ASA-AL | Empate 0-0 | Campeonato Alagoano 1997
+
+1997-08-03 | Casa | Capela-AL | Vitória 3-1 | Campeonato Alagoano 1997
+
+1997-08-06 | Casa | CRB-AL | Derrota 1-2 | Campeonato Alagoano 1997
+
+1997-08-10 | Fora | Comercial-AL | Vitória 2-0 | Campeonato Alagoano 1997
+
+1997-08-14 | Casa | Comercial-AL | Empate 2-2 | Campeonato Alagoano 1997
+
+1997-09-03 | Casa | CRB-AL | Derrota 1-3 | Campeonato Alagoano 1997
+
+1997-09-10 | Fora | CRB-AL | Vitória 2-1 | Campeonato Alagoano 1997
+
+1997-09-17 | Casa | Dínamo-AL | Vitória 2-0 | Campeonato Alagoano 1997
+
+1997-09-21 | Fora | Zumbi-AL | Vitória 3-2 | Campeonato Alagoano 1997
+
+1997-09-24 | Fora | Miguelense-AL | Derrota 2-3 | Campeonato Alagoano 1997
+
+1997-10-01 | Fora | Sete de Setembro-AL | Vitória 3-1 | Campeonato Alagoano 1997
+
+1997-10-05 | Casa | Sete de Setembro-AL | Derrota 1-2 | Campeonato Alagoano 1997
+
+1997-10-09 | Casa | CRB-AL | Vitória 1-0 | Campeonato Alagoano 1997
+
+1997-10-16 | Fora | CRB-AL | Empate 1-1 | Campeonato Alagoano 1997
+
+1997-11-27 | Fora | CRB-AL | Derrota 3-4 | Campeonato Alagoano 1997
+
+1997-11-30 | Casa | CRB-AL | Derrota 0-4 | Campeonato Alagoano 1997
+
+1997-12-04 | Fora | CRB-AL | Vitória 2-1 | Campeonato Alagoano 1997
+
+1997-12-07 | Casa | CRB-AL | Empate 2-2 | Campeonato Alagoano 1997
+
+1997-12-10 | Casa | CRB-AL | Vitória 1-0 | Campeonato Alagoano 1997
+
+==================================================
+CAMPEONATO BRASILEIRO SÉRIE C 1997
+==================================================
+
+1997-08-31 | Fora | Vitória-PE | Derrota 0-1 | Campeonato Brasileiro Série C 1997
+
+1997-09-07 | Casa | Porto-PE | Empate 1-1 | Campeonato Brasileiro Série C 1997
+
+1997-09-10 | Casa | Fortaleza-CE | Vitória 2-0 | Campeonato Brasileiro Série C 1997
+
+1997-09-14 | Fora | Porto-PE | Empate 1-1 | Campeonato Brasileiro Série C 1997
+
+1997-09-17 | Fora | Fortaleza-CE | Vitória 2-1 | Campeonato Brasileiro Série C 1997
+
+1997-09-21 | Casa | Vitória-PE | Vitória 3-0 | Campeonato Brasileiro Série C 1997
+
+1997-09-28 | Casa | Juazeiro-BA | Vitória 2-1 | Campeonato Brasileiro Série C 1997
+
+1997-10-05 | Fora | Juazeiro-BA | Empate 0-0 | Campeonato Brasileiro Série C 1997
+
+1997-10-12 | Casa | Itabaiana-SE | Empate 3-3 | Campeonato Brasileiro Série C 1997
+
+1997-10-19 | Fora | Itabaiana-SE | Vitória 2-1 | Campeonato Brasileiro Série C 1997
+
+1997-10-26 | Fora | Tupi-MG | Derrota 0-1 | Campeonato Brasileiro Série C 1997
+
+1997-11-02 | Casa | Tupi-MG | Empate 1-1 | Campeonato Brasileiro Série C 1997
+
+==================================================
+
+Ao finalizar:
+
+- Confirmar que foram importadas exatamente 53 partidas.
+- Informar quais clubes precisaram ser criados.
+- Informar se alguma competição precisou ser criada.
+- Não alterar resultados, datas ou mandos de campo.
+- Caso a soma não feche exatamente em 53 jogos, interromper a importação e informar quais partidas estão faltando ou duplicadas.
+```
