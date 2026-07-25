@@ -1135,5 +1135,198 @@ router.post("/admin/sync/apply", requireAdmin, async (req, res) => {
   }
 });
 
+// ── Full matches table replacement (DEV → PROD) ───────────────────────────────
+//
+// POST /admin/sync/full-matches-replace
+//
+// Body:
+//   opponents_to_create  [{name}]          — new opponents to INSERT before replace
+//   managers_to_create   [{name}]          — upsert all managers by name
+//   matches              [{...devMatch}]   — all 1051 rows from DEV with DEV FK IDs
+//   opp_id_map           {devId: prodId}   — remap opponent_id
+//   comp_id_map          {devId: prodId}   — remap competition_id
+//   man_id_map           {devId: prodId}   — remap manager_id (unmapped → null)
+//   stad_id_map          {devId: prodId}   — remap stadium_id (unmapped → null)
+//   dry_run?             boolean           — if true, run all checks but ROLLBACK at the end
+
+router.post("/admin/sync/full-matches-replace", requireAdmin, async (req, res) => {
+  const {
+    opponents_to_create = [],
+    managers_to_create  = [],
+    matches             = [],
+    opp_id_map          = {},
+    comp_id_map         = {},
+    man_id_map          = {},
+    stad_id_map         = {},
+    dry_run             = false,
+  } = req.body as {
+    opponents_to_create?: { name: string }[];
+    managers_to_create?:  { name: string }[];
+    matches?:             any[];
+    opp_id_map?:          Record<string, number>;
+    comp_id_map?:         Record<string, number>;
+    man_id_map?:          Record<string, number>;
+    stad_id_map?:         Record<string, number>;
+    dry_run?:             boolean;
+  };
+
+  const report: Record<string, any> = { dry_run };
+  const client = await pgPool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // 1. Backup current matches table
+    const ts = new Date().toISOString().replace(/\D/g, "").slice(0, 14);
+    const backupTable = `matches_backup_${ts}`;
+    await client.query(`CREATE TABLE ${backupTable} AS SELECT * FROM matches`);
+    const backupCount = await client.query(`SELECT count(*) FROM ${backupTable}`);
+    report.backup_table   = backupTable;
+    report.backup_rows    = parseInt(backupCount.rows[0].count, 10);
+
+    // 2. Create missing opponents (by name — skip if already exists)
+    let opponentsCreated = 0;
+    const newOppIdByName: Record<string, number> = {};
+    for (const o of opponents_to_create) {
+      const existing = await client.query(
+        `SELECT id FROM opponents WHERE lower(name) = lower($1) LIMIT 1`,
+        [o.name]
+      );
+      if (existing.rows.length > 0) {
+        newOppIdByName[o.name.toLowerCase()] = existing.rows[0].id;
+      } else {
+        const ins = await client.query(
+          `INSERT INTO opponents (name) VALUES ($1) RETURNING id`,
+          [o.name]
+        );
+        newOppIdByName[o.name.toLowerCase()] = ins.rows[0].id;
+        opponentsCreated++;
+      }
+    }
+    report.opponents_created = opponentsCreated;
+
+    // Build final opponent map: opp_id_map covers existing, newOppIdByName covers created.
+    // opponents_to_create must include dev_id so we can complete the map for new entries.
+    const finalOppMap: Record<number, number> = {};
+    for (const [devId, prodId] of Object.entries(opp_id_map)) {
+      finalOppMap[Number(devId)] = Number(prodId);
+    }
+    // Patch with newly created opponents (dev_id required in each entry)
+    for (const o of opponents_to_create) {
+      if ((o as any).dev_id && newOppIdByName[(o.name as string).toLowerCase()] !== undefined) {
+        finalOppMap[Number((o as any).dev_id)] = newOppIdByName[(o.name as string).toLowerCase()];
+      }
+    }
+
+    // 3. Upsert all managers by name (INSERT … ON CONFLICT DO NOTHING)
+    let managersCreated = 0;
+    const prodManIdByName: Record<string, number> = {};
+    for (const m of managers_to_create) {
+      const existing = await client.query(
+        `SELECT id FROM managers WHERE lower(name) = lower($1) LIMIT 1`,
+        [m.name]
+      );
+      if (existing.rows.length > 0) {
+        prodManIdByName[m.name.toLowerCase()] = existing.rows[0].id;
+      } else {
+        const ins = await client.query(
+          `INSERT INTO managers (name) VALUES ($1) RETURNING id`,
+          [m.name]
+        );
+        prodManIdByName[m.name.toLowerCase()] = ins.rows[0].id;
+        managersCreated++;
+      }
+    }
+    report.managers_created = managersCreated;
+
+    // 4. Truncate matches
+    await client.query("TRUNCATE TABLE matches RESTART IDENTITY CASCADE");
+    report.truncated = true;
+
+    // 5. Insert all DEV matches with remapped FK ids
+    let inserted = 0;
+    const unmappedOpps = new Set<number>();
+    const unmappedComps = new Set<number>();
+
+    for (const m of matches) {
+      const devOppId  = Number(m.opponent_id);
+      const devCompId = Number(m.competition_id);
+      const devManId  = m.manager_id ? Number(m.manager_id) : null;
+      const devStadId = m.stadium_id ? Number(m.stadium_id) : null;
+
+      const prodOppId  = finalOppMap[devOppId];
+      const prodCompId = Number(comp_id_map[devCompId] ?? devCompId);
+      const prodStadId = devStadId !== null ? (Number(stad_id_map[devStadId] ?? devStadId) || null) : null;
+
+      // Manager: use explicit map first, then fallback to name-based lookup
+      let prodManId: number | null = null;
+      if (devManId !== null) {
+        if (man_id_map[devManId] !== undefined) {
+          prodManId = Number(man_id_map[devManId]);
+        } else {
+          // Try name-based lookup from the upserted managers
+          const manRes = await client.query(
+            `SELECT id FROM managers WHERE id = $1 LIMIT 1`,
+            [devManId]
+          );
+          if (manRes.rows.length > 0) prodManId = manRes.rows[0].id;
+        }
+      }
+
+      if (prodOppId === undefined) {
+        unmappedOpps.add(devOppId);
+        continue; // skip — FK would fail
+      }
+      if (!prodCompId) {
+        unmappedComps.add(devCompId);
+        continue;
+      }
+
+      await client.query(
+        `INSERT INTO matches
+           (match_date, season, competition_id, opponent_id,
+            home_away, goals_for, goals_against, result,
+            stadium_id, manager_id, attendance, scorers)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
+        [
+          m.match_date, m.season, prodCompId, prodOppId,
+          m.home_away, m.goals_for, m.goals_against, m.result,
+          prodStadId, prodManId, m.attendance ?? null, m.scorers ?? null,
+        ]
+      );
+      inserted++;
+    }
+
+    report.matches_inserted = inserted;
+    report.unmapped_opp_ids  = [...unmappedOpps];
+    report.unmapped_comp_ids = [...unmappedComps];
+
+    // 6. Reset sequence
+    await client.query(
+      `SELECT setval(pg_get_serial_sequence('matches', 'id'), COALESCE(MAX(id), 1)) FROM matches`
+    );
+    report.sequence_reset = true;
+
+    // 7. Final count validation
+    const finalCount = await client.query(`SELECT count(*) FROM matches`);
+    report.final_count = parseInt(finalCount.rows[0].count, 10);
+    report.success = unmappedOpps.size === 0 && unmappedComps.size === 0 && inserted === matches.length;
+
+    if (dry_run) {
+      await client.query("ROLLBACK");
+      report.rolled_back = true;
+    } else {
+      await client.query("COMMIT");
+    }
+
+    res.json(report);
+  } catch (err: any) {
+    await client.query("ROLLBACK");
+    req.log?.error?.(err);
+    res.status(500).json({ error: err.message, report });
+  } finally {
+    client.release();
+  }
+});
 
 export default router;
