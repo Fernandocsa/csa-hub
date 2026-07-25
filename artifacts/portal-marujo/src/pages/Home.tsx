@@ -103,7 +103,9 @@ export default function Home() {
     <div className="space-y-6">
       <div className="border-b pb-3">
         <h1 className="text-xl font-bold text-foreground" data-testid="heading-visao-geral">Portal Marujo — Base de dados do CSA</h1>
-        <p className="text-sm text-muted-foreground">O Portal Marujo está em constante atualização. Temporadas, partidas e estatísticas históricas são adicionadas gradualmente após pesquisa e validação. Os rankings de artilheiros históricos e de jogadores com mais partidas apresentam os valores mínimos comprovados até o momento. Esses números poderão ser atualizados à medida que novas temporadas forem adicionadas e validadas.</p>
+        <p className="text-sm text-muted-foreground">O Portal Marujo está em constante atualização. Temporadas, partidas e estatísticas históricas são adicionadas gradualmente após pesquisa e validação de diferentes fontes.</p>
+        <p className="text-sm text-muted-foreground mt-1">Os jogadores identificados com o selo de verificação (✓) possuem suas estatísticas totalmente conferidas e validadas. Já os demais atletas podem ter seus números ampliados à medida que novas temporadas forem pesquisadas e adicionadas ao acervo.</p>
+        <p className="text-sm text-muted-foreground mt-1">Os rankings históricos exibem os valores mínimos comprovados até o momento e serão atualizados continuamente conforme novas informações forem verificadas.</p>
       </div>
       {/* Stat bar */}
       {loadSum ? (
@@ -135,7 +137,10 @@ export default function Home() {
       ) : null}
       {/* Primeira e Última Partida */}
       <div>
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Marcos Históricos</h2>
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 mb-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Marcos Históricos</h2>
+          <span className="text-xs text-muted-foreground/70 italic">As estatísticas de partidas consideram apenas jogos oficiais.</span>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {loadMil ? (
             <>
