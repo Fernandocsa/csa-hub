@@ -1,0 +1,99 @@
+> **Importe a temporada de 2002 para o banco de dados utilizando exclusivamente os dados abaixo.**
+>
+> ### Regras
+>
+> * Crie a temporada **2002**.
+> * Importe **todos os 51 jogos oficiais** exatamente como informados.
+> * Cadastre data, mandante/visitante, adversário, placar, competição e fase.
+> * Após importar todas as partidas, recalcule automaticamente as estatísticas da temporada.
+> * **Não estime, complete ou altere nenhum resultado.**
+> * Os totais da temporada devem ser obtidos **exclusivamente a partir dos jogos importados**.
+> * Caso já exista algum jogo de 2002 cadastrado, evite duplicidades.
+>
+> ### O resultado final deve ser:
+>
+> * Jogos: **51**
+> * Vitórias: **24**
+> * Empates: **14**
+> * Derrotas: **13**
+> * Gols marcados: **84**
+> * Gols sofridos: **66**
+>
+> Se os totais finais forem diferentes desses números, revise toda a importação antes de concluir.
+>
+> **Importe exatamente as seguintes partidas:**
+>
+> ```
+> Série C 2002
+>
+> 2002-10-20 | Fora | ABC | Derrota 1-4 | 3ª Fase
+> 2002-10-13 | Casa | ABC | Derrota 0-4 | 3ª Fase
+> 2002-10-09 | Fora | Treze | Derrota 0-1 | 2ª Fase
+> 2002-10-04 | Casa | Treze | Vitória 6-1 | 2ª Fase
+> 2002-09-28 | Casa | Confiança | Empate 2-2 | Grupo 6
+> 2002-09-21 | Fora | Corinthians-AL | Derrota 1-3 | Grupo 6
+> 2002-09-15 | Casa | Sergipe | Empate 1-1 | Grupo 6
+> 2002-09-08 | Fora | Sergipe | Vitória 1-0 | Grupo 6
+> 2002-09-02 | Casa | Corinthians-AL | Vitória 2-1 | Grupo 6
+> 2002-08-25 | Fora | Confiança | Vitória 1-0 | Grupo 6
+>
+> Campeonato Alagoano 2002
+>
+> 2002-06-29 | Fora | CRB | Derrota 0-2 | Fase Final
+> 2002-06-27 | Fora | Murici | Empate 1-1 | Fase Final
+> 2002-06-23 | Fora | Corinthians-AL | Vitória 1-0 | Fase Final
+> 2002-06-19 | Casa | CRB | Derrota 1-2 | Fase Final
+> 2002-06-16 | Casa | Murici | Vitória 2-0 | Fase Final
+> 2002-06-12 | Casa | Corinthians-AL | Vitória 2-0 | Fase Final
+> 2002-06-09 | Fora | CRB | Vitória 2-0 | 2ª Fase
+> 2002-06-02 | Fora | Bom Jesus | Derrota 1-3 | 2ª Fase
+> 2002-05-30 | Casa | Capela | Empate 1-1 | 2ª Fase
+> 2002-05-26 | Fora | ASA | Vitória 1-0 | 2ª Fase
+> 2002-05-22 | Casa | Penedense | Vitória 1-0 | 2ª Fase
+> 2002-05-19 | Fora | Murici | Derrota 2-3 | 2ª Fase
+> 2002-05-16 | Casa | Corinthians-AL | Empate 2-2 | 2ª Fase
+> 2002-05-11 | Casa | CRB | Derrota 0-3 | 2ª Fase
+> 2002-05-08 | Casa | Bom Jesus | Vitória 6-0 | 2ª Fase
+> 2002-05-05 | Fora | Capela | Vitória 2-1 | 2ª Fase
+> 2002-05-01 | Casa | ASA | Empate 0-0 | 2ª Fase
+> 2002-04-28 | Fora | Penedense | Vitória 3-0 | 2ª Fase
+> 2002-04-24 | Casa | Murici | Vitória 4-1 | 2ª Fase
+> 2002-04-21 | Fora | Corinthians-AL | Empate 1-1 | 2ª Fase
+>
+> Copa do Nordeste 2002
+>
+> 2002-04-14 | Casa | Vitória | Derrota 0-1 | 1ª Fase
+> 2002-04-07 | Fora | Treze | Empate 1-1 | 1ª Fase
+> 2002-03-30 | Fora | América-RN | Empate 1-1 | 1ª Fase
+> 2002-03-24 | Casa | Ceará | Derrota 0-1 | 1ª Fase
+> 2002-03-20 | Fora | Bahia | Derrota 1-4 | 1ª Fase
+> 2002-03-17 | Casa | Botafogo-PB | Vitória 3-0 | 1ª Fase
+> 2002-03-10 | Casa | Fluminense de Feira | Empate 1-1 | 1ª Fase
+> 2002-03-02 | Casa | Sergipe | Vitória 3-2 | 1ª Fase
+> 2002-02-24 | Fora | ABC | Vitória 3-1 | 1ª Fase
+> 2002-02-17 | Fora | CRB | Empate 1-1 | 1ª Fase
+> 2002-02-09 | Casa | Confiança | Vitória 4-2 | 1ª Fase
+> 2002-02-03 | Fora | Santa Cruz | Vitória 2-0 | 1ª Fase
+> 2002-01-30 | Fora | Náutico | Empate 3-3 | 1ª Fase
+> 2002-01-27 | Casa | Sport | Vitória 3-2 | 1ª Fase
+> 2002-01-20 | Fora | Fortaleza | Empate 1-1 | 1ª Fase
+>
+> Copa do Brasil 2002
+>
+> 2002-03-27 | Casa | Vasco | Vitória 2-1 | Oitavas de Final
+> 2002-04-03 | Fora | Vasco | Derrota 0-4 | Oitavas de Final
+> 2002-03-14 | Fora | Ceará | Vitória 3-2 | 2ª Fase
+> 2002-03-06 | Casa | Ceará | Empate 0-0 | 2ª Fase
+> 2002-02-20 | Casa | Moto Club | Vitória 2-0 | 1ª Fase
+> 2002-02-14 | Fora | Moto Club | Vitória 2-1 | 1ª Fase
+> ```
+>
+> **Observações importantes:**
+>
+> * Preserve exatamente as datas, placares, competições e fases informadas.
+> * Não invente horários, estádios, escalações, árbitros ou qualquer outra informação que não esteja disponível.
+> * Os totais da temporada devem ser calculados exclusivamente a partir dessas 51 partidas.
+>
+> **Ao finalizar, confirme que a temporada possui exatamente 51 partidas e que os totais são 24 vitórias, 14 empates, 13 derrotas, 84 gols marcados e 66 gols sofridos.**
+>
+> **Importante:** utilize os totais oficiais da temporada (51 jogos, 24 vitórias, 14 empates, 13 derrotas, 84 gols marcados e 66 gols sofridos) como referência final de validação. Se houver qualquer divergência, revise a importação antes de concluir.
