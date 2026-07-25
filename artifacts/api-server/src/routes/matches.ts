@@ -20,6 +20,7 @@ function buildMatchRow(row: any) {
     attendance: row.attendance ?? null,
     attendancePaid: row.attendancePaid ?? null,
     grossRevenue: row.grossRevenue ?? null,
+    grossRevenueText: row.grossRevenueText ?? null,
   };
 }
 
@@ -37,6 +38,7 @@ const matchSelectFields = {
   attendance: matchesTable.attendance,
   attendancePaid: matchesTable.attendancePaid,
   grossRevenue: matchesTable.grossRevenue,
+  grossRevenueText: matchesTable.grossRevenueText,
 };
 
 router.get("/matches", async (req, res) => {
@@ -217,6 +219,7 @@ router.get("/matches/:id", async (req, res) => {
       attendance: row.attendance ?? null,
       attendancePaid: row.attendancePaid ?? null,
       grossRevenue: row.grossRevenue ?? null,
+      grossRevenueText: row.grossRevenueText ?? null,
     });
   } catch (err) {
     req.log.error(err);

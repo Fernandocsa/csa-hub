@@ -6,8 +6,11 @@ function fmtAttendance(n: number) {
   return n.toLocaleString("pt-BR");
 }
 
-function fmtRevenue(n: number) {
-  return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+function fmtRevenue(m: { grossRevenue: number | null; grossRevenueText?: string | null }) {
+  if (m.grossRevenueText) return m.grossRevenueText;
+  if (m.grossRevenue != null)
+    return m.grossRevenue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  return null;
 }
 
 function fmtDate(d: string) {
@@ -72,7 +75,7 @@ export default function Publicos() {
                           {m.attendancePaid != null ? fmtAttendance(m.attendancePaid) : <span className="text-xs">—</span>}
                         </TableCell>
                         <TableCell className="py-2 text-right text-muted-foreground hidden lg:table-cell">
-                          {m.grossRevenue != null ? fmtRevenue(m.grossRevenue) : <span className="text-xs">—</span>}
+                          {fmtRevenue(m) ?? <span className="text-xs">—</span>}
                         </TableCell>
                       </TableRow>
                     );

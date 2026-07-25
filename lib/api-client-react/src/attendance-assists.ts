@@ -15,6 +15,7 @@ export interface AttendanceMatch {
   attendance: number;
   attendancePaid: number | null;
   grossRevenue: number | null;
+  grossRevenueText: string | null;
 }
 
 export interface TopAssistPlayer {

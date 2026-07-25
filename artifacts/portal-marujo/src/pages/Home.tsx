@@ -344,9 +344,11 @@ export default function Home() {
                           {m.attendancePaid != null ? m.attendancePaid.toLocaleString("pt-BR") : <span className="text-xs">—</span>}
                         </TableCell>
                         <TableCell className="py-1.5 text-right text-muted-foreground hidden md:table-cell">
-                          {m.grossRevenue != null
-                            ? m.grossRevenue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
-                            : <span className="text-xs">—</span>}
+                          {(m as any).grossRevenueText
+                            ? (m as any).grossRevenueText
+                            : m.grossRevenue != null
+                              ? m.grossRevenue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+                              : <span className="text-xs">—</span>}
                         </TableCell>
                       </TableRow>
                     );
