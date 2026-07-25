@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { matchesTable, opponentsTable, stadiumsTable, competitionsTable, managersTable } from "@workspace/db";
-import { sql, eq, and, ilike, desc } from "drizzle-orm";
+import { sql, eq, and, ilike, desc, ne } from "drizzle-orm";
 
 const router = Router();
 
@@ -21,6 +21,7 @@ function buildMatchRow(row: any) {
     attendancePaid: row.attendancePaid ?? null,
     grossRevenue: row.grossRevenue ?? null,
     grossRevenueText: row.grossRevenueText ?? null,
+    isWalkover: row.isWalkover ?? false,
   };
 }
 
@@ -32,6 +33,7 @@ const matchSelectFields = {
   goalsAgainst: matchesTable.goalsAgainst,
   result: matchesTable.result,
   homeAway: matchesTable.homeAway,
+  isWalkover: matchesTable.isWalkover,
   opponentName: opponentsTable.name,
   competitionName: competitionsTable.name,
   stadiumName: stadiumsTable.name,
@@ -43,7 +45,7 @@ const matchSelectFields = {
 
 router.get("/matches", async (req, res) => {
   try {
-    const { season, competition, opponent, home_away, result, limit = "50", offset = "0" } = req.query as Record<string, string>;
+    const { season, competition, opponent, home_away, result, walkover, limit = "50", offset = "0" } = req.query as Record<string, string>;
     const lim = Math.min(parseInt(limit) || 50, 200);
     const off = parseInt(offset) || 0;
 
@@ -56,6 +58,8 @@ router.get("/matches", async (req, res) => {
       .$dynamic();
 
     const conditions = [];
+    // By default show only official matches; pass walkover=true to get W.O. matches
+    conditions.push(eq(matchesTable.isWalkover, walkover === "true"));
     if (season) conditions.push(eq(matchesTable.season, season));
     if (competition) conditions.push(ilike(competitionsTable.name, `%${competition}%`));
     if (opponent) conditions.push(ilike(opponentsTable.name, `%${opponent}%`));

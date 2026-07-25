@@ -5,3 +5,4 @@ export type { AuthTokenGetter } from "./custom-fetch";
 export * from "./milestones";
 export * from "./foreign-players";
 export * from "./attendance-assists";
+export * from "./walkovers";

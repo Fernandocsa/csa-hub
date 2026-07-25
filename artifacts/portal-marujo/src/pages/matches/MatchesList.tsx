@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useListMatches, useListSeasons } from "@workspace/api-client-react";
+import { useListMatches, useListSeasons, useListWalkovers } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,7 +12,24 @@ function fmtDate(d: string) {
   return new Date(d).toLocaleDateString("pt-BR");
 }
 
+function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+        active
+          ? "border-primary text-primary"
+          : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground"
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
 export default function MatchesList() {
+  const [tab, setTab] = useState<"official" | "walkover">("official");
   const [season, setSeason] = useState("all");
   const [result, setResult] = useState("all");
   const [homeAway, setHomeAway] = useState("all");
@@ -21,17 +38,36 @@ export default function MatchesList() {
   const limit = 30;
 
   const { data: seasons } = useListSeasons();
-  const { data, isLoading } = useListMatches({
+
+  const officialParams = {
     season: season === "all" ? undefined : season,
     result: result === "all" ? undefined : result,
     home_away: homeAway === "all" ? undefined : homeAway,
     opponent: opponent.length > 1 ? opponent : undefined,
     limit,
     offset: (page - 1) * limit,
-  });
+  };
+
+  const walkoverParams = {
+    season: season === "all" ? undefined : season,
+    opponent: opponent.length > 1 ? opponent : undefined,
+    limit,
+    offset: (page - 1) * limit,
+  };
+
+  const { data: officialData, isLoading: officialLoading } = useListMatches(officialParams);
+  const { data: walkoverData, isLoading: walkoverLoading } = useListWalkovers(walkoverParams);
+
+  const data = tab === "official" ? officialData : walkoverData;
+  const isLoading = tab === "official" ? officialLoading : walkoverLoading;
 
   function resetFilters() {
     setSeason("all"); setResult("all"); setHomeAway("all"); setOpponent(""); setPage(1);
+  }
+
+  function switchTab(t: "official" | "walkover") {
+    setTab(t);
+    setPage(1);
   }
 
   return (
@@ -41,8 +77,18 @@ export default function MatchesList() {
         <p className="text-sm text-muted-foreground">Histórico completo de partidas do CSA</p>
       </div>
 
+      {/* Tabs */}
+      <div className="flex border-b -mb-5">
+        <TabButton active={tab === "official"} onClick={() => switchTab("official")}>
+          Oficiais
+        </TabButton>
+        <TabButton active={tab === "walkover"} onClick={() => switchTab("walkover")}>
+          W.O.
+        </TabButton>
+      </div>
+
       {/* Filter bar */}
-      <div className="flex flex-wrap gap-2 items-center">
+      <div className="flex flex-wrap gap-2 items-center pt-2">
         <Select value={season} onValueChange={(v) => { setSeason(v); setPage(1); }}>
           <SelectTrigger className="h-8 w-28 text-xs" data-testid="select-season"><SelectValue placeholder="Temporada" /></SelectTrigger>
           <SelectContent>
@@ -51,24 +97,28 @@ export default function MatchesList() {
           </SelectContent>
         </Select>
 
-        <Select value={result} onValueChange={(v) => { setResult(v); setPage(1); }}>
-          <SelectTrigger className="h-8 w-28 text-xs" data-testid="select-result"><SelectValue placeholder="Resultado" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Resultado</SelectItem>
-            <SelectItem value="win">Vitória</SelectItem>
-            <SelectItem value="draw">Empate</SelectItem>
-            <SelectItem value="loss">Derrota</SelectItem>
-          </SelectContent>
-        </Select>
+        {tab === "official" && (
+          <>
+            <Select value={result} onValueChange={(v) => { setResult(v); setPage(1); }}>
+              <SelectTrigger className="h-8 w-28 text-xs" data-testid="select-result"><SelectValue placeholder="Resultado" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Resultado</SelectItem>
+                <SelectItem value="win">Vitória</SelectItem>
+                <SelectItem value="draw">Empate</SelectItem>
+                <SelectItem value="loss">Derrota</SelectItem>
+              </SelectContent>
+            </Select>
 
-        <Select value={homeAway} onValueChange={(v) => { setHomeAway(v); setPage(1); }}>
-          <SelectTrigger className="h-8 w-28 text-xs" data-testid="select-home-away"><SelectValue placeholder="Mando" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Mando</SelectItem>
-            <SelectItem value="home">Mandante</SelectItem>
-            <SelectItem value="away">Visitante</SelectItem>
-          </SelectContent>
-        </Select>
+            <Select value={homeAway} onValueChange={(v) => { setHomeAway(v); setPage(1); }}>
+              <SelectTrigger className="h-8 w-28 text-xs" data-testid="select-home-away"><SelectValue placeholder="Mando" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Mando</SelectItem>
+                <SelectItem value="home">Mandante</SelectItem>
+                <SelectItem value="away">Visitante</SelectItem>
+              </SelectContent>
+            </Select>
+          </>
+        )}
 
         <Input
           placeholder="Adversário..."
@@ -93,8 +143,14 @@ export default function MatchesList() {
             <TableRow className="text-xs">
               <TableHead className="py-2">Data</TableHead>
               <TableHead className="py-2">Adversário</TableHead>
-              <TableHead className="py-2 text-center">Res.</TableHead>
-              <TableHead className="py-2 text-center">Placar</TableHead>
+              {tab === "official" ? (
+                <>
+                  <TableHead className="py-2 text-center">Res.</TableHead>
+                  <TableHead className="py-2 text-center">Placar</TableHead>
+                </>
+              ) : (
+                <TableHead className="py-2 text-center">Tipo</TableHead>
+              )}
               <TableHead className="py-2">Competição</TableHead>
               <TableHead className="py-2 hidden sm:table-cell">Estádio</TableHead>
             </TableRow>
@@ -103,12 +159,14 @@ export default function MatchesList() {
             {isLoading
               ? Array.from({ length: 15 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell colSpan={6}><Skeleton className="h-4" /></TableCell>
+                    <TableCell colSpan={tab === "official" ? 6 : 5}><Skeleton className="h-4" /></TableCell>
                   </TableRow>
                 ))
               : data?.data.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-20 text-center text-muted-foreground">Nenhuma partida encontrada.</TableCell>
+                    <TableCell colSpan={tab === "official" ? 6 : 5} className="h-20 text-center text-muted-foreground">
+                      {tab === "walkover" ? "Nenhum W.O. registrado." : "Nenhuma partida encontrada."}
+                    </TableCell>
                   </TableRow>
                 )
               : data?.data.map((match) => (
@@ -123,12 +181,22 @@ export default function MatchesList() {
                         {match.homeAway === "home" ? "Casa" : "Fora"}
                       </span>
                     </TableCell>
-                    <TableCell className="py-2 text-center">
-                      <ResultBadge result={match.result} />
-                    </TableCell>
-                    <TableCell className="py-2 text-center font-mono font-bold">
-                      {match.goalsFor}–{match.goalsAgainst}
-                    </TableCell>
+                    {tab === "official" ? (
+                      <>
+                        <TableCell className="py-2 text-center">
+                          <ResultBadge result={match.result} />
+                        </TableCell>
+                        <TableCell className="py-2 text-center font-mono font-bold">
+                          {match.goalsFor}–{match.goalsAgainst}
+                        </TableCell>
+                      </>
+                    ) : (
+                      <TableCell className="py-2 text-center">
+                        <span className="text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 px-2 py-0.5 rounded">
+                          W.O.
+                        </span>
+                      </TableCell>
+                    )}
                     <TableCell className="py-2 text-muted-foreground text-xs">{match.competition}</TableCell>
                     <TableCell className="py-2 text-muted-foreground text-xs hidden sm:table-cell">{match.stadium ?? "–"}</TableCell>
                   </TableRow>

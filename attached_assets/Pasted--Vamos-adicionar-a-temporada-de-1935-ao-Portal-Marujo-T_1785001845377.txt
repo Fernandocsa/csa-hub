@@ -1,0 +1,61 @@
+
+Vamos adicionar a temporada de 1935 ao Portal Marujo.
+
+Trabalhe diretamente no banco de PRODUÇÃO.
+
+Crie a temporada de 1935 e importe apenas os jogos do CSA listados abaixo.
+
+Caso a competição, clubes ou estádios ainda não existam, crie-os seguindo o padrão já utilizado no banco.
+
+Jogos do CSA:
+
+1935-06-02 | Casa | Nordeste-AL | Vitória 6-0 | Campeonato Alagoano 1935 | Turno Único
+
+1935-06-23 | Casa | Vasco da Gama-AL | Vitória 7-0 | Campeonato Alagoano 1935 | Turno Único
+
+1935-07-14 | Casa | Uruguai-AL | Vitória 6-0 | Campeonato Alagoano 1935 | Turno Único
+
+1935-08-04 | Casa | Associação Militar-AL | Vitória 5-0 | Campeonato Alagoano 1935 | Turno Único
+
+1935-09-08 | Casa | Barroso-AL | Vitória 1-0 | Campeonato Alagoano 1935 | Turno Único
+
+Crie os clubes abaixo apenas se ainda não existirem:
+
+- Associação Militar-AL
+- Nordeste-AL
+
+Reutilize os registros já existentes para:
+
+- Barroso-AL
+- Uruguai-AL
+- Vasco da Gama-AL
+
+Também crie a competição "Campeonato Alagoano 1935" caso ainda não exista.
+
+Além disso, implemente uma nova funcionalidade na página de Partidas:
+
+### Aba "W.O."
+
+- Criar uma nova aba/filtro chamada **"W.O."**.
+- Essa aba deve exibir **apenas** partidas decididas por W.O. (walkover).
+- Essas partidas **não** devem aparecer junto das partidas oficiais.
+- As partidas por W.O. devem possuir um campo próprio no banco (ex.: `is_walkover`) para facilitar filtros e estatísticas, evitando depender do placar "W0x0".
+- Exibir claramente na listagem que a partida foi decidida por W.O.
+- Os jogos oficiais continuam aparecendo normalmente na aba principal de partidas.
+- A aba "W.O." deve funcionar com busca, filtros e ordenação da mesma forma que as demais abas.
+
+Regras:
+
+- Não invente informações.
+- Utilize exatamente os dados fornecidos.
+- Reutilize registros existentes sempre que possível para evitar duplicidades.
+- Todos os clubes devem seguir o padrão com sufixo da UF.
+- Partidas por W.O. não contam para estatísticas oficiais (jogos, vitórias, gols, etc.), mas permanecem registradas e acessíveis pela nova aba.
+
+Ao finalizar, informe:
+
+- Quantos jogos foram importados.
+- Quais clubes precisaram ser criados.
+- Se a competição precisou ser criada.
+- Se a nova aba "W.O." foi implementada.
+- Confirme que a temporada de 1935 foi adicionada com sucesso e sem gerar registros duplicados.

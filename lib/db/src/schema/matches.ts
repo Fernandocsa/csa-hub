@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, date } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, date, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -54,6 +54,7 @@ export const matchesTable = pgTable("matches", {
   grossRevenue: integer("gross_revenue"), // in BRL (reais), for modern matches
   grossRevenueText: text("gross_revenue_text"), // for historical currencies (Cr$, Cz$, etc.)
   scorers: text("scorers"), // comma-separated player names
+  isWalkover: boolean("is_walkover").notNull().default(false),
 });
 
 export const insertOpponentSchema = createInsertSchema(opponentsTable).omit({ id: true });
