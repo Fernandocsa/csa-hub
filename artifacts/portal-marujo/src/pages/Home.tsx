@@ -41,10 +41,9 @@ export default function Home() {
   return (
     <div className="space-y-6">
       <div className="border-b pb-3">
-        <h1 className="text-xl font-bold text-foreground" data-testid="heading-visao-geral">CSA — Estatísticas Históricas</h1>
-        <p className="text-sm text-muted-foreground">A maior base estatística do Centro Sportivo Alagoano</p>
+        <h1 className="text-xl font-bold text-foreground" data-testid="heading-visao-geral">Portal Marujo — Base de dados do CSA</h1>
+        <p className="text-sm text-muted-foreground">Atualmente, o portal contempla apenas as temporadas a partir de 2016. As demais temporadas serão adicionadas gradualmente, conforme os dados históricos forem pesquisados e validados.</p>
       </div>
-
       {/* Stat bar */}
       {loadSum ? (
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-px bg-border rounded overflow-hidden">
@@ -72,7 +71,6 @@ export default function Home() {
           ))}
         </div>
       ) : null}
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Top Scorers */}
         <div className="space-y-2">
@@ -198,7 +196,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
       {/* Records highlights */}
       <div>
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Recordes Históricos</h2>
@@ -233,7 +230,6 @@ export default function Home() {
           )}
         </div>
       </div>
-
       {/* Most common opponents */}
       {summary && (
         <div className="space-y-2">
