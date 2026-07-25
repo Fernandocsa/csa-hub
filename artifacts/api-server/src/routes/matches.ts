@@ -115,6 +115,31 @@ router.get("/matches/biggest-defeats", async (req, res) => {
   }
 });
 
+router.get("/matches/milestones", async (req, res) => {
+  try {
+    const joins = () =>
+      db
+        .select(matchSelectFields)
+        .from(matchesTable)
+        .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+        .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+        .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id));
+
+    const [firstRows, lastRows] = await Promise.all([
+      joins().orderBy(matchesTable.matchDate).limit(1),
+      joins().orderBy(desc(matchesTable.matchDate)).limit(1),
+    ]);
+
+    res.json({
+      first: firstRows.length ? buildMatchRow(firstRows[0]) : null,
+      last:  lastRows.length  ? buildMatchRow(lastRows[0])  : null,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
 router.get("/matches/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);

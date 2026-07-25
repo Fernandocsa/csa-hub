@@ -6,6 +6,8 @@ import {
   useListSeasons,
   useGetBiggestVictories,
   useGetStreaks,
+  useGetMatchMilestones,
+  type MilestoneMatch,
 } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -26,6 +28,35 @@ function fmtDate(d: string) {
   return new Date(d).toLocaleDateString("pt-BR");
 }
 
+const resultColor: Record<string, string> = {
+  win:  "text-green-600",
+  draw: "text-amber-600",
+  loss: "text-red-600",
+};
+
+function MilestoneCard({ label, match }: { label: string; match: MilestoneMatch }) {
+  const isHome = match.homeAway === "home";
+  const home = isHome ? "CSA" : match.opponent;
+  const away = isHome ? match.opponent : "CSA";
+  const scoreColor = resultColor[match.result] ?? "text-foreground";
+
+  return (
+    <div className="border rounded p-4 space-y-2">
+      <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+      <div>
+        <p className="text-xs text-muted-foreground">{fmtDate(match.date)} · {match.competition}</p>
+        <p className="font-semibold text-sm mt-0.5 truncate">{home} × {away}</p>
+      </div>
+      <p className={`text-2xl font-black ${scoreColor}`}>
+        {isHome ? match.goalsFor : match.goalsAgainst}
+        <span className="text-muted-foreground font-normal text-lg mx-1">–</span>
+        {isHome ? match.goalsAgainst : match.goalsFor}
+      </p>
+      <p className="text-xs text-muted-foreground">{match.season}</p>
+    </div>
+  );
+}
+
 export default function Home() {
   const { data: summary, isLoading: loadSum } = useGetSummary();
   const { data: topScorers, isLoading: loadSc } = useGetTopScorers({ limit: 10 });
@@ -33,6 +64,7 @@ export default function Home() {
   const { data: seasons, isLoading: loadSe } = useListSeasons();
   const { data: victories } = useGetBiggestVictories({ limit: 3 });
   const { data: streaks } = useGetStreaks();
+  const { data: milestones, isLoading: loadMil } = useGetMatchMilestones();
 
   const biggestWin = victories?.[0];
   const unbeatenStreak = streaks?.find((s) => s.type === "unbeaten");
@@ -72,6 +104,33 @@ export default function Home() {
           ))}
         </div>
       ) : null}
+      {/* Primeira e Última Partida */}
+      <div>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Marcos Históricos</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {loadMil ? (
+            <>
+              <div className="border rounded p-4 space-y-2">
+                <Skeleton className="h-3 w-28" />
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-8 w-32" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+              <div className="border rounded p-4 space-y-2">
+                <Skeleton className="h-3 w-28" />
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-8 w-32" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </>
+          ) : (
+            <>
+              {milestones?.first && <MilestoneCard label="Primeira Partida" match={milestones.first} />}
+              {milestones?.last  && <MilestoneCard label="Última Partida"   match={milestones.last}  />}
+            </>
+          )}
+        </div>
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Top Scorers */}
         <div className="space-y-2">
