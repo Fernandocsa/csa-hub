@@ -1,0 +1,61 @@
+> **Importe a temporada de 2010 para o banco de dados utilizando exclusivamente os dados abaixo.**
+>
+> ### Regras
+>
+> * Crie a temporada **2010**.
+> * Importe **todos os 32 jogos** exatamente como informados.
+> * Cadastre data, mandante/visitante, adversário, placar, competição e fase.
+> * Após importar todas as partidas, recalcule automaticamente as estatísticas da temporada.
+> * **Não estime, complete ou altere nenhum resultado.**
+> * Os totais da temporada devem ser obtidos **exclusivamente a partir dos jogos importados**.
+> * Caso já exista algum jogo de 2010 cadastrado, evite duplicidades.
+>
+> ### O resultado final deve ser:
+>
+> * Jogos: **32**
+> * Vitórias: **19**
+> * Empates: **6**
+> * Derrotas: **7**
+> * Gols marcados: **72**
+> * Gols sofridos: **43**
+>
+> Se os totais finais forem diferentes desses números, revise a importação antes de concluir.
+>
+> **Importe exatamente as seguintes partidas:**
+>
+> ```
+> 2010-11-24 | Fora | Vitória | Derrota 1-2 | Nordestão 2010 | Semifinal
+> 2010-11-17 | Casa | ABC | Derrota 2-4 | Nordestão 2010 | 1ª Fase
+> 2010-10-24 | Casa | Sport Atalaia | Vitória 3-0 | Alagoano 2ª Divisão 2010 | Final
+> 2010-10-20 | Fora | Sport Atalaia | Empate 0-0 | Alagoano 2ª Divisão 2010 | Final
+> 2010-10-17 | Casa | São Domingos-AL | Vitória 10-1 | Alagoano 2ª Divisão 2010 | Semifinal
+> 2010-10-10 | Fora | São Domingos-AL | Vitória 3-0 | Alagoano 2ª Divisão 2010 | Semifinal
+> 2010-09-26 | Fora | Sete de Setembro-AL | Vitória 3-0 | Alagoano 2ª Divisão 2010 | 1ª Fase
+> 2010-09-18 | Fora | São Domingos-AL | Vitória 2-0 | Alagoano 2ª Divisão 2010 | 1ª Fase
+> 2010-09-15 | Casa | Igreja Nova | Vitória 5-1 | Alagoano 2ª Divisão 2010 | 1ª Fase
+> 2010-09-12 | Casa | Sampaio Corrêa | Empate 2-2 | Série D 2010 | 2ª Fase
+> 2010-09-08 | Fora | Sport Atalaia | Derrota 0-1 | Alagoano 2ª Divisão 2010 | 1ª Fase
+> 2010-09-05 | Fora | Sampaio Corrêa | Derrota 0-5 | Série D 2010 | 2ª Fase
+> 2010-08-29 | Casa | São Luíz-AL | Vitória 2-1 | Alagoano 2ª Divisão 2010 | 1ª Fase
+> 2010-08-25 | Fora | Botafogo-PB | Empate 0-0 | Nordestão 2010 | 1ª Fase
+> 2010-08-22 | Casa | Santa Cruz | Derrota 1-2 | Série D 2010 | Grupo 4
+> 2010-08-18 | Casa | Treze | Vitória 3-1 | Nordestão 2010 | 1ª Fase
+> 2010-08-15 | Fora | Confiança | Vitória 2-1 | Série D 2010 | Grupo 4
+> 2010-08-08 | Casa | Potiguar | Vitória 2-0 | Série D 2010 | Grupo 4
+> 2010-08-04 | Fora | Náutico | Vitória 3-0 | Nordestão 2010 | 1ª Fase
+> 2010-08-01 | Fora | Potiguar | Vitória 4-3 | Série D 2010 | Grupo 4
+> 2010-07-28 | Casa | Ceará | Empate 1-1 | Nordestão 2010 | 1ª Fase
+> 2010-07-25 | Casa | Confiança | Vitória 3-1 | Série D 2010 | Grupo 4
+> 2010-07-18 | Fora | Santa Cruz | Vitória 1-0 | Série D 2010 | Grupo 4
+> 2010-07-14 | Fora | Sergipe | Derrota 0-1 | Nordestão 2010 | 1ª Fase
+> 2010-07-07 | Casa | Vitória | Vitória 4-1 | Nordestão 2010 | 1ª Fase
+> 2010-07-04 | Fora | América-RN | Vitória 2-1 | Nordestão 2010 | 1ª Fase
+> 2010-06-27 | Casa | CRB | Empate 2-2 | Nordestão 2010 | 1ª Fase
+> 2010-06-24 | Fora | Santa Cruz | Derrota 1-6 | Nordestão 2010 | 1ª Fase
+> 2010-06-20 | Casa | Fluminense de Feira | Empate 1-1 | Nordestão 2010 | 1ª Fase
+> 2010-06-17 | Fora | Fortaleza | Vitória 3-2 | Nordestão 2010 | 1ª Fase
+> 2010-06-13 | Casa | Confiança | Vitória 4-2 | Nordestão 2010 | 1ª Fase
+> 2010-06-09 | Fora | Bahia | Vitória 2-1 | Nordestão 2010 | 1ª Fase
+> ```
+>
+> **Ao finalizar, confirme que a temporada possui exatamente 32 partidas e que os totais são 19 vitórias, 6 empates, 7 derrotas, 72 gols marcados e 43 gols sofridos.**

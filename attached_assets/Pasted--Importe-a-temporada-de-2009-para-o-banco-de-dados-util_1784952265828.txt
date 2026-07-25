@@ -1,0 +1,59 @@
+> **Importe a temporada de 2009 para o banco de dados utilizando exclusivamente os dados abaixo.**
+>
+> ### Regras
+>
+> * Crie a temporada **2009**.
+> * Importe **todos os 30 jogos** exatamente como informados.
+> * Cadastre data, mandante/visitante, adversário, placar, competição e fase.
+> * Após importar todas as partidas, recalcule automaticamente as estatísticas da temporada.
+> * **Não estime, complete ou altere nenhum resultado.**
+> * Os totais da temporada devem ser ser obtidos **exclusivamente a partir dos jogos importados**.
+> * Caso já exista algum jogo de 2009 cadastrado, evite duplicidades.
+>
+> ### O resultado final deve ser:
+>
+> * Jogos: **30**
+> * Vitórias: **9**
+> * Empates: **8**
+> * Derrotas: **13**
+> * Gols marcados: **34**
+> * Gols sofridos: **46**
+>
+> Se os totais finais forem diferentes desses números, revise a importação antes de concluir.
+>
+> **Importe exatamente as seguintes partidas:**
+>
+> ```
+> 2009-08-09 | Fora | Santa Cruz | Empate 2-2 | Série D 2009 | Grupo 4
+> 2009-08-01 | Casa | Sergipe | Vitória 2-0 | Série D 2009 | Grupo 4
+> 2009-07-26 | Casa | Central | Empate 1-1 | Série D 2009 | Grupo 4
+> 2009-07-19 | Fora | Central | Empate 0-0 | Série D 2009 | Grupo 4
+> 2009-07-12 | Fora | Sergipe | Empate 0-0 | Série D 2009 | Grupo 4
+> 2009-07-05 | Casa | Santa Cruz | Derrota 0-3 | Série D 2009 | Grupo 4
+> 2009-05-06 | Fora | Coritiba | Derrota 0-3 | Copa do Brasil 2009 | Oitavas de Final
+> 2009-05-03 | Fora | CRB | Derrota 1-2 | Campeonato Alagoano 2009 | 2ª Fase
+> 2009-04-29 | Casa | Coritiba | Derrota 0-4 | Copa do Brasil 2009 | Oitavas de Final
+> 2009-04-26 | Casa | Murici | Vitória 3-2 | Campeonato Alagoano 2009 | 2ª Fase
+> 2009-04-22 | Fora | Santos | Vitória 1-0 | Copa do Brasil 2009 | 2ª Fase
+> 2009-04-18 | Fora | ASA | Derrota 1-4 | Campeonato Alagoano 2009 | 2ª Fase
+> 2009-04-16 | Casa | CSE | Vitória 2-1 | Campeonato Alagoano 2009 | 2ª Fase
+> 2009-04-13 | Fora | Igaci | Derrota 1-2 | Campeonato Alagoano 2009 | 2ª Fase
+> 2009-04-08 | Casa | Santos | Empate 0-0 | Copa do Brasil 2009 | 2ª Fase
+> 2009-04-02 | Casa | CRB | Derrota 1-2 | Campeonato Alagoano 2009 | 2ª Fase
+> 2009-03-29 | Fora | Murici | Derrota 0-3 | Campeonato Alagoano 2009 | 2ª Fase
+> 2009-03-25 | Casa | ASA | Vitória 2-1 | Campeonato Alagoano 2009 | 2ª Fase
+> 2009-03-22 | Fora | CSE | Empate 1-1 | Campeonato Alagoano 2009 | 2ª Fase
+> 2009-03-18 | Casa | Serra | Vitória 3-1 | Copa do Brasil 2009 | 1ª Fase
+> 2009-03-14 | Casa | Igaci | Derrota 1-2 | Campeonato Alagoano 2009 | 2ª Fase
+> 2009-03-04 | Fora | Serra | Vitória 3-2 | Copa do Brasil 2009 | 1ª Fase
+> 2009-02-15 | Fora | Ipanema | Derrota 0-1 | Campeonato Alagoano 2009 | 1ª Fase
+> 2009-02-12 | Casa | Coruripe | Vitória 3-1 | Campeonato Alagoano 2009 | 1ª Fase
+> 2009-02-10 | Casa | Corinthians-AL | Derrota 0-1 | Campeonato Alagoano 2009 | 1ª Fase
+> 2009-02-07 | Casa | Capelense | Vitória 3-2 | Campeonato Alagoano 2009 | 1ª Fase
+> 2009-02-04 | Fora | Coruripe | Derrota 0-1 | Campeonato Alagoano 2009 | 1ª Fase
+> 2009-01-29 | Casa | Ipanema | Empate 2-2 | Campeonato Alagoano 2009 | 1ª Fase
+> 2009-01-25 | Fora | Corinthians-AL | Derrota 0-1 | Campeonato Alagoano 2009 | 1ª Fase
+> 2009-01-21 | Fora | Capelense | Empate 1-1 | Campeonato Alagoano 2009 | 1ª Fase
+> ```
+>
+> **Ao finalizar, confirme que a temporada possui exatamente 30 partidas e que os totais são 9 vitórias, 8 empates, 13 derrotas, 34 gols marcados e 46 gols sofridos.**
