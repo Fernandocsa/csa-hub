@@ -60,6 +60,39 @@ function MilestoneCard({ label, match }: { label: string; match: MilestoneMatch 
   );
 }
 
+// Static for now — replace with DB data when available
+const NEXT_MATCH = {
+  home: "CSA",
+  away: "São Luiz de Ijuí-RS",
+  date: "2026-07-26",
+  competition: "Campeonato Brasileiro Série D",
+};
+
+function NextMatchCard() {
+  return (
+    <div className="border rounded p-4 space-y-2">
+      <p className="text-xs text-muted-foreground uppercase tracking-wider">Próxima Partida</p>
+      <div>
+        <p className="text-xs text-muted-foreground">{fmtDate(NEXT_MATCH.date)} · {NEXT_MATCH.competition}</p>
+        <p className="font-semibold text-sm mt-0.5 truncate">{NEXT_MATCH.home} × {NEXT_MATCH.away}</p>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="text-center">
+          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary leading-none">CSA</div>
+        </div>
+        <div className="flex-1 text-center">
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">vs</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">A disputar</p>
+        </div>
+        <div className="text-center">
+          <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground leading-none text-center px-1">SLI</div>
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground">{new Date(NEXT_MATCH.date + "T12:00:00").getFullYear()}</p>
+    </div>
+  );
+}
+
 export default function Home() {
   const { data: summary, isLoading: loadSum } = useGetSummary();
   const { data: topScorers, isLoading: loadSc } = useGetTopScorers({ limit: 10 });
@@ -112,7 +145,7 @@ export default function Home() {
       {/* Primeira e Última Partida */}
       <div>
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Marcos Históricos</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {loadMil ? (
             <>
               <div className="border rounded p-4 space-y-2">
@@ -127,11 +160,18 @@ export default function Home() {
                 <Skeleton className="h-8 w-32" />
                 <Skeleton className="h-3 w-24" />
               </div>
+              <div className="border rounded p-4 space-y-2">
+                <Skeleton className="h-3 w-28" />
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-8 w-20" />
+                <Skeleton className="h-3 w-24" />
+              </div>
             </>
           ) : (
             <>
               {milestones?.first && <MilestoneCard label="Primeira Partida" match={milestones.first} />}
               {milestones?.last  && <MilestoneCard label="Última Partida"   match={milestones.last}  />}
+              <NextMatchCard />
             </>
           )}
         </div>
