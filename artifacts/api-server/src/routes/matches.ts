@@ -10,8 +10,8 @@ function buildMatchRow(row: any) {
     id: row.id,
     date: row.matchDate,
     opponent: row.opponentName,
-    goalsFor: row.goalsFor,
-    goalsAgainst: row.goalsAgainst,
+    goalsFor: row.goalsFor ?? null,
+    goalsAgainst: row.goalsAgainst ?? null,
     result: row.result,
     homeAway: row.homeAway,
     competition: row.competitionName,
@@ -23,6 +23,7 @@ function buildMatchRow(row: any) {
     grossRevenueText: row.grossRevenueText ?? null,
     isWalkover: row.isWalkover ?? false,
     isFriendly: row.isFriendly ?? false,
+    isUnknownResult: (row.result ?? "") === "unknown",
   };
 }
 
@@ -47,7 +48,7 @@ const matchSelectFields = {
 
 router.get("/matches", async (req, res) => {
   try {
-    const { season, competition, opponent, home_away, result, walkover, friendly, limit = "50", offset = "0" } = req.query as Record<string, string>;
+    const { season, competition, opponent, home_away, result, walkover, friendly, unknown, limit = "50", offset = "0" } = req.query as Record<string, string>;
     const lim = Math.min(parseInt(limit) || 50, 200);
     const off = parseInt(offset) || 0;
 
@@ -60,12 +61,17 @@ router.get("/matches", async (req, res) => {
       .$dynamic();
 
     const conditions = [];
-    // Mode: friendly=true → amistosos | walkover=true → W.O. | default → oficiais
+    // Mode: friendly=true → amistosos | walkover=true → W.O. | unknown=true → resultado desconhecido | default → oficiais
     if (friendly === "true") {
       conditions.push(eq(matchesTable.isFriendly, true));
     } else if (walkover === "true") {
       conditions.push(eq(matchesTable.isWalkover, true));
+    } else if (unknown === "true") {
+      conditions.push(eq(matchesTable.result, "unknown"));
+      conditions.push(eq(matchesTable.isWalkover, false));
+      conditions.push(eq(matchesTable.isFriendly, false));
     } else {
+      conditions.push(ne(matchesTable.result, "unknown"));
       conditions.push(eq(matchesTable.isWalkover, false));
       conditions.push(eq(matchesTable.isFriendly, false));
     }
@@ -73,7 +79,7 @@ router.get("/matches", async (req, res) => {
     if (competition) conditions.push(ilike(competitionsTable.name, `%${competition}%`));
     if (opponent) conditions.push(ilike(opponentsTable.name, `%${opponent}%`));
     if (home_away) conditions.push(eq(matchesTable.homeAway, home_away));
-    if (result) conditions.push(eq(matchesTable.result, result));
+    if (result && result !== "unknown") conditions.push(eq(matchesTable.result, result));
 
     if (conditions.length > 0) {
       query = query.where(and(...conditions));
@@ -147,7 +153,10 @@ router.get("/matches/biggest-attendance", async (req, res) => {
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
-      .where(sql`${matchesTable.attendance} is not null`)
+      .where(and(
+        sql`${matchesTable.attendance} is not null`,
+        eq(matchesTable.homeAway, "home"),
+      ))
       .orderBy(desc(matchesTable.attendance))
       .limit(lim);
 
@@ -221,8 +230,8 @@ router.get("/matches/:id", async (req, res) => {
       id: row.id,
       date: row.matchDate,
       opponent: row.opponentName,
-      goalsFor: row.goalsFor,
-      goalsAgainst: row.goalsAgainst,
+      goalsFor: row.goalsFor ?? null,
+      goalsAgainst: row.goalsAgainst ?? null,
       result: row.result,
       homeAway: row.homeAway,
       competition: row.competitionName,
@@ -234,6 +243,8 @@ router.get("/matches/:id", async (req, res) => {
       attendancePaid: row.attendancePaid ?? null,
       grossRevenue: row.grossRevenue ?? null,
       grossRevenueText: row.grossRevenueText ?? null,
+      isWalkover: row.isWalkover ?? false,
+      isUnknownResult: (row.result ?? "") === "unknown",
     });
   } catch (err) {
     req.log.error(err);

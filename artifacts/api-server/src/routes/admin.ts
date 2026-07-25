@@ -953,9 +953,15 @@ router.post("/admin/import/matches", requireAdmin, async (req, res) => {
       }
       const managerId = row.manager ? managerMap.get(row.manager.toLowerCase()) ?? null : null;
 
-      const gf = parseInt(row.goals_for);
-      const ga = parseInt(row.goals_against);
-      const result = row.result || (gf > ga ? "win" : gf < ga ? "loss" : "draw");
+      const gfRaw = row.goals_for !== "" ? parseInt(row.goals_for) : null;
+      const gaRaw = row.goals_against !== "" ? parseInt(row.goals_against) : null;
+      const gf = gfRaw !== null && !isNaN(gfRaw) ? gfRaw : null;
+      const ga = gaRaw !== null && !isNaN(gaRaw) ? gaRaw : null;
+      const result =
+        row.result ||
+        (gf != null && ga != null
+          ? gf > ga ? "win" : gf < ga ? "loss" : "draw"
+          : "unknown");
 
       const grossRevenue = row.gross_revenue ? parseInt(row.gross_revenue) : null;
       const grossRevenueText = row.gross_revenue_text || null;
@@ -964,8 +970,8 @@ router.post("/admin/import/matches", requireAdmin, async (req, res) => {
         matchDate: row.date,
         season: row.season || row.date.substring(0, 4),
         opponentId,
-        goalsFor: gf || 0,
-        goalsAgainst: ga || 0,
+        goalsFor: gf,
+        goalsAgainst: ga,
         result,
         homeAway: row.home_away || "home",
         competitionId,

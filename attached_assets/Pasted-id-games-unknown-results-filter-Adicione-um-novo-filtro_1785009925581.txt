@@ -1,0 +1,62 @@
+id="games-unknown-results-filter"
+
+Adicione um novo filtro na página de Jogos chamado **"Status da Partida"**.
+
+Opções:
+- Todos (padrão)
+- ❓ Resultado desconhecido
+- W.O.
+
+Regras:
+- **❓ Resultado desconhecido:** exibe apenas partidas cujo placar oficial ainda não foi localizado (gols do mandante e/ou visitante NULL, ou critério equivalente).
+- **W.O.:** mantém o comportamento atual.
+
+Na tabela de jogos:
+- Para partidas sem resultado conhecido, exibir um pequeno badge ou ícone **❓** ao lado da partida (no mesmo estilo visual utilizado para o badge de W.O.).
+- No lugar do placar, exibir **❓** ou **Resultado desconhecido** (o que ficar mais consistente com o layout).
+- Ao passar o mouse sobre o ícone (tooltip), mostrar:
+  **"Resultado desconhecido"**.
+
+Na página individual da partida:
+- Exibir um badge **❓ Resultado desconhecido** próximo ao cabeçalho, seguindo o mesmo padrão visual utilizado para partidas W.O.
+
+As partidas com resultado desconhecido continuam aparecendo normalmente na listagem geral quando o filtro estiver em "Todos".
+
+Atualize a API para suportar esse filtro reutilizando a estrutura existente.
+
+Validação:
+- Partidas W.O. não podem aparecer no filtro "❓ Resultado desconhecido".
+- Todas as partidas sem placar oficial devem aparecer corretamente.
+- O filtro deve funcionar em conjunto com os demais filtros da página.
+
+---
+
+Também corrija um erro de dados no banco de produção:
+
+- Na partida **CSA 4x2 Capela-AL (1994)**, o adversário está cadastrado incorretamente como **CHAPEL-AL**.
+- Corrija a partida para utilizar o clube correto **Capela-AL**.
+- Atualize todos os relacionamentos necessários para apontarem para **Capela-AL**.
+- Exclua o clube **CHAPEL-AL** do banco de dados, pois ele foi criado por engano e não existe historicamente.
+- Antes de excluir, confirme que não restou nenhuma referência apontando para CHAPEL-AL.
+
+---
+
+Corrija também o ranking de maiores públicos.
+
+Atualmente o ranking está considerando partidas em que o CSA foi visitante, o que está incorreto. O ranking deve considerar **apenas partidas em que o CSA foi o mandante**.
+
+Exemplo incorreto que está aparecendo:
+- **CRB-AL 0–0 CSA (20/11/1993)**
+
+Como o mandante foi o **CRB**, essa partida **não deve aparecer** no ranking de públicos do CSA.
+
+Revise toda a lógica do ranking (homepage, página de públicos e qualquer endpoint relacionado) para garantir que:
+- Apenas partidas com **CSA como mandante** sejam consideradas.
+- O público utilizado seja sempre o da partida em que o CSA foi o clube mandante.
+- Recalcule o ranking após a correção.
+
+Ao final, recalcule todos os caches e estatísticas afetadas e valide que:
+- O filtro de resultados desconhecidos funciona corretamente.
+- O clube CHAPEL-AL não existe mais.
+- A partida CSA 4x2 Capela-AL (1994) está correta.
+- O ranking de públicos contém exclusivamente jogos com mando do CSA.
