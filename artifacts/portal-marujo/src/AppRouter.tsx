@@ -5,10 +5,12 @@ import PlayersList from "./pages/players/PlayersList";
 import PlayerDetail from "./pages/players/PlayerDetail";
 import TopScorers from "./pages/players/TopScorers";
 import TopAppearances from "./pages/players/TopAppearances";
+import TopAssists from "./pages/players/TopAssists";
 import Estrangeiros from "./pages/players/Estrangeiros";
 import NationalityDetail from "./pages/players/NationalityDetail";
 import MatchesList from "./pages/matches/MatchesList";
 import MatchRecords from "./pages/matches/MatchRecords";
+import Publicos from "./pages/matches/Publicos";
 import SeasonsList from "./pages/seasons/SeasonsList";
 import SeasonDetail from "./pages/seasons/SeasonDetail";
 import OpponentsList from "./pages/opponents/OpponentsList";
@@ -40,11 +42,13 @@ export default function AppRouter() {
         <Route path="/jogadores" component={PlayersList} />
         <Route path="/jogadores/artilheiros" component={TopScorers} />
         <Route path="/jogadores/presencas" component={TopAppearances} />
+        <Route path="/jogadores/assistencias" component={TopAssists} />
         <Route path="/jogadores/estrangeiros" component={Estrangeiros} />
         <Route path="/jogadores/estrangeiros/:country" component={NationalityDetail} />
         <Route path="/jogadores/:id" component={PlayerDetail} />
         <Route path="/partidas" component={MatchesList} />
         <Route path="/partidas/recordes" component={MatchRecords} />
+        <Route path="/publicos" component={Publicos} />
         <Route path="/temporadas" component={SeasonsList} />
         <Route path="/temporadas/:year" component={SeasonDetail} />
         <Route path="/adversarios" component={OpponentsList} />

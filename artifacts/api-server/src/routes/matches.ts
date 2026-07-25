@@ -17,6 +17,9 @@ function buildMatchRow(row: any) {
     competition: row.competitionName,
     season: row.season,
     stadium: row.stadiumName ?? null,
+    attendance: row.attendance ?? null,
+    attendancePaid: row.attendancePaid ?? null,
+    grossRevenue: row.grossRevenue ?? null,
   };
 }
 
@@ -31,6 +34,9 @@ const matchSelectFields = {
   opponentName: opponentsTable.name,
   competitionName: competitionsTable.name,
   stadiumName: stadiumsTable.name,
+  attendance: matchesTable.attendance,
+  attendancePaid: matchesTable.attendancePaid,
+  grossRevenue: matchesTable.grossRevenue,
 };
 
 router.get("/matches", async (req, res) => {
@@ -115,6 +121,28 @@ router.get("/matches/biggest-defeats", async (req, res) => {
   }
 });
 
+router.get("/matches/biggest-attendance", async (req, res) => {
+  try {
+    const { limit = "50" } = req.query as Record<string, string>;
+    const lim = Math.min(parseInt(limit) || 50, 200);
+
+    const rows = await db
+      .select(matchSelectFields)
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
+      .where(sql`${matchesTable.attendance} is not null`)
+      .orderBy(desc(matchesTable.attendance))
+      .limit(lim);
+
+    res.json(rows.map(buildMatchRow));
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
 router.get("/matches/milestones", async (req, res) => {
   try {
     const joins = () =>
@@ -160,6 +188,8 @@ router.get("/matches/:id", async (req, res) => {
         managerName: managersTable.name,
         scorers: matchesTable.scorers,
         attendance: matchesTable.attendance,
+        attendancePaid: matchesTable.attendancePaid,
+        grossRevenue: matchesTable.grossRevenue,
       })
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
@@ -185,6 +215,8 @@ router.get("/matches/:id", async (req, res) => {
       manager: row.managerName ?? null,
       scorers: row.scorers ? row.scorers.split(",").map((s) => s.trim()).filter(Boolean) : [],
       attendance: row.attendance ?? null,
+      attendancePaid: row.attendancePaid ?? null,
+      grossRevenue: row.grossRevenue ?? null,
     });
   } catch (err) {
     req.log.error(err);

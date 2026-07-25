@@ -1,0 +1,161 @@
+Use este texto para enviar ao agente:
+
+Crie duas novas áreas no projeto: Públicos e Mais Assistências.
+
+1. Nova aba: Públicos
+
+Crie uma aba chamada Públicos no menu principal.
+
+Essa página deverá apresentar, para cada partida:
+
+* Público total/presente
+* Público pagante
+* Renda bruta
+
+O dado principal e usado para ordenar o ranking será sempre o público total/presente.
+
+Quando não houver informação sobre público pagante ou renda, exiba — ou “Não informado”, sem inventar valores.
+
+Também adicione na página inicial uma seção com o ranking dos maiores públicos, mostrando inicialmente o Top 10 e um botão como “Ver ranking completo”.
+
+Utilize as partidas que já existem no banco de dados. Não crie partidas duplicadas. Localize cada jogo existente e apenas acrescente os dados de público e renda.
+
+Top 10 de maiores públicos
+
+1. CSA 4 x 2 Talleres-ARG
+    * Ano: 1999
+    * Público total: 33.000
+    * Público pagante: não informado
+    * Renda: não informada
+2. CSA 2 x 1 São Raimundo-AM
+    * Ano: 1999
+    * Público total: 28.000
+    * Público pagante: não informado
+    * Renda: não informada
+3. CSA 1 x 0 Tombense-MG
+    * Ano: 2017
+    * Público total: 19.105
+    * Público pagante: 16.894
+    * Renda: não informada
+4. CSA 0 x 1 Avaí-SC
+    * Ano: 2018
+    * Público total/presente: 18.702
+    * Público pagante: 15.817
+    * Renda: R$ 380.168,00
+5. CSA 0 x 0 CRB
+    * Competição: Campeonato Alagoano
+    * Ano: 2006
+    * Público total: 18.479
+    * Público pagante: não informado
+    * Renda: não informada
+6. CSA 2 x 2 CRB
+    * Competição: Campeonato Alagoano
+    * Ano: 2006
+    * Público total: 18.371
+    * Público pagante: não informado
+    * Renda: não informada
+7. CSA 1 x 2 Floresta-CE
+    * Ano: 2024
+    * Público total/presente: 17.898
+    * Público pagante: 15.000
+    * Renda: R$ 300.840,00
+8. CSA 0 x 0 Fortaleza-CE
+    * Ano: 2017
+    * Público total/presente: 17.809
+    * Público pagante: 15.097
+    * Renda: R$ 661.442,00
+9. CSA 2 x 3 CRB
+    * Competição: Campeonato Alagoano
+    * Ano: 2017
+    * Público total: 17.786
+    * Público pagante: não informado
+    * Renda: não informada
+10. CSA 0 x 0 Atlético-GO
+    * Ano: 2018
+    * Público total/presente: 17.686
+    * Público pagante: 14.958
+    * Renda: R$ 445.790,00
+
+Estrutura dos dados
+
+Adicione ao modelo das partidas, caso ainda não existam, campos como:
+
+* attendanceTotal
+* attendancePaid
+* grossRevenue
+
+O ranking deve ser ordenado por attendanceTotal em ordem decrescente.
+
+Formate os públicos no padrão brasileiro, por exemplo:
+
+* 33.000
+* 19.105
+* 17.686
+
+Formate a renda no padrão brasileiro:
+
+* R$ 380.168,00
+* R$ 661.442,00
+
+Na página de detalhes de cada partida, também mostre esses três dados quando estiverem disponíveis.
+
+⸻
+
+2. Nova aba: Mais Assistências
+
+Crie uma aba chamada Mais Assistências no menu principal.
+
+Ela deverá exibir o ranking histórico de jogadores com mais assistências pelo CSA.
+
+Também adicione uma seção Mais Assistências na página inicial, mostrando o Top 10 e um botão “Ver ranking completo”.
+
+Ranking inicial
+
+1. Rafinha — 24 assistências
+2. Daniel Costa — 18 assistências
+3. Didira — 18 assistências
+4. Gabriel — 13 assistências
+5. Brayann — 12 assistências
+6. Rodrigo Pimpão — 10 assistências
+7. Bismarck — 10 assistências
+8. Celsinho — 9 assistências
+9. Diego Renan — 8 assistências
+10. Marcos Antônio — 8 assistências
+
+Esses jogadores devem ser vinculados aos registros de jogadores já existentes no banco de dados sempre que houver correspondência.
+
+Não crie jogadores duplicados. Faça a correspondência considerando diferenças de acentuação, nome completo e nome utilizado no futebol.
+
+Caso algum jogador realmente não exista no banco, crie-o somente após confirmar que não há nenhum registro correspondente.
+
+Adicione ao perfil de cada jogador o total de assistências e mostre esse número junto das demais estatísticas.
+
+Em caso de empate no número de assistências, mantenha inicialmente a ordem informada acima.
+
+⸻
+
+Página inicial
+
+Na página inicial, inclua duas novas seções:
+
+1. Maiores Públicos
+    * Mostrar público total como número principal
+    * Exibir adversário, placar e ano
+    * Público pagante e renda podem aparecer como informação secundária
+    * Botão “Ver ranking completo”
+2. Mais Assistências
+    * Mostrar posição, jogador e quantidade de assistências
+    * Nome do jogador deve levar ao perfil correspondente
+    * Botão “Ver ranking completo”
+
+Mantenha o mesmo padrão visual, responsividade e identidade já utilizados no restante do site.
+
+Antes de concluir, verifique se:
+
+* Nenhuma partida foi duplicada
+* Nenhum jogador foi duplicado
+* Os rankings aparecem corretamente no celular e no computador
+* Os dados da página inicial são carregados a partir do banco de dados, sem listas fixas apenas no frontend
+* A ordenação dos maiores públicos usa o público total/presente, e não o público pagante
+
+A frase “esses jogadores na existem” ficou ambígua; no texto, considerei que o agente deve procurar os jogadores existentes e evitar duplicá-los.

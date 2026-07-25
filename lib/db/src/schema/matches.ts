@@ -50,6 +50,8 @@ export const matchesTable = pgTable("matches", {
   stadiumId: integer("stadium_id").references(() => stadiumsTable.id),
   managerId: integer("manager_id").references(() => managersTable.id),
   attendance: integer("attendance"),
+  attendancePaid: integer("attendance_paid"),
+  grossRevenue: integer("gross_revenue"), // in BRL (reais)
   scorers: text("scorers"), // comma-separated player names
 });
 

@@ -151,6 +151,42 @@ router.get("/players/top-appearances", async (req, res) => {
   }
 });
 
+router.get("/players/top-assists", async (req, res) => {
+  try {
+    const { limit = "50" } = req.query as Record<string, string>;
+    const lim = Math.min(parseInt(limit) || 50, 200);
+
+    const rows = await db
+      .select({
+        id: playersTable.id,
+        name: playersTable.name,
+        position: playersTable.position,
+        nationality: playersTable.nationality,
+        nationalityFlag: playersTable.nationalityFlag,
+        appearances: sql<number>`cast(sum(${playerSeasonStatsTable.appearances}) as int)`,
+        goals: sql<number>`cast(sum(${playerSeasonStatsTable.goals}) as int)`,
+        assists: sql<number>`cast(sum(${playerSeasonStatsTable.assists}) as int)`,
+      })
+      .from(playerSeasonStatsTable)
+      .innerJoin(playersTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
+      .groupBy(
+        playersTable.id,
+        playersTable.name,
+        playersTable.position,
+        playersTable.nationality,
+        playersTable.nationalityFlag,
+      )
+      .having(sql`sum(${playerSeasonStatsTable.assists}) > 0`)
+      .orderBy(sql`sum(${playerSeasonStatsTable.assists}) desc`, sql`sum(${playerSeasonStatsTable.appearances}) desc`)
+      .limit(lim);
+
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
 // Foreign players (non-Brazilian)
 router.get("/players/foreign", async (req, res) => {
   try {

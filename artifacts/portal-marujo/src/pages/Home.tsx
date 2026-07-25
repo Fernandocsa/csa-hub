@@ -7,6 +7,8 @@ import {
   useGetBiggestVictories,
   useGetStreaks,
   useGetMatchMilestones,
+  useGetBiggestAttendance,
+  useGetTopAssists,
   type MilestoneMatch,
 } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -65,6 +67,8 @@ export default function Home() {
   const { data: victories } = useGetBiggestVictories({ limit: 3 });
   const { data: streaks } = useGetStreaks();
   const { data: milestones, isLoading: loadMil } = useGetMatchMilestones();
+  const { data: biggestAttendance, isLoading: loadAtt } = useGetBiggestAttendance(10);
+  const { data: topAssists, isLoading: loadAsst } = useGetTopAssists(10);
 
   const biggestWin = victories?.[0];
   const unbeatenStreak = streaks?.find((s) => s.type === "unbeaten");
@@ -298,6 +302,104 @@ export default function Home() {
           )}
         </div>
       </div>
+      {/* Maiores Públicos */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Maiores Públicos</h2>
+          <Link href="/publicos" className="text-xs text-primary hover:underline">ver ranking completo</Link>
+        </div>
+        <div className="border rounded">
+          <Table>
+            <TableHeader>
+              <TableRow className="text-xs">
+                <TableHead className="py-2 w-6">#</TableHead>
+                <TableHead className="py-2">Partida</TableHead>
+                <TableHead className="py-2 text-right font-bold text-primary">Público</TableHead>
+                <TableHead className="py-2 text-right hidden sm:table-cell">Pagante</TableHead>
+                <TableHead className="py-2 text-right hidden md:table-cell">Renda</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loadAtt
+                ? Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell colSpan={5}><Skeleton className="h-4" /></TableCell>
+                    </TableRow>
+                  ))
+                : biggestAttendance?.slice(0, 10).map((m, i) => {
+                    const isHome = m.homeAway === "home";
+                    const home = isHome ? "CSA" : m.opponent;
+                    const away = isHome ? m.opponent : "CSA";
+                    return (
+                      <TableRow key={m.id} className="text-sm">
+                        <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
+                        <TableCell className="py-1.5 font-medium">
+                          {home} {m.goalsFor}–{m.goalsAgainst} {away}
+                          <span className="ml-1.5 text-xs text-muted-foreground">({m.season})</span>
+                        </TableCell>
+                        <TableCell className="py-1.5 text-right font-bold text-primary">
+                          {m.attendance.toLocaleString("pt-BR")}
+                        </TableCell>
+                        <TableCell className="py-1.5 text-right text-muted-foreground hidden sm:table-cell">
+                          {m.attendancePaid != null ? m.attendancePaid.toLocaleString("pt-BR") : <span className="text-xs">—</span>}
+                        </TableCell>
+                        <TableCell className="py-1.5 text-right text-muted-foreground hidden md:table-cell">
+                          {m.grossRevenue != null
+                            ? m.grossRevenue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+                            : <span className="text-xs">—</span>}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      {/* Mais Assistências */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Mais Assistências</h2>
+          <Link href="/jogadores/assistencias" className="text-xs text-primary hover:underline">ver ranking completo</Link>
+        </div>
+        <div className="border rounded">
+          <Table>
+            <TableHeader>
+              <TableRow className="text-xs">
+                <TableHead className="py-2 w-6">#</TableHead>
+                <TableHead className="py-2">Jogador</TableHead>
+                <TableHead className="py-2 text-right font-bold text-primary">Assistências</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loadAsst
+                ? Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
+                    </TableRow>
+                  ))
+                : topAssists?.slice(0, 10).map((p, i) => {
+                    const flag = (p as any).nationalityFlag as string | null | undefined;
+                    return (
+                      <TableRow key={p.id} className="text-sm">
+                        <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
+                        <TableCell className="py-1.5 font-medium">
+                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-baseline gap-0.5">
+                            {flag && p.nationality !== "Brasil" && (
+                              <span className="mr-0.5 text-base leading-none">{flag}</span>
+                            )}
+                            {p.name}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="py-1.5 text-right font-bold text-primary">{p.assists}</TableCell>
+                      </TableRow>
+                    );
+                  })}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
       {/* Most common opponents */}
       {summary && (
         <div className="space-y-2">
