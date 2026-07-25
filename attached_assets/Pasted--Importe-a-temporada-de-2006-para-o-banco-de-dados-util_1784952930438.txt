@@ -1,0 +1,77 @@
+> **Importe a temporada de 2006 para o banco de dados utilizando exclusivamente os dados abaixo.**
+>
+> ### Regras
+>
+> * Crie a temporada **2006**.
+> * Importe **todos os 48 jogos** exatamente como informados.
+> * Cadastre data, mandante/visitante, adversário, placar, competição e fase.
+> * Após importar todas as partidas, recalcule automaticamente as estatísticas da temporada.
+> * **Não estime, complete ou altere nenhum resultado.**
+> * Os totais da temporada devem ser ser obtidos **exclusivamente a partir dos jogos importados**.
+> * Caso já exista algum jogo de 2006 cadastrado, evite duplicidades.
+>
+> ### O resultado final deve ser:
+>
+> * Jogos: **48**
+> * Vitórias: **22**
+> * Empates: **14**
+> * Derrotas: **12**
+> * Gols marcados: **70**
+> * Gols sofridos: **50**
+>
+> Se os totais finais forem diferentes desses números, revise a importação antes de concluir.
+>
+> **Importe exatamente as seguintes partidas:**
+>
+> ```
+> 2006-08-06 | Fora | Colo Colo-BA | Derrota 0-1 | Série C 2006 | Grupo 7
+> 2006-08-02 | Casa | Bahia | Empate 3-3 | Série C 2006 | Grupo 7
+> 2006-07-30 | Casa | Confiança | Derrota 1-3 | Série C 2006 | Grupo 7
+> 2006-07-23 | Fora | Confiança | Empate 1-1 | Série C 2006 | Grupo 7
+> 2006-07-19 | Fora | Bahia | Derrota 0-1 | Série C 2006 | Grupo 7
+> 2006-07-16 | Casa | Colo Colo-BA | Vitória 3-1 | Série C 2006 | Grupo 7
+> 2006-06-21 | Fora | Coruripe | Vitória 1-0 | Campeonato Alagoano 2006 | Final
+> 2006-06-17 | Casa | Coruripe | Derrota 0-1 | Campeonato Alagoano 2006 | Final
+> 2006-06-14 | Casa | Corinthians-AL | Vitória 2-0 | Campeonato Alagoano 2006 | Final
+> 2006-06-11 | Fora | Corinthians-AL | Empate 0-0 | Campeonato Alagoano 2006 | Final
+> 2006-05-31 | Casa | Corinthians-AL | Vitória 3-1 | Campeonato Alagoano 2006 | Semifinal
+> 2006-05-28 | Fora | Corinthians-AL | Derrota 1-5 | Campeonato Alagoano 2006 | Semifinal
+> 2006-05-24 | Casa | CSE | Vitória 5-0 | Campeonato Alagoano 2006 | 2º Turno
+> 2006-05-21 | Fora | Penedense | Vitória 1-0 | Campeonato Alagoano 2006 | 2º Turno
+> 2006-05-17 | Casa | Murici | Vitória 1-0 | Campeonato Alagoano 2006 | 2º Turno
+> 2006-05-14 | Fora | Corinthians-AL | Vitória 1-0 | Campeonato Alagoano 2006 | 2º Turno
+> 2006-05-10 | Casa | Coruripe | Vitória 4-0 | Campeonato Alagoano 2006 | 2º Turno
+> 2006-05-07 | Casa | Ipanema | Empate 1-1 | Campeonato Alagoano 2006 | 2º Turno
+> 2006-05-03 | Fora | ASA | Derrota 0-2 | Campeonato Alagoano 2006 | 2º Turno
+> 2006-04-30 | Fora | CSE | Derrota 0-1 | Campeonato Alagoano 2006 | 2º Turno
+> 2006-04-26 | Casa | Penedense | Vitória 2-1 | Campeonato Alagoano 2006 | 2º Turno
+> 2006-04-23 | Fora | Murici | Vitória 2-1 | Campeonato Alagoano 2006 | 2º Turno
+> 2006-04-19 | Casa | Corinthians-AL | Derrota 2-3 | Campeonato Alagoano 2006 | 2º Turno
+> 2006-04-16 | Fora | Coruripe | Empate 1-1 | Campeonato Alagoano 2006 | 2º Turno
+> 2006-04-12 | Fora | Ipanema | Empate 1-1 | Campeonato Alagoano 2006 | 2º Turno
+> 2006-04-09 | Casa | ASA | Vitória 2-0 | Campeonato Alagoano 2006 | 2º Turno
+> 2006-04-05 | Fora | Coruripe | Derrota 0-3 | Campeonato Alagoano 2006 | Final
+> 2006-04-02 | Casa | Coruripe | Empate 0-0 | Campeonato Alagoano 2006 | Final
+> 2006-03-29 | Casa | CRB | Empate 2-2 | Campeonato Alagoano 2006 | Semifinal
+> 2006-03-26 | Fora | CRB | Empate 1-1 | Campeonato Alagoano 2006 | Semifinal
+> 2006-03-19 | Fora | Murici | Vitória 2-1 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-03-16 | Casa | Ipanema | Vitória 5-0 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-03-14 | Fora | CRB | Derrota 0-2 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-03-11 | Casa | Bom Jesus | Vitória 2-0 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-03-05 | Casa | Penedense | Vitória 2-0 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-03-02 | Fora | CSE | Vitória 3-2 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-02-19 | Casa | Coruripe | Vitória 2-1 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-02-16 | Fora | ASA | Empate 1-1 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-02-14 | Casa | Corinthians-AL | Derrota 0-1 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-02-11 | Casa | Murici | Empate 2-2 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-02-08 | Fora | Ipanema | Empate 2-2 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-02-05 | Casa | CRB | Empate 0-0 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-02-01 | Fora | Bom Jesus | Vitória 1-0 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-01-29 | Fora | Penedense | Vitória 2-1 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-01-25 | Casa | CSE | Vitória 1-0 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-01-22 | Fora | Coruripe | Derrota 0-1 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-01-18 | Casa | ASA | Vitória 3-1 | Campeonato Alagoano 2006 | 1º Turno
+> 2006-01-15 | Fora | Corinthians-AL | Empate 1-1 | Campeonato Alagoano 2006 | 1º Turno
+> ```
+>
+> **Ao finalizar, confirme que a temporada possui exatamente 48 partidas e que os totais são 22 vitórias, 14 empates, 12 derrotas, 70 gols marcados e 50 gols sofridos.**

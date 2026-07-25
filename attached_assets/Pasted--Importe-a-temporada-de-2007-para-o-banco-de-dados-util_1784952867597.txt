@@ -1,0 +1,49 @@
+> **Importe a temporada de 2007 para o banco de dados utilizando exclusivamente os dados abaixo.**
+>
+> ### Regras
+>
+> * Crie a temporada **2007**.
+> * Importe **todos os 20 jogos** exatamente como informados.
+> * Cadastre data, mandante/visitante, adversário, placar, competição e fase.
+> * Após importar todas as partidas, recalcule automaticamente as estatísticas da temporada.
+> * **Não estime, complete ou altere nenhum resultado.**
+> * Os totais da temporada devem ser obtidos **exclusivamente a partir dos jogos importados**.
+> * Caso já exista algum jogo de 2007 cadastrado, evite duplicidades.
+>
+> ### O resultado final deve ser:
+>
+> * Jogos: **20**
+> * Vitórias: **3**
+> * Empates: **10**
+> * Derrotas: **7**
+> * Gols marcados: **19**
+> * Gols sofridos: **26**
+>
+> Se os totais finais forem diferentes desses números, revise a importação antes de concluir.
+>
+> **Importe exatamente as seguintes partidas:**
+>
+> ```
+> 2007-03-28 | Casa | CSE | Empate 1-1 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-03-25 | Fora | Igaci | Derrota 0-1 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-03-22 | Casa | Murici | Empate 2-2 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-03-18 | Fora | ASA | Derrota 0-1 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-03-14 | Casa | Coruripe | Empate 0-0 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-03-12 | Fora | Ipanema | Derrota 2-4 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-03-08 | Casa | Corinthians-AL | Empate 0-0 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-03-05 | Casa | Penedense | Empate 2-2 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-03-01 | Fora | Botafogo | Derrota 2-5 | Copa do Brasil 2007 | 1ª Fase
+> 2007-02-25 | Fora | CRB | Vitória 2-0 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-02-14 | Casa | Botafogo | Empate 1-1 | Copa do Brasil 2007 | 1ª Fase
+> 2007-02-11 | Fora | CSE | Empate 0-0 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-02-07 | Casa | Igaci | Vitória 1-0 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-02-03 | Fora | Murici | Derrota 0-1 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-01-31 | Casa | ASA | Empate 2-2 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-01-28 | Fora | Coruripe | Derrota 0-2 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-01-24 | Casa | Ipanema | Empate 2-2 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-01-21 | Fora | Corinthians-AL | Vitória 1-0 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-01-17 | Fora | Penedense | Empate 0-0 | Campeonato Alagoano 2007 | 1º Turno
+> 2007-01-14 | Casa | CRB | Derrota 1-2 | Campeonato Alagoano 2007 | 1º Turno
+> ```
+>
+> **Ao finalizar, confirme que a temporada possui exatamente 20 partidas e que os totais são 3 vitórias, 10 empates, 7 derrotas, 19 gols marcados e 26 gols sofridos.**

@@ -1,0 +1,66 @@
+> **Importe a temporada de 2005 para o banco de dados utilizando exclusivamente os dados abaixo.**
+>
+> ### Regras
+>
+> * Crie a temporada **2005**.
+> * Importe **todos os 21 jogos** da temporada exatamente como informados.
+> * Cadastre data, mandante/visitante, adversário, placar, competição e fase.
+> * Considere os **dois W.O. contra o América** na 1ª fase do Campeonato Alagoano, conforme regulamento da competição, com placar oficial de **1×0 para o CSA**.
+> * Após importar todas as partidas, recalcule automaticamente as estatísticas da temporada.
+> * **Não estime, complete ou altere nenhum resultado.**
+> * Os totais da temporada devem ser obtidos **exclusivamente a partir dos jogos importados**.
+> * Caso já exista algum jogo de 2005 cadastrado, evite duplicidades.
+>
+> ### O resultado final deve ser:
+>
+> * Jogos: **21**
+> * Vitórias: **10**
+> * Empates: **8**
+> * Derrotas: **3**
+> * Gols marcados: **40**
+> * Gols sofridos: **21**
+>
+> Se os totais finais forem diferentes desses números, revise toda a importação antes de concluir.
+>
+> **Importe exatamente as seguintes partidas:**
+>
+> ```
+> Campeonato Alagoano – 2ª Divisão
+>
+> 2005-05-01 | Casa | Sete de Setembro | Empate 0-0 | 1ª Fase
+> 2005-05-22 | Fora | Bandeirante | Derrota 0-3 | 1ª Fase
+> 2005-05-29 | Fora | São Domingos | Vitória 7-0 | 1ª Fase
+> 2005-06-05 | Fora | Sete de Setembro | Vitória 4-1 | 1ª Fase
+> 2005-06-26 | Casa | Bandeirante | Empate 1-1 | 1ª Fase
+> 2005-07-03 | Casa | São Domingos | Vitória 7-0 | 1ª Fase
+> 2005 | W.O. | América | Vitória 1-0 | 1ª Fase
+> 2005 | W.O. | América | Vitória 1-0 | 1ª Fase
+>
+> 2005-07-10 | Casa | Ipanema | Empate 1-1 | 2ª Fase
+> 2005-07-17 | Fora | Teotônio | Vitória 2-0 | 2ª Fase
+> 2005-07-21 | Fora | Bandeirante | Vitória 2-0 | 2ª Fase
+> 2005-07-31 | Casa | Bandeirante | Vitória 1-0 | 2ª Fase
+> 2005-08-07 | Casa | Teotônio | Vitória 1-0 | 2ª Fase
+> 2005-08-14 | Fora | Ipanema | Derrota 2-4 | 2ª Fase
+>
+> Copa Alagipe
+>
+> 2005-08-17 | Fora | Sergipe | Vitória 2-0 | 1ª Fase
+> 2005-08-24 | Casa | Itabaiana | Derrota 2-4 | 1ª Fase
+> 2005-09-03 | Fora | Lagartense | Derrota 2-3 | 1ª Fase
+> 2005-09-07 | Casa | Confiança | Empate 1-1 | 1ª Fase
+> 2005-09-14 | Casa | Sergipe | Empate 0-0 | 1ª Fase
+> 2005-09-21 | Fora | Itabaiana | Empate 1-1 | 1ª Fase
+> 2005-10-02 | Fora | Confiança | Empate 1-1 | 1ª Fase
+> 2005-10-04 | Casa | Lagartense | Empate 1-1 | 1ª Fase
+> ```
+>
+> **Observações importantes:**
+>
+> * Os dois jogos por **W.O. contra o América** devem ser cadastrados como vitórias oficiais por **1×0**, pois contam para as estatísticas da temporada.
+> * Preserve exatamente os placares oficiais informados.
+> * Não invente horários, escalações, árbitros ou outras informações que não estejam disponíveis.
+>
+> **Ao finalizar, confirme que a temporada possui exatamente 21 partidas e que os totais são 10 vitórias, 8 empates, 3 derrotas, 40 gols marcados e 21 gols sofridos.**
+>
+> **Importante:** utilize os totais oficiais da temporada (21 jogos, 10 vitórias, 8 empates, 3 derrotas, 40 gols marcados e 21 gols sofridos) como referência final de validação. Se houver qualquer divergência, revise a importação antes de concluir.

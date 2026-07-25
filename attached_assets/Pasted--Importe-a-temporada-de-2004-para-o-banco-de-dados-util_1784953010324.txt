@@ -1,0 +1,47 @@
+> **Importe a temporada de 2004 para o banco de dados utilizando exclusivamente os dados abaixo.**
+>
+> ### Regras
+>
+> * Crie a temporada **2004**.
+> * Importe **todos os 6 jogos oficiais** exatamente como informados.
+> * **Não cadastre as rodadas de folga** como partidas.
+> * Cadastre data, mandante/visitante, adversário, placar, competição e fase.
+> * Após importar todas as partidas, recalcule automaticamente as estatísticas da temporada.
+> * **Não estime, complete ou altere nenhum resultado.**
+> * Os totais da temporada devem ser obtidos **exclusivamente a partir dos jogos importados**.
+> * Caso já exista algum jogo de 2004 cadastrado, evite duplicidades.
+>
+> ### O resultado final deve ser:
+>
+> * Jogos: **6**
+> * Vitórias: **3**
+> * Empates: **3**
+> * Derrotas: **0**
+> * Gols marcados: **8**
+> * Gols sofridos: **3**
+>
+> Se os totais finais forem diferentes desses números, revise toda a importação antes de concluir.
+>
+> **Importe exatamente as seguintes partidas:**
+>
+> ```
+> Campeonato Alagoano – 2ª Divisão
+>
+> 2004-07-07 | Fora | Dimensão Saúde | Empate 1-1 | 1ª Fase
+> 2004-07-11 | Fora | Sete de Setembro | Vitória 2-0 | 1ª Fase
+> 2004-07-14 | Casa | Sete de Setembro | Vitória 1-0 | 1ª Fase
+> 2004-07-18 | Casa | Dimensão Saúde | Vitória 3-1 | 1ª Fase
+> 2004-07-25 | Fora | Penedense | Empate 0-0 | Semifinal
+> 2004-07-28 | Casa | Penedense | Empate 1-1 | Semifinal
+> ```
+>
+> **Observações importantes:**
+>
+> * As rodadas em que o CSA **folgou** não devem ser cadastradas como jogos.
+> * Preserve exatamente os placares oficiais.
+> * Não invente horários, escalações, árbitros ou qualquer informação não disponível.
+> * A mudança de regulamento da FAF (gol fora de casa como critério de desempate) é apenas contexto histórico e **não altera o registro das partidas**.
+>
+> **Ao finalizar, confirme que a temporada possui exatamente 6 partidas e que os totais são 3 vitórias, 3 empates, 0 derrotas, 8 gols marcados e 3 gols sofridos.**
+>
+> **Importante:** utilize os totais oficiais da temporada (6 jogos, 3 vitórias, 3 empates, 0 derrotas, 8 gols marcados e 3 gols sofridos) como referência final de validação. Se houver qualquer divergência, revise a importação antes de concluir.
