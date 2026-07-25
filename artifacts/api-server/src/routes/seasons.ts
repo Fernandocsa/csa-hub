@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { matchesTable, opponentsTable, competitionsTable, playerSeasonStatsTable, playersTable, leaguePositionsTable, seasonTopScorersTable } from "@workspace/db";
+import { matchesTable, opponentsTable, competitionsTable, playerSeasonStatsTable, playersTable, leaguePositionsTable, seasonTopScorersTable, seasonsTable } from "@workspace/db";
 import { sql, eq, and, desc } from "drizzle-orm";
 
 const router = Router();
@@ -23,14 +23,13 @@ async function getSeasonStats(season: string) {
 router.get("/seasons", async (req, res) => {
   try {
     const seasonRows = await db
-      .select({ season: matchesTable.season })
-      .from(matchesTable)
-      .groupBy(matchesTable.season)
-      .orderBy(desc(matchesTable.season));
+      .select({ season: seasonsTable.year })
+      .from(seasonsTable)
+      .orderBy(desc(seasonsTable.year));
 
     const seasons = await Promise.all(
       seasonRows.map(async ({ season }) => {
-        const stats = await getSeasonStats(season);
+        const stats = await getSeasonStats(String(season));
 
         const topScorerRows = await db
           .select({
@@ -38,7 +37,7 @@ router.get("/seasons", async (req, res) => {
             goals: seasonTopScorersTable.goals,
           })
           .from(seasonTopScorersTable)
-          .where(eq(seasonTopScorersTable.season, season))
+          .where(eq(seasonTopScorersTable.season, String(season)))
           .orderBy(desc(seasonTopScorersTable.goals));
 
         // Build joined display name for ties (e.g. "Rodrigo Pimpão / Paulo Sérgio")
@@ -48,7 +47,7 @@ router.get("/seasons", async (req, res) => {
           .map((r) => r.name);
 
         return {
-          year: season,
+          year: String(season),
           matches: stats?.totalMatches || 0,
           wins: stats?.wins || 0,
           draws: stats?.draws || 0,
@@ -96,10 +95,17 @@ router.get("/seasons/:year", async (req, res) => {
   try {
     const { year } = req.params;
 
-    const stats = await getSeasonStats(year);
-    if (!stats || stats.totalMatches === 0) {
+    // Verify season exists in the seasons table
+    const seasonExists = await db
+      .select({ year: seasonsTable.year })
+      .from(seasonsTable)
+      .where(eq(seasonsTable.year, parseInt(year)))
+      .limit(1);
+    if (seasonExists.length === 0) {
       return res.status(404).json({ error: "Temporada não encontrada" });
     }
+
+    const stats = await getSeasonStats(year);
 
     const players = await db
       .select({
