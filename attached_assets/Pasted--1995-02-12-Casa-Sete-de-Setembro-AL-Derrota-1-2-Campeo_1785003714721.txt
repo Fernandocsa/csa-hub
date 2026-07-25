@@ -1,0 +1,57 @@
+
+1995-02-12 | Casa | Sete de Setembro-AL | Derrota 1-2 | Campeonato Alagoano 1995
+1995-02-19 | Fora | Batalhense-AL | Vitória 2-0 | Campeonato Alagoano 1995
+1995-02-22 | Fora | Capela-AL | Empate 0-0 | Campeonato Alagoano 1995
+1995-03-05 | Casa | Comercial-AL | Vitória 1-0 | Campeonato Alagoano 1995
+1995-03-08 | Casa | CSE-AL | Vitória 1-0 | Campeonato Alagoano 1995
+1995-03-12 | Fora | CRB-AL | Derrota 0-2 | Campeonato Alagoano 1995
+1995-03-19 | Fora | ASA-AL | Vitória 5-0 | Campeonato Alagoano 1995
+1995-03-23 | Fora | Bom Jesus-AL | Vitória 2-1 | Campeonato Alagoano 1995
+1995-03-26 | Casa | Cruzeiro-AL | Derrota 3-5 | Campeonato Alagoano 1995
+1995-04-02 | Casa | CRB-AL | Derrota 0-1 | Campeonato Alagoano 1995
+
+1995-04-23 | Fora | Comercial-AL | Vitória 1-0 | Campeonato Alagoano 1995
+1995-04-30 | Casa | Batalhense-AL | Vitória 2-1 | Campeonato Alagoano 1995
+1995-05-03 | Casa | Capela-AL | Vitória 2-0 | Campeonato Alagoano 1995
+1995-05-07 | Fora | Sete de Setembro-AL | Empate 1-1 | Campeonato Alagoano 1995
+1995-05-10 | Fora | Cruzeiro-AL | Empate 1-1 | Campeonato Alagoano 1995
+1995-05-14 | Casa | CRB-AL | Derrota 0-2 | Campeonato Alagoano 1995
+1995-05-21 | Casa | ASA-AL | Vitória 2-1 | Campeonato Alagoano 1995
+1995-05-25 | Casa | Bom Jesus-AL | Vitória 4-1 | Campeonato Alagoano 1995
+1995-05-28 | Fora | CSE-AL | Vitória 1-0 | Campeonato Alagoano 1995
+1995-06-04 | Fora | CRB-AL | Derrota 0-1 | Campeonato Alagoano 1995
+
+1995-06-07 | Casa | CSE-AL | Vitória 4-3 | Campeonato Alagoano 1995
+1995-06-14 | Casa | CRB-AL | Derrota 1-2 | Campeonato Alagoano 1995
+1995-06-18 | Fora | CRB-AL | Empate 0-0 | Campeonato Alagoano 1995
+
+1995-06-25 | Fora | ASA-AL | Vitória 2-0 | Campeonato Alagoano 1995
+1995-07-02 | Casa | Capela-AL | Vitória 4-1 | Campeonato Alagoano 1995
+1995-07-08 | Casa | CSE-AL | Vitória 7-2 | Campeonato Alagoano 1995
+1995-07-12 | Fora | Comercial-AL | Vitória 3-0 | Campeonato Alagoano 1995
+1995-07-15 | Fora | CRB-AL | Empate 1-1 | Campeonato Alagoano 1995
+1995-07-19 | Casa | Cruzeiro-AL | Vitória 4-0 | Campeonato Alagoano 1995
+1995-07-22 | Fora | Bom Jesus-AL | Vitória 3-1 | Campeonato Alagoano 1995
+1995-07-26 | Fora | Sete de Setembro-AL | Vitória 1-0 | Campeonato Alagoano 1995
+1995-07-29 | Casa | Batalhense-AL | Empate 3-3 | Campeonato Alagoano 1995
+1995-08-01 | Casa | CRB-AL | Empate 1-1 | Campeonato Alagoano 1995
+
+1995-08-03 | Fora | Capela-AL | Empate 1-1 | Campeonato Alagoano 1995
+1995-08-05 | Casa | Capela-AL | Vitória 5-1 | Campeonato Alagoano 1995
+1995-08-15 | Casa | CRB-AL | Empate 1-1 | Campeonato Alagoano 1995
+
+1995-08-18 | Casa | Bom Jesus-AL | Vitória 3-1 | Campeonato Alagoano 1995
+1995-08-23 | Casa | Capela-AL | Vitória 2-0 | Campeonato Alagoano 1995
+1995-09-07 | Fora | Bom Jesus-AL | Vitória 1-0 | Campeonato Alagoano 1995
+1995-09-20 | Casa | Batalhense-AL | Vitória 3-0 | Campeonato Alagoano 1995
+1995-09-28 | Fora | Batalhense-AL | Empate 0-0 | Campeonato Alagoano 1995
+1995-10-08 | Fora | Capela-AL | Empate 1-1 | Campeonato Alagoano 1995
+
+1995-10-15 | Fora | Sete de Setembro-AL | Vitória 3-0 | Campeonato Alagoano 1995
+1995-10-21 | Casa | Sete de Setembro-AL | Vitória 3-1 | Campeonato Alagoano 1995
+1995-10-29 | Fora | CRB-AL | Empate 0-0 | Campeonato Alagoano 1995
+1995-11-05 | Casa | CRB-AL | Vitória 3-1 | Campeonato Alagoano 1995
+
+1995-11-12 | Casa | CRB-AL | Empate 1-1 | Campeonato Alagoano 1995
+1995-11-15 | Fora | CRB-AL | Derrota 1-2 | Campeonato Alagoano 1995
+1995-11-19 | Fora | CRB-AL | Derrota 2-3 | Campeonato Alagoano 1995

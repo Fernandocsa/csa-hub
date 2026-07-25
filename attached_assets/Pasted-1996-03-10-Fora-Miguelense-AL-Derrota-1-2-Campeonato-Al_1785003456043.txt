@@ -1,0 +1,50 @@
+1996-03-10 | Fora | Miguelense-AL | Derrota 1-2 | Campeonato Alagoano 1996
+1996-03-17 | Casa | Bom Jesus-AL | Vitória 7-1 | Campeonato Alagoano 1996
+1996-03-20 | Fora | Capela-AL | Derrota 0-1 | Campeonato Alagoano 1996
+1996-03-24 | Fora | CSE-AL | Vitória 2-0 | Campeonato Alagoano 1996
+1996-03-27 | Casa | Cruzeiro-AL | Empate 2-2 | Campeonato Alagoano 1996
+1996-03-31 | Casa | CRB-AL | Empate 1-1 | Campeonato Alagoano 1996
+
+1996-04-14 | Fora | ASA-AL | Empate 1-1 | Campeonato Alagoano 1996
+1996-04-17 | Casa | Zumbi-AL | Empate 1-1 | Campeonato Alagoano 1996
+1996-04-21 | Casa | Batalhense-AL | Vitória 3-1 | Campeonato Alagoano 1996
+1996-04-26 | Fora | Sete de Setembro-AL | Vitória 2-1 | Campeonato Alagoano 1996
+1996-04-28 | Fora | Comercial-AL | Vitória 1-0 | Campeonato Alagoano 1996
+
+1996-05-01 | Casa | Cruzeiro-AL | Vitória 4-1 | Campeonato Alagoano 1996
+1996-05-05 | Fora | Cruzeiro-AL | Vitória 4-0 | Campeonato Alagoano 1996
+
+1996-05-08 | Casa | CRB-AL | Vitória 2-0 | Campeonato Alagoano 1996
+1996-05-12 | Fora | CRB-AL | Derrota 1-2 | Campeonato Alagoano 1996
+
+1996-05-19 | Casa | Miguelense-AL | Vitória 3-2 | Campeonato Alagoano 1996
+1996-05-23 | Fora | Bom Jesus-AL | Vitória 2-1 | Campeonato Alagoano 1996
+1996-05-30 | Casa | Capela-AL | Vitória 4-1 | Campeonato Alagoano 1996
+1996-06-02 | Casa | CSE-AL | Vitória 3-1 | Campeonato Alagoano 1996
+1996-06-06 | Fora | Cruzeiro-AL | Vitória 3-1 | Campeonato Alagoano 1996
+1996-06-09 | Fora | CRB-AL | Derrota 1-5 | Campeonato Alagoano 1996
+
+1996-06-23 | Casa | ASA-AL | Vitória 1-0 | Campeonato Alagoano 1996
+1996-06-27 | Fora | Zumbi-AL | Empate 0-0 | Campeonato Alagoano 1996
+1996-06-30 | Fora | Batalhense-AL | Vitória 3-2 | Campeonato Alagoano 1996
+1996-07-03 | Casa | Sete de Setembro-AL | Vitória 9-0 | Campeonato Alagoano 1996
+1996-07-07 | Casa | Comercial-AL | Vitória 5-1 | Campeonato Alagoano 1996
+
+1996-07-11 | Casa | CRB-AL | Derrota 0-1 | Campeonato Alagoano 1996
+1996-07-17 | Casa | CRB-AL | Derrota 0-1 | Campeonato Alagoano 1996
+
+1996-07-28 | Casa | CRB-AL | Vitória 2-0 | Campeonato Alagoano 1996
+1996-08-01 | Casa | CRB-AL | Vitória 1-0 | Campeonato Alagoano 1996
+
+1996-09-01 | Fora | Fluminense-BA | Vitória 1-0 | Campeonato Brasileiro Série C 1996
+1996-09-04 | Fora | Galícia-BA | Vitória 2-1 | Campeonato Brasileiro Série C 1996
+1996-09-11 | Casa | Itabaiana-SE | Vitória 2-1 | Campeonato Brasileiro Série C 1996
+1996-09-22 | Fora | Itabaiana-SE | Derrota 0-2 | Campeonato Brasileiro Série C 1996
+1996-09-26 | Casa | Galícia-BA | Vitória 7-0 | Campeonato Brasileiro Série C 1996
+1996-09-29 | Casa | Fluminense-BA | Vitória 2-0 | Campeonato Brasileiro Série C 1996
+
+1996-10-06 | Casa | Catuense-BA | Empate 1-1 | Campeonato Brasileiro Série C 1996
+1996-10-13 | Fora | Catuense-BA | Vitória 1-0 | Campeonato Brasileiro Série C 1996
+
+1996-10-20 | Fora | Porto-PE | Derrota 1-3 | Campeonato Brasileiro Série C 1996
+1996-10-27 | Casa | Porto-PE | Empate 0-0 | Campeonato Brasileiro Série C 1996
