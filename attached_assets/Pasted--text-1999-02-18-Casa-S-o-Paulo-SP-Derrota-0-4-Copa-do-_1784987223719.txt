@@ -1,0 +1,58 @@
+```text
+1999-02-18 | Casa | São Paulo-SP | Derrota 0-4 | Copa do Brasil 1999 | 1ª Fase
+1999-02-25 | Casa | Lagartense-SE | Vitória 1-0 | Nordestão 1999 | Classificação
+1999-02-28 | Casa | Miguelense-AL | Derrota 2-3 | Alagoano 1999 | 1ª Fase
+1999-03-03 | Fora | Bahia-BA | Derrota 2-4 | Nordestão 1999 | Classificação
+1999-03-07 | Fora | Sete de Setembro-AL | Vitória 1-0 | Alagoano 1999 | 1ª Fase
+1999-03-14 | Casa | Comercial-AL | Empate 1-1 | Alagoano 1999 | 1ª Fase
+1999-03-17 | Fora | CRB-AL | Empate 0-0 | Nordestão 1999 | Classificação
+1999-03-21 | Fora | Corinthians-AL | Vitória 1-0 | Alagoano 1999 | 1ª Fase
+1999-03-27 | Casa | Zumbi-AL | Vitória 3-2 | Alagoano 1999 | 1ª Fase
+1999-04-04 | Fora | Jaciobá-AL | Vitória 2-1 | Alagoano 1999 | 1ª Fase
+1999-04-07 | Casa | Bahia-BA | Empate 3-3 | Nordestão 1999 | Classificação
+1999-04-12 | Casa | CSE-AL | Vitória 2-0 | Alagoano 1999 | 1ª Fase
+1999-04-18 | Casa | Capela-AL | Vitória 1-0 | Alagoano 1999 | 1ª Fase
+1999-04-26 | Fora | ASA-AL | Empate 1-1 | Alagoano 1999 | 1ª Fase
+1999-04-29 | Fora | CRB-AL | Empate 1-1 | Nordestão 1999 | Classificação
+1999-05-02 | Casa | Murici-AL | Empate 1-1 | Alagoano 1999 | 1ª Fase
+1999-05-05 | Fora | Lagartense-SE | Vitória 2-0 | Nordestão 1999 | Classificação
+1999-05-10 | Fora | CRB-AL | Empate 1-1 | Alagoano 1999 | 1ª Fase
+1999-05-16 | Fora | Miguelense-AL | Empate 1-1 | Alagoano 1999 | 1ª Fase
+1999-05-23 | Casa | Sete de Setembro-AL | Vitória 3-1 | Alagoano 1999 | 1ª Fase
+1999-05-25 | Fora | Comercial-AL | Vitória 3-1 | Alagoano 1999 | 1ª Fase
+1999-05-27 | Casa | ABC-RN | Derrota 1-2 | Nordestão 1999 | Quartas de Final
+1999-06-03 | Fora | ABC-RN | Vitória 2-1 (2-4 pên.) | Nordestão 1999 | Quartas de Final
+1999-06-06 | Casa | Corinthians-AL | Empate 0-0 | Alagoano 1999 | 1ª Fase
+1999-06-09 | Casa | Bahia-BA | Empate 1-1 | Nordestão 1999 | Semifinal
+1999-06-12 | Fora | Zumbi-AL | Derrota 1-2 | Alagoano 1999 | 1ª Fase
+1999-06-17 | Fora | Bahia-BA | Derrota 1-3 | Nordestão 1999 | Semifinal
+1999-06-20 | Casa | Jaciobá-AL | Vitória 4-0 | Alagoano 1999 | 1ª Fase
+1999-06-23 | Fora | CSE-AL | Empate 1-1 | Alagoano 1999 | 1ª Fase
+1999-06-27 | Fora | Capela-AL | Empate 1-1 | Alagoano 1999 | 1ª Fase
+1999-07-01 | Casa | ASA-AL | Empate 0-0 | Alagoano 1999 | 1ª Fase
+1999-07-04 | Fora | Murici-AL | Vitória 1-0 | Alagoano 1999 | 1ª Fase
+1999-07-10 | Casa | CRB-AL | Empate 0-0 | Alagoano 1999 | 1ª Fase
+1999-07-15 | Fora | Corinthians-AL | Vitória 3-1 | Alagoano 1999 | Semifinal
+1999-07-17 | Casa | Corinthians-AL | Vitória 1-0 | Alagoano 1999 | Semifinal
+1999-07-24 | Casa | Miguelense-AL | Empate 1-1 | Alagoano 1999 | Final
+1999-07-27 | Fora | Miguelense-AL | Vitória 5-1 | Alagoano 1999 | Final
+1999-07-31 | Fora | Miguelense-AL | Empate 0-0 | Alagoano 1999 | Final
+1999-08-29 | Fora | Fluminense de Feira-BA | Vitória 2-1 | Série C 1999 | Classificação
+1999-09-01 | Casa | Sergipe-SE | Empate 1-1 | Série C 1999 | Classificação
+1999-09-05 | Fora | Itabaiana-SE | Empate 0-0 | Série C 1999 | Classificação
+1999-09-12 | Casa | Unibol Pernambuco-PE | Derrota 1-2 | Série C 1999 | Classificação
+1999-09-15 | Casa | Náutico-PE | Empate 1-1 | Série C 1999 | Classificação
+1999-09-19 | Fora | Náutico-PE | Derrota 1-2 | Série C 1999 | Classificação
+1999-09-26 | Fora | Unibol Pernambuco-PE | Empate 1-1 | Série C 1999 | Classificação
+1999-09-30 | Casa | Itabaiana-SE | Vitória 2-0 | Série C 1999 | Classificação
+1999-10-03 | Fora | Sergipe-SE | Derrota 0-1 | Série C 1999 | Classificação
+1999-10-10 | Casa | Fluminense de Feira-BA | Vitória 5-0 | Série C 1999 | Classificação
+1999-10-13 | Casa | Vila Nova-GO | Vitória 2-0 | Copa Conmebol 1999 | 1ª Fase
+1999-10-20 | Fora | Vila Nova-GO | Derrota 0-2 (3-4 pên.) | Copa Conmebol 1999 | 1ª Fase
+1999-11-03 | Fora | Estudiantes de Mérida-VEN | Empate 0-0 | Copa Conmebol 1999 | Quartas de Final
+1999-11-09 | Casa | Estudiantes de Mérida-VEN | Vitória 3-1 | Copa Conmebol 1999 | Quartas de Final
+1999-11-17 | Fora | São Raimundo-AM | Vitória 1-0 | Copa Conmebol 1999 | Semifinal
+1999-11-24 | Casa | São Raimundo-AM | Vitória 2-1 (5-4 pên.) | Copa Conmebol 1999 | Semifinal
+1999-11-30 | Casa | Talleres-ARG | Vitória 4-2 | Copa Conmebol 1999 | Final
+1999-12-08 | Fora | Talleres-ARG | Derrota 0-3 | Copa Conmebol 1999 | Final
+```
