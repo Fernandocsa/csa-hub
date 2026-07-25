@@ -1,0 +1,72 @@
+```text id="portal-marujo-import-1928"
+
+Vamos adicionar a temporada de 1928 ao Portal Marujo.
+
+Trabalhe diretamente no banco de PRODUÇÃO.
+
+Crie a temporada de 1928 e importe apenas os jogos do CSA listados abaixo.
+
+Caso a competição, clubes ou estádios ainda não existam, crie-os seguindo o padrão já utilizado no banco.
+
+Jogos do CSA:
+
+1928-03-18 | Casa | Tiradentes-AL | Vitória 5-0 | Campeonato Alagoano 1928 | 1º Turno
+
+1928-05-20 | Casa | Barroso-AL | Vitória 4-0 | Campeonato Alagoano 1928 | 1º Turno
+
+1928-06-03 | Casa | Uruguai-AL | Vitória 7-0 | Campeonato Alagoano 1928 | 1º Turno
+
+1928-06-12 | Casa | Vera Cruz-AL | Vitória 3-0 | Campeonato Alagoano 1928 | 1º Turno
+
+1928-07-15 | Casa | Ypiranga-AL | Vitória 2-0 | Campeonato Alagoano 1928 | 1º Turno
+
+1928-07-29 | Casa | CRB-AL | Vitória 2-1 | Campeonato Alagoano 1928 | 1º Turno
+
+1928-08-12 | Casa | Floriano Peixoto-AL | Vitória 9-0 | Campeonato Alagoano 1928 | 1º Turno
+
+1928-10-07 | Casa | Tiradentes-AL | Vitória 3-1 | Campeonato Alagoano 1928 | 2º Turno
+
+1928-11-18 | Fora | Uruguai-AL | Derrota 0-1 | Campeonato Alagoano 1928 | 2º Turno
+
+1928-12-02 | Casa | Vera Cruz-AL | Vitória 6-1 | Campeonato Alagoano 1928 | 2º Turno
+
+1928-12-08 | Casa | Ypiranga-AL | Vitória 3-0 | Campeonato Alagoano 1928 | 2º Turno
+
+1928-12-30 | Casa | Barroso-AL | Vitória 1-0 | Campeonato Alagoano 1928 | 2º Turno
+
+Não importe os jogos decididos por W.O.:
+
+- CSA W.O. x CRB
+- CSA W.O. x Floriano Peixoto
+
+Esses resultados não devem entrar como partidas oficiais, apenas podem ser registrados como observação da competição, caso exista suporte para isso.
+
+Crie os clubes abaixo apenas se eles ainda não existirem:
+
+- Floriano Peixoto-AL
+- Ypiranga-AL
+
+Os clubes abaixo já podem ter sido criados na temporada de 1927; reutilize-os caso existam:
+
+- CRB-AL
+- Barroso-AL
+- Uruguai-AL
+- Vera Cruz-AL
+- Tiradentes-AL
+
+Também crie a competição "Campeonato Alagoano 1928" caso ainda não exista.
+
+Regras:
+
+- Não invente informações.
+- Utilize exatamente os dados fornecidos.
+- Reutilize registros existentes sempre que possível para evitar duplicidades.
+- Todos os clubes devem seguir o padrão com sufixo da UF.
+
+Ao finalizar, informe:
+
+- Quantos jogos foram importados.
+- Quais clubes precisaram ser criados.
+- Se a competição precisou ser criada.
+- Confirme que a temporada de 1928 foi adicionada com sucesso e sem gerar registros duplicados.
+```
