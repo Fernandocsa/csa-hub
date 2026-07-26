@@ -1,6 +1,6 @@
 {
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm --filter @workspace/portal-marujo run build",
+  "buildCommand": "pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/portal-marujo run build",
   "outputDirectory": "artifacts/portal-marujo/dist/public",
   "rewrites": [
     {
@@ -15,7 +15,8 @@
   "functions": {
     "api/index.ts": {
       "maxDuration": 30,
-      "memory": 1024
+      "memory": 1024,
+      "includeFiles": "artifacts/api-server/dist/**"
     }
   }
 }

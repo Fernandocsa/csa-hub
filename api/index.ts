@@ -1,13 +1,15 @@
 /**
  * Vercel Serverless entry for the Express API.
- * All /api/* traffic is rewritten here (see root vercel.json).
- * Existing route mounts in app.ts (app.use("/api", router)) are unchanged.
+ *
+ * Imports the pre-bundled Express app (esbuild → dist/app.mjs) so Vercel does
+ * not typecheck api-server TypeScript sources with node16/nodenext.
+ * Route mounts in app.ts remain unchanged.
  */
-import app from "../artifacts/api-server/src/app";
+// Built by: pnpm --filter @workspace/api-server run build
+import app from "../artifacts/api-server/dist/app.mjs";
 
 export default app;
 
-// Let Express parse the body (required for admin POST/PUT payloads).
 export const config = {
   api: {
     bodyParser: false,
