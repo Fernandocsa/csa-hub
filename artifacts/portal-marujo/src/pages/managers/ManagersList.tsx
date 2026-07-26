@@ -61,7 +61,7 @@ export default function ManagersList() {
                     <TableCell className="py-2 text-right text-red-600">{m.losses}</TableCell>
                     <TableCell className="py-2 text-right">{m.goalsFor ?? "–"}</TableCell>
                     <TableCell className="py-2 text-right">{m.goalsAgainst ?? "–"}</TableCell>
-                    <TableCell className="py-2 text-right font-bold text-primary">{m.winPercentage.toFixed(1)}%</TableCell>
+                    <TableCell className="py-2 text-right font-bold text-primary">{(m.winPercentage ?? 0).toFixed(1)}%</TableCell>
                   </TableRow>
                 ))}
           </TableBody>

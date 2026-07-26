@@ -57,7 +57,7 @@ export default function ByDecade() {
                     <TableCell className={`py-2 text-right font-medium ${row.goalsFor - row.goalsAgainst >= 0 ? "text-green-600" : "text-red-600"}`}>
                       {row.goalsFor - row.goalsAgainst >= 0 ? "+" : ""}{row.goalsFor - row.goalsAgainst}
                     </TableCell>
-                    <TableCell className="py-2 text-right font-medium">{row.winPercentage.toFixed(1)}%</TableCell>
+                    <TableCell className="py-2 text-right font-medium">{(row.winPercentage ?? 0).toFixed(1)}%</TableCell>
                   </TableRow>
                 ))}
           </TableBody>

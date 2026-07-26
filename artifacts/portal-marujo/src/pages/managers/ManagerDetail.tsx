@@ -53,7 +53,7 @@ export default function ManagerDetail() {
           { label: "Vitórias", value: manager.wins, color: "text-green-600" },
           { label: "Empates", value: manager.draws, color: "text-amber-600" },
           { label: "Derrotas", value: manager.losses, color: "text-red-600" },
-          { label: "Aproveit.", value: `${manager.winPercentage.toFixed(1)}%`, highlight: true },
+          { label: "Aproveit.", value: `${(manager.winPercentage ?? 0).toFixed(1)}%`, highlight: true },
         ].map(({ label, value, color, highlight }) => (
           <div key={label} className="bg-background p-3 text-center">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>

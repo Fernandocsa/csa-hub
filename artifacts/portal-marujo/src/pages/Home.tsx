@@ -128,7 +128,7 @@ export default function Home() {
             { label: "Derrotas", value: summary.losses, color: "text-red-600" },
             { label: "Gols Marcados", value: summary.goalsScored },
             { label: "Gols Sofridos", value: summary.goalsConceded },
-            { label: "Aproveitamento", value: `${summary.winPercentage.toFixed(1)}%`, color: "text-primary font-bold" },
+            { label: "Aproveitamento", value: `${(summary.winPercentage ?? 0).toFixed(1)}%`, color: "text-primary font-bold" },
           ].map(({ label, value, color }) => (
             <div key={label} className="bg-background p-3" data-testid={`stat-${label.toLowerCase().replace(/\s/g, "-")}`}>
               <p className="text-xs text-muted-foreground uppercase tracking-wider leading-tight">{label}</p>
