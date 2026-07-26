@@ -97,9 +97,20 @@ export default function Home() {
   const { data: topAssists, isLoading: loadAsst } = useGetTopAssists(10);
   const { data: unknownResults } = useListUnknownResults({ limit: 1 });
 
-  const biggestWin = victories?.[0];
-  const unbeatenStreak = streaks?.find((s) => s.type === "unbeaten");
-  const winStreak = streaks?.find((s) => s.type === "winning");
+  const victoryList = Array.isArray(victories) ? victories : [];
+  const streakList = Array.isArray(streaks) ? streaks : [];
+  const scorerList = Array.isArray(topScorers) ? topScorers : [];
+  const appearanceList = Array.isArray(topAppearances) ? topAppearances : [];
+  const seasonList = Array.isArray(seasons) ? seasons : [];
+  const attendanceList = Array.isArray(biggestAttendance) ? biggestAttendance : [];
+  const assistList = Array.isArray(topAssists) ? topAssists : [];
+  const opponentList = Array.isArray(summary?.mostCommonOpponents)
+    ? summary.mostCommonOpponents
+    : [];
+
+  const biggestWin = victoryList[0];
+  const unbeatenStreak = streakList.find((s) => s.type === "unbeaten");
+  const winStreak = streakList.find((s) => s.type === "winning");
 
   return (
     <div className="space-y-6">
@@ -214,7 +225,7 @@ export default function Home() {
                         <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                       </TableRow>
                     ))
-                  : topScorers?.slice(0, 10).map((p, i) => {
+                  : scorerList.slice(0, 10).map((p, i) => {
                       const flag = (p as any).nationalityFlag as string | null | undefined;
                       return (
                       <TableRow key={p.id} className="text-sm">
@@ -259,7 +270,7 @@ export default function Home() {
                         <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                       </TableRow>
                     ))
-                  : topAppearances?.slice(0, 10).map((p, i) => {
+                  : appearanceList.slice(0, 10).map((p, i) => {
                       const flag = (p as any).nationalityFlag as string | null | undefined;
                       return (
                       <TableRow key={p.id} className="text-sm">
@@ -307,7 +318,7 @@ export default function Home() {
                         <TableCell colSpan={6}><Skeleton className="h-4" /></TableCell>
                       </TableRow>
                     ))
-                  : seasons?.slice(0, 10).map((s) => (
+                  : seasonList.slice(0, 10).map((s) => (
                       <TableRow key={s.year} className="text-sm">
                         <TableCell className="py-1.5 font-medium">
                           <Link href={`/temporadas/${s.year}`} className="hover:text-primary hover:underline" data-testid={`link-season-${s.year}`}>
@@ -382,7 +393,7 @@ export default function Home() {
                       <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                     </TableRow>
                   ))
-                : biggestAttendance?.slice(0, 10).map((m, i) => {
+                : attendanceList.slice(0, 10).map((m, i) => {
                     const isHome = m.homeAway === "home";
                     const home = isHome ? "CSA" : m.opponent;
                     const away = isHome ? m.opponent : "CSA";
@@ -426,7 +437,7 @@ export default function Home() {
                       <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                     </TableRow>
                   ))
-                : topAssists?.slice(0, 10).map((p, i) => {
+                : assistList.slice(0, 10).map((p, i) => {
                     const flag = (p as any).nationalityFlag as string | null | undefined;
                     return (
                       <TableRow key={p.id} className="text-sm">
@@ -450,7 +461,7 @@ export default function Home() {
       </div>
 
       {/* Most common opponents */}
-      {summary && (
+      {summary && opponentList.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Adversários Mais Frequentes</h2>
@@ -470,7 +481,7 @@ export default function Home() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {summary.mostCommonOpponents.map((opp, i) => (
+                {opponentList.map((opp, i) => (
                   <TableRow key={opp.id} className="text-sm">
                     <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
                     <TableCell className="py-1.5 font-medium">
