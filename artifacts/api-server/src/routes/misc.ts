@@ -78,6 +78,64 @@ router.get("/stadiums", async (req, res) => {
   }
 });
 
+router.get("/stadiums/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+
+    const [stadium] = await db
+      .select({
+        id: stadiumsTable.id,
+        name: stadiumsTable.name,
+        city: stadiumsTable.city,
+        capacity: stadiumsTable.capacity,
+      })
+      .from(stadiumsTable)
+      .where(eq(stadiumsTable.id, id))
+      .limit(1);
+
+    if (!stadium) return res.status(404).json({ error: "Estádio não encontrado" });
+
+    const [stats] = await db
+      .select({
+        matches: sql<number>`cast(count(*) as int)`,
+        wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+        draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+        losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+        goalsScored: sql<number>`cast(sum(${matchesTable.goalsFor}) as int)`,
+        goalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
+        firstMatch: sql<string>`cast(min(${matchesTable.matchDate}) as text)`,
+        lastMatch: sql<string>`cast(max(${matchesTable.matchDate}) as text)`,
+      })
+      .from(matchesTable)
+      .where(
+        and(eq(matchesTable.stadiumId, id), eq(matchesTable.isFriendly, false)),
+      );
+
+    const matches = stats?.matches ?? 0;
+    const wins = stats?.wins ?? 0;
+
+    res.json({
+      id: stadium.id,
+      name: stadium.name,
+      city: stadium.city ?? null,
+      capacity: stadium.capacity ?? null,
+      matches,
+      wins,
+      draws: stats?.draws ?? 0,
+      losses: stats?.losses ?? 0,
+      goalsScored: stats?.goalsScored ?? 0,
+      goalsConceded: stats?.goalsConceded ?? 0,
+      winPercentage: matches > 0 ? (wins / matches) * 100 : 0,
+      firstMatch: stats?.firstMatch ?? null,
+      lastMatch: stats?.lastMatch ?? null,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
 // Competitions
 router.get("/competitions", async (req, res) => {
   try {

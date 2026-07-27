@@ -187,6 +187,17 @@ function LineupList({
             cards,
             substitutions,
           );
+          const nameEl =
+            p.playerId != null ? (
+              <Link
+                href={`/jogadores/${p.playerId}`}
+                className="font-medium truncate hover:text-primary hover:underline"
+              >
+                {p.playerName}
+              </Link>
+            ) : (
+              <span className="font-medium truncate">{p.playerName}</span>
+            );
           return (
             <li
               key={p.id}
@@ -197,7 +208,7 @@ function LineupList({
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-x-1">
-                  <span className="font-medium truncate">{p.playerName}</span>
+                  {nameEl}
                   <EventIcons events={events} />
                 </div>
                 {p.position && (
@@ -209,6 +220,23 @@ function LineupList({
         })}
       </ul>
     </div>
+  );
+}
+
+function TeamName({
+  name,
+  isCsa,
+  opponentId,
+}: {
+  name: string;
+  isCsa: boolean;
+  opponentId: number;
+}) {
+  if (isCsa) return <>{name}</>;
+  return (
+    <Link href={`/adversarios/${opponentId}`} className="hover:text-primary hover:underline">
+      {name}
+    </Link>
   );
 }
 
@@ -258,9 +286,29 @@ export default function MatchDetail() {
   const isHome = match.homeAway === "home";
   const leftName = isHome ? "CSA" : match.opponent;
   const rightName = isHome ? match.opponent : "CSA";
+  const leftIsCsa = isHome;
+  const rightIsCsa = !isHome;
   const leftGoals = isHome ? match.goalsFor : match.goalsAgainst;
   const rightGoals = isHome ? match.goalsAgainst : match.goalsFor;
   const isUnknown = match.isUnknownResult || match.result === "unknown";
+
+  const trainerBlock =
+    match.manager && match.managerId != null ? (
+      <p className="text-sm">
+        <span className="text-muted-foreground">Treinador:</span>{" "}
+        <Link
+          href={`/tecnicos/${match.managerId}`}
+          className="font-medium hover:text-primary hover:underline"
+        >
+          {match.manager}
+        </Link>
+      </p>
+    ) : match.manager ? (
+      <p className="text-sm">
+        <span className="text-muted-foreground">Treinador:</span>{" "}
+        <span className="font-medium">{match.manager}</span>
+      </p>
+    ) : null;
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -273,25 +321,57 @@ export default function MatchDetail() {
       {/* Header — always shown */}
       <div className="border-b pb-4 space-y-2">
         <p className="text-xs text-muted-foreground uppercase tracking-wider">
-          {fmtDate(match.date)} · {match.competition}
-          {match.stadium ? ` · ${match.stadium}` : ""}
+          {fmtDate(match.date)} ·{" "}
+          <Link
+            href={`/competicoes/${match.competitionId}`}
+            className="hover:text-foreground hover:underline"
+          >
+            {match.competition}
+          </Link>
+          {match.stadium && match.stadiumId != null ? (
+            <>
+              {" · "}
+              <Link
+                href={`/estadios/${match.stadiumId}`}
+                className="hover:text-foreground hover:underline"
+              >
+                {match.stadium}
+              </Link>
+            </>
+          ) : match.stadium ? (
+            <> · {match.stadium}</>
+          ) : null}
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-bold">
-            {leftName}{" "}
+            <TeamName
+              name={leftName}
+              isCsa={leftIsCsa}
+              opponentId={match.opponentId}
+            />{" "}
             <span className="font-mono tabular-nums mx-1">
               {isUnknown ? "?" : leftGoals ?? "–"}
               <span className="text-muted-foreground font-normal mx-0.5">–</span>
               {isUnknown ? "?" : rightGoals ?? "–"}
             </span>{" "}
-            {rightName}
+            <TeamName
+              name={rightName}
+              isCsa={rightIsCsa}
+              opponentId={match.opponentId}
+            />
           </h1>
           {!isUnknown && match.result !== "unknown" && (
             <ResultBadge result={match.result as "win" | "draw" | "loss"} />
           )}
         </div>
         <p className="text-sm text-muted-foreground">
-          Temporada {match.season}
+          Temporada{" "}
+          <Link
+            href={`/temporadas/${match.season}`}
+            className="hover:text-foreground hover:underline"
+          >
+            {match.season}
+          </Link>
           {match.homeAway === "home"
             ? " · Casa"
             : match.homeAway === "away"
@@ -332,6 +412,7 @@ export default function MatchDetail() {
               substitutions={substitutions}
             />
           </div>
+          {trainerBlock}
           <p className="text-xs text-muted-foreground">
             ⚽ gol · A assistência · retângulo amarelo/vermelho cartão · ↓ saiu · ↑ entrou ·
             minuto ao lado
@@ -339,13 +420,8 @@ export default function MatchDetail() {
         </section>
       )}
 
-      {/* Treinador — only if present */}
-      {match.manager ? (
-        <p className="text-sm">
-          <span className="text-muted-foreground">Treinador:</span>{" "}
-          <span className="font-medium">{match.manager}</span>
-        </p>
-      ) : null}
+      {/* Treinador when there is no lineup section */}
+      {!hasLineup && trainerBlock}
     </div>
   );
 }

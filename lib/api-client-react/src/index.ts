@@ -10,3 +10,4 @@ export * from "./friendlies";
 export * from "./unknown-results";
 export * from "./next-match";
 export * from "./match-detail";
+export * from "./stadium-detail";

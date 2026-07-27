@@ -56,14 +56,18 @@ export interface MatchSubstitutionRow {
 export interface MatchDetailSheet {
   id: number;
   date: string;
+  opponentId: number;
   opponent: string;
   goalsFor: number | null;
   goalsAgainst: number | null;
   result: string;
   homeAway: string;
+  competitionId: number;
   competition: string;
   season: string;
+  stadiumId: number | null;
   stadium: string | null;
+  managerId: number | null;
   manager: string | null;
   scorers: string[];
   attendance: number | null;

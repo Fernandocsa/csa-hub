@@ -1,3 +1,4 @@
+import { Link } from "wouter";
 import { useListStadiums } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -46,14 +47,22 @@ export default function StadiumsList() {
               : stadiums?.map((s, i) => (
                   <TableRow key={s.id} className="text-sm" data-testid={`row-stadium-${s.id}`}>
                     <TableCell className="py-2 text-muted-foreground text-xs">{i + 1}</TableCell>
-                    <TableCell className="py-2 font-medium">{s.name}</TableCell>
+                    <TableCell className="py-2 font-medium">
+                      <Link
+                        href={`/estadios/${s.id}`}
+                        className="hover:text-primary hover:underline"
+                        data-testid={`link-stadium-${s.id}`}
+                      >
+                        {s.name}
+                      </Link>
+                    </TableCell>
                     <TableCell className="py-2 text-muted-foreground text-xs">{s.city ?? "–"}</TableCell>
                     <TableCell className="py-2 text-right">{s.matches}</TableCell>
                     <TableCell className="py-2 text-right text-green-600 font-medium">{s.wins}</TableCell>
                     <TableCell className="py-2 text-right text-amber-600">{s.draws}</TableCell>
                     <TableCell className="py-2 text-right text-red-600">{s.losses}</TableCell>
-                    <TableCell className="py-2 text-right">{s.goalsFor ?? "–"}</TableCell>
-                    <TableCell className="py-2 text-right">{s.goalsAgainst ?? "–"}</TableCell>
+                    <TableCell className="py-2 text-right">{s.goalsScored ?? "–"}</TableCell>
+                    <TableCell className="py-2 text-right">{s.goalsConceded ?? "–"}</TableCell>
                     <TableCell className="py-2 text-right font-bold">{pct(s.wins, s.matches)}</TableCell>
                   </TableRow>
                 ))}
