@@ -1,13 +1,13 @@
-import { useState } from "react";
 import { Link } from "wouter";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useGetTopAppearances, useListSeasons } from "@workspace/api-client-react";
+import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function TopAppearances() {
-  const [season, setSeason] = useState<string>("all");
+  const { season, setSeason } = useSeasonQueryParam("/jogadores/presencas");
   const { data: seasons } = useListSeasons();
   const { data: players, isLoading } = useGetTopAppearances({
     season: season === "all" ? undefined : season,
@@ -19,11 +19,15 @@ export default function TopAppearances() {
       <div className="border-b pb-3 flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-xl font-bold" data-testid="heading-presencas">Mais Jogos</h1>
-          <p className="text-sm text-muted-foreground">Ranking de jogadores com mais partidas pelo CSA</p>
+          <p className="text-sm text-muted-foreground">
+            {season === "all"
+              ? "Ranking de jogadores com mais partidas pelo CSA"
+              : `Mais jogos da temporada ${season}`}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Temporada:</span>
-          <Select value={season} onValueChange={(v) => setSeason(v)}>
+          <Select value={season} onValueChange={setSeason}>
             <SelectTrigger className="w-32 h-8 text-sm" data-testid="select-season">
               <SelectValue />
             </SelectTrigger>

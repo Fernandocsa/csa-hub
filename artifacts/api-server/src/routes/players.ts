@@ -211,10 +211,10 @@ router.get("/players/top-appearances", async (req, res) => {
 
 router.get("/players/top-assists", async (req, res) => {
   try {
-    const { limit = "50" } = req.query as Record<string, string>;
+    const { season, limit = "50" } = req.query as Record<string, string>;
     const lim = Math.min(parseInt(limit) || 50, 200);
 
-    const rows = await db
+    let query = db
       .select({
         id: playersTable.id,
         name: playersTable.name,
@@ -228,6 +228,13 @@ router.get("/players/top-assists", async (req, res) => {
       })
       .from(playerSeasonStatsTable)
       .innerJoin(playersTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
+      .$dynamic();
+
+    if (season) {
+      query = query.where(eq(playerSeasonStatsTable.season, season));
+    }
+
+    const rows = await query
       .groupBy(
         playersTable.id,
         playersTable.name,
@@ -237,7 +244,10 @@ router.get("/players/top-assists", async (req, res) => {
         playersTable.verificationStatus,
       )
       .having(sql`sum(${playerSeasonStatsTable.assists}) > 0`)
-      .orderBy(sql`sum(${playerSeasonStatsTable.assists}) desc`, sql`sum(${playerSeasonStatsTable.appearances}) desc`)
+      .orderBy(
+        sql`sum(${playerSeasonStatsTable.assists}) desc`,
+        sql`sum(${playerSeasonStatsTable.appearances}) desc`,
+      )
       .limit(lim);
 
     res.json(rows);

@@ -169,6 +169,30 @@ paths:
                 items:
                   $ref: "#/components/schemas/PlayerStat"
 
+  /players/top-assists:
+    get:
+      operationId: getTopAssists
+      tags: [players]
+      summary: Top assists leaders
+      parameters:
+        - name: season
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Assist leaders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlayerStat"
+
   /matches:
     get:
       operationId: listMatches

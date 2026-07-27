@@ -1,13 +1,13 @@
-import { useState } from "react";
 import { Link } from "wouter";
 import { useGetTopScorers, useListSeasons } from "@workspace/api-client-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function TopScorers() {
-  const [season, setSeason] = useState<string>("all");
+  const { season, setSeason } = useSeasonQueryParam("/jogadores/artilheiros");
   const { data: seasons } = useListSeasons();
   const { data: scorers, isLoading } = useGetTopScorers({
     season: season === "all" ? undefined : season,
@@ -19,11 +19,15 @@ export default function TopScorers() {
       <div className="border-b pb-3 flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-xl font-bold" data-testid="heading-artilheiros">Artilheiros Históricos</h1>
-          <p className="text-sm text-muted-foreground">Ranking de goleadores do CSA em toda a história</p>
+          <p className="text-sm text-muted-foreground">
+            {season === "all"
+              ? "Ranking de goleadores do CSA em toda a história"
+              : `Artilheiros da temporada ${season}`}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Temporada:</span>
-          <Select value={season} onValueChange={(v) => setSeason(v)}>
+          <Select value={season} onValueChange={setSeason}>
             <SelectTrigger className="w-32 h-8 text-sm" data-testid="select-season">
               <SelectValue />
             </SelectTrigger>
@@ -78,7 +82,7 @@ export default function TopScorers() {
                       <TableCell className="py-2 text-muted-foreground text-xs">{p.position ?? "–"}</TableCell>
                       <TableCell className="py-2 text-right">{p.appearances}</TableCell>
                       <TableCell className="py-2 text-right font-bold text-primary">{p.goals}</TableCell>
-                      <TableCell className="py-2 text-right text-muted-foreground">
+                      <TableCell className="py-2 text-right text-muted-foreground text-xs">
                         {p.appearances > 0 ? (p.goals / p.appearances).toFixed(2) : "–"}
                       </TableCell>
                     </TableRow>

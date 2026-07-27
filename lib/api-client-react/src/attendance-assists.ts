@@ -51,14 +51,30 @@ export const useGetBiggestAttendance = (limit?: number, sortBy?: AttendanceSortB
     queryFn: () => getBiggestAttendance(limit, sortBy),
   });
 
-export const getTopAssists = async (limit?: number): Promise<TopAssistPlayer[]> =>
-  customFetch<TopAssistPlayer[]>(`/api/players/top-assists${limit ? `?limit=${limit}` : ""}`);
+export const getTopAssists = async (
+  limitOrOpts?: number | { limit?: number; season?: string },
+): Promise<TopAssistPlayer[]> => {
+  const opts =
+    typeof limitOrOpts === "number" ? { limit: limitOrOpts } : limitOrOpts;
+  const qs = new URLSearchParams();
+  if (opts?.limit) qs.set("limit", String(opts.limit));
+  if (opts?.season) qs.set("season", opts.season);
+  const q = qs.toString();
+  return customFetch<TopAssistPlayer[]>(`/api/players/top-assists${q ? `?${q}` : ""}`);
+};
 
-export const getTopAssistsQueryKey = (limit?: number) =>
-  ["/api/players/top-assists", limit] as const;
+export const getTopAssistsQueryKey = (
+  limitOrOpts?: number | { limit?: number; season?: string },
+) => {
+  const opts =
+    typeof limitOrOpts === "number" ? { limit: limitOrOpts } : limitOrOpts;
+  return ["/api/players/top-assists", opts?.limit, opts?.season ?? "all"] as const;
+};
 
-export const useGetTopAssists = (limit?: number) =>
+export const useGetTopAssists = (
+  limitOrOpts?: number | { limit?: number; season?: string },
+) =>
   useQuery({
-    queryKey: getTopAssistsQueryKey(limit),
-    queryFn: () => getTopAssists(limit),
+    queryKey: getTopAssistsQueryKey(limitOrOpts),
+    queryFn: () => getTopAssists(limitOrOpts),
   });
