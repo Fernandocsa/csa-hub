@@ -5,6 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
 import type { Opponent } from "./AdminOpponentDetail";
+import { countryDisplayName } from "@/lib/countries";
+
+function opponentSubtitle(o: Opponent) {
+  if (o.country) {
+    return [o.city, countryDisplayName(o.country)].filter(Boolean).join(" · ") || null;
+  }
+  return [o.city, o.state].filter(Boolean).join(" · ") || null;
+}
 
 export default function AdminOpponents() {
   const [, setLocation] = useLocation();
@@ -53,7 +61,7 @@ export default function AdminOpponents() {
         items={opponents.map((o) => ({
           id: o.id,
           name: o.name,
-          subtitle: [o.city, o.state].filter(Boolean).join(" · ") || null,
+          subtitle: opponentSubtitle(o),
         }))}
         placeholder="Buscar adversário…"
         value={search}
@@ -93,7 +101,7 @@ export default function AdminOpponents() {
                     </Link>
                   </td>
                   <td className="px-4 py-2 text-gray-600">
-                    {[o.city, o.state].filter(Boolean).join(" · ") || "—"}
+                    {opponentSubtitle(o) || "—"}
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex justify-end">

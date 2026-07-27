@@ -18,6 +18,12 @@ import {
   uniqueUfsForCityName,
   type BrCity,
 } from "@/lib/br-locations";
+import {
+  countryDisplayName,
+  lookupCountriesByName,
+  normalizeCountryName,
+  type Country,
+} from "@/lib/countries";
 import { ChevronLeft } from "lucide-react";
 
 export type Opponent = {
@@ -25,6 +31,7 @@ export type Opponent = {
   name: string;
   city: string | null;
   state: string | null;
+  country: string | null;
   homeStadiumId?: number | null;
 };
 
@@ -58,8 +65,20 @@ type OpponentPayload = {
   name: string;
   city: string | null;
   state: string | null;
+  country: string | null;
   homeStadiumId?: number | null;
 };
+
+function opponentLocationLabel(o: {
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+}) {
+  if (o.country) {
+    return [o.city, countryDisplayName(o.country)].filter(Boolean).join(" · ");
+  }
+  return [o.city, o.state].filter(Boolean).join(" · ");
+}
 
 type TabId = "perfil" | "historico";
 
@@ -79,22 +98,57 @@ function OpponentProfileForm({
   const [name, setName] = useState(initial?.name ?? "");
   const [city, setCity] = useState(initial?.city ?? "");
   const [state, setState] = useState(initial?.state ?? "");
+  const [countryQuery, setCountryQuery] = useState(
+    initial?.country ? countryDisplayName(initial.country) : "",
+  );
+  const [countryCode, setCountryCode] = useState<string | null>(initial?.country ?? null);
+  const [countrySuggestions, setCountrySuggestions] = useState<Country[]>([]);
   const [citySuggestions, setCitySuggestions] = useState<BrCity[]>([]);
   const [cityAmbiguity, setCityAmbiguity] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [suffixNote, setSuffixNote] = useState("");
 
+  const isForeign = countryCode != null;
+
   useEffect(() => {
     setName(initial?.name ?? "");
     setCity(initial?.city ?? "");
     setState(initial?.state ?? "");
+    setCountryCode(initial?.country ?? null);
+    setCountryQuery(initial?.country ? countryDisplayName(initial.country) : "");
     setCitySuggestions([]);
     setCityAmbiguity([]);
+    setCountrySuggestions([]);
     setSuffixNote("");
   }, [initial]);
 
   useEffect(() => {
+    const matches = lookupCountriesByName(countryQuery, 12);
+    setCountrySuggestions(matches);
+    const q = normalizeCountryName(countryQuery);
+    if (!q) {
+      setCountryCode(null);
+      return;
+    }
+    const exact = matches.find((c) => normalizeCountryName(c.name) === q);
+    if (exact) {
+      if (exact.code === "BRA") {
+        setCountryCode(null);
+      } else {
+        setCountryCode(exact.code);
+        setState("");
+        setCityAmbiguity([]);
+      }
+    }
+  }, [countryQuery]);
+
+  useEffect(() => {
+    if (isForeign) {
+      setCitySuggestions([]);
+      setCityAmbiguity([]);
+      return;
+    }
     const matches = lookupCitiesByName(city, 12);
     setCitySuggestions(matches);
     const ufs = uniqueUfsForCityName(city);
@@ -102,7 +156,7 @@ function OpponentProfileForm({
     if (ufs.length === 1 && !state) {
       setState(ufs[0]);
     }
-  }, [city]); // eslint-disable-line react-hooks/exhaustive-deps -- only react to city typing
+  }, [city, isForeign]); // eslint-disable-line react-hooks/exhaustive-deps -- only react to city typing
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -114,7 +168,8 @@ function OpponentProfileForm({
       await onSave({
         name: name.trim(),
         city: city.trim() || null,
-        state: state.trim() ? state.trim().toUpperCase() : null,
+        state: isForeign ? null : state.trim() ? state.trim().toUpperCase() : null,
+        country: isForeign ? countryCode : null,
       });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro ao salvar");
@@ -156,7 +211,30 @@ function OpponentProfileForm({
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+          País
+        </label>
+        <Input
+          value={countryQuery}
+          onChange={(e) => setCountryQuery(e.target.value)}
+          list="country-suggestions"
+          placeholder="ex: Brasil, Argentina (vazio = Brasil)"
+          className="h-9"
+        />
+        <datalist id="country-suggestions">
+          {countrySuggestions.map((c) => (
+            <option key={c.code} value={c.name} />
+          ))}
+        </datalist>
+        <p className="text-[11px] text-gray-500 mt-1">
+          {isForeign
+            ? `Adversário estrangeiro (${countryCode})`
+            : "Deixe vazio para adversário brasileiro."}
+        </p>
+      </div>
+
+      <div className={`grid grid-cols-1 gap-3 ${isForeign ? "" : "sm:grid-cols-2"}`}>
         <div>
           <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
             Cidade
@@ -164,18 +242,20 @@ function OpponentProfileForm({
           <Input
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            list="br-city-suggestions"
-            placeholder="ex: Maceió"
+            list={isForeign ? undefined : "br-city-suggestions"}
+            placeholder={isForeign ? "ex: Córdoba" : "ex: Maceió"}
             className="h-9"
           />
-          <datalist id="br-city-suggestions">
-            {citySuggestions.map((c) => (
-              <option key={`${c.name}-${c.uf}`} value={c.name}>
-                {c.uf}
-              </option>
-            ))}
-          </datalist>
-          {cityAmbiguity.length > 1 && (
+          {!isForeign && (
+            <datalist id="br-city-suggestions">
+              {citySuggestions.map((c) => (
+                <option key={`${c.name}-${c.uf}`} value={c.name}>
+                  {c.uf}
+                </option>
+              ))}
+            </datalist>
+          )}
+          {!isForeign && cityAmbiguity.length > 1 && (
             <div className="mt-2">
               <p className="text-[11px] text-amber-700 mb-1">
                 Cidade existe em mais de um estado — escolha a UF:
@@ -196,45 +276,49 @@ function OpponentProfileForm({
           )}
         </div>
 
-        <div>
-          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
-            Estado (UF)
-          </label>
-          <Select
-            value={state || "__none__"}
-            onValueChange={(v) => setState(v === "__none__" ? "" : v)}
-          >
-            <SelectTrigger className="h-9">
-              <SelectValue placeholder="UF" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__none__">—</SelectItem>
-              {BRAZIL_UFS.map((uf) => (
-                <SelectItem key={uf} value={uf}>
-                  {uf}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={!canApplySuffix}
-          onClick={applySuffix}
-        >
-          Aplicar sufixo ao nome
-        </Button>
-        {state && (
-          <span className="text-xs text-gray-500">
-            Ex.: {applyNameUfSuffix(name || "Nome", state)}
-          </span>
+        {!isForeign && (
+          <div>
+            <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+              Estado (UF)
+            </label>
+            <Select
+              value={state || "__none__"}
+              onValueChange={(v) => setState(v === "__none__" ? "" : v)}
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue placeholder="UF" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">—</SelectItem>
+                {BRAZIL_UFS.map((uf) => (
+                  <SelectItem key={uf} value={uf}>
+                    {uf}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         )}
       </div>
+
+      {!isForeign && (
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!canApplySuffix}
+            onClick={applySuffix}
+          >
+            Aplicar sufixo ao nome
+          </Button>
+          {state && (
+            <span className="text-xs text-gray-500">
+              Ex.: {applyNameUfSuffix(name || "Nome", state)}
+            </span>
+          )}
+        </div>
+      )}
       {suffixNote && <p className="text-xs text-green-700">{suffixNote}</p>}
 
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -265,6 +349,7 @@ function HomeStadiumSection({
   current,
   defaultCity,
   defaultState,
+  defaultCountry,
   onChanged,
 }: {
   opponentId: number;
@@ -272,6 +357,7 @@ function HomeStadiumSection({
   current: HomeStadium | null | undefined;
   defaultCity: string | null;
   defaultState: string | null;
+  defaultCountry: string | null;
   onChanged: () => Promise<void>;
 }) {
   const [query, setQuery] = useState("");
@@ -327,7 +413,8 @@ function HomeStadiumSection({
         body: JSON.stringify({
           name: opponentName,
           city: defaultCity,
-          state: defaultState,
+          state: defaultCountry ? null : defaultState,
+          country: defaultCountry,
           homeStadiumId: stadiumId,
         }),
       });
@@ -568,9 +655,9 @@ function OpponentHistory({ matches }: { matches: OpponentMatch[] }) {
 }
 
 export default function AdminOpponentDetail() {
-  const params = useParams<{ id: string }>();
+  const params = useParams<{ id?: string }>();
   const [, setLocation] = useLocation();
-  const isNew = params.id === "novo";
+  const isNew = !params.id;
   const opponentId = isNew ? null : parseInt(params.id ?? "", 10);
 
   const [tab, setTab] = useState<TabId>("perfil");
@@ -662,7 +749,7 @@ export default function AdminOpponentDetail() {
       </h1>
       {!isNew && detail && (
         <p className="text-sm text-gray-500 mb-4">
-          {[detail.city, detail.state].filter(Boolean).join(" · ") || "Sem cidade/UF"}
+          {opponentLocationLabel(detail) || "Sem localização"}
           {" · "}
           {detail.matches.length} partida(s)
         </p>
@@ -700,6 +787,7 @@ export default function AdminOpponentDetail() {
               current={detail.homeStadium}
               defaultCity={detail.city}
               defaultState={detail.state}
+              defaultCountry={detail.country}
               onChanged={load}
             />
           )}
