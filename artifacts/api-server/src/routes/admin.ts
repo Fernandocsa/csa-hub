@@ -10,9 +10,15 @@ import {
   competitionsTable,
   managersTable,
   nextMatchTable,
+  entityBadgesTable,
+  seasonsTable,
 } from "@workspace/db";
 import { eq, asc, desc, sql, ilike, and } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet } from "../lib/match-sheet";
+import {
+  recalculateSeasonAutoBadges,
+  setSeasonStatsVerification,
+} from "../lib/auto-badges";
 
 const NEXT_MATCH_ID = 1;
 
@@ -965,6 +971,16 @@ router.delete("/admin/opponents/:id", requireAdmin, async (req, res) => {
 
 // ── Managers ──────────────────────────────────────────────────────────────────
 
+router.get("/admin/managers", requireAdmin, async (req, res) => {
+  try {
+    const rows = await db.select().from(managersTable).orderBy(asc(managersTable.name));
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 router.post("/admin/managers", requireAdmin, async (req, res) => {
   try {
     const body = req.body as {
@@ -1024,6 +1040,224 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
     res.status(500).json({ error: "Erro interno" });
   }
 });
+
+// ── Badges (manual admin; auto are read-only here) ─────────────────────────────
+
+type BadgeEntityType = "player" | "manager";
+
+function parseBadgeEntity(
+  entityTypeRaw: string,
+  entityIdRaw: string,
+):
+  | { ok: true; entityType: BadgeEntityType; entityId: number }
+  | { ok: false; status: number; error: string } {
+  const entityType = entityTypeRaw.toLowerCase();
+  if (entityType !== "player" && entityType !== "manager") {
+    return { ok: false, status: 400, error: "entityType inválido (player | manager)" };
+  }
+  const entityId = parseInt(entityIdRaw, 10);
+  if (!Number.isFinite(entityId) || entityId < 1) {
+    return { ok: false, status: 400, error: "entityId inválido" };
+  }
+  return { ok: true, entityType, entityId };
+}
+
+async function badgeEntityExists(
+  entityType: BadgeEntityType,
+  entityId: number,
+): Promise<boolean> {
+  if (entityType === "player") {
+    const [row] = await db
+      .select({ id: playersTable.id })
+      .from(playersTable)
+      .where(eq(playersTable.id, entityId))
+      .limit(1);
+    return !!row;
+  }
+  const [row] = await db
+    .select({ id: managersTable.id })
+    .from(managersTable)
+    .where(eq(managersTable.id, entityId))
+    .limit(1);
+  return !!row;
+}
+
+router.get("/admin/badges/:entityType/:entityId", requireAdmin, async (req, res) => {
+  try {
+    const parsed = parseBadgeEntity(req.params.entityType, req.params.entityId);
+    if (!parsed.ok) return res.status(parsed.status).json({ error: parsed.error });
+    if (!(await badgeEntityExists(parsed.entityType, parsed.entityId))) {
+      return res.status(404).json({ error: "Entidade não encontrada" });
+    }
+    const rows = await db
+      .select()
+      .from(entityBadgesTable)
+      .where(
+        and(
+          eq(entityBadgesTable.entityType, parsed.entityType),
+          eq(entityBadgesTable.entityId, parsed.entityId),
+        ),
+      )
+      .orderBy(desc(entityBadgesTable.seasonYear), asc(entityBadgesTable.label));
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.post("/admin/badges/:entityType/:entityId", requireAdmin, async (req, res) => {
+  try {
+    const parsed = parseBadgeEntity(req.params.entityType, req.params.entityId);
+    if (!parsed.ok) return res.status(parsed.status).json({ error: parsed.error });
+    if (!(await badgeEntityExists(parsed.entityType, parsed.entityId))) {
+      return res.status(404).json({ error: "Entidade não encontrada" });
+    }
+
+    const body = req.body as { label?: string; seasonYear?: number | null };
+    const label = body.label?.trim() ?? "";
+    if (!label) return res.status(400).json({ error: "label obrigatório" });
+    if (label.length > 120) {
+      return res.status(400).json({ error: "label muito longo (máx. 120)" });
+    }
+
+    let seasonYear: number | null = null;
+    if (body.seasonYear != null && String(body.seasonYear).trim() !== "") {
+      const y =
+        typeof body.seasonYear === "number"
+          ? body.seasonYear
+          : parseInt(String(body.seasonYear), 10);
+      if (!Number.isInteger(y) || y < 1900 || y > 2100) {
+        return res.status(400).json({ error: "seasonYear inválido" });
+      }
+      seasonYear = y;
+    }
+
+    const [row] = await db
+      .insert(entityBadgesTable)
+      .values({
+        entityType: parsed.entityType,
+        entityId: parsed.entityId,
+        label,
+        source: "manual",
+        autoKind: null,
+        seasonYear,
+      })
+      .returning();
+    res.status(201).json(row);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.delete("/admin/badges/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id) || id < 1) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+    const [existing] = await db
+      .select()
+      .from(entityBadgesTable)
+      .where(eq(entityBadgesTable.id, id))
+      .limit(1);
+    if (!existing) return res.status(404).json({ error: "Badge não encontrado" });
+    if (existing.source !== "manual") {
+      return res.status(400).json({
+        error: "Badges automáticos não podem ser removidos por aqui",
+      });
+    }
+    await db.delete(entityBadgesTable).where(eq(entityBadgesTable.id, id));
+    res.json({ ok: true });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+// ── Seasons (stats verification + auto badges) ────────────────────────────────
+
+router.get("/admin/seasons", requireAdmin, async (req, res) => {
+  try {
+    const rows = await db
+      .select({
+        year: seasonsTable.year,
+        statsFullyVerified: seasonsTable.statsFullyVerified,
+        statsVerifiedAt: seasonsTable.statsVerifiedAt,
+      })
+      .from(seasonsTable)
+      .orderBy(desc(seasonsTable.year));
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put("/admin/seasons/:year/verification", requireAdmin, async (req, res) => {
+  try {
+    const year = parseInt(req.params.year, 10);
+    if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+      return res.status(400).json({ error: "Ano inválido" });
+    }
+    const body = req.body as { verified?: unknown };
+    if (typeof body.verified !== "boolean") {
+      return res.status(400).json({ error: "verified (boolean) obrigatório" });
+    }
+    try {
+      const result = await setSeasonStatsVerification(year, body.verified);
+      res.json(result);
+    } catch (err: unknown) {
+      const status =
+        err && typeof err === "object" && "status" in err
+          ? Number((err as { status: unknown }).status)
+          : 0;
+      if (status === 404) {
+        return res.status(404).json({ error: "Temporada não encontrada" });
+      }
+      throw err;
+    }
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.post(
+  "/admin/seasons/:year/recalculate-badges",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const year = parseInt(req.params.year, 10);
+      if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+        return res.status(400).json({ error: "Ano inválido" });
+      }
+      const [season] = await db
+        .select({
+          year: seasonsTable.year,
+          statsFullyVerified: seasonsTable.statsFullyVerified,
+        })
+        .from(seasonsTable)
+        .where(eq(seasonsTable.year, year))
+        .limit(1);
+      if (!season) {
+        return res.status(404).json({ error: "Temporada não encontrada" });
+      }
+      if (!season.statsFullyVerified) {
+        return res.status(400).json({
+          error:
+            "Marque a temporada como completamente verificada antes de recalcular",
+        });
+      }
+      const result = await recalculateSeasonAutoBadges(year);
+      res.json(result);
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "Erro interno" });
+    }
+  },
+);
 
 // ── CSV Export ────────────────────────────────────────────────────────────────
 

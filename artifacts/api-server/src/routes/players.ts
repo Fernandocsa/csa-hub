@@ -8,6 +8,7 @@ import {
   opponentsTable,
 } from "@workspace/db";
 import { sql, eq, ilike, and, desc, asc, ne } from "drizzle-orm";
+import { loadEntityBadges } from "../lib/entity-badges";
 
 const router = Router();
 
@@ -381,6 +382,7 @@ router.get("/players/:id", async (req, res) => {
     const totalGoals = seasonStats.reduce((s, r) => s + r.goals, 0);
     const totalAssists = seasonStats.reduce((s, r) => s + (r.assists || 0), 0);
     const recentMatches = await loadPlayerSheetMatches(id, 5);
+    const badges = await loadEntityBadges("player", id);
 
     res.json({
       id: player.id,
@@ -405,6 +407,7 @@ router.get("/players/:id", async (req, res) => {
       totalAssists,
       seasonStats,
       recentMatches,
+      badges,
     });
   } catch (err) {
     req.log.error(err);

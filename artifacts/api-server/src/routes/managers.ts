@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { matchesTable, managersTable } from "@workspace/db";
 import { sql, eq, desc } from "drizzle-orm";
+import { loadEntityBadges } from "../lib/entity-badges";
 
 const router = Router();
 
@@ -119,6 +120,7 @@ router.get("/managers/:id", async (req, res) => {
 
     const computed = overall[0] ?? { matches: 0, wins: 0, draws: 0, losses: 0, goalsScored: 0, goalsConceded: 0 };
     const stats = resolveStats(computed, manager);
+    const badges = await loadEntityBadges("manager", id);
 
     res.json({
       id: manager.id,
@@ -129,6 +131,7 @@ router.get("/managers/:id", async (req, res) => {
       seasons: manager.seasons,
       ...stats,
       winPercentage: stats.matches > 0 ? Math.round((stats.wins / stats.matches) * 100 * 10) / 10 : 0,
+      badges,
       seasonStats: seasonRows.map((r) => ({
         year: r.season,
         matches: r.matches,
