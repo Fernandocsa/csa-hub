@@ -8,9 +8,16 @@ import { Pencil, Trash2, Plus, ChevronDown, ChevronUp } from "lucide-react";
 interface Player {
   id: number;
   name: string;
+  fullName: string | null;
   position: string | null;
   nationality: string | null;
   birthYear: number | null;
+  birthDate: string | null;
+  birthCity: string | null;
+  birthState: string | null;
+  birthCountry: string | null;
+  preferredFoot: string | null;
+  heightCm: number | null;
 }
 
 interface StatRow {
@@ -33,6 +40,12 @@ const POSITIONS = [
   "Atacante",
 ];
 
+const FEET = [
+  { value: "destro", label: "Destro" },
+  { value: "canhoto", label: "Canhoto" },
+  { value: "ambidestro", label: "Ambidestro" },
+];
+
 function PlayerForm({
   initial,
   onSave,
@@ -43,11 +56,22 @@ function PlayerForm({
   onCancel: () => void;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
+  const [fullName, setFullName] = useState(initial?.fullName ?? "");
   const [position, setPosition] = useState(initial?.position ?? "");
   const [nationality, setNationality] = useState(initial?.nationality ?? "");
   const [birthYear, setBirthYear] = useState(String(initial?.birthYear ?? ""));
+  const [birthDate, setBirthDate] = useState(initial?.birthDate ?? "");
+  const [birthCity, setBirthCity] = useState(initial?.birthCity ?? "");
+  const [birthState, setBirthState] = useState(initial?.birthState ?? "");
+  const [birthCountry, setBirthCountry] = useState(initial?.birthCountry ?? "");
+  const [preferredFoot, setPreferredFoot] = useState(initial?.preferredFoot ?? "");
+  const [heightCm, setHeightCm] = useState(
+    initial?.heightCm != null ? String(initial.heightCm) : "",
+  );
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const sel = "w-full border rounded px-3 py-2 text-sm bg-white";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -56,9 +80,16 @@ function PlayerForm({
     try {
       await onSave({
         name,
+        fullName: fullName.trim() || null,
         position: position || null,
         nationality: nationality || null,
         birthYear: birthYear ? parseInt(birthYear) : null,
+        birthDate: birthDate.trim() || null,
+        birthCity: birthCity.trim() || null,
+        birthState: birthState.trim() || null,
+        birthCountry: birthCountry.trim() || null,
+        preferredFoot: preferredFoot || null,
+        heightCm: heightCm ? parseInt(heightCm) : null,
       });
     } catch (err: any) {
       setError(err.message ?? "Erro ao salvar");
@@ -67,42 +98,142 @@ function PlayerForm({
   }
 
   return (
-    <form onSubmit={submit} className="space-y-3">
+    <form onSubmit={submit} className="space-y-3 max-h-[70vh] overflow-y-auto pr-1">
       <div>
         <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Nome *</label>
         <Input value={name} onChange={(e) => setName(e.target.value)} required />
+      </div>
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+          Nome completo
+        </label>
+        <Input
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          placeholder="Se diferente do nome de exibição"
+        />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Posição</label>
           <select
-            className="w-full border rounded px-3 py-2 text-sm bg-white"
+            className={sel}
             value={position}
             onChange={(e) => setPosition(e.target.value)}
           >
             <option value="">–</option>
-            {POSITIONS.map((p) => <option key={p} value={p}>{p}</option>)}
+            {POSITIONS.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
           </select>
         </div>
         <div>
-          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Nacionalidade</label>
-          <Input value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="Brasileiro" />
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Nacionalidade
+          </label>
+          <Input
+            value={nationality}
+            onChange={(e) => setNationality(e.target.value)}
+            placeholder="Brasileiro"
+          />
         </div>
       </div>
-      <div>
-        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Ano de nascimento</label>
-        <Input
-          type="number"
-          value={birthYear}
-          onChange={(e) => setBirthYear(e.target.value)}
-          placeholder="1990"
-          min={1950}
-          max={2010}
-        />
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Data de nascimento
+          </label>
+          <Input
+            type="date"
+            value={birthDate}
+            onChange={(e) => setBirthDate(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Ano de nascimento
+          </label>
+          <Input
+            type="number"
+            value={birthYear}
+            onChange={(e) => setBirthYear(e.target.value)}
+            placeholder="1990"
+            min={1950}
+            max={2010}
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Cidade nasc.
+          </label>
+          <Input
+            value={birthCity}
+            onChange={(e) => setBirthCity(e.target.value)}
+            placeholder="Maceió"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Estado nasc.
+          </label>
+          <Input
+            value={birthState}
+            onChange={(e) => setBirthState(e.target.value)}
+            placeholder="AL"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            País nasc.
+          </label>
+          <Input
+            value={birthCountry}
+            onChange={(e) => setBirthCountry(e.target.value)}
+            placeholder="Brasil"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Pé preferencial
+          </label>
+          <select
+            className={sel}
+            value={preferredFoot}
+            onChange={(e) => setPreferredFoot(e.target.value)}
+          >
+            <option value="">–</option>
+            {FEET.map((f) => (
+              <option key={f.value} value={f.value}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Altura (cm)
+          </label>
+          <Input
+            type="number"
+            value={heightCm}
+            onChange={(e) => setHeightCm(e.target.value)}
+            placeholder="180"
+            min={140}
+            max={220}
+          />
+        </div>
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <DialogFooter>
-        <Button type="button" variant="outline" onClick={onCancel}>Cancelar</Button>
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancelar
+        </Button>
         <Button type="submit" className="bg-[#1B3A6B]" disabled={saving}>
           {saving ? "Salvando..." : "Salvar"}
         </Button>

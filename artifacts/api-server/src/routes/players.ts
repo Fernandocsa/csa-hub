@@ -1,9 +1,60 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { playersTable, playerSeasonStatsTable } from "@workspace/db";
+import {
+  playersTable,
+  playerSeasonStatsTable,
+  matchLineupsTable,
+  matchesTable,
+  opponentsTable,
+} from "@workspace/db";
 import { sql, eq, ilike, and, desc, asc, ne } from "drizzle-orm";
 
 const router = Router();
+
+async function loadPlayerSheetMatches(playerId: number, limit?: number) {
+  let q = db
+    .select({
+      matchId: matchesTable.id,
+      date: matchesTable.matchDate,
+      season: matchesTable.season,
+      opponent: opponentsTable.name,
+      goalsFor: matchesTable.goalsFor,
+      goalsAgainst: matchesTable.goalsAgainst,
+      result: matchesTable.result,
+      homeAway: matchesTable.homeAway,
+      role: matchLineupsTable.role,
+      shirtNumber: matchLineupsTable.shirtNumber,
+      position: matchLineupsTable.position,
+    })
+    .from(matchLineupsTable)
+    .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
+    .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+    .where(
+      and(
+        eq(matchLineupsTable.playerId, playerId),
+        eq(matchLineupsTable.side, "csa"),
+      ),
+    )
+    .orderBy(desc(matchesTable.matchDate), desc(matchesTable.id))
+    .$dynamic();
+
+  if (limit != null) q = q.limit(limit);
+
+  const rows = await q;
+  return rows.map((r) => ({
+    matchId: r.matchId,
+    date: r.date,
+    season: r.season,
+    opponent: r.opponent,
+    goalsFor: r.goalsFor ?? null,
+    goalsAgainst: r.goalsAgainst ?? null,
+    result: r.result,
+    homeAway: r.homeAway,
+    role: r.role,
+    shirtNumber: r.shirtNumber ?? null,
+    position: r.position ?? null,
+  }));
+}
 
 router.get("/players", async (req, res) => {
   try {
@@ -329,14 +380,22 @@ router.get("/players/:id", async (req, res) => {
     const totalAppearances = seasonStats.reduce((s, r) => s + r.appearances, 0);
     const totalGoals = seasonStats.reduce((s, r) => s + r.goals, 0);
     const totalAssists = seasonStats.reduce((s, r) => s + (r.assists || 0), 0);
+    const recentMatches = await loadPlayerSheetMatches(id, 5);
 
     res.json({
       id: player.id,
       name: player.name,
+      fullName: player.fullName ?? null,
       position: player.position,
       nationality: player.nationality,
       nationalityFlag: player.nationalityFlag,
       birthYear: player.birthYear,
+      birthDate: player.birthDate ?? null,
+      birthCity: player.birthCity ?? null,
+      birthState: player.birthState ?? null,
+      birthCountry: player.birthCountry ?? null,
+      preferredFoot: player.preferredFoot ?? null,
+      heightCm: player.heightCm ?? null,
       verificationStatus: player.verificationStatus,
       verifiedAt: player.verifiedAt,
       verifiedBy: player.verifiedBy,
@@ -344,6 +403,30 @@ router.get("/players/:id", async (req, res) => {
       totalGoals,
       totalAssists,
       seasonStats,
+      recentMatches,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+router.get("/players/:id/matches", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+
+    const player = await db.query.playersTable.findFirst({
+      where: eq(playersTable.id, id),
+    });
+    if (!player) return res.status(404).json({ error: "Jogador não encontrado" });
+
+    const matches = await loadPlayerSheetMatches(id);
+    res.json({
+      playerId: player.id,
+      playerName: player.name,
+      total: matches.length,
+      matches,
     });
   } catch (err) {
     req.log.error(err);

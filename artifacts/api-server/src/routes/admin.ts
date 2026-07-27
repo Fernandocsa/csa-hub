@@ -197,16 +197,41 @@ router.get("/admin/players", requireAdmin, async (req, res) => {
 
 router.post("/admin/players", requireAdmin, async (req, res) => {
   try {
-    const { name, position, nationality, birthYear } = req.body as {
+    const body = req.body as {
       name: string;
-      position?: string;
-      nationality?: string;
-      birthYear?: number;
+      fullName?: string | null;
+      position?: string | null;
+      nationality?: string | null;
+      birthYear?: number | null;
+      birthDate?: string | null;
+      birthCity?: string | null;
+      birthState?: string | null;
+      birthCountry?: string | null;
+      preferredFoot?: string | null;
+      heightCm?: number | null;
     };
-    if (!name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+    if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+
+    const foot = body.preferredFoot?.trim() || null;
+    if (foot && !["destro", "canhoto", "ambidestro"].includes(foot)) {
+      return res.status(400).json({ error: "Pé preferencial inválido" });
+    }
+
     const [player] = await db
       .insert(playersTable)
-      .values({ name: name.trim(), position: position || null, nationality: nationality || null, birthYear: birthYear || null })
+      .values({
+        name: body.name.trim(),
+        fullName: body.fullName?.trim() || null,
+        position: body.position || null,
+        nationality: body.nationality || null,
+        birthYear: body.birthYear ?? null,
+        birthDate: body.birthDate?.trim() || null,
+        birthCity: body.birthCity?.trim() || null,
+        birthState: body.birthState?.trim() || null,
+        birthCountry: body.birthCountry?.trim() || null,
+        preferredFoot: foot,
+        heightCm: body.heightCm ?? null,
+      })
       .returning();
     res.status(201).json(player);
   } catch (err) {
@@ -219,16 +244,41 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
-    const { name, position, nationality, birthYear } = req.body as {
+    const body = req.body as {
       name: string;
-      position?: string;
-      nationality?: string;
-      birthYear?: number;
+      fullName?: string | null;
+      position?: string | null;
+      nationality?: string | null;
+      birthYear?: number | null;
+      birthDate?: string | null;
+      birthCity?: string | null;
+      birthState?: string | null;
+      birthCountry?: string | null;
+      preferredFoot?: string | null;
+      heightCm?: number | null;
     };
-    if (!name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+    if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+
+    const foot = body.preferredFoot?.trim() || null;
+    if (foot && !["destro", "canhoto", "ambidestro"].includes(foot)) {
+      return res.status(400).json({ error: "Pé preferencial inválido" });
+    }
+
     const [updated] = await db
       .update(playersTable)
-      .set({ name: name.trim(), position: position || null, nationality: nationality || null, birthYear: birthYear || null })
+      .set({
+        name: body.name.trim(),
+        fullName: body.fullName?.trim() || null,
+        position: body.position || null,
+        nationality: body.nationality || null,
+        birthYear: body.birthYear ?? null,
+        birthDate: body.birthDate?.trim() || null,
+        birthCity: body.birthCity?.trim() || null,
+        birthState: body.birthState?.trim() || null,
+        birthCountry: body.birthCountry?.trim() || null,
+        preferredFoot: foot,
+        heightCm: body.heightCm ?? null,
+      })
       .where(eq(playersTable.id, id))
       .returning();
     if (!updated) return res.status(404).json({ error: "Jogador não encontrado" });
