@@ -10,6 +10,10 @@ import {
   REGION_UFS,
   type BrazilRegion,
 } from "../lib/br-regions.js";
+import {
+  getOpponentCompetitionStats,
+  getOpponentHighlights,
+} from "../lib/opponent-detail.js";
 
 const router = Router();
 
@@ -635,6 +639,11 @@ router.get("/opponents/:id", async (req, res) => {
       .orderBy(sql`(${matchesTable.goalsAgainst} - ${matchesTable.goalsFor}) desc`)
       .limit(1);
 
+    const [competitionStats, highlights] = await Promise.all([
+      getOpponentCompetitionStats(id),
+      getOpponentHighlights(id),
+    ]);
+
     const stats = overall[0];
     res.json({
       id: opponent.id,
@@ -647,6 +656,8 @@ router.get("/opponents/:id", async (req, res) => {
       losses: stats?.losses || 0,
       goalsFor: stats?.goalsFor || 0,
       goalsAgainst: stats?.goalsAgainst || 0,
+      competitionStats,
+      highlights,
       homeRecord: homeRecord[0] || { matches: 0, wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 },
       awayRecord: awayRecord[0] || { matches: 0, wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 },
       allMatches: allMatchRows.map((r) => ({

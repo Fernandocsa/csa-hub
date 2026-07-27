@@ -1,6 +1,12 @@
 import { useState } from "react";
-import { Link, useParams } from "wouter";
-import { useGetOpponent, getGetOpponentQueryKey } from "@workspace/api-client-react";
+import { Link, useLocation, useParams } from "wouter";
+import {
+  useGetOpponent,
+  getGetOpponentQueryKey,
+  type OpponentCompetitionStat,
+  type OpponentHighlightEntry,
+  type OpponentHighlights,
+} from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, ChevronLeft as PrevIcon, ChevronRight } from "lucide-react";
@@ -34,8 +40,161 @@ function MiniRecord({ label, data: d }: { label: string; data: { matches: number
   );
 }
 
+function CompetitionStatsTable({ rows }: { rows: OpponentCompetitionStat[] }) {
+  if (rows.length === 0) {
+    return (
+      <p className="text-sm text-muted-foreground">Nenhuma competição registrada neste confronto.</p>
+    );
+  }
+
+  return (
+    <div className="border rounded overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow className="text-xs">
+            <TableHead className="py-2">Competição</TableHead>
+            <TableHead className="py-2 text-right">J</TableHead>
+            <TableHead className="py-2 text-right">V</TableHead>
+            <TableHead className="py-2 text-right">E</TableHead>
+            <TableHead className="py-2 text-right">D</TableHead>
+            <TableHead className="py-2 text-right">GP</TableHead>
+            <TableHead className="py-2 text-right">GC</TableHead>
+            <TableHead className="py-2 text-right">SG</TableHead>
+            <TableHead className="py-2 text-right">Aproveit.</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((r) => (
+            <TableRow key={r.competitionId} className="text-sm">
+              <TableCell className="py-2 font-medium">{r.competitionName}</TableCell>
+              <TableCell className="py-2 text-right tabular-nums">{r.matches}</TableCell>
+              <TableCell className="py-2 text-right tabular-nums text-green-600">{r.wins}</TableCell>
+              <TableCell className="py-2 text-right tabular-nums text-amber-600">{r.draws}</TableCell>
+              <TableCell className="py-2 text-right tabular-nums text-red-600">{r.losses}</TableCell>
+              <TableCell className="py-2 text-right tabular-nums">{r.goalsFor}</TableCell>
+              <TableCell className="py-2 text-right tabular-nums">{r.goalsAgainst}</TableCell>
+              <TableCell className="py-2 text-right tabular-nums font-medium">
+                {r.goalsFor - r.goalsAgainst > 0 ? "+" : ""}
+                {r.goalsFor - r.goalsAgainst}
+              </TableCell>
+              <TableCell className="py-2 text-right tabular-nums">{pct(r.wins, r.matches)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+function HighlightCard({
+  label,
+  entry,
+  valueSuffix,
+  href,
+  testId,
+}: {
+  label: string;
+  entry: OpponentHighlightEntry;
+  valueSuffix: string;
+  href: string;
+  testId: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="border rounded p-4 space-y-1 block hover:bg-muted/40 transition-colors"
+      data-testid={testId}
+    >
+      <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className="font-bold text-base">{entry.name}</p>
+      <p className="text-2xl font-black text-primary">
+        {entry.value}{" "}
+        <span className="text-sm font-normal text-muted-foreground">{valueSuffix}</span>
+      </p>
+    </Link>
+  );
+}
+
+function OpponentHighlightsSection({ highlights }: { highlights: OpponentHighlights }) {
+  const cards = [
+    highlights.topScorer
+      ? {
+          key: "topScorer",
+          label: "Artilheiro",
+          entry: highlights.topScorer,
+          valueSuffix: highlights.topScorer.value === 1 ? "gol" : "gols",
+          href: `/jogadores/${highlights.topScorer.id}`,
+          testId: "highlight-top-scorer",
+        }
+      : null,
+    highlights.mostAppearances
+      ? {
+          key: "mostAppearances",
+          label: "Mais Jogos",
+          entry: highlights.mostAppearances,
+          valueSuffix: highlights.mostAppearances.value === 1 ? "jogo" : "jogos",
+          href: `/jogadores/${highlights.mostAppearances.id}`,
+          testId: "highlight-most-appearances",
+        }
+      : null,
+    highlights.topAssists
+      ? {
+          key: "topAssists",
+          label: "Mais Assistências",
+          entry: highlights.topAssists,
+          valueSuffix: highlights.topAssists.value === 1 ? "assist." : "assist.",
+          href: `/jogadores/${highlights.topAssists.id}`,
+          testId: "highlight-top-assists",
+        }
+      : null,
+    highlights.managerMostMatches
+      ? {
+          key: "managerMostMatches",
+          label: "Técnico com Mais Jogos",
+          entry: highlights.managerMostMatches,
+          valueSuffix: highlights.managerMostMatches.value === 1 ? "jogo" : "jogos",
+          href: `/tecnicos/${highlights.managerMostMatches.id}`,
+          testId: "highlight-manager-matches",
+        }
+      : null,
+    highlights.managerMostWins
+      ? {
+          key: "managerMostWins",
+          label: "Técnico com Mais Vitórias",
+          entry: highlights.managerMostWins,
+          valueSuffix: highlights.managerMostWins.value === 1 ? "vitória" : "vitórias",
+          href: `/tecnicos/${highlights.managerMostWins.id}`,
+          testId: "highlight-manager-wins",
+        }
+      : null,
+  ].filter(Boolean) as Array<{
+    key: string;
+    label: string;
+    entry: OpponentHighlightEntry;
+    valueSuffix: string;
+    href: string;
+    testId: string;
+  }>;
+
+  if (cards.length === 0) return null;
+
+  return (
+    <section>
+      <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+        Destaques do Confronto
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {cards.map((card) => (
+          <HighlightCard key={card.key} {...card} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function OpponentDetail() {
   const params = useParams();
+  const [, setLocation] = useLocation();
   const id = parseInt(params.id ?? "0", 10);
   const [page, setPage] = useState(0);
 
@@ -58,6 +217,7 @@ export default function OpponentDetail() {
   }
 
   const allMatches = opponent.allMatches ?? [];
+  const competitionStats = opponent.competitionStats ?? [];
   const totalPages = Math.ceil(allMatches.length / PAGE_SIZE);
   const currentPage = Math.min(page, Math.max(0, totalPages - 1));
   const pageMatches = allMatches.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
@@ -74,21 +234,36 @@ export default function OpponentDetail() {
         <h1 className="text-2xl font-bold" data-testid="heading-opponent">CSA x {opponent.name}</h1>
       </div>
 
-      {/* Overall stat bar */}
-      <div className="grid grid-cols-5 gap-px bg-border rounded overflow-hidden" data-testid="opponent-stat-bar">
-        {[
-          { label: "Partidas", value: opponent.matches, highlight: true },
-          { label: "Vitórias", value: opponent.wins, color: "text-green-600" },
-          { label: "Empates", value: opponent.draws, color: "text-amber-600" },
-          { label: "Derrotas", value: opponent.losses, color: "text-red-600" },
-          { label: "Aproveit.", value: pct(opponent.wins, opponent.matches), highlight: true },
-        ].map(({ label, value, color, highlight }) => (
-          <div key={label} className="bg-background p-3 text-center">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
-            <p className={`text-xl font-bold mt-0.5 ${color ?? (highlight ? "text-primary" : "")}`}>{value}</p>
-          </div>
-        ))}
-      </div>
+      {/* Por competição */}
+      <section>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+          Por Competição
+        </h2>
+        <CompetitionStatsTable rows={competitionStats} />
+      </section>
+
+      {/* Resumo geral */}
+      <section>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+          Resumo Geral
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-px bg-border rounded overflow-hidden" data-testid="opponent-stat-bar">
+          {[
+            { label: "Partidas", value: opponent.matches, highlight: true },
+            { label: "Vitórias", value: opponent.wins, color: "text-green-600" },
+            { label: "Empates", value: opponent.draws, color: "text-amber-600" },
+            { label: "Derrotas", value: opponent.losses, color: "text-red-600" },
+            { label: "Gols Pró", value: opponent.goalsFor, highlight: true },
+            { label: "Gols Contra", value: opponent.goalsAgainst },
+            { label: "Aproveit.", value: pct(opponent.wins, opponent.matches), highlight: true },
+          ].map(({ label, value, color, highlight }) => (
+            <div key={label} className="bg-background p-3 text-center">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+              <p className={`text-xl font-bold mt-0.5 ${color ?? (highlight ? "text-primary" : "")}`}>{value}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Home/Away breakdown */}
       {(opponent.homeRecord || opponent.awayRecord) && (
@@ -106,7 +281,12 @@ export default function OpponentDetail() {
         </div>
       )}
 
-      {/* All matches */}
+      {/* Destaques (somente com ficha) */}
+      {opponent.highlights ? (
+        <OpponentHighlightsSection highlights={opponent.highlights} />
+      ) : null}
+
+      {/* Histórico de confrontos */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
@@ -156,7 +336,12 @@ export default function OpponentDetail() {
                 </TableRow>
               ) : (
                 pageMatches.map((match) => (
-                  <TableRow key={match.id} className="text-sm" data-testid={`row-match-${match.id}`}>
+                  <TableRow
+                    key={match.id}
+                    className="text-sm cursor-pointer hover:bg-muted/40"
+                    onClick={() => setLocation(`/partidas/${match.id}`)}
+                    data-testid={`row-match-${match.id}`}
+                  >
                     <TableCell className="py-2 text-muted-foreground text-xs">{fmtDate(match.date)}</TableCell>
                     <TableCell className="py-2 text-xs text-muted-foreground">{match.season}</TableCell>
                     <TableCell className="py-2 text-center">

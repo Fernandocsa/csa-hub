@@ -294,6 +294,9 @@ export interface OpponentDetail {
   losses: number;
   goalsFor: number;
   goalsAgainst: number;
+  competitionStats: OpponentCompetitionStat[];
+  /** @nullable */
+  highlights?: OpponentHighlights | null;
   homeRecord?: RecordLine;
   awayRecord?: RecordLine;
   allMatches: Match[];
@@ -301,6 +304,36 @@ export interface OpponentDetail {
   biggestVictory?: string | null;
   /** @nullable */
   biggestDefeat?: string | null;
+}
+
+export interface OpponentCompetitionStat {
+  competitionId: number;
+  competitionName: string;
+  matches: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+}
+
+export interface OpponentHighlightEntry {
+  id: number;
+  name: string;
+  value: number;
+}
+
+export interface OpponentHighlights {
+  /** @nullable */
+  topScorer?: OpponentHighlightEntry | null;
+  /** @nullable */
+  mostAppearances?: OpponentHighlightEntry | null;
+  /** @nullable */
+  topAssists?: OpponentHighlightEntry | null;
+  /** @nullable */
+  managerMostMatches?: OpponentHighlightEntry | null;
+  /** @nullable */
+  managerMostWins?: OpponentHighlightEntry | null;
 }
 
 export interface PaginatedOpponents {

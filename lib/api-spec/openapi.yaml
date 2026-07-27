@@ -1012,7 +1012,7 @@ components:
 
     OpponentDetail:
       type: object
-      required: [id, name, matches, wins, draws, losses, goalsFor, goalsAgainst, allMatches]
+      required: [id, name, matches, wins, draws, losses, goalsFor, goalsAgainst, competitionStats, allMatches]
       properties:
         id:
           type: integer
@@ -1030,6 +1030,14 @@ components:
           type: integer
         goalsAgainst:
           type: integer
+        competitionStats:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpponentCompetitionStat"
+        highlights:
+          oneOf:
+            - $ref: "#/components/schemas/OpponentHighlights"
+            - type: "null"
         homeRecord:
           $ref: "#/components/schemas/RecordLine"
         awayRecord:
@@ -1042,6 +1050,63 @@ components:
           type: ["string", "null"]
         biggestDefeat:
           type: ["string", "null"]
+
+    OpponentCompetitionStat:
+      type: object
+      required: [competitionId, competitionName, matches, wins, draws, losses, goalsFor, goalsAgainst]
+      properties:
+        competitionId:
+          type: integer
+        competitionName:
+          type: string
+        matches:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        goalsFor:
+          type: integer
+        goalsAgainst:
+          type: integer
+
+    OpponentHighlightEntry:
+      type: object
+      required: [id, name, value]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        value:
+          type: integer
+
+    OpponentHighlights:
+      type: object
+      required: [topScorer, mostAppearances, topAssists, managerMostMatches, managerMostWins]
+      properties:
+        topScorer:
+          oneOf:
+            - $ref: "#/components/schemas/OpponentHighlightEntry"
+            - type: "null"
+        mostAppearances:
+          oneOf:
+            - $ref: "#/components/schemas/OpponentHighlightEntry"
+            - type: "null"
+        topAssists:
+          oneOf:
+            - $ref: "#/components/schemas/OpponentHighlightEntry"
+            - type: "null"
+        managerMostMatches:
+          oneOf:
+            - $ref: "#/components/schemas/OpponentHighlightEntry"
+            - type: "null"
+        managerMostWins:
+          oneOf:
+            - $ref: "#/components/schemas/OpponentHighlightEntry"
+            - type: "null"
 
     PaginatedOpponents:
       type: object
