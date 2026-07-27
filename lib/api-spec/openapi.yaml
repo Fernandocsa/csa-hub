@@ -996,6 +996,13 @@ components:
           type: ["integer", "null"]
         endYear:
           type: ["integer", "null"]
+        verificationStatus:
+          type: ["string", "null"]
+        verifiedAt:
+          type: ["string", "null"]
+          format: date-time
+        verifiedBy:
+          type: ["string", "null"]
         matches:
           type: integer
         wins:

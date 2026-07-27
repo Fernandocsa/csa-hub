@@ -36,6 +36,9 @@ export const managersTable = pgTable("managers", {
   birthState: text("birth_state"),
   birthCountry: text("birth_country"),
   isDeceased: boolean("is_deceased").notNull().default(false),
+  verificationStatus: text("verification_status").notNull().default("unverified"),
+  verifiedAt: timestamp("verified_at", { withTimezone: true }),
+  verifiedBy: text("verified_by"),
   // Stored aggregate stats — synced from season rows / matches
   storedGames: integer("stored_games"),
   storedWins: integer("stored_wins"),

@@ -23,6 +23,9 @@ export interface Manager {
   birthState: string | null;
   birthCountry: string | null;
   isDeceased: boolean;
+  verificationStatus: "verified" | "unverified";
+  verifiedAt: string | null;
+  verifiedBy: string | null;
   startYear: number | null;
   endYear: number | null;
   storedGames: number | null;
@@ -44,6 +47,8 @@ type ManagerPayload = {
   birthState: string | null;
   birthCountry: string | null;
   isDeceased: boolean;
+  verificationStatus: "verified" | "unverified";
+  verifiedBy: string | null;
 };
 
 interface SeasonStatRow {
@@ -113,6 +118,8 @@ function ManagerProfileForm({
   const [birthState, setBirthState] = useState(initial?.birthState ?? "");
   const [birthCountry, setBirthCountry] = useState(initial?.birthCountry ?? "");
   const [isDeceased, setIsDeceased] = useState(initial?.isDeceased ?? false);
+  const [isVerified, setIsVerified] = useState(initial?.verificationStatus === "verified");
+  const [verifiedBy, setVerifiedBy] = useState(initial?.verifiedBy ?? "");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -125,6 +132,8 @@ function ManagerProfileForm({
     setBirthState(initial?.birthState ?? "");
     setBirthCountry(initial?.birthCountry ?? "");
     setIsDeceased(initial?.isDeceased ?? false);
+    setIsVerified(initial?.verificationStatus === "verified");
+    setVerifiedBy(initial?.verifiedBy ?? "");
   }, [initial]);
 
   const isBrazil =
@@ -145,6 +154,8 @@ function ManagerProfileForm({
         birthState: isBrazil ? birthState.trim().toUpperCase() || null : null,
         birthCountry: birthCountry.trim() || null,
         isDeceased,
+        verificationStatus: isVerified ? "verified" : "unverified",
+        verifiedBy: isVerified ? verifiedBy.trim() || null : null,
       });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro ao salvar");
@@ -237,6 +248,41 @@ function ManagerProfileForm({
         />
         Falecido
       </label>
+      <div className="rounded-lg border p-4 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-800">Verificação</h3>
+            <p className="text-xs text-gray-500">
+              {initial?.verificationStatus === "verified" && initial?.verifiedAt
+                ? `Atualmente verificado em ${new Date(initial.verifiedAt).toLocaleString("pt-BR")}${
+                    initial?.verifiedBy ? ` por ${initial.verifiedBy}` : ""
+                  }`
+                : "Atualmente não verificado"}
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsVerified((value) => !value)}
+          >
+            {isVerified ? "Remover verificação" : "Marcar como Verificado"}
+          </Button>
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Verificado por
+          </label>
+          <Input
+            value={verifiedBy}
+            onChange={(e) => setVerifiedBy(e.target.value)}
+            placeholder="Portal Marujo"
+            disabled={!isVerified}
+          />
+          <p className="text-xs text-gray-400 mt-1">
+            A alteração de verificação só é gravada ao salvar o perfil.
+          </p>
+        </div>
+      </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex flex-wrap items-center gap-2 pt-2">
         <Button type="submit" className="bg-[#1B3A6B]" disabled={saving}>

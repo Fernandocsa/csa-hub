@@ -1743,11 +1743,26 @@ function withDerivedPeriod<T extends { id: number }>(
   return { ...manager, startYear: period.startYear, endYear: period.endYear };
 }
 
+function serializeManagerAdmin<T extends Record<string, unknown>>(manager: T) {
+  const verifiedAt = manager.verifiedAt;
+  return {
+    ...manager,
+    verifiedAt:
+      verifiedAt instanceof Date
+        ? verifiedAt.toISOString()
+        : (verifiedAt as string | null | undefined) ?? null,
+  };
+}
+
 router.get("/admin/managers", requireAdmin, async (req, res) => {
   try {
     const rows = await db.select().from(managersTable).orderBy(asc(managersTable.name));
     const seasonsMap = await seasonsByManagerIds(rows.map((r) => r.id));
-    res.json(rows.map((r) => withDerivedPeriod(r, seasonsMap.get(r.id) ?? [])));
+    res.json(
+      rows.map((r) =>
+        serializeManagerAdmin(withDerivedPeriod(r, seasonsMap.get(r.id) ?? [])),
+      ),
+    );
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -1761,7 +1776,7 @@ router.get("/admin/managers/:id", requireAdmin, async (req, res) => {
     const [manager] = await db.select().from(managersTable).where(eq(managersTable.id, id));
     if (!manager) return res.status(404).json({ error: "Técnico não encontrado" });
     const seasonsMap = await seasonsByManagerIds([id]);
-    res.json(withDerivedPeriod(manager, seasonsMap.get(id) ?? []));
+    res.json(serializeManagerAdmin(withDerivedPeriod(manager, seasonsMap.get(id) ?? [])));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -1779,12 +1794,19 @@ router.post("/admin/managers", requireAdmin, async (req, res) => {
       birthState?: string | null;
       birthCountry?: string | null;
       isDeceased?: boolean;
+      verificationStatus?: string | null;
+      verifiedBy?: string | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
     const birthDate = body.birthDate?.trim() || null;
     if (birthDate && !/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) {
       return res.status(400).json({ error: "birthDate inválida (YYYY-MM-DD)" });
     }
+    const verificationStatus =
+      body.verificationStatus === "verified" ? "verified" : "unverified";
+    const verifiedBy =
+      verificationStatus === "verified" ? body.verifiedBy?.trim() || null : null;
+    const verifiedAt = verificationStatus === "verified" ? new Date() : null;
     const [manager] = await db
       .insert(managersTable)
       .values({
@@ -1796,11 +1818,14 @@ router.post("/admin/managers", requireAdmin, async (req, res) => {
         birthState: body.birthState?.trim() || null,
         birthCountry: body.birthCountry?.trim() || null,
         isDeceased: body.isDeceased ?? false,
+        verificationStatus,
+        verifiedBy,
+        verifiedAt,
         statsSource: null,
         statsRecalculatedAt: null,
       })
       .returning();
-    res.status(201).json(withDerivedPeriod(manager, []));
+    res.status(201).json(serializeManagerAdmin(withDerivedPeriod(manager, [])));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -1823,6 +1848,8 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
       birthState?: string | null;
       birthCountry?: string | null;
       isDeceased?: boolean;
+      verificationStatus?: string | null;
+      verifiedBy?: string | null;
       // career totals: prefer season-stats endpoints; still accepted for rare overrides
       storedGames?: number | null;
       storedWins?: number | null;
@@ -1838,6 +1865,25 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
         return res.status(400).json({ error: "birthDate inválida (YYYY-MM-DD)" });
       }
     }
+
+    const verificationStatus =
+      body.verificationStatus === undefined
+        ? undefined
+        : body.verificationStatus === "verified"
+          ? "verified"
+          : "unverified";
+    const verifiedBy =
+      verificationStatus === undefined
+        ? undefined
+        : verificationStatus === "verified"
+          ? body.verifiedBy?.trim() || null
+          : null;
+    const verifiedAt =
+      verificationStatus === undefined
+        ? undefined
+        : verificationStatus === "verified"
+          ? new Date()
+          : null;
 
     const statsChanged = managerStoredStatsChanged(current, body);
     const [updated] = await db
@@ -1861,6 +1907,11 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
           birthCountry: body.birthCountry?.trim() || null,
         }),
         ...(body.isDeceased !== undefined && { isDeceased: !!body.isDeceased }),
+        ...(verificationStatus !== undefined && {
+          verificationStatus,
+          verifiedBy,
+          verifiedAt,
+        }),
         ...(body.storedGames !== undefined && { storedGames: body.storedGames }),
         ...(body.storedWins !== undefined && { storedWins: body.storedWins }),
         ...(body.storedDraws !== undefined && { storedDraws: body.storedDraws }),
@@ -1874,7 +1925,9 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
       .where(eq(managersTable.id, id))
       .returning();
     const seasonsMap = await seasonsByManagerIds([id]);
-    res.json(withDerivedPeriod(updated, seasonsMap.get(id) ?? []));
+    res.json(
+      serializeManagerAdmin(withDerivedPeriod(updated, seasonsMap.get(id) ?? [])),
+    );
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });

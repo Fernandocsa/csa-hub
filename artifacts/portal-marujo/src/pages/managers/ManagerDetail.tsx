@@ -7,6 +7,7 @@ import { StarRating } from "@/components/StarRating";
 import { EntityBadges } from "@/components/EntityBadges";
 import { EntityComments } from "@/components/EntityComments";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
+import { VerificationCard } from "@/components/VerificationCard";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -44,7 +45,14 @@ export default function ManagerDetail() {
       </Link>
 
       <div className="border-b pb-4">
-        <h1 className="text-2xl font-bold" data-testid="heading-manager">{manager.name}</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="text-2xl font-bold" data-testid="heading-manager">{manager.name}</h1>
+          <VerificationCard
+            status={manager.verificationStatus}
+            verifiedBy={manager.verifiedBy}
+            verifiedAt={manager.verifiedAt}
+          />
+        </div>
         {(manager.nationality || manager.startYear != null) && (
           <p className="text-sm text-muted-foreground mt-1">
             {[

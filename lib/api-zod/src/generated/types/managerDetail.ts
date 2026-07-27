@@ -16,6 +16,12 @@ export interface ManagerDetail {
   startYear?: number | null;
   /** @nullable */
   endYear?: number | null;
+  /** @nullable */
+  verificationStatus?: string | null;
+  /** @nullable */
+  verifiedAt?: string | null;
+  /** @nullable */
+  verifiedBy?: string | null;
   matches: number;
   wins: number;
   draws: number;

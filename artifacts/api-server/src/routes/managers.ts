@@ -191,6 +191,12 @@ router.get("/managers/:id", async (req, res) => {
       birthState: manager.birthState,
       birthCountry: manager.birthCountry,
       isDeceased: manager.isDeceased,
+      verificationStatus: manager.verificationStatus,
+      verifiedAt:
+        manager.verifiedAt instanceof Date
+          ? manager.verifiedAt.toISOString()
+          : manager.verifiedAt,
+      verifiedBy: manager.verifiedBy,
       startYear: period.startYear,
       endYear: period.endYear,
       ...stats,
