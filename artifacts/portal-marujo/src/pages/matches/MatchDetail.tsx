@@ -319,6 +319,24 @@ export default function MatchDetail() {
       </p>
     ) : null;
 
+  const refereeBlock =
+    match.referee && match.refereeId != null ? (
+      <p className="text-sm">
+        <span className="text-muted-foreground">Árbitro:</span>{" "}
+        <Link
+          href={`/arbitros/${match.refereeId}`}
+          className="font-medium hover:text-primary hover:underline"
+        >
+          {match.referee}
+        </Link>
+      </p>
+    ) : match.referee ? (
+      <p className="text-sm">
+        <span className="text-muted-foreground">Árbitro:</span>{" "}
+        <span className="font-medium">{match.referee}</span>
+      </p>
+    ) : null;
+
   return (
     <div className="space-y-6 max-w-3xl">
       <Link href="/partidas">
@@ -437,6 +455,7 @@ export default function MatchDetail() {
             />
           </div>
           {trainerBlock}
+          {refereeBlock}
           <p className="text-xs text-muted-foreground">
             ⚽ gol · A assistência · retângulo amarelo/vermelho cartão · ↓ saiu · ↑ entrou ·
             minuto ao lado
@@ -444,8 +463,13 @@ export default function MatchDetail() {
         </section>
       )}
 
-      {/* Treinador when there is no lineup section */}
-      {!hasLineup && trainerBlock}
+      {/* Treinador / árbitro when there is no lineup section */}
+      {!hasLineup && (
+        <>
+          {trainerBlock}
+          {refereeBlock}
+        </>
+      )}
 
       <EntityComments entityType="match" entityId={match.id} />
       <EntitySuggestionForm entityType="match" entityId={match.id} />

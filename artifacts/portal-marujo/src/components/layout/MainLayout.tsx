@@ -10,6 +10,7 @@ import {
   MapPin,
   Medal,
   Award,
+  Scale,
   ChevronDown,
   ChevronRight,
   Menu,
@@ -50,6 +51,7 @@ const navigation: NavItem[] = [
   { name: "Temporadas", href: "/temporadas", icon: CalendarDays },
   { name: "Adversários", href: "/adversarios", icon: Shield },
   { name: "Técnicos", href: "/tecnicos", icon: Trophy },
+  { name: "Árbitros", href: "/arbitros", icon: Scale },
   { name: "Competições", href: "/competicoes", icon: Medal },
   { name: "Estádios", href: "/estadios", icon: MapPin },
   {

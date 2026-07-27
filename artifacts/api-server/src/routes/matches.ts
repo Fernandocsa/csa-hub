@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { matchesTable, opponentsTable, stadiumsTable, competitionsTable, managersTable } from "@workspace/db";
+import { matchesTable, opponentsTable, stadiumsTable, competitionsTable, managersTable, refereesTable } from "@workspace/db";
 import { sql, eq, and, ilike, desc, ne } from "drizzle-orm";
 import { loadMatchSheet } from "../lib/match-sheet";
 
@@ -230,6 +230,8 @@ router.get("/matches/:id", async (req, res) => {
         stadiumName: stadiumsTable.name,
         managerId: matchesTable.managerId,
         managerName: managersTable.name,
+        refereeId: matchesTable.refereeId,
+        refereeName: refereesTable.name,
         scorers: matchesTable.scorers,
         attendance: matchesTable.attendance,
         attendancePaid: matchesTable.attendancePaid,
@@ -241,6 +243,7 @@ router.get("/matches/:id", async (req, res) => {
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
       .leftJoin(managersTable, eq(matchesTable.managerId, managersTable.id))
+      .leftJoin(refereesTable, eq(matchesTable.refereeId, refereesTable.id))
       .where(eq(matchesTable.id, id));
 
     if (rows.length === 0) return res.status(404).json({ error: "Partida não encontrada" });
@@ -264,6 +267,8 @@ router.get("/matches/:id", async (req, res) => {
       stadium: row.stadiumName ?? null,
       managerId: row.managerId ?? null,
       manager: row.managerName ?? null,
+      refereeId: row.refereeId ?? null,
+      referee: row.refereeName ?? null,
       scorers: row.scorers ? row.scorers.split(",").map((s) => s.trim()).filter(Boolean) : [],
       attendance: row.attendance ?? null,
       attendancePaid: row.attendancePaid ?? null,
