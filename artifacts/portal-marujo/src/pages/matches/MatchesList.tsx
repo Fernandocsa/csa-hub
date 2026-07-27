@@ -10,6 +10,7 @@ import { ResultBadge } from "@/components/ui/result-badge";
 import { cn } from "@/lib/utils";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
+import { OpponentCrest } from "@/components/OpponentCrest";
 
 function fmtDate(d: string) {
   return new Date(d).toLocaleDateString("pt-BR");
@@ -182,9 +183,14 @@ export default function MatchesList() {
                     <TableCell className="py-2">
                       <Link
                         href={`/partidas/${match.id}`}
-                        className="font-medium hover:text-primary hover:underline"
+                        className="font-medium hover:text-primary hover:underline inline-flex items-center gap-1.5"
                       >
-                        {match.opponent}
+                        <span>{match.opponent}</span>
+                        <OpponentCrest
+                          url={(match as { opponentLogoUrl?: string | null }).opponentLogoUrl}
+                          name={match.opponent}
+                          size="sm"
+                        />
                       </Link>
                       <span
                         className={cn(

@@ -23,7 +23,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
-import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
+import { OpponentCrest } from "@/components/OpponentCrest";
+import { MatchSidesLabel } from "@/components/MatchSidesLabel";
 import { PlayerFlag } from "@/components/PlayerFlag";
 
 function pct(wins: number, total: number) {
@@ -40,49 +41,6 @@ const resultColor: Record<string, string> = {
   draw: "text-amber-600",
   loss: "text-red-600",
 };
-
-/** CSA × Opponent (or reverse), with crests beside both club names. */
-function MatchSidesLabel({
-  homeAway,
-  opponent,
-  logoUrl,
-  separator = "×",
-}: {
-  homeAway: string;
-  opponent: string;
-  logoUrl?: string | null;
-  separator?: string;
-}) {
-  const oppCrest = <OpponentCrest url={logoUrl} name={opponent} size="sm" />;
-  const csa = (
-    <span className="inline-flex items-center gap-1.5 shrink-0">
-      <CsaCrest size="sm" />
-      <span>CSA</span>
-    </span>
-  );
-  const opp = (
-    <span className="inline-flex items-center gap-1.5 min-w-0">
-      {oppCrest}
-      <span className="truncate">{opponent}</span>
-    </span>
-  );
-  if (homeAway === "home") {
-    return (
-      <span className="inline-flex items-center gap-1.5 min-w-0">
-        {csa}
-        <span className="text-muted-foreground">{separator}</span>
-        {opp}
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1.5 min-w-0">
-      {opp}
-      <span className="text-muted-foreground">{separator}</span>
-      {csa}
-    </span>
-  );
-}
 
 function MilestoneCard({ label, match }: { label: string; match: MilestoneMatch }) {
   const isHome = match.homeAway === "home";
@@ -474,8 +432,8 @@ export default function Home() {
             >
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Vitória</p>
               <p className="font-bold text-base inline-flex items-center gap-2">
-                <OpponentCrest url={biggestWin.opponentLogoUrl} name={biggestWin.opponent} size="sm" />
                 {biggestWin.opponent}
+                <OpponentCrest url={biggestWin.opponentLogoUrl} name={biggestWin.opponent} size="sm" />
               </p>
               <p className="text-2xl font-black text-green-600">
                 {biggestWin.goalsFor}–{biggestWin.goalsAgainst}{" "}

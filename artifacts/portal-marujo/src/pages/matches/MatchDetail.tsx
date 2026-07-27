@@ -252,8 +252,8 @@ function TeamName({
       href={`/adversarios/${opponentId}`}
       className="inline-flex items-center gap-2 hover:text-primary hover:underline"
     >
-      <OpponentCrest url={logoUrl} name={name} size="md" />
       {name}
+      <OpponentCrest url={logoUrl} name={name} size="md" />
     </Link>
   );
 }
