@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Pencil, Trash2, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { AdminEntityBadges } from "@/components/AdminEntityBadges";
+import { AdminEntitySearch } from "@/components/AdminEntitySearch";
 
 interface Player {
   id: number;
@@ -364,6 +365,16 @@ export default function AdminPlayers() {
     }
   }
 
+  function selectPlayerFromSearch(id: number) {
+    setExpandedId(id);
+    loadStats(id);
+    requestAnimationFrame(() => {
+      document
+        .querySelector(`[data-player-row="${id}"]`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }
+
   async function savePlayer(data: Omit<Player, "id">) {
     const r = await adminFetch(
       editPlayer ? `/admin/players/${editPlayer.id}` : "/admin/players",
@@ -428,11 +439,16 @@ export default function AdminPlayers() {
         </Button>
       </div>
 
-      <Input
-        placeholder="Buscar jogador..."
+      <AdminEntitySearch
+        items={players.map((p) => ({
+          id: p.id,
+          name: p.name,
+          subtitle: [p.position, p.nationality].filter(Boolean).join(" · ") || null,
+        }))}
+        placeholder="Buscar jogador…"
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="mb-4 max-w-xs"
+        onValueChange={setSearch}
+        onSelect={(item) => selectPlayerFromSearch(item.id)}
       />
 
       {loading ? (
@@ -452,7 +468,7 @@ export default function AdminPlayers() {
             <tbody>
               {filtered.map((player) => (
                 <>
-                  <tr key={player.id} className="border-b hover:bg-gray-50">
+                  <tr key={player.id} className="border-b hover:bg-gray-50" data-player-row={player.id}>
                     <td className="px-4 py-2 font-medium">{player.name}</td>
                     <td className="px-4 py-2 text-gray-600">{player.position ?? "–"}</td>
                     <td className="px-4 py-2 text-gray-600">{player.nationality ?? "–"}</td>

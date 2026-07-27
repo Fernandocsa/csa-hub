@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, Fragment } from "react";
 import { adminFetch } from "@/hooks/useAdminAuth";
-import { Input } from "@/components/ui/input";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { AdminEntityBadges } from "@/components/AdminEntityBadges";
+import { AdminEntitySearch } from "@/components/AdminEntitySearch";
 
 interface Manager {
   id: number;
@@ -30,6 +30,15 @@ export default function AdminManagers() {
     load();
   }, [load]);
 
+  function selectManager(id: number) {
+    setExpandedId(id);
+    requestAnimationFrame(() => {
+      document
+        .querySelector(`[data-manager-row="${id}"]`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }
+
   const filtered = managers.filter((m) =>
     m.name.toLowerCase().includes(search.toLowerCase()),
   );
@@ -45,11 +54,16 @@ export default function AdminManagers() {
         </div>
       </div>
 
-      <Input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
+      <AdminEntitySearch
+        items={managers.map((m) => ({
+          id: m.id,
+          name: m.name,
+          subtitle: m.nationality,
+        }))}
         placeholder="Buscar técnico…"
-        className="mb-4 max-w-sm"
+        value={search}
+        onValueChange={setSearch}
+        onSelect={(item) => selectManager(item.id)}
       />
 
       {loading ? (
@@ -68,7 +82,10 @@ export default function AdminManagers() {
             <tbody>
               {filtered.map((m) => (
                 <Fragment key={m.id}>
-                  <tr className="border-b hover:bg-gray-50/80">
+                  <tr
+                    className="border-b hover:bg-gray-50/80"
+                    data-manager-row={m.id}
+                  >
                     <td className="px-3 py-2">
                       <button
                         type="button"
