@@ -21,4 +21,10 @@ export interface PlayerStat {
   seasons?: number | null;
   /** @nullable */
   season?: string | null;
+  /** @nullable */
+  birthYear?: number | null;
+  /** @nullable */
+  birthDate?: string | null;
+  /** Age during this season year (not current age). @nullable */
+  seasonAge?: number | null;
 }

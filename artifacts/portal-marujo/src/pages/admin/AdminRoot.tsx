@@ -8,6 +8,7 @@ import AdminPlayerDetail from "./AdminPlayerDetail";
 import AdminManagers from "./AdminManagers";
 import AdminManagerDetail from "./AdminManagerDetail";
 import AdminSeasons from "./AdminSeasons";
+import AdminSeasonDetail from "./AdminSeasonDetail";
 import AdminMatches from "./AdminMatches";
 import AdminOpponents from "./AdminOpponents";
 import AdminOpponentDetail from "./AdminOpponentDetail";
@@ -48,6 +49,7 @@ export default function AdminRoot() {
         <Route path="/admin/tecnicos/novo" component={AdminManagerDetail} />
         <Route path="/admin/tecnicos/:id" component={AdminManagerDetail} />
         <Route path="/admin/tecnicos" component={AdminManagers} />
+        <Route path="/admin/temporadas/:year" component={AdminSeasonDetail} />
         <Route path="/admin/temporadas" component={AdminSeasons} />
         <Route path="/admin/partidas/novo" component={AdminMatchSheet} />
         <Route path="/admin/partidas/:id/ficha" component={AdminMatchSheetRedirect} />

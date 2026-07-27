@@ -261,8 +261,8 @@ export default function AdminSeasons() {
       <div className="mb-5">
         <h1 className="text-xl font-bold text-gray-900">Temporadas</h1>
         <p className="text-sm text-gray-500 mt-0.5">
-          Stats verificadas geram Artilheiro/Garçom da temporada e Artilheiro por
-          competição (só onde a ficha de gols está completa).
+          Resumo por competição (link no ano), verificação de stats e badges
+          Artilheiro/Garçom.
         </p>
       </div>
 
@@ -312,7 +312,14 @@ export default function AdminSeasons() {
                           )}
                         </button>
                       </td>
-                      <td className="px-3 py-2.5 font-semibold">{s.year}</td>
+                      <td className="px-3 py-2.5 font-semibold">
+                        <Link
+                          href={`/admin/temporadas/${s.year}`}
+                          className="text-[#1B3A6B] hover:underline"
+                        >
+                          {s.year}
+                        </Link>
+                      </td>
                       <td className="px-3 py-2.5">
                         <label className="inline-flex items-center gap-2 cursor-pointer">
                           <input
@@ -341,17 +348,25 @@ export default function AdminSeasons() {
                           : "–"}
                       </td>
                       <td className="px-3 py-2.5 text-right">
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          disabled={busy || !s.statsFullyVerified}
-                          onClick={() => recalculate(s.year)}
-                          className="h-8"
-                        >
-                          <RefreshCw size={13} className="mr-1" />
-                          Recalcular badges
-                        </Button>
+                        <div className="inline-flex items-center gap-2">
+                          <Link
+                            href={`/admin/temporadas/${s.year}`}
+                            className="text-xs font-medium text-[#1B3A6B] hover:underline"
+                          >
+                            Resumo
+                          </Link>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            disabled={busy || !s.statsFullyVerified}
+                            onClick={() => recalculate(s.year)}
+                            className="h-8"
+                          >
+                            <RefreshCw size={13} className="mr-1" />
+                            Recalcular badges
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                     {open && (

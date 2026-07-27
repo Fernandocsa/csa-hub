@@ -28,6 +28,12 @@ export interface PlayerStat {
   seasons?: number | null;
   /** @nullable */
   season?: string | null;
+  /** @nullable */
+  birthYear?: number | null;
+  /** @nullable */
+  birthDate?: string | null;
+  /** Age during this season year (not current age). @nullable */
+  seasonAge?: number | null;
 }
 
 export interface OpponentSummary {
@@ -203,11 +209,53 @@ export interface SeasonDetail {
   goalsConceded: number;
   players: PlayerStat[];
   competitions: string[];
+  competitionStats?: SeasonCompetitionStat[];
+  managers?: SeasonManagerEntry[];
+  topAppearances?: SeasonTopEntry[];
+  topGoals?: SeasonTopEntry[];
+  topAssists?: SeasonTopEntry[];
   /** @nullable */
   leaguePosition?: number | null;
   /** @nullable */
   leagueName?: string | null;
   topScorers?: TopScorerEntry[];
+}
+
+export interface SeasonCompetitionStat {
+  competitionId: number;
+  competitionName: string;
+  games: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  /** @nullable */
+  classification?: string | null;
+  /** @nullable */
+  statsSource?: string | null;
+}
+
+export interface SeasonManagerEntry {
+  id: number;
+  name: string;
+  games: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor?: number;
+  goalsAgainst?: number;
+  /** @nullable */
+  statsSource?: string | null;
+}
+
+export interface SeasonTopEntry {
+  id: number;
+  name: string;
+  value: number;
+  /** @nullable */
+  seasonAge?: number | null;
 }
 
 export interface LeaguePosition {

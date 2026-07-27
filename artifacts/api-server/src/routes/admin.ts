@@ -16,6 +16,7 @@ import {
   seasonsTable,
   commentsTable,
   suggestionsTable,
+  seasonCompetitionStatsTable,
 } from "@workspace/db";
 import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet } from "../lib/match-sheet";
@@ -40,6 +41,10 @@ import {
   recalculateManagerSeasonStats,
   syncManagerCareerFromSeasonRows,
 } from "../lib/manager-stats";
+import {
+  listSeasonCompetitionStats,
+  recalculateSeasonCompetitionStats,
+} from "../lib/season-competition-stats";
 import countriesList from "../../../portal-marujo/src/lib/countries.json" with { type: "json" };
 
 const VALID_COUNTRY_CODES = new Set(
@@ -2651,6 +2656,328 @@ router.get("/admin/seasons", requireAdmin, async (req, res) => {
     res.status(500).json({ error: "Erro interno" });
   }
 });
+
+function serializeSeasonCompetitionStat(
+  row: Awaited<ReturnType<typeof listSeasonCompetitionStats>>[number],
+) {
+  return {
+    id: row.id,
+    season: row.season,
+    competitionId: row.competitionId,
+    competitionName: row.competitionName,
+    games: row.games,
+    wins: row.wins,
+    draws: row.draws,
+    losses: row.losses,
+    goalsFor: row.goalsFor,
+    goalsAgainst: row.goalsAgainst,
+    classification: row.classification,
+    statsSource: row.statsSource,
+    statsRecalculatedAt:
+      row.statsRecalculatedAt instanceof Date
+        ? row.statsRecalculatedAt.toISOString()
+        : row.statsRecalculatedAt,
+  };
+}
+
+router.get("/admin/seasons/:year/competition-stats", requireAdmin, async (req, res) => {
+  try {
+    const year = parseInt(req.params.year, 10);
+    if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+      return res.status(400).json({ error: "Ano inválido" });
+    }
+    const season = String(year);
+    const rows = await listSeasonCompetitionStats(season);
+    const totals = rows.reduce(
+      (acc, r) => ({
+        games: acc.games + r.games,
+        wins: acc.wins + r.wins,
+        draws: acc.draws + r.draws,
+        losses: acc.losses + r.losses,
+        goalsFor: acc.goalsFor + r.goalsFor,
+        goalsAgainst: acc.goalsAgainst + r.goalsAgainst,
+      }),
+      { games: 0, wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 },
+    );
+    res.json({
+      season,
+      data: rows.map(serializeSeasonCompetitionStat),
+      totals,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.post("/admin/seasons/:year/competition-stats", requireAdmin, async (req, res) => {
+  try {
+    const year = parseInt(req.params.year, 10);
+    if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+      return res.status(400).json({ error: "Ano inválido" });
+    }
+    const season = String(year);
+    const body = req.body as {
+      competitionId?: unknown;
+      games?: unknown;
+      wins?: unknown;
+      draws?: unknown;
+      losses?: unknown;
+      goalsFor?: unknown;
+      goalsAgainst?: unknown;
+      classification?: unknown;
+    };
+    const competitionId =
+      typeof body.competitionId === "number"
+        ? body.competitionId
+        : parseInt(String(body.competitionId ?? ""), 10);
+    if (!Number.isInteger(competitionId) || competitionId < 1) {
+      return res.status(400).json({ error: "competitionId inválido" });
+    }
+    const [comp] = await db
+      .select({ id: competitionsTable.id })
+      .from(competitionsTable)
+      .where(eq(competitionsTable.id, competitionId))
+      .limit(1);
+    if (!comp) return res.status(404).json({ error: "Competição não encontrada" });
+
+    const games = parseNonNegInt(body.games, 0);
+    const wins = parseNonNegInt(body.wins, 0);
+    const draws = parseNonNegInt(body.draws, 0);
+    const losses = parseNonNegInt(body.losses, 0);
+    const goalsFor = parseNonNegInt(body.goalsFor, 0);
+    const goalsAgainst = parseNonNegInt(body.goalsAgainst, 0);
+    if (
+      games == null ||
+      wins == null ||
+      draws == null ||
+      losses == null ||
+      goalsFor == null ||
+      goalsAgainst == null
+    ) {
+      return res.status(400).json({ error: "valores numéricos inválidos" });
+    }
+    const classification =
+      typeof body.classification === "string"
+        ? body.classification.trim() || null
+        : null;
+
+    try {
+      const [inserted] = await db
+        .insert(seasonCompetitionStatsTable)
+        .values({
+          season,
+          competitionId,
+          games,
+          wins,
+          draws,
+          losses,
+          goalsFor,
+          goalsAgainst,
+          classification,
+          statsSource: "manual",
+          statsRecalculatedAt: null,
+        })
+        .returning();
+      const rows = await listSeasonCompetitionStats(season);
+      const row = rows.find((r) => r.id === inserted.id);
+      if (!row) {
+        return res.status(201).json({
+          id: inserted.id,
+          season: inserted.season,
+          competitionId: inserted.competitionId,
+          competitionName: "",
+          games: inserted.games,
+          wins: inserted.wins,
+          draws: inserted.draws,
+          losses: inserted.losses,
+          goalsFor: inserted.goalsFor,
+          goalsAgainst: inserted.goalsAgainst,
+          classification: inserted.classification,
+          statsSource: inserted.statsSource,
+          statsRecalculatedAt: null,
+        });
+      }
+      res.status(201).json(serializeSeasonCompetitionStat(row));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (/unique|duplicate/i.test(msg)) {
+        return res.status(409).json({
+          error: "Já existe resumo para esta competição nesta temporada",
+        });
+      }
+      throw err;
+    }
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put(
+  "/admin/seasons/:year/competition-stats/bulk",
+  requireAdmin,
+  async (req, res) => {
+    const client = await pgPool.connect();
+    try {
+      const year = parseInt(req.params.year, 10);
+      if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+        return res.status(400).json({ error: "Ano inválido" });
+      }
+      const season = String(year);
+      const raw = (req.body as { stats?: unknown })?.stats;
+      if (!Array.isArray(raw)) {
+        return res.status(400).json({ error: "stats deve ser um array" });
+      }
+      if (raw.length === 0) {
+        const rows = await listSeasonCompetitionStats(season);
+        return res.json(rows.map(serializeSeasonCompetitionStat));
+      }
+
+      const updates: {
+        id: number;
+        games: number;
+        wins: number;
+        draws: number;
+        losses: number;
+        goalsFor: number;
+        goalsAgainst: number;
+        classification: string | null;
+      }[] = [];
+
+      for (const row of raw) {
+        const item = row as Record<string, unknown>;
+        const id =
+          typeof item.id === "number" ? item.id : parseInt(String(item.id), 10);
+        const games = parseNonNegInt(item.games, 0);
+        const wins = parseNonNegInt(item.wins, 0);
+        const draws = parseNonNegInt(item.draws, 0);
+        const losses = parseNonNegInt(item.losses, 0);
+        const goalsFor = parseNonNegInt(item.goalsFor, 0);
+        const goalsAgainst = parseNonNegInt(item.goalsAgainst, 0);
+        if (
+          !Number.isInteger(id) ||
+          games == null ||
+          wins == null ||
+          draws == null ||
+          losses == null ||
+          goalsFor == null ||
+          goalsAgainst == null
+        ) {
+          return res.status(400).json({ error: "linha inválida em stats" });
+        }
+        const classification =
+          typeof item.classification === "string"
+            ? item.classification.trim() || null
+            : item.classification === null
+              ? null
+              : undefined;
+        if (classification === undefined && item.classification != null) {
+          return res.status(400).json({ error: "classification inválida" });
+        }
+        updates.push({
+          id,
+          games,
+          wins,
+          draws,
+          losses,
+          goalsFor,
+          goalsAgainst,
+          classification: classification ?? null,
+        });
+      }
+
+      await client.query("BEGIN");
+      for (const u of updates) {
+        const result = await client.query(
+          `UPDATE season_competition_stats SET
+             games = $1, wins = $2, draws = $3, losses = $4,
+             goals_for = $5, goals_against = $6,
+             classification = $7,
+             stats_source = 'manual',
+             stats_recalculated_at = NULL
+           WHERE id = $8 AND season = $9
+           RETURNING id`,
+          [
+            u.games,
+            u.wins,
+            u.draws,
+            u.losses,
+            u.goalsFor,
+            u.goalsAgainst,
+            u.classification,
+            u.id,
+            season,
+          ],
+        );
+        if (result.rowCount === 0) {
+          await client.query("ROLLBACK");
+          return res.status(404).json({ error: `Linha #${u.id} não encontrada` });
+        }
+      }
+      await client.query("COMMIT");
+
+      const rows = await listSeasonCompetitionStats(season);
+      res.json(rows.map(serializeSeasonCompetitionStat));
+    } catch (err) {
+      try {
+        await client.query("ROLLBACK");
+      } catch {
+        /* ignore */
+      }
+      req.log.error(err);
+      res.status(500).json({ error: "Erro interno" });
+    } finally {
+      client.release();
+    }
+  },
+);
+
+router.post(
+  "/admin/seasons/:year/recalculate-competition-stats",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const year = parseInt(req.params.year, 10);
+      if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+        return res.status(400).json({ error: "Ano inválido" });
+      }
+      const result = await recalculateSeasonCompetitionStats(String(year));
+      res.json({
+        season: result.season,
+        upserted: result.upserted,
+        preservedManual: result.preservedManual,
+        removedCalculated: result.removedCalculated,
+        data: result.rows.map(serializeSeasonCompetitionStat),
+      });
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "Erro interno" });
+    }
+  },
+);
+
+router.delete(
+  "/admin/season-competition-stats/:id",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+      const deleted = await db
+        .delete(seasonCompetitionStatsTable)
+        .where(eq(seasonCompetitionStatsTable.id, id))
+        .returning({ id: seasonCompetitionStatsTable.id });
+      if (deleted.length === 0) {
+        return res.status(404).json({ error: "Linha não encontrada" });
+      }
+      res.json({ ok: true });
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "Erro interno" });
+    }
+  },
+);
 
 router.put("/admin/seasons/:year/verification", requireAdmin, async (req, res) => {
   try {

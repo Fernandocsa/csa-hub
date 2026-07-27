@@ -640,6 +640,76 @@ components:
           type: ["integer", "null"]
         season:
           type: ["string", "null"]
+        birthYear:
+          type: ["integer", "null"]
+        birthDate:
+          type: ["string", "null"]
+        seasonAge:
+          type: ["integer", "null"]
+          description: Age during this season year (not current age)
+
+    SeasonCompetitionStat:
+      type: object
+      required: [competitionId, competitionName, games, wins, draws, losses, goalsFor, goalsAgainst, goalDifference]
+      properties:
+        competitionId:
+          type: integer
+        competitionName:
+          type: string
+        games:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        goalsFor:
+          type: integer
+        goalsAgainst:
+          type: integer
+        goalDifference:
+          type: integer
+        classification:
+          type: ["string", "null"]
+        statsSource:
+          type: ["string", "null"]
+
+    SeasonManagerEntry:
+      type: object
+      required: [id, name, games, wins, draws, losses]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        games:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        goalsFor:
+          type: integer
+        goalsAgainst:
+          type: integer
+        statsSource:
+          type: ["string", "null"]
+
+    SeasonTopEntry:
+      type: object
+      required: [id, name, value]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        value:
+          type: integer
+        seasonAge:
+          type: ["integer", "null"]
 
     Player:
       type: object
@@ -837,6 +907,26 @@ components:
           type: array
           items:
             type: string
+        competitionStats:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeasonCompetitionStat"
+        managers:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeasonManagerEntry"
+        topAppearances:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeasonTopEntry"
+        topGoals:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeasonTopEntry"
+        topAssists:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeasonTopEntry"
         leaguePosition:
           type: ["integer", "null"]
         leagueName:

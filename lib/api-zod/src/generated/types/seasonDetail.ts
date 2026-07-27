@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { PlayerStat } from './playerStat';
+import type { SeasonCompetitionStat } from './seasonCompetitionStat';
+import type { SeasonManagerEntry } from './seasonManagerEntry';
+import type { SeasonTopEntry } from './seasonTopEntry';
 import type { TopScorerEntry } from './topScorerEntry';
 
 export interface SeasonDetail {
@@ -18,6 +21,11 @@ export interface SeasonDetail {
   goalsConceded: number;
   players: PlayerStat[];
   competitions: string[];
+  competitionStats?: SeasonCompetitionStat[];
+  managers?: SeasonManagerEntry[];
+  topAppearances?: SeasonTopEntry[];
+  topGoals?: SeasonTopEntry[];
+  topAssists?: SeasonTopEntry[];
   /** @nullable */
   leaguePosition?: number | null;
   /** @nullable */
