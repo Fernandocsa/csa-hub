@@ -13,7 +13,7 @@ import {
   entityBadgesTable,
   seasonsTable,
 } from "@workspace/db";
-import { eq, asc, desc, sql, ilike, and } from "drizzle-orm";
+import { eq, asc, desc, sql, ilike, and, or } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet } from "../lib/match-sheet";
 import {
   recalculateSeasonAutoBadges,
@@ -22,8 +22,12 @@ import {
 } from "../lib/auto-badges";
 import {
   buildManualBadgeLabel,
+  deriveBadgeYearFromMatch,
+  duplicateManualBadgeMessage,
+  parseMatchId,
   parseCompetitionId,
   parseSeasonYear,
+  templateNeedsMatch,
   validateManualBadgeInput,
 } from "../lib/manual-badge-templates";
 import {
@@ -664,6 +668,43 @@ router.get("/admin/matches", requireAdmin, async (req, res) => {
   }
 });
 
+router.get("/admin/matches/search", requireAdmin, async (req, res) => {
+  try {
+    const { q = "", limit = "20" } = req.query as Record<string, string>;
+    const term = q.trim();
+    const lim = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 50);
+    const whereClause = term
+      ? or(
+          ilike(opponentsTable.name, `%${term}%`),
+          ilike(competitionsTable.name, `%${term}%`),
+          sql`to_char(${matchesTable.matchDate}, 'YYYY-MM-DD') ilike ${`%${term}%`}`,
+          ilike(matchesTable.season, `%${term}%`),
+        )
+      : undefined;
+
+    const rows = await db
+      .select({
+        id: matchesTable.id,
+        matchDate: matchesTable.matchDate,
+        season: matchesTable.season,
+        opponentName: opponentsTable.name,
+        competitionId: matchesTable.competitionId,
+        competitionName: competitionsTable.name,
+      })
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .where(whereClause)
+      .orderBy(desc(matchesTable.matchDate))
+      .limit(lim);
+
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 router.post("/admin/matches", requireAdmin, async (req, res) => {
   try {
     const body = req.body as {
@@ -1240,6 +1281,7 @@ router.post("/admin/badges/:entityType/:entityId", requireAdmin, async (req, res
       template?: string;
       year?: number | null;
       competitionId?: number | null;
+      matchId?: number | null;
     };
     const templateRaw = body.template?.trim() ?? "";
     if (!templateRaw) {
@@ -1254,12 +1296,17 @@ router.post("/admin/badges/:entityType/:entityId", requireAdmin, async (req, res
     if (!competitionParsed.ok) {
       return res.status(400).json({ error: competitionParsed.error });
     }
+    const matchParsed = parseMatchId(body.matchId);
+    if (!matchParsed.ok) {
+      return res.status(400).json({ error: matchParsed.error });
+    }
 
     const validated = validateManualBadgeInput(
       parsed.entityType,
       templateRaw,
       yearParsed.value,
       competitionParsed.value,
+      matchParsed.value,
     );
     if (!validated.ok) {
       return res.status(400).json({ error: validated.error });
@@ -1267,7 +1314,34 @@ router.post("/admin/badges/:entityType/:entityId", requireAdmin, async (req, res
 
     let competitionName: string | undefined;
     let competitionId: number | null = null;
-    if (competitionParsed.value != null) {
+    let seasonYear: number | null = yearParsed.value;
+    let matchId: number | null = null;
+
+    if (templateNeedsMatch(validated.template)) {
+      const [match] = await db
+        .select({
+          id: matchesTable.id,
+          matchDate: matchesTable.matchDate,
+          season: matchesTable.season,
+          competitionId: matchesTable.competitionId,
+          competitionName: competitionsTable.name,
+        })
+        .from(matchesTable)
+        .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+        .where(eq(matchesTable.id, matchParsed.value!))
+        .limit(1);
+      if (!match) {
+        return res.status(400).json({ error: "partida não encontrada" });
+      }
+      const derivedYear = deriveBadgeYearFromMatch(match.matchDate, match.season);
+      if (derivedYear == null) {
+        return res.status(400).json({ error: "não foi possível derivar o ano da partida" });
+      }
+      competitionName = match.competitionName;
+      competitionId = match.competitionId;
+      seasonYear = derivedYear;
+      matchId = match.id;
+    } else if (competitionParsed.value != null) {
       const [comp] = await db
         .select({ id: competitionsTable.id, name: competitionsTable.name })
         .from(competitionsTable)
@@ -1281,7 +1355,7 @@ router.post("/admin/badges/:entityType/:entityId", requireAdmin, async (req, res
     }
 
     const label = buildManualBadgeLabel(validated.template, {
-      year: yearParsed.value ?? undefined,
+      year: seasonYear ?? undefined,
       competitionName,
     });
     if (label.length > 120) {
@@ -1295,13 +1369,52 @@ router.post("/admin/badges/:entityType/:entityId", requireAdmin, async (req, res
         entityId: parsed.entityId,
         label,
         source: "manual",
+        template: validated.template,
         autoKind: null,
-        seasonYear: yearParsed.value,
+        seasonYear,
         competitionId,
+        matchId,
       })
       .returning();
     res.status(201).json(row);
   } catch (err) {
+    const errCode =
+      typeof err === "object" && err !== null && "code" in err
+        ? (err as { code?: string }).code
+        : typeof err === "object"
+            && err !== null
+            && "cause" in err
+            && typeof (err as { cause?: unknown }).cause === "object"
+            && (err as { cause?: unknown }).cause !== null
+            && "code" in ((err as { cause: { code?: string } }).cause)
+          ? (err as { cause: { code?: string } }).cause.code
+          : undefined;
+    const errMessage =
+      err instanceof Error ? err.message : typeof err === "string" ? err : "";
+    if (
+      errCode === "23505"
+      || errMessage.includes("duplicate key value violates unique constraint")
+    ) {
+      const templateRaw = (req.body as { template?: string } | undefined)?.template?.trim() ?? "";
+      if (
+        [
+          "cria_do_mutange",
+          "garcom",
+          "artilheiro",
+          "artilheiro_comp",
+          "campeao",
+          "acesso",
+          "heroi_do_acesso",
+          "gol_do_titulo",
+          "gol_historico",
+        ].includes(templateRaw)
+      ) {
+        return res.status(409).json({
+          error: duplicateManualBadgeMessage(templateRaw as Parameters<typeof duplicateManualBadgeMessage>[0]),
+        });
+      }
+      return res.status(409).json({ error: "Este badge já existe para esta pessoa" });
+    }
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
   }

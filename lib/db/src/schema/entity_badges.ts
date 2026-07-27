@@ -10,7 +10,7 @@ import {
 import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
-import { competitionsTable } from "./matches";
+import { competitionsTable, matchesTable } from "./matches";
 
 /**
  * Badges for players and managers (manual + auto).
@@ -25,11 +25,13 @@ export const entityBadgesTable = pgTable(
     entityId: integer("entity_id").notNull(),
     label: text("label").notNull(),
     source: text("source").notNull(), // manual | auto
+    template: text("template"),
     autoKind: text("auto_kind"), // top_scorer | top_assister | top_scorer_competition
     seasonYear: integer("season_year"),
     competitionId: integer("competition_id").references(
       () => competitionsTable.id,
     ),
+    matchId: integer("match_id").references(() => matchesTable.id),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -46,6 +48,26 @@ export const entityBadgesTable = pgTable(
       .on(t.entityType, t.entityId, t.autoKind, t.seasonYear, t.competitionId)
       .where(
         sql`${t.source} = 'auto' AND ${t.autoKind} = 'top_scorer_competition' AND ${t.competitionId} IS NOT NULL AND ${t.seasonYear} IS NOT NULL`,
+      ),
+    uniqueIndex("entity_badges_manual_cria_uidx")
+      .on(t.entityType, t.entityId)
+      .where(
+        sql`${t.source} = 'manual' AND ${t.template} = 'cria_do_mutange'`,
+      ),
+    uniqueIndex("entity_badges_manual_year_uidx")
+      .on(t.entityType, t.entityId, t.template, t.seasonYear)
+      .where(
+        sql`${t.source} = 'manual' AND ${t.template} IN ('garcom', 'artilheiro') AND ${t.seasonYear} IS NOT NULL`,
+      ),
+    uniqueIndex("entity_badges_manual_comp_year_uidx")
+      .on(t.entityType, t.entityId, t.template, t.competitionId, t.seasonYear)
+      .where(
+        sql`${t.source} = 'manual' AND ${t.template} IN ('artilheiro_comp', 'campeao', 'acesso') AND ${t.competitionId} IS NOT NULL AND ${t.seasonYear} IS NOT NULL`,
+      ),
+    uniqueIndex("entity_badges_manual_match_uidx")
+      .on(t.entityType, t.entityId, t.template, t.matchId)
+      .where(
+        sql`${t.source} = 'manual' AND ${t.template} IN ('heroi_do_acesso', 'gol_do_titulo', 'gol_historico') AND ${t.matchId} IS NOT NULL`,
       ),
     index("entity_badges_entity_idx").on(t.entityType, t.entityId),
     index("entity_badges_season_auto_idx").on(t.seasonYear, t.autoKind),

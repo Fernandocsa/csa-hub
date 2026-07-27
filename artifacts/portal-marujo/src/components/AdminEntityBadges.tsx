@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,10 @@ import {
 } from "@/components/ui/select";
 import {
   buildManualBadgeLabel,
+  deriveBadgeYearFromMatch,
+  formatMatchBadgeOption,
   templateNeedsCompetition,
+  templateNeedsMatch,
   templateNeedsYear,
   templatesForEntity,
   TEMPLATE_SELECT_LABELS,
@@ -31,10 +34,169 @@ export type EntityBadgeRow = {
   autoKind: string | null;
   seasonYear: number | null;
   competitionId?: number | null;
+  matchId?: number | null;
+  template?: string | null;
   createdAt?: string;
 };
 
 type CompetitionOption = { id: number; name: string };
+
+type MatchSearchResult = {
+  id: number;
+  matchDate: string;
+  season: string;
+  opponentName: string;
+  competitionId: number;
+  competitionName: string;
+};
+
+function AdminMatchSearch({
+  value,
+  onSelect,
+  onClear,
+}: {
+  value: MatchSearchResult | null;
+  onSelect: (match: MatchSearchResult) => void;
+  onClear: () => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const [highlight, setHighlight] = useState(0);
+  const [results, setResults] = useState<MatchSearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onDoc(e: MouseEvent) {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
+
+  useEffect(() => {
+    const term = query.trim();
+    if (value && formatMatchBadgeOption(value) === query) {
+      setResults([]);
+      setLoading(false);
+      return;
+    }
+    if (term.length < 2) {
+      setResults([]);
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+    const timer = window.setTimeout(async () => {
+      try {
+        const r = await adminFetch(
+          `/admin/matches/search?q=${encodeURIComponent(term)}&limit=20`,
+        );
+        if (!r.ok || cancelled) return;
+        const data = (await r.json()) as MatchSearchResult[];
+        if (!cancelled) {
+          setResults(Array.isArray(data) ? data : []);
+          setHighlight(0);
+          setOpen(true);
+        }
+      } catch {
+        if (!cancelled) setResults([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [query, value]);
+
+  function pick(match: MatchSearchResult) {
+    setQuery(formatMatchBadgeOption(match));
+    setOpen(false);
+    onSelect(match);
+  }
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (!open || results.length === 0) {
+      if (e.key === "ArrowDown" && query.trim().length >= 2) setOpen(true);
+      return;
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlight((h) => Math.min(h + 1, results.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlight((h) => Math.max(h - 1, 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const item = results[highlight];
+      if (item) pick(item);
+    } else if (e.key === "Escape") {
+      setOpen(false);
+    }
+  }
+
+  return (
+    <div ref={rootRef} className="relative min-w-[16rem] flex-1">
+      <label className="text-[10px] font-semibold text-gray-500 uppercase block mb-0.5">
+        Partida
+      </label>
+      <Input
+        value={query}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          if (value) onClear();
+          setOpen(true);
+        }}
+        onFocus={() => {
+          if (query.trim().length >= 2) setOpen(true);
+        }}
+        onKeyDown={onKeyDown}
+        placeholder="Buscar por adversário, data ou competição"
+        className="h-8 text-xs"
+        autoComplete="off"
+        aria-autocomplete="list"
+        aria-expanded={open && results.length > 0}
+      />
+      {open && query.trim().length >= 2 && (
+        <ul
+          className="absolute z-30 mt-1 w-full max-h-64 overflow-auto rounded-md border bg-white shadow-md text-xs"
+          role="listbox"
+        >
+          {loading ? (
+            <li className="px-3 py-2 text-gray-400">Buscando...</li>
+          ) : results.length === 0 ? (
+            <li className="px-3 py-2 text-gray-400">Nenhuma partida</li>
+          ) : (
+            results.map((match, i) => (
+              <li key={match.id} role="option" aria-selected={i === highlight}>
+                <button
+                  type="button"
+                  className={`w-full text-left px-3 py-2 hover:bg-gray-50 ${
+                    i === highlight ? "bg-gray-50" : ""
+                  }`}
+                  onMouseEnter={() => setHighlight(i)}
+                  onClick={() => pick(match)}
+                >
+                  <span className="font-medium text-gray-900">
+                    {formatMatchBadgeOption(match)}
+                  </span>
+                  <span className="block text-[10px] text-gray-500">
+                    Temporada {match.season}
+                  </span>
+                </button>
+              </li>
+            ))
+          )}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 export function AdminEntityBadges({
   entityType,
@@ -48,6 +210,9 @@ export function AdminEntityBadges({
   const [template, setTemplate] = useState<ManualBadgeTemplate | "">("");
   const [year, setYear] = useState("");
   const [competitionId, setCompetitionId] = useState("");
+  const [selectedMatch, setSelectedMatch] = useState<MatchSearchResult | null>(
+    null,
+  );
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -66,6 +231,20 @@ export function AdminEntityBadges({
 
   const previewLabel = useMemo(() => {
     if (!template) return "";
+
+    if (templateNeedsMatch(template)) {
+      if (!selectedMatch) return "";
+      const derivedYear = deriveBadgeYearFromMatch(
+        selectedMatch.matchDate,
+        selectedMatch.season,
+      );
+      if (derivedYear == null) return "";
+      return buildManualBadgeLabel(template, {
+        year: derivedYear,
+        competitionName: selectedMatch.competitionName,
+      });
+    }
+
     const yearNum = year.trim() ? parseInt(year, 10) : undefined;
     if (templateNeedsYear(template) && !yearNum) return "";
     if (templateNeedsCompetition(template) && !selectedCompetition) return "";
@@ -73,13 +252,21 @@ export function AdminEntityBadges({
       year: yearNum,
       competitionName: selectedCompetition?.name,
     });
-  }, [template, year, selectedCompetition]);
+  }, [template, year, selectedCompetition, selectedMatch]);
 
   const canSubmit =
     !!template &&
     !!previewLabel &&
     (!templateNeedsYear(template) || year.trim() !== "") &&
-    (!templateNeedsCompetition(template) || competitionId !== "");
+    (!templateNeedsCompetition(template) || competitionId !== "") &&
+    (!templateNeedsMatch(template) || selectedMatch != null);
+
+  const resetForm = () => {
+    setTemplate("");
+    setYear("");
+    setCompetitionId("");
+    setSelectedMatch(null);
+  };
 
   const load = useCallback(async () => {
     const r = await adminFetch(`/admin/badges/${entityType}/${entityId}`);
@@ -89,9 +276,7 @@ export function AdminEntityBadges({
 
   useEffect(() => {
     setBadges(null);
-    setTemplate("");
-    setYear("");
-    setCompetitionId("");
+    resetForm();
     load();
   }, [load]);
 
@@ -121,12 +306,16 @@ export function AdminEntityBadges({
         template: ManualBadgeTemplate;
         year?: number;
         competitionId?: number;
+        matchId?: number;
       } = { template };
       if (templateNeedsYear(template)) {
         body.year = parseInt(year, 10);
       }
       if (templateNeedsCompetition(template)) {
         body.competitionId = parseInt(competitionId, 10);
+      }
+      if (templateNeedsMatch(template) && selectedMatch) {
+        body.matchId = selectedMatch.id;
       }
       const r = await adminFetch(`/admin/badges/${entityType}/${entityId}`, {
         method: "POST",
@@ -136,9 +325,7 @@ export function AdminEntityBadges({
         const err = await r.json().catch(() => ({}));
         throw new Error((err as { error?: string }).error ?? "Erro ao salvar");
       }
-      setTemplate("");
-      setYear("");
-      setCompetitionId("");
+      resetForm();
       await load();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro");
@@ -206,6 +393,8 @@ export function AdminEntityBadges({
                 setTemplate(v as ManualBadgeTemplate);
                 setYear("");
                 setCompetitionId("");
+                setSelectedMatch(null);
+                setError("");
               }}
             >
               <SelectTrigger className="h-8 text-xs">
@@ -242,7 +431,10 @@ export function AdminEntityBadges({
               <label className="text-[10px] font-semibold text-gray-500 uppercase block mb-0.5">
                 Competição
               </label>
-              <Select value={competitionId || undefined} onValueChange={setCompetitionId}>
+              <Select
+                value={competitionId || undefined}
+                onValueChange={setCompetitionId}
+              >
                 <SelectTrigger className="h-8 text-xs">
                   <SelectValue placeholder="Escolher competição" />
                 </SelectTrigger>
@@ -255,6 +447,14 @@ export function AdminEntityBadges({
                 </SelectContent>
               </Select>
             </div>
+          )}
+
+          {template && templateNeedsMatch(template) && (
+            <AdminMatchSearch
+              value={selectedMatch}
+              onSelect={setSelectedMatch}
+              onClear={() => setSelectedMatch(null)}
+            />
           )}
 
           <Button
