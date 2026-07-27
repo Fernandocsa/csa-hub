@@ -56,6 +56,8 @@ export const matchesTable = pgTable("matches", {
   scorers: text("scorers"), // comma-separated player names
   isWalkover: boolean("is_walkover").notNull().default(false),
   isFriendly: boolean("is_friendly").notNull().default(false),
+  /** CSA goals from opponent own-goals (not in match_goals). Used for sheet completeness gate. */
+  ownGoalsForCount: integer("own_goals_for_count").notNull().default(0),
 });
 
 export const insertOpponentSchema = createInsertSchema(opponentsTable).omit({ id: true });
