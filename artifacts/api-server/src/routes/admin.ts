@@ -2979,6 +2979,505 @@ router.delete(
   },
 );
 
+function serializeSeasonPlayerStat(row: {
+  id: number;
+  playerId: number;
+  playerName: string;
+  position: string | null;
+  season: string;
+  appearances: number;
+  goals: number;
+  assists: number;
+  shirtNumber: number | null;
+}) {
+  return {
+    id: row.id,
+    playerId: row.playerId,
+    playerName: row.playerName,
+    position: row.position,
+    season: row.season,
+    appearances: row.appearances,
+    goals: row.goals,
+    assists: row.assists,
+    shirtNumber: row.shirtNumber,
+  };
+}
+
+async function listSeasonPlayerStats(season: string) {
+  return db
+    .select({
+      id: playerSeasonStatsTable.id,
+      playerId: playerSeasonStatsTable.playerId,
+      playerName: playersTable.name,
+      position: playersTable.position,
+      season: playerSeasonStatsTable.season,
+      appearances: playerSeasonStatsTable.appearances,
+      goals: playerSeasonStatsTable.goals,
+      assists: playerSeasonStatsTable.assists,
+      shirtNumber: playerSeasonStatsTable.shirtNumber,
+    })
+    .from(playerSeasonStatsTable)
+    .innerJoin(playersTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
+    .where(eq(playerSeasonStatsTable.season, season))
+    .orderBy(desc(playerSeasonStatsTable.appearances), asc(playersTable.name));
+}
+
+function parseOptionalShirtNumber(raw: unknown): number | null | undefined {
+  if (raw === undefined) return undefined;
+  if (raw === null || raw === "") return null;
+  const n = typeof raw === "number" ? raw : parseInt(String(raw), 10);
+  if (!Number.isInteger(n) || n < 0) return undefined;
+  return n;
+}
+
+router.get("/admin/seasons/:year/players", requireAdmin, async (req, res) => {
+  try {
+    const year = parseInt(req.params.year, 10);
+    if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+      return res.status(400).json({ error: "Ano inválido" });
+    }
+    const season = String(year);
+    const rows = await listSeasonPlayerStats(season);
+    res.json({ season, data: rows.map(serializeSeasonPlayerStat), total: rows.length });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.post("/admin/seasons/:year/players", requireAdmin, async (req, res) => {
+  try {
+    const year = parseInt(req.params.year, 10);
+    if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+      return res.status(400).json({ error: "Ano inválido" });
+    }
+    const season = String(year);
+    const body = req.body as {
+      playerId?: unknown;
+      appearances?: unknown;
+      goals?: unknown;
+      assists?: unknown;
+      shirtNumber?: unknown;
+    };
+    const playerId =
+      typeof body.playerId === "number"
+        ? body.playerId
+        : parseInt(String(body.playerId ?? ""), 10);
+    if (!Number.isInteger(playerId) || playerId < 1) {
+      return res.status(400).json({ error: "playerId inválido" });
+    }
+    const [player] = await db
+      .select({ id: playersTable.id, name: playersTable.name })
+      .from(playersTable)
+      .where(eq(playersTable.id, playerId))
+      .limit(1);
+    if (!player) return res.status(404).json({ error: "Jogador não encontrado" });
+
+    const appearances = parseNonNegInt(body.appearances, 0);
+    const goals = parseNonNegInt(body.goals, 0);
+    const assists = parseNonNegInt(body.assists, 0);
+    const shirtNumber = parseOptionalShirtNumber(body.shirtNumber);
+    if (
+      appearances == null ||
+      goals == null ||
+      assists == null ||
+      shirtNumber === undefined
+    ) {
+      return res.status(400).json({ error: "valores numéricos inválidos" });
+    }
+
+    try {
+      const [inserted] = await db
+        .insert(playerSeasonStatsTable)
+        .values({
+          playerId,
+          season,
+          appearances,
+          goals,
+          assists,
+          shirtNumber,
+        })
+        .returning();
+      const rows = await listSeasonPlayerStats(season);
+      const row = rows.find((r) => r.id === inserted.id);
+      res.status(201).json(
+        serializeSeasonPlayerStat(
+          row ?? {
+            id: inserted.id,
+            playerId: inserted.playerId,
+            playerName: player.name,
+            position: null,
+            season: inserted.season,
+            appearances: inserted.appearances,
+            goals: inserted.goals,
+            assists: inserted.assists,
+            shirtNumber: inserted.shirtNumber,
+          },
+        ),
+      );
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (/unique|duplicate/i.test(msg)) {
+        return res.status(409).json({
+          error: "Jogador já está no elenco desta temporada",
+        });
+      }
+      throw err;
+    }
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put("/admin/seasons/:year/players/bulk", requireAdmin, async (req, res) => {
+  const client = await pgPool.connect();
+  try {
+    const year = parseInt(req.params.year, 10);
+    if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+      return res.status(400).json({ error: "Ano inválido" });
+    }
+    const season = String(year);
+    const raw = (req.body as { stats?: unknown })?.stats;
+    if (!Array.isArray(raw)) {
+      return res.status(400).json({ error: "stats deve ser um array" });
+    }
+    if (raw.length === 0) {
+      const rows = await listSeasonPlayerStats(season);
+      return res.json(rows.map(serializeSeasonPlayerStat));
+    }
+
+    const updates: {
+      id: number;
+      appearances: number;
+      goals: number;
+      assists: number;
+      shirtNumber: number | null;
+    }[] = [];
+
+    for (const row of raw) {
+      const item = row as Record<string, unknown>;
+      const id =
+        typeof item.id === "number" ? item.id : parseInt(String(item.id), 10);
+      const appearances = parseNonNegInt(item.appearances, 0);
+      const goals = parseNonNegInt(item.goals, 0);
+      const assists = parseNonNegInt(item.assists, 0);
+      const shirtNumber = parseOptionalShirtNumber(item.shirtNumber);
+      if (
+        !Number.isInteger(id) ||
+        appearances == null ||
+        goals == null ||
+        assists == null ||
+        shirtNumber === undefined
+      ) {
+        return res.status(400).json({ error: "linha inválida em stats" });
+      }
+      updates.push({ id, appearances, goals, assists, shirtNumber });
+    }
+
+    await client.query("BEGIN");
+    for (const u of updates) {
+      const result = await client.query(
+        `UPDATE player_season_stats SET
+           appearances = $1, goals = $2, assists = $3, shirt_number = $4
+         WHERE id = $5 AND season = $6
+         RETURNING id`,
+        [u.appearances, u.goals, u.assists, u.shirtNumber, u.id, season],
+      );
+      if (result.rowCount === 0) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: `Linha #${u.id} não encontrada` });
+      }
+    }
+    await client.query("COMMIT");
+
+    const rows = await listSeasonPlayerStats(season);
+    res.json(rows.map(serializeSeasonPlayerStat));
+  } catch (err) {
+    try {
+      await client.query("ROLLBACK");
+    } catch {
+      /* ignore */
+    }
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  } finally {
+    client.release();
+  }
+});
+
+function serializeSeasonManagerStat(row: {
+  id: number;
+  managerId: number;
+  managerName: string;
+  season: string;
+  games: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  statsSource: string;
+  statsRecalculatedAt: Date | string | null;
+}) {
+  return {
+    id: row.id,
+    managerId: row.managerId,
+    managerName: row.managerName,
+    season: row.season,
+    games: row.games,
+    wins: row.wins,
+    draws: row.draws,
+    losses: row.losses,
+    goalsFor: row.goalsFor,
+    goalsAgainst: row.goalsAgainst,
+    statsSource: row.statsSource,
+    statsRecalculatedAt:
+      row.statsRecalculatedAt instanceof Date
+        ? row.statsRecalculatedAt.toISOString()
+        : row.statsRecalculatedAt,
+  };
+}
+
+async function listSeasonManagerStats(season: string) {
+  return db
+    .select({
+      id: managerSeasonStatsTable.id,
+      managerId: managerSeasonStatsTable.managerId,
+      managerName: managersTable.name,
+      season: managerSeasonStatsTable.season,
+      games: managerSeasonStatsTable.games,
+      wins: managerSeasonStatsTable.wins,
+      draws: managerSeasonStatsTable.draws,
+      losses: managerSeasonStatsTable.losses,
+      goalsFor: managerSeasonStatsTable.goalsFor,
+      goalsAgainst: managerSeasonStatsTable.goalsAgainst,
+      statsSource: managerSeasonStatsTable.statsSource,
+      statsRecalculatedAt: managerSeasonStatsTable.statsRecalculatedAt,
+    })
+    .from(managerSeasonStatsTable)
+    .innerJoin(managersTable, eq(managerSeasonStatsTable.managerId, managersTable.id))
+    .where(eq(managerSeasonStatsTable.season, season))
+    .orderBy(desc(managerSeasonStatsTable.games), asc(managersTable.name));
+}
+
+router.get("/admin/seasons/:year/managers", requireAdmin, async (req, res) => {
+  try {
+    const year = parseInt(req.params.year, 10);
+    if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+      return res.status(400).json({ error: "Ano inválido" });
+    }
+    const season = String(year);
+    const rows = await listSeasonManagerStats(season);
+    res.json({
+      season,
+      data: rows.map(serializeSeasonManagerStat),
+      total: rows.length,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.post("/admin/seasons/:year/managers", requireAdmin, async (req, res) => {
+  try {
+    const year = parseInt(req.params.year, 10);
+    if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+      return res.status(400).json({ error: "Ano inválido" });
+    }
+    const season = String(year);
+    const body = req.body as {
+      managerId?: unknown;
+      games?: unknown;
+      wins?: unknown;
+      draws?: unknown;
+      losses?: unknown;
+      goalsFor?: unknown;
+      goalsAgainst?: unknown;
+    };
+    const managerId =
+      typeof body.managerId === "number"
+        ? body.managerId
+        : parseInt(String(body.managerId ?? ""), 10);
+    if (!Number.isInteger(managerId) || managerId < 1) {
+      return res.status(400).json({ error: "managerId inválido" });
+    }
+    const [manager] = await db
+      .select({ id: managersTable.id, name: managersTable.name })
+      .from(managersTable)
+      .where(eq(managersTable.id, managerId))
+      .limit(1);
+    if (!manager) return res.status(404).json({ error: "Técnico não encontrado" });
+
+    const games = parseNonNegInt(body.games, 0);
+    const wins = parseNonNegInt(body.wins, 0);
+    const draws = parseNonNegInt(body.draws, 0);
+    const losses = parseNonNegInt(body.losses, 0);
+    const goalsFor = parseNonNegInt(body.goalsFor, 0);
+    const goalsAgainst = parseNonNegInt(body.goalsAgainst, 0);
+    if (
+      games == null ||
+      wins == null ||
+      draws == null ||
+      losses == null ||
+      goalsFor == null ||
+      goalsAgainst == null
+    ) {
+      return res.status(400).json({ error: "valores numéricos inválidos" });
+    }
+
+    try {
+      const [inserted] = await db
+        .insert(managerSeasonStatsTable)
+        .values({
+          managerId,
+          season,
+          games,
+          wins,
+          draws,
+          losses,
+          goalsFor,
+          goalsAgainst,
+          statsSource: "manual",
+          statsRecalculatedAt: null,
+        })
+        .returning();
+      await syncManagerCareerFromSeasonRows(managerId);
+      const rows = await listSeasonManagerStats(season);
+      const row = rows.find((r) => r.id === inserted.id);
+      res.status(201).json(
+        serializeSeasonManagerStat(
+          row ?? {
+            id: inserted.id,
+            managerId: inserted.managerId,
+            managerName: manager.name,
+            season: inserted.season,
+            games: inserted.games,
+            wins: inserted.wins,
+            draws: inserted.draws,
+            losses: inserted.losses,
+            goalsFor: inserted.goalsFor,
+            goalsAgainst: inserted.goalsAgainst,
+            statsSource: inserted.statsSource,
+            statsRecalculatedAt: inserted.statsRecalculatedAt,
+          },
+        ),
+      );
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (/unique|duplicate/i.test(msg)) {
+        return res.status(409).json({
+          error: "Técnico já vinculado a esta temporada",
+        });
+      }
+      throw err;
+    }
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put("/admin/seasons/:year/managers/bulk", requireAdmin, async (req, res) => {
+  const client = await pgPool.connect();
+  try {
+    const year = parseInt(req.params.year, 10);
+    if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+      return res.status(400).json({ error: "Ano inválido" });
+    }
+    const season = String(year);
+    const raw = (req.body as { stats?: unknown })?.stats;
+    if (!Array.isArray(raw)) {
+      return res.status(400).json({ error: "stats deve ser um array" });
+    }
+    if (raw.length === 0) {
+      const rows = await listSeasonManagerStats(season);
+      return res.json(rows.map(serializeSeasonManagerStat));
+    }
+
+    const updates: {
+      id: number;
+      games: number;
+      wins: number;
+      draws: number;
+      losses: number;
+      goalsFor: number;
+      goalsAgainst: number;
+    }[] = [];
+
+    for (const row of raw) {
+      const item = row as Record<string, unknown>;
+      const id =
+        typeof item.id === "number" ? item.id : parseInt(String(item.id), 10);
+      const games = parseNonNegInt(item.games, 0);
+      const wins = parseNonNegInt(item.wins, 0);
+      const draws = parseNonNegInt(item.draws, 0);
+      const losses = parseNonNegInt(item.losses, 0);
+      const goalsFor = parseNonNegInt(item.goalsFor, 0);
+      const goalsAgainst = parseNonNegInt(item.goalsAgainst, 0);
+      if (
+        !Number.isInteger(id) ||
+        games == null ||
+        wins == null ||
+        draws == null ||
+        losses == null ||
+        goalsFor == null ||
+        goalsAgainst == null
+      ) {
+        return res.status(400).json({ error: "linha inválida em stats" });
+      }
+      updates.push({ id, games, wins, draws, losses, goalsFor, goalsAgainst });
+    }
+
+    const touchedManagerIds = new Set<number>();
+    await client.query("BEGIN");
+    for (const u of updates) {
+      const result = await client.query(
+        `UPDATE manager_season_stats SET
+           games = $1, wins = $2, draws = $3, losses = $4,
+           goals_for = $5, goals_against = $6,
+           stats_source = 'manual', stats_recalculated_at = NULL
+         WHERE id = $7 AND season = $8
+         RETURNING id, manager_id`,
+        [
+          u.games,
+          u.wins,
+          u.draws,
+          u.losses,
+          u.goalsFor,
+          u.goalsAgainst,
+          u.id,
+          season,
+        ],
+      );
+      if (result.rowCount === 0) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: `Linha #${u.id} não encontrada` });
+      }
+      touchedManagerIds.add(result.rows[0].manager_id as number);
+    }
+    await client.query("COMMIT");
+
+    for (const mid of touchedManagerIds) {
+      await syncManagerCareerFromSeasonRows(mid);
+    }
+
+    const rows = await listSeasonManagerStats(season);
+    res.json(rows.map(serializeSeasonManagerStat));
+  } catch (err) {
+    try {
+      await client.query("ROLLBACK");
+    } catch {
+      /* ignore */
+    }
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  } finally {
+    client.release();
+  }
+});
+
 router.put("/admin/seasons/:year/verification", requireAdmin, async (req, res) => {
   try {
     const year = parseInt(req.params.year, 10);

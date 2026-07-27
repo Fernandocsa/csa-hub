@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, date } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, date, uniqueIndex, index } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -29,14 +29,23 @@ export const playersTable = pgTable("players", {
   verifiedBy: text("verified_by"),
 });
 
-export const playerSeasonStatsTable = pgTable("player_season_stats", {
-  id: serial("id").primaryKey(),
-  playerId: integer("player_id").notNull().references(() => playersTable.id),
-  season: text("season").notNull(),
-  appearances: integer("appearances").notNull().default(0),
-  goals: integer("goals").notNull().default(0),
-  assists: integer("assists").notNull().default(0),
-});
+export const playerSeasonStatsTable = pgTable(
+  "player_season_stats",
+  {
+    id: serial("id").primaryKey(),
+    playerId: integer("player_id").notNull().references(() => playersTable.id),
+    season: text("season").notNull(),
+    appearances: integer("appearances").notNull().default(0),
+    goals: integer("goals").notNull().default(0),
+    assists: integer("assists").notNull().default(0),
+    /** Fixed shirt number for the season (catalog). Independent from match_lineups. */
+    shirtNumber: integer("shirt_number"),
+  },
+  (t) => [
+    uniqueIndex("player_season_stats_player_season_uidx").on(t.playerId, t.season),
+    index("player_season_stats_season_idx").on(t.season),
+  ],
+);
 
 export const insertPlayerSchema = createInsertSchema(playersTable).omit({ id: true });
 export type InsertPlayer = z.infer<typeof insertPlayerSchema>;
