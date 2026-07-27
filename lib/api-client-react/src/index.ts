@@ -12,4 +12,5 @@ export * from "./next-match";
 export * from "./match-detail";
 export * from "./stadium-detail";
 export * from "./opponents-by-state";
+export * from "./players-by-birth-state";
 export * from "./player-matches";

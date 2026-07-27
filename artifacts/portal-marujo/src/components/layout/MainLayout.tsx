@@ -32,6 +32,7 @@ const navigation: NavItem[] = [
       { name: "Mais Jogos", href: "/jogadores/presencas" },
       { name: "Assistências", href: "/jogadores/assistencias" },
       { name: "Estrangeiros", href: "/jogadores/estrangeiros" },
+      { name: "Por Estado", href: "/jogadores/por-estado" },
     ],
   },
   {

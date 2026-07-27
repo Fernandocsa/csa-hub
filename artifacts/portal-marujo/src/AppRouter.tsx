@@ -9,6 +9,8 @@ import TopAppearances from "./pages/players/TopAppearances";
 import TopAssists from "./pages/players/TopAssists";
 import Estrangeiros from "./pages/players/Estrangeiros";
 import NationalityDetail from "./pages/players/NationalityDetail";
+import PlayersByState from "./pages/players/PlayersByState";
+import PlayersByStateDetail from "./pages/players/PlayersByStateDetail";
 import MatchesList from "./pages/matches/MatchesList";
 import MatchRecords from "./pages/matches/MatchRecords";
 import MatchDetail from "./pages/matches/MatchDetail";
@@ -50,6 +52,8 @@ export default function AppRouter() {
         <Route path="/jogadores/assistencias" component={TopAssists} />
         <Route path="/jogadores/estrangeiros" component={Estrangeiros} />
         <Route path="/jogadores/estrangeiros/:country" component={NationalityDetail} />
+        <Route path="/jogadores/por-estado/:uf" component={PlayersByStateDetail} />
+        <Route path="/jogadores/por-estado" component={PlayersByState} />
         <Route path="/jogadores/:id/jogos" component={PlayerMatches} />
         <Route path="/jogadores/:id" component={PlayerDetail} />
         <Route path="/partidas/recordes" component={MatchRecords} />

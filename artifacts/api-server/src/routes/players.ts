@@ -7,7 +7,7 @@ import {
   matchesTable,
   opponentsTable,
 } from "@workspace/db";
-import { sql, eq, ilike, and, desc, asc, ne } from "drizzle-orm";
+import { sql, eq, ilike, and, desc, asc, ne, or, isNull } from "drizzle-orm";
 import { loadEntityBadges } from "../lib/entity-badges";
 
 const router = Router();
@@ -302,6 +302,136 @@ router.get("/players/nationalities", async (req, res) => {
       .orderBy(sql`count(distinct ${playersTable.id}) desc`);
 
     res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+const BRAZIL_UFS = new Set([
+  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
+  "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
+  "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+]);
+
+const birthStateNorm = sql<string>`upper(trim(${playersTable.birthState}))`;
+
+// Brazilian birth-state summaries
+router.get("/players/by-birth-state", async (req, res) => {
+  try {
+    const rows = await db
+      .select({
+        state: birthStateNorm,
+        playerCount: sql<number>`cast(count(distinct ${playersTable.id}) as int)`,
+        totalAppearances: sql<number>`cast(coalesce(sum(${playerSeasonStatsTable.appearances}), 0) as int)`,
+        totalGoals: sql<number>`cast(coalesce(sum(${playerSeasonStatsTable.goals}), 0) as int)`,
+      })
+      .from(playersTable)
+      .leftJoin(playerSeasonStatsTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
+      .where(
+        and(
+          sql`${playersTable.birthState} is not null`,
+          sql`trim(${playersTable.birthState}) <> ''`,
+        ),
+      )
+      .groupBy(birthStateNorm)
+      .orderBy(sql`count(distinct ${playersTable.id}) desc`);
+
+    const [unknown] = await db
+      .select({
+        playerCount: sql<number>`cast(count(distinct ${playersTable.id}) as int)`,
+        totalAppearances: sql<number>`cast(coalesce(sum(${playerSeasonStatsTable.appearances}), 0) as int)`,
+        totalGoals: sql<number>`cast(coalesce(sum(${playerSeasonStatsTable.goals}), 0) as int)`,
+      })
+      .from(playersTable)
+      .leftJoin(playerSeasonStatsTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
+      .where(
+        or(
+          isNull(playersTable.birthState),
+          sql`trim(${playersTable.birthState}) = ''`,
+        ),
+      );
+
+    res.json({
+      states: rows
+        .filter((r) => r.state)
+        .map((r) => ({
+          state: String(r.state).toUpperCase(),
+          playerCount: r.playerCount ?? 0,
+          totalAppearances: r.totalAppearances ?? 0,
+          totalGoals: r.totalGoals ?? 0,
+        })),
+      unknown:
+        unknown && (unknown.playerCount ?? 0) > 0
+          ? {
+              state: null,
+              playerCount: unknown.playerCount ?? 0,
+              totalAppearances: unknown.totalAppearances ?? 0,
+              totalGoals: unknown.totalGoals ?? 0,
+            }
+          : null,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+router.get("/players/by-birth-state/:uf", async (req, res) => {
+  try {
+    const raw = decodeURIComponent(req.params.uf ?? "").trim();
+    const isUnknown = raw.toLowerCase() === "sem-estado" || raw.toLowerCase() === "unknown";
+    const uf = raw.toUpperCase();
+
+    if (!isUnknown && uf.length === 2 && !BRAZIL_UFS.has(uf)) {
+      return res.status(400).json({ error: "UF inválida" });
+    }
+
+    const stateCondition = isUnknown
+      ? or(
+          isNull(playersTable.birthState),
+          sql`trim(${playersTable.birthState}) = ''`,
+        )
+      : eq(birthStateNorm, uf);
+
+    const rows = await db
+      .select({
+        id: playersTable.id,
+        name: playersTable.name,
+        position: playersTable.position,
+        birthCity: playersTable.birthCity,
+        birthState: playersTable.birthState,
+        nationality: playersTable.nationality,
+        nationalityFlag: playersTable.nationalityFlag,
+        appearances: sql<number>`cast(coalesce(sum(${playerSeasonStatsTable.appearances}), 0) as int)`,
+        goals: sql<number>`cast(coalesce(sum(${playerSeasonStatsTable.goals}), 0) as int)`,
+        firstSeason: sql<string | null>`cast(min(${playerSeasonStatsTable.season}) as text)`,
+        lastSeason: sql<string | null>`cast(max(${playerSeasonStatsTable.season}) as text)`,
+      })
+      .from(playersTable)
+      .leftJoin(playerSeasonStatsTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
+      .where(stateCondition)
+      .groupBy(
+        playersTable.id,
+        playersTable.name,
+        playersTable.position,
+        playersTable.birthCity,
+        playersTable.birthState,
+        playersTable.nationality,
+        playersTable.nationalityFlag,
+      )
+      .orderBy(
+        sql`coalesce(sum(${playerSeasonStatsTable.appearances}), 0) desc`,
+        asc(playersTable.name),
+      );
+
+    res.json({
+      state: isUnknown ? null : uf,
+      playerCount: rows.length,
+      totalAppearances: rows.reduce((s, p) => s + (p.appearances ?? 0), 0),
+      totalGoals: rows.reduce((s, p) => s + (p.goals ?? 0), 0),
+      players: rows,
+    });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno do servidor" });
