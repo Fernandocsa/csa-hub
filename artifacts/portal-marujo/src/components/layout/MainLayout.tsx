@@ -43,6 +43,7 @@ const navigation: NavItem[] = [
       { name: "Maiores Vitórias & Derrotas", href: "/partidas/recordes" },
       { name: "Maiores Públicos", href: "/publicos" },
       { name: "CSA x Estados", href: "/partidas/por-estado" },
+      { name: "CSA x Estrangeiros", href: "/partidas/estrangeiros" },
     ],
   },
   { name: "Temporadas", href: "/temporadas", icon: CalendarDays },
