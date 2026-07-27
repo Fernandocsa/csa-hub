@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { matchesTable, opponentsTable, competitionsTable, stadiumsTable } from "@workspace/db";
-import { sql, eq, and, ilike, desc, isNull, isNotNull, asc, inArray } from "drizzle-orm";
+import { sql, eq, and, or, ilike, desc, isNull, isNotNull, asc, inArray } from "drizzle-orm";
 import {
   BRAZIL_REGIONS,
   regionFromUf,
@@ -85,11 +85,31 @@ function emptyAggregate() {
   return mapAggregate({});
 }
 
+/** Opponents without a foreign country code (Brazilian state-based grouping). */
+function noCountrySetCondition() {
+  return or(
+    isNull(opponentsTable.country),
+    sql`trim(${opponentsTable.country}) = ''`,
+  );
+}
+
 function brStateMatchCondition() {
   return and(
     eq(matchesTable.isFriendly, false),
     isNotNull(opponentsTable.state),
     sql`trim(${opponentsTable.state}) <> ''`,
+    noCountrySetCondition(),
+  );
+}
+
+/** Brazilian opponents missing state only — excludes foreign clubs (country set). */
+function semStateBrazilOnlyCondition() {
+  return and(
+    or(
+      isNull(opponentsTable.state),
+      sql`trim(${opponentsTable.state}) = ''`,
+    ),
+    noCountrySetCondition(),
   );
 }
 
@@ -154,12 +174,7 @@ router.get("/opponents/by-state", async (req, res) => {
       })
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
-      .where(
-        and(
-          eq(matchesTable.isFriendly, false),
-          isNotNull(opponentsTable.state),
-        ),
-      )
+      .where(brStateMatchCondition())
       .groupBy(opponentsTable.state)
       .orderBy(desc(sql`count(*)`));
 
@@ -178,7 +193,7 @@ router.get("/opponents/by-state", async (req, res) => {
       .where(
         and(
           eq(matchesTable.isFriendly, false),
-          isNull(opponentsTable.state),
+          semStateBrazilOnlyCondition(),
         ),
       );
 
@@ -226,8 +241,8 @@ router.get("/opponents/by-state/:uf", async (req, res) => {
     }
 
     const stateCondition = isUnknown
-      ? isNull(opponentsTable.state)
-      : eq(opponentsTable.state, uf);
+      ? semStateBrazilOnlyCondition()
+      : and(eq(opponentsTable.state, uf), noCountrySetCondition());
 
     const [overall] = await db
       .select({
