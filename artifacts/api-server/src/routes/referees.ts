@@ -7,10 +7,37 @@ import {
   stadiumsTable,
   refereesTable,
 } from "@workspace/db";
-import { sql, eq, and, desc, asc, ilike } from "drizzle-orm";
+import { sql, eq, and, or, desc, asc, ilike, isNull } from "drizzle-orm";
 
 const router = Router();
 
+const BRAZIL_UFS = new Set([
+  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
+  "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
+  "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+]);
+
+function hasRefereeStateCondition() {
+  return and(
+    sql`${refereesTable.state} is not null`,
+    sql`trim(${refereesTable.state}) <> ''`,
+  );
+}
+
+function semRefereeStateCondition() {
+  return or(
+    isNull(refereesTable.state),
+    sql`trim(${refereesTable.state}) = ''`,
+  );
+}
+
+/** Only non-friendly matches that have a linked referee (omit unassigned). */
+function linkedNonFriendlyMatch() {
+  return and(
+    eq(matchesTable.isFriendly, false),
+    sql`${matchesTable.refereeId} is not null`,
+  );
+}
 type RecordRow = {
   matches: number;
   wins: number;
@@ -72,6 +99,165 @@ router.get("/referees", async (req, res) => {
         winPercentage: winPercentage(r.wins, r.matches),
       })),
     );
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+router.get("/referees/by-state", async (req, res) => {
+  try {
+    const rows = await db
+      .select({
+        state: refereesTable.state,
+        refereeCount: sql<number>`cast(count(distinct ${refereesTable.id}) as int)`,
+        matches: sql<number>`cast(count(*) as int)`,
+        wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+        draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+        losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+        goalsFor: sql<number>`cast(coalesce(sum(${matchesTable.goalsFor}), 0) as int)`,
+        goalsAgainst: sql<number>`cast(coalesce(sum(${matchesTable.goalsAgainst}), 0) as int)`,
+      })
+      .from(matchesTable)
+      .innerJoin(refereesTable, eq(matchesTable.refereeId, refereesTable.id))
+      .where(and(linkedNonFriendlyMatch(), hasRefereeStateCondition()))
+      .groupBy(refereesTable.state)
+      .orderBy(desc(sql`count(*)`));
+
+    const unknown = await db
+      .select({
+        refereeCount: sql<number>`cast(count(distinct ${refereesTable.id}) as int)`,
+        matches: sql<number>`cast(count(*) as int)`,
+        wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+        draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+        losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+        goalsFor: sql<number>`cast(coalesce(sum(${matchesTable.goalsFor}), 0) as int)`,
+        goalsAgainst: sql<number>`cast(coalesce(sum(${matchesTable.goalsAgainst}), 0) as int)`,
+      })
+      .from(matchesTable)
+      .innerJoin(refereesTable, eq(matchesTable.refereeId, refereesTable.id))
+      .where(and(linkedNonFriendlyMatch(), semRefereeStateCondition()));
+
+    const unknownRow = unknown[0];
+    res.json({
+      states: rows
+        .filter((r) => r.state)
+        .map((r) => ({
+          state: String(r.state).toUpperCase(),
+          refereeCount: r.refereeCount ?? 0,
+          matches: r.matches ?? 0,
+          wins: r.wins ?? 0,
+          draws: r.draws ?? 0,
+          losses: r.losses ?? 0,
+          goalsFor: r.goalsFor ?? 0,
+          goalsAgainst: r.goalsAgainst ?? 0,
+        })),
+      unknown:
+        unknownRow && (unknownRow.matches ?? 0) > 0
+          ? {
+              state: null,
+              refereeCount: unknownRow.refereeCount ?? 0,
+              matches: unknownRow.matches ?? 0,
+              wins: unknownRow.wins ?? 0,
+              draws: unknownRow.draws ?? 0,
+              losses: unknownRow.losses ?? 0,
+              goalsFor: unknownRow.goalsFor ?? 0,
+              goalsAgainst: unknownRow.goalsAgainst ?? 0,
+            }
+          : null,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+router.get("/referees/by-state/:uf", async (req, res) => {
+  try {
+    const raw = (req.params.uf ?? "").trim();
+    const isUnknown =
+      raw.toLowerCase() === "sem-estado" || raw.toLowerCase() === "unknown";
+    const uf = raw.toUpperCase();
+    if (!isUnknown && !BRAZIL_UFS.has(uf)) {
+      return res.status(400).json({ error: "UF inválida" });
+    }
+
+    const stateCondition = isUnknown
+      ? semRefereeStateCondition()
+      : and(eq(refereesTable.state, uf), hasRefereeStateCondition());
+    const where = and(linkedNonFriendlyMatch(), stateCondition);
+
+    const [overall] = await db
+      .select({
+        refereeCount: sql<number>`cast(count(distinct ${refereesTable.id}) as int)`,
+        matches: sql<number>`cast(count(*) as int)`,
+        wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+        draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+        losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+        goalsFor: sql<number>`cast(coalesce(sum(${matchesTable.goalsFor}), 0) as int)`,
+        goalsAgainst: sql<number>`cast(coalesce(sum(${matchesTable.goalsAgainst}), 0) as int)`,
+      })
+      .from(matchesTable)
+      .innerJoin(refereesTable, eq(matchesTable.refereeId, refereesTable.id))
+      .where(where);
+
+    const [homeRecord] = await db
+      .select({
+        matches: sql<number>`cast(count(*) as int)`,
+        wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+        draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+        losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+        goalsFor: sql<number>`cast(coalesce(sum(${matchesTable.goalsFor}), 0) as int)`,
+        goalsAgainst: sql<number>`cast(coalesce(sum(${matchesTable.goalsAgainst}), 0) as int)`,
+      })
+      .from(matchesTable)
+      .innerJoin(refereesTable, eq(matchesTable.refereeId, refereesTable.id))
+      .where(and(where, eq(matchesTable.homeAway, "home")));
+
+    const [awayRecord] = await db
+      .select({
+        matches: sql<number>`cast(count(*) as int)`,
+        wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+        draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+        losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+        goalsFor: sql<number>`cast(coalesce(sum(${matchesTable.goalsFor}), 0) as int)`,
+        goalsAgainst: sql<number>`cast(coalesce(sum(${matchesTable.goalsAgainst}), 0) as int)`,
+      })
+      .from(matchesTable)
+      .innerJoin(refereesTable, eq(matchesTable.refereeId, refereesTable.id))
+      .where(and(where, eq(matchesTable.homeAway, "away")));
+
+    const referees = await db
+      .select({
+        id: refereesTable.id,
+        name: refereesTable.name,
+        state: refereesTable.state,
+        matches: sql<number>`cast(count(*) as int)`,
+        wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+        draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+        losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+        goalsFor: sql<number>`cast(coalesce(sum(${matchesTable.goalsFor}), 0) as int)`,
+        goalsAgainst: sql<number>`cast(coalesce(sum(${matchesTable.goalsAgainst}), 0) as int)`,
+      })
+      .from(matchesTable)
+      .innerJoin(refereesTable, eq(matchesTable.refereeId, refereesTable.id))
+      .where(where)
+      .groupBy(refereesTable.id, refereesTable.name, refereesTable.state)
+      .orderBy(desc(sql`count(*)`), asc(refereesTable.name));
+
+    res.json({
+      state: isUnknown ? null : uf,
+      matches: overall?.matches ?? 0,
+      wins: overall?.wins ?? 0,
+      draws: overall?.draws ?? 0,
+      losses: overall?.losses ?? 0,
+      goalsFor: overall?.goalsFor ?? 0,
+      goalsAgainst: overall?.goalsAgainst ?? 0,
+      refereeCount: overall?.refereeCount ?? 0,
+      homeRecord: mapRecord(homeRecord),
+      awayRecord: mapRecord(awayRecord),
+      referees,
+    });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno do servidor" });

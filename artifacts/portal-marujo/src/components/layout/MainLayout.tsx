@@ -51,7 +51,14 @@ const navigation: NavItem[] = [
   { name: "Temporadas", href: "/temporadas", icon: CalendarDays },
   { name: "Adversários", href: "/adversarios", icon: Shield },
   { name: "Técnicos", href: "/tecnicos", icon: Trophy },
-  { name: "Árbitros", href: "/arbitros", icon: Scale },
+  {
+    name: "Árbitros",
+    icon: Scale,
+    children: [
+      { name: "Todos os Árbitros", href: "/arbitros" },
+      { name: "Por Estado", href: "/arbitros/por-estado" },
+    ],
+  },
   { name: "Competições", href: "/competicoes", icon: Medal },
   { name: "Estádios", href: "/estadios", icon: MapPin },
   {
