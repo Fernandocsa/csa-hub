@@ -226,6 +226,7 @@ router.post("/admin/players", requireAdmin, async (req, res) => {
       name: string;
       fullName?: string | null;
       position?: string | null;
+      secondaryPositions?: string[] | null;
       nationality?: string | null;
       birthYear?: number | null;
       birthDate?: string | null;
@@ -253,13 +254,24 @@ router.post("/admin/players", requireAdmin, async (req, res) => {
       birthDate && /^\d{4}-\d{2}-\d{2}$/.test(birthDate)
         ? parseInt(birthDate.slice(0, 4), 10)
         : body.birthYear ?? null;
+    const primaryPosition = body.position?.trim() || null;
+    const secondaryPositions = Array.isArray(body.secondaryPositions)
+      ? [
+          ...new Set(
+            body.secondaryPositions
+              .map((p) => (typeof p === "string" ? p.trim() : ""))
+              .filter((p) => p && p !== primaryPosition),
+          ),
+        ]
+      : [];
 
     const [player] = await db
       .insert(playersTable)
       .values({
         name: body.name.trim(),
         fullName: body.fullName?.trim() || null,
-        position: body.position || null,
+        position: primaryPosition,
+        secondaryPositions,
         nationality: body.nationality || null,
         birthYear,
         birthDate,
@@ -290,6 +302,7 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
       name: string;
       fullName?: string | null;
       position?: string | null;
+      secondaryPositions?: string[] | null;
       nationality?: string | null;
       birthYear?: number | null;
       birthDate?: string | null;
@@ -317,13 +330,24 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
       birthDate && /^\d{4}-\d{2}-\d{2}$/.test(birthDate)
         ? parseInt(birthDate.slice(0, 4), 10)
         : body.birthYear ?? null;
+    const primaryPosition = body.position?.trim() || null;
+    const secondaryPositions = Array.isArray(body.secondaryPositions)
+      ? [
+          ...new Set(
+            body.secondaryPositions
+              .map((p) => (typeof p === "string" ? p.trim() : ""))
+              .filter((p) => p && p !== primaryPosition),
+          ),
+        ]
+      : [];
 
     const [updated] = await db
       .update(playersTable)
       .set({
         name: body.name.trim(),
         fullName: body.fullName?.trim() || null,
-        position: body.position || null,
+        position: primaryPosition,
+        secondaryPositions,
         nationality: body.nationality || null,
         birthYear,
         birthDate,

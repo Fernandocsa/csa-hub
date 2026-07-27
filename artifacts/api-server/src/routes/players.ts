@@ -389,6 +389,7 @@ router.get("/players/:id", async (req, res) => {
       name: player.name,
       fullName: player.fullName ?? null,
       position: player.position,
+      secondaryPositions: player.secondaryPositions ?? [],
       nationality: player.nationality,
       nationalityFlag: player.nationalityFlag,
       birthYear: player.birthYear,

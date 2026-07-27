@@ -2,11 +2,12 @@
  * Position normalization and lineup ordering for match sheets.
  *
  * Field order:
- *   Goleiro → Lateral Direito → Lateral (genérico) → Zagueiro →
- *   Lateral Esquerdo → Volante → Meia → Atacante → Outros
+ *   Goleiro → Lateral Direito → Lateral → Zagueiro → Lateral Esquerdo →
+ *   Volante → Meia Central → Meia Ofensivo → Ponta Direita → Ponta Esquerda →
+ *   2º Atacante → Centroavante → Atacante → Outros
  *
- * "Lateral" without side sits between Lateral Direito and Zagueiro
- * (i.e. between the two lateral groups in the LD … LE sequence).
+ * Legacy "Meia" maps to Meia Central for ordering.
+ * "Lateral" without side sits between Lateral Direito and Zagueiro.
  */
 
 export type LineupPositionSlot =
@@ -16,19 +17,34 @@ export type LineupPositionSlot =
   | "Zagueiro"
   | "Lateral Esquerdo"
   | "Volante"
-  | "Meia"
+  | "Meia Central"
+  | "Meia Ofensivo"
+  | "Ponta Direita"
+  | "Ponta Esquerda"
+  | "2º Atacante"
+  | "Centroavante"
   | "Atacante"
   | "Outros";
 
-export const LINEUP_POSITION_ORDER: LineupPositionSlot[] = [
+/** Canonical admin select options (no Outros). */
+export const PLAYER_POSITIONS: Exclude<LineupPositionSlot, "Outros">[] = [
   "Goleiro",
   "Lateral Direito",
   "Lateral",
   "Zagueiro",
   "Lateral Esquerdo",
   "Volante",
-  "Meia",
+  "Meia Central",
+  "Meia Ofensivo",
+  "Ponta Direita",
+  "Ponta Esquerda",
+  "2º Atacante",
+  "Centroavante",
   "Atacante",
+];
+
+export const LINEUP_POSITION_ORDER: LineupPositionSlot[] = [
+  ...PLAYER_POSITIONS,
   "Outros",
 ];
 
@@ -124,34 +140,93 @@ export function lineupPositionSlot(
     return "Volante";
   }
 
+  // Midfield specifics before generic "meia"
+  if (
+    p === "meia ofensivo" ||
+    p === "meia-ofensivo" ||
+    p === "cam" ||
+    p === "am" ||
+    p.includes("meia ofensiv") ||
+    p.includes("meia-ofensiv")
+  ) {
+    return "Meia Ofensivo";
+  }
+
+  if (
+    p === "meia central" ||
+    p === "meia-central" ||
+    p === "mc" ||
+    p === "cm" ||
+    p.includes("meia central") ||
+    p.includes("meia-central")
+  ) {
+    return "Meia Central";
+  }
+
+  // Legacy "Meia" and other midfield aliases → Meia Central
   if (
     p === "mei" ||
     p === "mf" ||
     p === "meia" ||
-    p === "mc" ||
     p === "md" ||
     p === "me" ||
-    p === "cm" ||
-    p === "am" ||
     p.includes("meia") ||
     p.includes("meio")
   ) {
-    return "Meia";
+    return "Meia Central";
+  }
+
+  if (
+    p === "ponta direita" ||
+    p === "pd" ||
+    p === "rw" ||
+    p.includes("ponta direita")
+  ) {
+    return "Ponta Direita";
+  }
+
+  if (
+    p === "ponta esquerda" ||
+    p === "pe" ||
+    p === "lw" ||
+    p.includes("ponta esquerda")
+  ) {
+    return "Ponta Esquerda";
+  }
+
+  // Generic "ponta" without side — keep as Outros rather than inventing a side
+  if (p === "ponta" || p.includes("ponta")) {
+    return "Outros";
+  }
+
+  if (
+    p === "2o atacante" ||
+    p === "2º atacante" ||
+    p === "segundo atacante" ||
+    p === "sa" ||
+    p === "ss" ||
+    p.includes("2o atacante") ||
+    p.includes("2º atacante") ||
+    p.includes("segundo atacante")
+  ) {
+    return "2º Atacante";
+  }
+
+  if (
+    p === "centroavante" ||
+    p === "ca" ||
+    p === "st" ||
+    p === "cf" ||
+    p.includes("centroavante")
+  ) {
+    return "Centroavante";
   }
 
   if (
     p === "ata" ||
     p === "fw" ||
-    p === "st" ||
     p === "atacante" ||
-    p === "centroavante" ||
-    p === "ca" ||
-    p === "pe" ||
-    p === "pd" ||
-    p === "sa" ||
-    p.includes("atacant") ||
-    p.includes("centroavante") ||
-    p.includes("ponta")
+    p.includes("atacant")
   ) {
     return "Atacante";
   }
@@ -173,8 +248,13 @@ export function positionGroup(position: string | null | undefined): PositionGrou
     case "Lateral Esquerdo":
       return "Defensores";
     case "Volante":
-    case "Meia":
+    case "Meia Central":
+    case "Meia Ofensivo":
       return "Meias";
+    case "Ponta Direita":
+    case "Ponta Esquerda":
+    case "2º Atacante":
+    case "Centroavante":
     case "Atacante":
       return "Atacantes";
     default:

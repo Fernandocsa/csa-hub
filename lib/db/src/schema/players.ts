@@ -1,4 +1,5 @@
 import { pgTable, text, serial, integer, boolean, timestamp, date } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -7,6 +8,11 @@ export const playersTable = pgTable("players", {
   name: text("name").notNull(),
   fullName: text("full_name"),
   position: text("position"),
+  /** Informative only — does not affect lineup sort order. */
+  secondaryPositions: text("secondary_positions")
+    .array()
+    .notNull()
+    .default(sql`'{}'::text[]`),
   nationality: text("nationality"),
   nationalityFlag: text("nationality_flag"),
   birthYear: integer("birth_year"),

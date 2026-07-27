@@ -12,12 +12,14 @@ import {
 } from "@/components/ui/dialog";
 import { ChevronLeft, Pencil, Plus, Trash2 } from "lucide-react";
 import { AdminEntityBadges } from "@/components/AdminEntityBadges";
+import { PLAYER_POSITIONS } from "@/lib/position-groups";
 
 export interface Player {
   id: number;
   name: string;
   fullName: string | null;
   position: string | null;
+  secondaryPositions: string[];
   nationality: string | null;
   birthYear: number | null;
   birthDate: string | null;
@@ -44,16 +46,9 @@ interface StatRow {
 
 type PlayerPayload = Omit<Player, "id">;
 
-const POSITIONS = [
-  "Goleiro",
-  "Lateral Direito",
-  "Zagueiro",
-  "Lateral Esquerdo",
-  "Lateral",
-  "Volante",
-  "Meia",
-  "Atacante",
-];
+type BirthMode = "exact" | "year";
+
+type TabId = "perfil" | "temporadas" | "badges";
 
 const FEET = [
   { value: "destro", label: "Destro" },
@@ -61,8 +56,12 @@ const FEET = [
   { value: "ambidestro", label: "Ambidestro" },
 ];
 
-type TabId = "perfil" | "temporadas" | "badges";
-type BirthMode = "exact" | "year";
+function positionOptions(current?: string | null): string[] {
+  if (current && !PLAYER_POSITIONS.includes(current as (typeof PLAYER_POSITIONS)[number])) {
+    return [current, ...PLAYER_POSITIONS];
+  }
+  return [...PLAYER_POSITIONS];
+}
 
 function PlayerProfileForm({
   initial,
@@ -78,6 +77,9 @@ function PlayerProfileForm({
   const [name, setName] = useState(initial?.name ?? "");
   const [fullName, setFullName] = useState(initial?.fullName ?? "");
   const [position, setPosition] = useState(initial?.position ?? "");
+  const [secondaryPositions, setSecondaryPositions] = useState<string[]>(
+    initial?.secondaryPositions ?? [],
+  );
   const [nationality, setNationality] = useState(initial?.nationality ?? "");
   const [birthYear, setBirthYear] = useState(String(initial?.birthYear ?? ""));
   const [birthDate, setBirthDate] = useState(initial?.birthDate ?? "");
@@ -105,6 +107,7 @@ function PlayerProfileForm({
     setName(initial?.name ?? "");
     setFullName(initial?.fullName ?? "");
     setPosition(initial?.position ?? "");
+    setSecondaryPositions(initial?.secondaryPositions ?? []);
     setNationality(initial?.nationality ?? "");
     setBirthYear(String(initial?.birthYear ?? ""));
     setBirthDate(initial?.birthDate ?? "");
@@ -121,6 +124,14 @@ function PlayerProfileForm({
   }, [initial]);
 
   const sel = "w-full border rounded px-3 py-2 text-sm bg-white";
+  const primaryOptions = positionOptions(position);
+  const secondaryOptions = PLAYER_POSITIONS.filter((p) => p !== position);
+
+  function toggleSecondary(pos: string) {
+    setSecondaryPositions((prev) =>
+      prev.includes(pos) ? prev.filter((p) => p !== pos) : [...prev, pos],
+    );
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -140,6 +151,7 @@ function PlayerProfileForm({
         name,
         fullName: fullName.trim() || null,
         position: position || null,
+        secondaryPositions: secondaryPositions.filter((p) => p && p !== position),
         nationality: nationality || null,
         birthYear: normalizedBirthYear,
         birthDate: normalizedBirthDate,
@@ -190,10 +202,20 @@ function PlayerProfileForm({
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Posição</label>
-          <select className={sel} value={position} onChange={(e) => setPosition(e.target.value)}>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Posição principal
+          </label>
+          <select
+            className={sel}
+            value={position}
+            onChange={(e) => {
+              const next = e.target.value;
+              setPosition(next);
+              setSecondaryPositions((prev) => prev.filter((p) => p !== next));
+            }}
+          >
             <option value="">–</option>
-            {POSITIONS.map((p) => (
+            {primaryOptions.map((p) => (
               <option key={p} value={p}>
                 {p}
               </option>
@@ -209,6 +231,27 @@ function PlayerProfileForm({
             onChange={(e) => setNationality(e.target.value)}
             placeholder="Brasileiro"
           />
+        </div>
+      </div>
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+          Posições secundárias
+        </label>
+        <p className="text-xs text-gray-400 mb-2">
+          Só informativas — não afetam a ordem da escalação.
+        </p>
+        <div className="grid grid-cols-2 gap-2 rounded border p-3 bg-gray-50">
+          {secondaryOptions.map((p) => (
+            <label key={p} className="inline-flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={secondaryPositions.includes(p)}
+                onChange={() => toggleSecondary(p)}
+                className="rounded border-gray-300"
+              />
+              {p}
+            </label>
+          ))}
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">

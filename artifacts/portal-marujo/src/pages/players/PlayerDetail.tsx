@@ -26,6 +26,7 @@ type PlayerProfile = {
   heightCm?: number | null;
   weightKg?: number | null;
   isDeceased?: boolean;
+  secondaryPositions?: string[] | null;
   verificationStatus?: string | null;
   verifiedAt?: string | null;
   verifiedBy?: string | null;
@@ -151,6 +152,12 @@ export default function PlayerDetail() {
   }
   if (place) personalRows.push({ label: "Local de nascimento", value: place });
   if (player.position) personalRows.push({ label: "Posição", value: player.position });
+  if ((player.secondaryPositions?.length ?? 0) > 0) {
+    personalRows.push({
+      label: "Também joga",
+      value: player.secondaryPositions!.join(", "),
+    });
+  }
   if (foot) personalRows.push({ label: "Pé preferencial", value: foot });
   if (heightWeight) personalRows.push({ label: "Altura / Peso", value: heightWeight });
 
