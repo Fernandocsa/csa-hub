@@ -46,7 +46,11 @@ function MilestoneCard({ label, match }: { label: string; match: MilestoneMatch 
   const scoreColor = resultColor[match.result] ?? "text-foreground";
 
   return (
-    <div className="border rounded p-4 space-y-2">
+    <Link
+      href={`/partidas/${match.id}`}
+      className="border rounded p-4 space-y-2 block hover:bg-muted/40 transition-colors"
+      data-testid={`link-milestone-${label.toLowerCase().replace(/\s+/g, "-")}`}
+    >
       <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
       <div>
         <p className="text-xs text-muted-foreground">{fmtDate(match.date)} · {match.competition}</p>
@@ -58,7 +62,7 @@ function MilestoneCard({ label, match }: { label: string; match: MilestoneMatch 
         {isHome ? match.goalsAgainst : match.goalsFor}
       </p>
       <p className="text-xs text-muted-foreground">{match.season}</p>
-    </div>
+    </Link>
   );
 }
 
@@ -370,32 +374,62 @@ export default function Home() {
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Recordes Históricos</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {summary && (
-            <div className="border rounded p-4 space-y-1" data-testid="record-top-scorer">
+            <Link
+              href={`/jogadores/${summary.topScorer.id}`}
+              className="border rounded p-4 space-y-1 block hover:bg-muted/40 transition-colors"
+              data-testid="record-top-scorer"
+            >
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Artilheiro</p>
               <p className="font-bold text-base">{summary.topScorer.name}</p>
-              <p className="text-2xl font-black text-primary">{summary.topScorer.goals} <span className="text-sm font-normal text-muted-foreground">gols</span></p>
-            </div>
+              <p className="text-2xl font-black text-primary">
+                {summary.topScorer.goals}{" "}
+                <span className="text-sm font-normal text-muted-foreground">gols</span>
+              </p>
+            </Link>
           )}
           {summary && (
-            <div className="border rounded p-4 space-y-1" data-testid="record-top-appearances">
+            <Link
+              href={`/jogadores/${summary.appearanceLeader.id}`}
+              className="border rounded p-4 space-y-1 block hover:bg-muted/40 transition-colors"
+              data-testid="record-top-appearances"
+            >
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Mais Partidas</p>
               <p className="font-bold text-base">{summary.appearanceLeader.name}</p>
-              <p className="text-2xl font-black text-primary">{summary.appearanceLeader.appearances} <span className="text-sm font-normal text-muted-foreground">jogos</span></p>
-            </div>
+              <p className="text-2xl font-black text-primary">
+                {summary.appearanceLeader.appearances}{" "}
+                <span className="text-sm font-normal text-muted-foreground">jogos</span>
+              </p>
+            </Link>
           )}
           {biggestWin && (
-            <div className="border rounded p-4 space-y-1" data-testid="record-biggest-win">
+            <Link
+              href={`/partidas/${biggestWin.id}`}
+              className="border rounded p-4 space-y-1 block hover:bg-muted/40 transition-colors"
+              data-testid="record-biggest-win"
+            >
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Vitória</p>
               <p className="font-bold text-base">{biggestWin.opponent}</p>
-              <p className="text-2xl font-black text-green-600">{biggestWin.goalsFor}–{biggestWin.goalsAgainst} <span className="text-sm font-normal text-muted-foreground">{fmtDate(biggestWin.date)}</span></p>
-            </div>
+              <p className="text-2xl font-black text-green-600">
+                {biggestWin.goalsFor}–{biggestWin.goalsAgainst}{" "}
+                <span className="text-sm font-normal text-muted-foreground">
+                  {fmtDate(biggestWin.date)}
+                </span>
+              </p>
+            </Link>
           )}
           {unbeatenStreak && (
-            <div className="border rounded p-4 space-y-1" data-testid="record-unbeaten">
+            <Link
+              href="/partidas/recordes"
+              className="border rounded p-4 space-y-1 block hover:bg-muted/40 transition-colors"
+              data-testid="record-unbeaten"
+            >
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Invencibilidade</p>
               <p className="font-bold text-base">Sequência invicta</p>
-              <p className="text-2xl font-black text-primary">{unbeatenStreak.length} <span className="text-sm font-normal text-muted-foreground">jogos</span></p>
-            </div>
+              <p className="text-2xl font-black text-primary">
+                {unbeatenStreak.length}{" "}
+                <span className="text-sm font-normal text-muted-foreground">jogos</span>
+              </p>
+            </Link>
           )}
         </div>
       </div>
@@ -429,8 +463,14 @@ export default function Home() {
                       <TableRow key={m.id} className="text-sm">
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
                         <TableCell className="py-1.5 font-medium">
-                          {home} {m.goalsFor}–{m.goalsAgainst} {away}
-                          <span className="ml-1.5 text-xs text-muted-foreground">({m.season})</span>
+                          <Link
+                            href={`/partidas/${m.id}`}
+                            className="hover:text-primary hover:underline"
+                            data-testid={`link-attendance-match-${m.id}`}
+                          >
+                            {home} {m.goalsFor}–{m.goalsAgainst} {away}
+                            <span className="ml-1.5 text-xs text-muted-foreground">({m.season})</span>
+                          </Link>
                         </TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary">
                           {m.attendance.toLocaleString("pt-BR")}
