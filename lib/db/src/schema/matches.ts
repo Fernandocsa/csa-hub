@@ -18,6 +18,7 @@ export const opponentsTable = pgTable("opponents", {
   city: text("city"),
   state: text("state"),
   country: text("country"),
+  logoUrl: text("logo_url"),
   homeStadiumId: integer("home_stadium_id").references(() => stadiumsTable.id),
 });
 
