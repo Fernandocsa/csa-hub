@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { PlayerFlag } from "@/components/PlayerFlag";
 import { useListPlayers } from "@workspace/api-client-react";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -84,16 +85,15 @@ export default function PlayersList() {
                     <TableCell colSpan={7} className="h-20 text-center text-muted-foreground">Nenhum jogador encontrado.</TableCell>
                   </TableRow>
                 )
-              : data?.data.map((player, i) => {
-                  const flag = (player as any).nationalityFlag as string | null | undefined;
-                  return (
+              : data?.data.map((player, i) => (
                     <TableRow key={player.id} className="text-sm" data-testid={`row-player-${player.id}`}>
                       <TableCell className="py-2 text-muted-foreground text-xs">{(page - 1) * limit + i + 1}</TableCell>
                       <TableCell className="py-2 font-medium">
                         <Link href={`/jogadores/${player.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1" data-testid={`link-player-${player.id}`}>
-                          {flag && player.nationality !== "Brasil" && (
-                            <span className="mr-0.5 text-base leading-none">{flag}</span>
-                          )}
+                          <PlayerFlag
+                            flag={(player as { nationalityFlag?: string | null }).nationalityFlag}
+                            nationality={player.nationality}
+                          />
                           {player.name}
                           <VerifiedBadge status={(player as any).verificationStatus} />
                         </Link>
@@ -106,8 +106,7 @@ export default function PlayersList() {
                         {player.appearances > 0 ? (player.goals / player.appearances).toFixed(2) : "–"}
                       </TableCell>
                     </TableRow>
-                  );
-                })}
+                  ))}
           </TableBody>
         </Table>
       </div>

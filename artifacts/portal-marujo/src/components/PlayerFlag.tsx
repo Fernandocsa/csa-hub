@@ -1,20 +1,54 @@
+import {
+  BrazilFlag,
+  isBrazilFlagEmoji,
+  isBrazilianNationality,
+} from "@/components/BrazilFlag";
+
 interface PlayerFlagProps {
   flag?: string | null;
   nationality?: string | null;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
+  /** When true, Brazilian nationality renders BrazilFlag (default). When false, Brasil is hidden. */
+  showBrazil?: boolean;
 }
 
 /**
- * Renders a nationality flag emoji next to player names.
- * Returns null for Brazilian players (no flag shown — default nationality).
+ * Nationality marker next to player names.
+ * Brazil → PNG image; other countries → emoji from `nationalityFlag`.
  */
-export function PlayerFlag({ flag, nationality, size = "sm" }: PlayerFlagProps) {
-  if (!flag || nationality === "Brasil") return null;
+export function PlayerFlag({
+  flag,
+  nationality,
+  size = "sm",
+  showBrazil = true,
+}: PlayerFlagProps) {
+  const brazilian =
+    isBrazilianNationality(nationality) || isBrazilFlagEmoji(flag);
+
+  if (brazilian) {
+    if (!showBrazil) return null;
+    return (
+      <BrazilFlag
+        size={size === "lg" ? "lg" : size === "md" ? "md" : "sm"}
+        title={nationality?.trim() || "Brasil"}
+        className={size === "md" || size === "lg" ? "mr-1.5" : "mr-0.5"}
+      />
+    );
+  }
+
+  if (!flag) return null;
+
   return (
     <span
       title={nationality ?? undefined}
       aria-label={nationality ?? undefined}
-      className={size === "md" ? "text-xl mr-1.5" : "mr-1 text-base leading-none"}
+      className={
+        size === "lg"
+          ? "text-3xl mr-1.5 leading-none"
+          : size === "md"
+            ? "text-xl mr-1.5 leading-none"
+            : "mr-0.5 text-base leading-none"
+      }
     >
       {flag}
     </span>

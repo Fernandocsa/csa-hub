@@ -14,6 +14,7 @@ import { ResultBadge } from "@/components/ui/result-badge";
 import { Button } from "@/components/ui/button";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
+import { BrazilFlag } from "@/components/BrazilFlag";
 
 const PAGE_SIZE = 25;
 
@@ -222,6 +223,8 @@ export default function OpponentDetail() {
   const totalPages = Math.ceil(allMatches.length / PAGE_SIZE);
   const currentPage = Math.min(page, Math.max(0, totalPages - 1));
   const pageMatches = allMatches.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
+  const opponentCountry = (opponent as { country?: string | null }).country;
+  const isBrazilianClub = !opponentCountry || String(opponentCountry).trim() === "";
 
   return (
     <div className="space-y-5 max-w-3xl">
@@ -240,7 +243,10 @@ export default function OpponentDetail() {
           <span className="text-muted-foreground font-normal">x</span>
           <span className="inline-flex items-center gap-2">
             <OpponentCrest url={opponent.logoUrl} name={opponent.name} size="lg" />
-            <span>{opponent.name}</span>
+            <span className="inline-flex items-center gap-2">
+              {isBrazilianClub && <BrazilFlag size="md" title="Brasil" />}
+              <span>{opponent.name}</span>
+            </span>
           </span>
         </h1>
       </div>

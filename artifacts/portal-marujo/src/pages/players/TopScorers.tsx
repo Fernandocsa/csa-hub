@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useGetTopScorers, useListSeasons } from "@workspace/api-client-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { PlayerFlag } from "@/components/PlayerFlag";
 import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -65,16 +66,15 @@ export default function TopScorers() {
                     <TableCell colSpan={6} className="h-20 text-center text-muted-foreground">Nenhum dado disponível.</TableCell>
                   </TableRow>
                 )
-              : scorers?.map((p, i) => {
-                  const flag = (p as any).nationalityFlag as string | null | undefined;
-                  return (
+              : scorers?.map((p, i) => (
                     <TableRow key={p.id} className="text-sm" data-testid={`row-scorer-${p.id}`}>
                       <TableCell className="py-2 text-muted-foreground font-mono text-xs">{i + 1}</TableCell>
                       <TableCell className="py-2 font-medium">
                         <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
-                          {flag && p.nationality !== "Brasil" && (
-                            <span className="mr-0.5 text-base leading-none">{flag}</span>
-                          )}
+                          <PlayerFlag
+                            flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
+                            nationality={p.nationality}
+                          />
                           {p.name}
                           <VerifiedBadge status={(p as any).verificationStatus} />
                         </Link>
@@ -86,8 +86,7 @@ export default function TopScorers() {
                         {p.appearances > 0 ? (p.goals / p.appearances).toFixed(2) : "–"}
                       </TableCell>
                     </TableRow>
-                  );
-                })}
+                  ))}
           </TableBody>
         </Table>
       </div>

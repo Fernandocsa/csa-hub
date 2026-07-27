@@ -8,6 +8,7 @@ import { EntityBadges } from "@/components/EntityBadges";
 import { EntityComments } from "@/components/EntityComments";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { VerificationCard } from "@/components/VerificationCard";
+import { BrazilFlag, isBrazilianNationality } from "@/components/BrazilFlag";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -54,17 +55,23 @@ export default function ManagerDetail() {
           />
         </div>
         {(manager.nationality || manager.startYear != null) && (
-          <p className="text-sm text-muted-foreground mt-1">
-            {[
-              manager.nationality,
-              manager.startYear != null
-                ? manager.endYear != null && manager.endYear !== manager.startYear
+          <p className="text-sm text-muted-foreground mt-1 inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
+            {manager.nationality && (
+              <span className="inline-flex items-center gap-1">
+                {isBrazilianNationality(manager.nationality) && (
+                  <BrazilFlag size="sm" title={manager.nationality} />
+                )}
+                <span>{manager.nationality}</span>
+              </span>
+            )}
+            {manager.nationality && manager.startYear != null && <span aria-hidden>·</span>}
+            {manager.startYear != null && (
+              <span>
+                {manager.endYear != null && manager.endYear !== manager.startYear
                   ? `${manager.startYear}–${manager.endYear}`
-                  : String(manager.startYear)
-                : null,
-            ]
-              .filter(Boolean)
-              .join(" · ")}
+                  : String(manager.startYear)}
+              </span>
+            )}
           </p>
         )}
         <EntityBadges

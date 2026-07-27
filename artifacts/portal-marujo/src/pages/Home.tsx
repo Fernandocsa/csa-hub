@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
+import { PlayerFlag } from "@/components/PlayerFlag";
 
 function pct(wins: number, total: number) {
   if (!total) return "0.0%";
@@ -311,24 +312,22 @@ export default function Home() {
                         <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                       </TableRow>
                     ))
-                  : scorerList.slice(0, 10).map((p, i) => {
-                      const flag = (p as any).nationalityFlag as string | null | undefined;
-                      return (
+                  : scorerList.slice(0, 10).map((p, i) => (
                       <TableRow key={p.id} className="text-sm">
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
                         <TableCell className="py-1.5 font-medium">
                           <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1" data-testid={`link-player-${p.id}`}>
-                            {flag && (
-                              <span className="mr-0.5 text-base leading-none">{flag}</span>
-                            )}
+                            <PlayerFlag
+                              flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
+                              nationality={p.nationality}
+                            />
                             {p.name}
                             <VerifiedBadge status={(p as any).verificationStatus} />
                           </Link>
                         </TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary">{p.goals}</TableCell>
                       </TableRow>
-                      );
-                    })}
+                    ))}
               </TableBody>
             </Table>
           </div>
@@ -356,24 +355,22 @@ export default function Home() {
                         <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                       </TableRow>
                     ))
-                  : appearanceList.slice(0, 10).map((p, i) => {
-                      const flag = (p as any).nationalityFlag as string | null | undefined;
-                      return (
+                  : appearanceList.slice(0, 10).map((p, i) => (
                       <TableRow key={p.id} className="text-sm">
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
                         <TableCell className="py-1.5 font-medium">
                           <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
-                            {flag && (
-                              <span className="mr-0.5 text-base leading-none">{flag}</span>
-                            )}
+                            <PlayerFlag
+                              flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
+                              nationality={p.nationality}
+                            />
                             {p.name}
                             <VerifiedBadge status={(p as any).verificationStatus} />
                           </Link>
                         </TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary">{p.appearances}</TableCell>
                       </TableRow>
-                      );
-                    })}
+                    ))}
               </TableBody>
             </Table>
           </div>
@@ -564,24 +561,22 @@ export default function Home() {
                       <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                     </TableRow>
                   ))
-                : assistList.slice(0, 10).map((p, i) => {
-                    const flag = (p as any).nationalityFlag as string | null | undefined;
-                    return (
+                : assistList.slice(0, 10).map((p, i) => (
                       <TableRow key={p.id} className="text-sm">
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
                         <TableCell className="py-1.5 font-medium">
                           <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
-                            {flag && p.nationality !== "Brasil" && (
-                              <span className="mr-0.5 text-base leading-none">{flag}</span>
-                            )}
+                            <PlayerFlag
+                              flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
+                              nationality={p.nationality}
+                            />
                             {p.name}
                             <VerifiedBadge status={(p as any).verificationStatus} />
                           </Link>
                         </TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary">{p.assists}</TableCell>
                       </TableRow>
-                    );
-                  })}
+                    ))}
             </TableBody>
           </Table>
         </div>

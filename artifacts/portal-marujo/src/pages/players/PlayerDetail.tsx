@@ -10,6 +10,7 @@ import { StarRating } from "@/components/StarRating";
 import { EntityComments } from "@/components/EntityComments";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { EntityBadges } from "@/components/EntityBadges";
+import { PlayerFlag } from "@/components/PlayerFlag";
 import type { ReactNode } from "react";
 
 type PlayerProfile = {
@@ -167,7 +168,7 @@ export default function PlayerDetail() {
   if (player.nationality) {
     metaParts.push(
       <span key="nat" className="inline-flex items-center gap-1">
-        {isForeign && flag && <span className="text-base leading-none">{flag}</span>}
+        <PlayerFlag flag={flag} nationality={player.nationality} />
         {isForeign ? (
           <Link
             href={`/jogadores/estrangeiros/${encodeURIComponent(player.nationality)}`}
@@ -199,7 +200,7 @@ export default function PlayerDetail() {
       <div className="border-b pb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            {isForeign && flag && <span className="text-3xl leading-none">{flag}</span>}
+            <PlayerFlag flag={flag} nationality={player.nationality} size="lg" />
             <h1 className="text-2xl font-bold" data-testid="heading-player-name">
               {player.name}
             </h1>

@@ -661,6 +661,7 @@ router.get("/opponents/:id", async (req, res) => {
       name: opponent.name,
       city: opponent.city ?? null,
       state: opponent.state ?? null,
+      country: opponent.country ? String(opponent.country).toUpperCase() : null,
       logoUrl: opponent.logoUrl ?? null,
       matches: stats?.matches || 0,
       wins: stats?.wins || 0,

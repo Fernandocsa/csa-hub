@@ -3,6 +3,7 @@ import { useGetCompetition, getGetCompetitionQueryKey } from "@workspace/api-cli
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
+import { BrazilFlag } from "@/components/BrazilFlag";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -52,7 +53,10 @@ export default function CompetitionDetail() {
 
       <div className="border-b pb-4 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold" data-testid="heading-competition">{comp.name}</h1>
+          <h1 className="text-2xl font-bold inline-flex items-center gap-2" data-testid="heading-competition">
+            <BrazilFlag size="md" title="Brasil" />
+            {comp.name}
+          </h1>
           {nivel(comp.type) && <p className="text-sm text-muted-foreground mt-1">{nivel(comp.type)}</p>}
         </div>
         {comp.titles ? (

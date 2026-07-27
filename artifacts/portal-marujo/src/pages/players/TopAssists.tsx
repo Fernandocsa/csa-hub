@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { PlayerFlag } from "@/components/PlayerFlag";
 import { useGetTopAssists, useListSeasons } from "@workspace/api-client-react";
 import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -71,9 +72,7 @@ export default function TopAssists() {
                     </TableCell>
                   </TableRow>
                 )
-              : players?.map((p, i) => {
-                  const flag = p.nationalityFlag as string | null | undefined;
-                  return (
+              : players?.map((p, i) => (
                     <TableRow key={p.id} className="text-sm">
                       <TableCell className="py-2 text-muted-foreground font-mono text-xs">
                         {i + 1}
@@ -81,11 +80,12 @@ export default function TopAssists() {
                       <TableCell className="py-2 font-medium">
                         <Link
                           href={`/jogadores/${p.id}`}
-                          className="hover:text-primary hover:underline inline-flex items-baseline gap-0.5"
+                          className="hover:text-primary hover:underline inline-flex items-center gap-1"
                         >
-                          {flag && p.nationality !== "Brasil" && (
-                            <span className="mr-0.5 text-base leading-none">{flag}</span>
-                          )}
+                          <PlayerFlag
+                            flag={p.nationalityFlag}
+                            nationality={p.nationality}
+                          />
                           {p.name}
                           <VerifiedBadge status={(p as any).verificationStatus} />
                         </Link>
@@ -101,8 +101,7 @@ export default function TopAssists() {
                         {p.assists}
                       </TableCell>
                     </TableRow>
-                  );
-                })}
+                  ))}
           </TableBody>
         </Table>
       </div>
