@@ -10,6 +10,7 @@ import {
   useGetBiggestAttendance,
   useGetTopAssists,
   useListUnknownResults,
+  useGetNextMatch,
   type MilestoneMatch,
 } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -61,26 +62,53 @@ function MilestoneCard({ label, match }: { label: string; match: MilestoneMatch 
   );
 }
 
-// Static for now — replace with DB data when available
-const NEXT_MATCH = {
-  home: "CSA",
-  away: "São Luiz de Ijuí-RS",
-  date: "2026-07-26",
-  competition: "Campeonato Brasileiro Série D",
-};
-
 function NextMatchCard() {
+  const { data: nextMatch, isLoading } = useGetNextMatch();
+
+  if (isLoading) {
+    return (
+      <div className="border rounded p-4 space-y-2">
+        <Skeleton className="h-3 w-28" />
+        <Skeleton className="h-4 w-40" />
+        <Skeleton className="h-8 w-20" />
+        <Skeleton className="h-3 w-24" />
+      </div>
+    );
+  }
+
+  if (!nextMatch) {
+    return (
+      <div className="border rounded p-4 space-y-2">
+        <p className="text-xs text-muted-foreground uppercase tracking-wider">Próxima Partida</p>
+        <p className="font-semibold text-sm mt-0.5 text-muted-foreground">A definir</p>
+        <p className="text-2xl font-black text-muted-foreground">
+          –<span className="text-muted-foreground font-normal text-lg mx-1">×</span>–
+        </p>
+      </div>
+    );
+  }
+
+  const isHome = nextMatch.homeAway === "home";
+  const home = isHome ? "CSA" : nextMatch.opponent;
+  const away = isHome ? nextMatch.opponent : "CSA";
+  const year = new Date(nextMatch.matchDate + "T12:00:00").getFullYear();
+
   return (
     <div className="border rounded p-4 space-y-2">
       <p className="text-xs text-muted-foreground uppercase tracking-wider">Próxima Partida</p>
       <div>
-        <p className="text-xs text-muted-foreground">{fmtDate(NEXT_MATCH.date)} · {NEXT_MATCH.competition}</p>
-        <p className="font-semibold text-sm mt-0.5 truncate">{NEXT_MATCH.home} × {NEXT_MATCH.away}</p>
+        <p className="text-xs text-muted-foreground">
+          {fmtDate(nextMatch.matchDate)} · {nextMatch.competition}
+          {nextMatch.stadium ? ` · ${nextMatch.stadium}` : ""}
+        </p>
+        <p className="font-semibold text-sm mt-0.5 truncate">
+          {home} × {away}
+        </p>
       </div>
       <p className="text-2xl font-black text-muted-foreground">
         –<span className="text-muted-foreground font-normal text-lg mx-1">×</span>–
       </p>
-      <p className="text-xs text-muted-foreground">{new Date(NEXT_MATCH.date + "T12:00:00").getFullYear()}</p>
+      <p className="text-xs text-muted-foreground">{year}</p>
     </div>
   );
 }

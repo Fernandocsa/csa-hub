@@ -9,8 +9,11 @@ import {
   stadiumsTable,
   competitionsTable,
   managersTable,
+  nextMatchTable,
 } from "@workspace/db";
 import { eq, asc, desc, sql } from "drizzle-orm";
+
+const NEXT_MATCH_ID = 1;
 
 const router = Router();
 
@@ -74,6 +77,92 @@ router.post("/admin/login", (req, res) => {
 
 router.get("/admin/session", requireAdmin, (_req, res) => {
   res.json({ ok: true });
+});
+
+// ── Next match (Home card singleton) ──────────────────────────────────────────
+
+function serializeNextMatch(row: typeof nextMatchTable.$inferSelect) {
+  return {
+    opponent: row.opponent,
+    matchDate: row.matchDate,
+    competition: row.competition,
+    homeAway: row.homeAway,
+    stadium: row.stadium,
+  };
+}
+
+router.get("/admin/next-match", requireAdmin, async (req, res) => {
+  try {
+    const [row] = await db
+      .select()
+      .from(nextMatchTable)
+      .where(eq(nextMatchTable.id, NEXT_MATCH_ID))
+      .limit(1);
+    res.json(row ? serializeNextMatch(row) : null);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put("/admin/next-match", requireAdmin, async (req, res) => {
+  try {
+    const body = req.body as {
+      opponent?: string;
+      matchDate?: string;
+      competition?: string;
+      homeAway?: string;
+      stadium?: string | null;
+      clear?: boolean;
+    };
+
+    if (body.clear === true) {
+      await db.delete(nextMatchTable).where(eq(nextMatchTable.id, NEXT_MATCH_ID));
+      return res.json(null);
+    }
+
+    const opponent = body.opponent?.trim() ?? "";
+    const matchDate = body.matchDate?.trim() ?? "";
+    const competition = body.competition?.trim() ?? "";
+    const homeAway = body.homeAway?.trim() ?? "";
+    const stadium = body.stadium?.trim() ? body.stadium.trim() : null;
+
+    if (!opponent || !matchDate || !competition) {
+      return res.status(400).json({ error: "adversário, data e competição são obrigatórios" });
+    }
+    if (homeAway !== "home" && homeAway !== "away") {
+      return res.status(400).json({ error: "mando deve ser home ou away" });
+    }
+
+    const [row] = await db
+      .insert(nextMatchTable)
+      .values({
+        id: NEXT_MATCH_ID,
+        opponent,
+        matchDate,
+        competition,
+        homeAway,
+        stadium,
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: nextMatchTable.id,
+        set: {
+          opponent,
+          matchDate,
+          competition,
+          homeAway,
+          stadium,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+
+    res.json(serializeNextMatch(row));
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
 });
 
 // ── Lookup (dropdowns) ────────────────────────────────────────────────────────

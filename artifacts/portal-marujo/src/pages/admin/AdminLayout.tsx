@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Users, Trophy, Shield, Download, LogOut, ChevronLeft } from "lucide-react";
+import { LayoutDashboard, Users, Trophy, Shield, Download, LogOut, ChevronLeft, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Props {
@@ -12,6 +12,7 @@ const navItems = [
   { href: "/admin/jogadores", label: "Jogadores", icon: Users },
   { href: "/admin/partidas", label: "Partidas", icon: Trophy },
   { href: "/admin/adversarios", label: "Adversários", icon: Shield },
+  { href: "/admin/proximo-jogo", label: "Próximo Jogo", icon: CalendarDays },
   { href: "/admin/importar-exportar", label: "Importar / Exportar", icon: Download },
 ];
 

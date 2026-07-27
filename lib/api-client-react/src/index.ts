@@ -8,3 +8,4 @@ export * from "./attendance-assists";
 export * from "./walkovers";
 export * from "./friendlies";
 export * from "./unknown-results";
+export * from "./next-match";

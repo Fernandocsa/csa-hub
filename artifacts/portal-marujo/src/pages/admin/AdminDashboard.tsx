@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
-import { Users, Trophy, Shield, Download } from "lucide-react";
+import { Users, Trophy, Shield, Download, CalendarDays } from "lucide-react";
 
 interface Summary {
   totalMatches: number;
@@ -13,6 +13,7 @@ const sections = [
   { href: "/admin/jogadores", label: "Jogadores", icon: Users, desc: "Cadastrar e editar jogadores e estatísticas por temporada" },
   { href: "/admin/partidas", label: "Partidas", icon: Trophy, desc: "Adicionar e editar partidas do histórico" },
   { href: "/admin/adversarios", label: "Adversários", icon: Shield, desc: "Gerenciar adversários cadastrados" },
+  { href: "/admin/proximo-jogo", label: "Próximo Jogo", icon: CalendarDays, desc: "Editar o card Próxima Partida da Home" },
   { href: "/admin/importar-exportar", label: "Importar / Exportar", icon: Download, desc: "Importar dados via CSV ou exportar para planilha" },
 ];
 
