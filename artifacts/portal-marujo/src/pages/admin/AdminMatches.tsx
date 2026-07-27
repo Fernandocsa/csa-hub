@@ -69,11 +69,11 @@ function MatchForm({
   const [homeAway, setHomeAway] = useState(initial?.homeAway ?? "home");
   const [competitionId, setCompetitionId] = useState(String(initial?.competitionId ?? ""));
   const [stadiumId, setStadiumId] = useState(String(initial?.stadiumId ?? ""));
-  const [managerId, setManagerId] = useState(String(initial?.managerId ?? ""));
   const [attendance, setAttendance] = useState(String(initial?.attendance ?? ""));
   const [scorers, setScorers] = useState(initial?.scorers ?? "");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  // Técnico is edited on the match sheet page; preserve existing managerId on edit.
 
   // auto-compute result from goals
   useEffect(() => {
@@ -108,7 +108,7 @@ function MatchForm({
         homeAway,
         competitionId: parseInt(competitionId),
         stadiumId: stadiumId ? parseInt(stadiumId) : null,
-        managerId: managerId ? parseInt(managerId) : null,
+        managerId: initial?.managerId ?? null,
         attendance: attendance ? parseInt(attendance) : null,
         scorers: scorers || null,
       });
@@ -179,27 +179,15 @@ function MatchForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Estádio</label>
-          <select className={sel} value={stadiumId} onChange={(e) => setStadiumId(e.target.value)}>
-            <option value="">–</option>
-            {lookup.stadiums.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Técnico</label>
-          <select className={sel} value={managerId} onChange={(e) => setManagerId(e.target.value)}>
-            <option value="">–</option>
-            {[...lookup.managers]
-              .sort((a, b) => a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }))
-              .map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-          </select>
-        </div>
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Estádio</label>
+        <select className={sel} value={stadiumId} onChange={(e) => setStadiumId(e.target.value)}>
+          <option value="">–</option>
+          {lookup.stadiums.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </select>
+        <p className="text-[10px] text-gray-400 mt-1">
+          Técnico é editado na Ficha da partida (escalação / gols / cartões).
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">

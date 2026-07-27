@@ -4,7 +4,7 @@ import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
-import { groupPlayersByPosition } from "@/lib/position-groups";
+import { groupPlayersByPosition, sortLineupByPosition } from "@/lib/position-groups";
 
 type RosterPlayer = {
   id: number;
@@ -56,10 +56,18 @@ type MatchMeta = {
   matchDate: string;
   season: string;
   opponentName: string;
+  opponentId: number;
   goalsFor: number;
   goalsAgainst: number;
-  competitionName: string;
+  result: string;
   homeAway: string;
+  competitionId: number;
+  competitionName: string;
+  stadiumId: number | null;
+  attendance: number | null;
+  scorers: string | null;
+  managerId: number | null;
+  managerName: string | null;
 };
 
 function uid() {
@@ -71,6 +79,9 @@ export default function AdminMatchSheet() {
   const matchId = Number(params.id);
 
   const [match, setMatch] = useState<MatchMeta | null>(null);
+  const [managers, setManagers] = useState<{ id: number; name: string }[]>([]);
+  const [managerIdDraft, setManagerIdDraft] = useState("");
+  const [savingManager, setSavingManager] = useState(false);
   const [roster, setRoster] = useState<RosterPlayer[]>([]);
   const [search, setSearch] = useState("");
   const [lineups, setLineups] = useState<LineupDraft[]>([]);
@@ -88,10 +99,11 @@ export default function AdminMatchSheet() {
     setLoading(true);
     setError("");
     try {
-      const [matchesRes, sheetRes, rosterRes] = await Promise.all([
+      const [matchesRes, sheetRes, rosterRes, lookupRes] = await Promise.all([
         adminFetch("/admin/matches?limit=500&offset=0"),
         adminFetch(`/admin/matches/${matchId}/sheet`),
         adminFetch(`/admin/matches/${matchId}/roster`),
+        adminFetch("/admin/lookup"),
       ]);
 
       if (!matchesRes.ok || !sheetRes.ok || !rosterRes.ok) {
@@ -102,6 +114,16 @@ export default function AdminMatchSheet() {
       const found = (matchesJson.data as MatchMeta[] | undefined)?.find((m) => m.id === matchId);
       if (!found) throw new Error("Partida não encontrada");
       setMatch(found);
+      setManagerIdDraft(found.managerId != null ? String(found.managerId) : "");
+
+      if (lookupRes.ok) {
+        const lookup = await lookupRes.json();
+        setManagers(
+          [...(lookup.managers ?? [])].sort((a: { name: string }, b: { name: string }) =>
+            a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
+          ),
+        );
+      }
 
       const sheet = await sheetRes.json();
       setLineups(
@@ -177,9 +199,44 @@ export default function AdminMatchSheet() {
     return m;
   }, [lineups]);
 
-  const starters = lineups.filter((l) => l.role === "starter");
-  const bench = lineups.filter((l) => l.role === "bench");
+  const starters = sortLineupByPosition(lineups.filter((l) => l.role === "starter"));
+  const bench = sortLineupByPosition(lineups.filter((l) => l.role === "bench"));
   const rosterByGroup = useMemo(() => groupPlayersByPosition(roster), [roster]);
+
+  async function saveManager() {
+    if (!match) return;
+    setSavingManager(true);
+    setError("");
+    setSavedMsg("");
+    try {
+      const r = await adminFetch(`/admin/matches/${match.id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          matchDate: match.matchDate,
+          season: match.season,
+          opponentId: match.opponentId,
+          goalsFor: match.goalsFor,
+          goalsAgainst: match.goalsAgainst,
+          result: match.result,
+          homeAway: match.homeAway,
+          competitionId: match.competitionId,
+          stadiumId: match.stadiumId,
+          managerId: managerIdDraft === "" ? null : Number(managerIdDraft),
+          attendance: match.attendance,
+          scorers: match.scorers,
+        }),
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error((err as any).error ?? "Erro ao salvar técnico");
+      }
+      setSavedMsg("Técnico atualizado.");
+      await load();
+    } catch (e: any) {
+      setError(e.message ?? "Erro ao salvar técnico");
+    }
+    setSavingManager(false);
+  }
 
   const softSubWarnings = useMemo(() => {
     const warnings: string[] = [];
@@ -237,7 +294,7 @@ export default function AdminMatchSheet() {
     setSavedMsg("");
     try {
       const body = {
-        lineups: lineups.map((l, i) => ({
+        lineups: sortLineupByPosition(lineups).map((l, i) => ({
           playerId: l.playerId,
           playerName: l.playerName,
           role: l.role,
@@ -333,6 +390,40 @@ export default function AdminMatchSheet() {
         <p className="text-xs text-gray-400 mt-1">
           Só o lado do CSA nesta fase. O campo “Artilheiros” texto da partida continua separado.
         </p>
+        <div className="mt-3 flex flex-wrap items-end gap-2 max-w-md">
+          <div className="flex-1 min-w-[12rem]">
+            <label className="text-[10px] uppercase text-gray-400 block mb-1">Técnico</label>
+            <select
+              className="w-full border rounded px-2 py-1.5 text-sm bg-white"
+              value={managerIdDraft}
+              onChange={(e) => {
+                setManagerIdDraft(e.target.value);
+                setSavedMsg("");
+              }}
+            >
+              <option value="">– sem técnico –</option>
+              {managers.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={
+              savingManager ||
+              (managerIdDraft === ""
+                ? match.managerId == null
+                : Number(managerIdDraft) === match.managerId)
+            }
+            onClick={saveManager}
+          >
+            {savingManager ? "Salvando..." : "Salvar técnico"}
+          </Button>
+        </div>
       </div>
 
       {showSoftBanner && (

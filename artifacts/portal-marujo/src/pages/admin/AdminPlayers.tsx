@@ -22,7 +22,16 @@ interface StatRow {
   assists: number;
 }
 
-const POSITIONS = ["Goleiro", "Zagueiro", "Lateral", "Volante", "Meia", "Atacante"];
+const POSITIONS = [
+  "Goleiro",
+  "Lateral Direito",
+  "Zagueiro",
+  "Lateral Esquerdo",
+  "Lateral",
+  "Volante",
+  "Meia",
+  "Atacante",
+];
 
 function PlayerForm({
   initial,

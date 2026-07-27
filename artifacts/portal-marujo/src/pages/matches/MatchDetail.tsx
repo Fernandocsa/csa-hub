@@ -9,6 +9,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
 import { ChevronLeft } from "lucide-react";
+import { sortLineupByPosition } from "@/lib/position-groups";
 
 function fmtDate(d: string) {
   return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
@@ -240,8 +241,12 @@ export default function MatchDetail() {
   }
 
   const csaLineups = (match.lineups ?? []).filter((l) => l.side === "csa");
-  const starters = csaLineups.filter((l) => l.role === "starter");
-  const bench = csaLineups.filter((l) => l.role === "bench");
+  const starters = sortLineupByPosition(
+    csaLineups.filter((l) => l.role === "starter"),
+  );
+  const bench = sortLineupByPosition(
+    csaLineups.filter((l) => l.role === "bench"),
+  );
   const goals = (match.goals ?? []).filter((g) => g.side === "csa");
   const cards = (match.cards ?? []).filter((c) => c.side === "csa");
   const substitutions = (match.substitutions ?? []).filter(
