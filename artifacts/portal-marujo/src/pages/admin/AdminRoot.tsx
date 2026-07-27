@@ -16,6 +16,7 @@ import AdminStadiumDetail from "./AdminStadiumDetail";
 import AdminImportExport from "./AdminImportExport";
 import AdminNextMatch from "./AdminNextMatch";
 import AdminMatchSheet from "./AdminMatchSheet";
+import AdminMatchSheetRedirect from "./AdminMatchSheetRedirect";
 
 export default function AdminRoot() {
   const { checked, authenticated, login, logout } = useAdminAuth();
@@ -43,7 +44,9 @@ export default function AdminRoot() {
         <Route path="/admin/tecnicos/:id" component={AdminManagerDetail} />
         <Route path="/admin/tecnicos" component={AdminManagers} />
         <Route path="/admin/temporadas" component={AdminSeasons} />
-        <Route path="/admin/partidas/:id/ficha" component={AdminMatchSheet} />
+        <Route path="/admin/partidas/novo" component={AdminMatchSheet} />
+        <Route path="/admin/partidas/:id/ficha" component={AdminMatchSheetRedirect} />
+        <Route path="/admin/partidas/:id" component={AdminMatchSheet} />
         <Route path="/admin/partidas" component={AdminMatches} />
         <Route path="/admin/adversarios/novo" component={AdminOpponentDetail} />
         <Route path="/admin/adversarios/:id" component={AdminOpponentDetail} />

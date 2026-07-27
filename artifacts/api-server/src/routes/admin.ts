@@ -710,6 +710,48 @@ router.get("/admin/matches/search", requireAdmin, async (req, res) => {
   }
 });
 
+router.get("/admin/matches/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [row] = await db
+      .select({
+        id: matchesTable.id,
+        matchDate: matchesTable.matchDate,
+        season: matchesTable.season,
+        goalsFor: matchesTable.goalsFor,
+        goalsAgainst: matchesTable.goalsAgainst,
+        result: matchesTable.result,
+        homeAway: matchesTable.homeAway,
+        attendance: matchesTable.attendance,
+        scorers: matchesTable.scorers,
+        opponentId: matchesTable.opponentId,
+        opponentName: opponentsTable.name,
+        competitionId: matchesTable.competitionId,
+        competitionName: competitionsTable.name,
+        stadiumId: matchesTable.stadiumId,
+        stadiumName: stadiumsTable.name,
+        managerId: matchesTable.managerId,
+        managerName: managersTable.name,
+        ownGoalsForCount: matchesTable.ownGoalsForCount,
+        isWalkover: matchesTable.isWalkover,
+        isFriendly: matchesTable.isFriendly,
+      })
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
+      .leftJoin(managersTable, eq(matchesTable.managerId, managersTable.id))
+      .where(eq(matchesTable.id, id))
+      .limit(1);
+    if (!row) return res.status(404).json({ error: "Partida não encontrada" });
+    res.json(row);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 router.post("/admin/matches", requireAdmin, async (req, res) => {
   try {
     const body = req.body as {

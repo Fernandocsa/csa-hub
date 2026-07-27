@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "wouter";
+import { Link, useLocation, useParams } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { groupPlayersByPosition, sortLineupByPosition } from "@/lib/position-groups";
+import MatchGeneralForm, {
+  type MatchGeneralFormData,
+  type MatchLookupData,
+} from "./MatchGeneralForm";
 
 type RosterPlayer = {
   id: number;
@@ -68,17 +72,23 @@ type MatchMeta = {
   scorers: string | null;
   managerId: number | null;
   managerName: string | null;
+  ownGoalsForCount?: number | null;
 };
+
+type TabId = "general" | "manager" | "lineup" | "goals" | "cards" | "subs";
 
 function uid() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export default function AdminMatchSheet() {
-  const params = useParams<{ id: string }>();
-  const matchId = Number(params.id);
+  const params = useParams<{ id?: string }>();
+  const [, setLocation] = useLocation();
+  const isNew = !params.id;
+  const matchId = isNew ? null : Number(params.id);
 
   const [match, setMatch] = useState<MatchMeta | null>(null);
+  const [lookup, setLookup] = useState<MatchLookupData | null>(null);
   const [managers, setManagers] = useState<{ id: number; name: string }[]>([]);
   const [managerIdDraft, setManagerIdDraft] = useState("");
   const [savingManager, setSavingManager] = useState(false);
@@ -92,38 +102,47 @@ export default function AdminMatchSheet() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [savedMsg, setSavedMsg] = useState("");
-  const [tab, setTab] = useState<"lineup" | "goals" | "cards" | "subs">("lineup");
+  const [tab, setTab] = useState<TabId>("general");
 
   const load = useCallback(async () => {
-    if (!matchId || Number.isNaN(matchId)) return;
     setLoading(true);
     setError("");
     try {
-      const [matchesRes, sheetRes, rosterRes, lookupRes] = await Promise.all([
-        adminFetch("/admin/matches?limit=500&offset=0"),
-        adminFetch(`/admin/matches/${matchId}/sheet`),
-        adminFetch(`/admin/matches/${matchId}/roster`),
-        adminFetch("/admin/lookup"),
-      ]);
-
-      if (!matchesRes.ok || !sheetRes.ok || !rosterRes.ok) {
-        throw new Error("Erro ao carregar ficha da partida");
-      }
-
-      const matchesJson = await matchesRes.json();
-      const found = (matchesJson.data as MatchMeta[] | undefined)?.find((m) => m.id === matchId);
-      if (!found) throw new Error("Partida não encontrada");
-      setMatch(found);
-      setManagerIdDraft(found.managerId != null ? String(found.managerId) : "");
-
+      const lookupRes = await adminFetch("/admin/lookup");
       if (lookupRes.ok) {
-        const lookup = await lookupRes.json();
+        const lookupJson = await lookupRes.json();
+        setLookup({
+          opponents: lookupJson.opponents ?? [],
+          competitions: lookupJson.competitions ?? [],
+          stadiums: lookupJson.stadiums ?? [],
+        });
         setManagers(
-          [...(lookup.managers ?? [])].sort((a: { name: string }, b: { name: string }) =>
-            a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
+          [...(lookupJson.managers ?? [])].sort(
+            (a: { name: string }, b: { name: string }) =>
+              a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
           ),
         );
       }
+
+      if (isNew || matchId == null || Number.isNaN(matchId)) {
+        setMatch(null);
+        setLoading(false);
+        return;
+      }
+
+      const [matchRes, sheetRes, rosterRes] = await Promise.all([
+        adminFetch(`/admin/matches/${matchId}`),
+        adminFetch(`/admin/matches/${matchId}/sheet`),
+        adminFetch(`/admin/matches/${matchId}/roster`),
+      ]);
+
+      if (!matchRes.ok || !sheetRes.ok || !rosterRes.ok) {
+        throw new Error("Erro ao carregar partida");
+      }
+
+      const found = (await matchRes.json()) as MatchMeta;
+      setMatch(found);
+      setManagerIdDraft(found.managerId != null ? String(found.managerId) : "");
 
       const sheet = await sheetRes.json();
       setLineups(
@@ -173,13 +192,15 @@ export default function AdminMatchSheet() {
       setRoster(rosterJson.players ?? []);
     } catch (e: any) {
       setError(e.message ?? "Erro ao carregar");
+      setMatch(null);
     }
     setLoading(false);
-  }, [matchId]);
+  }, [isNew, matchId]);
 
   useEffect(() => {
+    if (isNew) setTab("general");
     load();
-  }, [load]);
+  }, [isNew, load]);
 
   async function searchRoster(q: string) {
     setSearch(q);
@@ -203,6 +224,47 @@ export default function AdminMatchSheet() {
   const bench = sortLineupByPosition(lineups.filter((l) => l.role === "bench"));
   const rosterByGroup = useMemo(() => groupPlayersByPosition(roster), [roster]);
 
+  async function saveGeneral(data: MatchGeneralFormData) {
+    setSavedMsg("");
+    if (isNew) {
+      const r = await adminFetch("/admin/matches", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error((err as { error?: string }).error ?? "Erro ao criar");
+      }
+      const created = await r.json();
+      setLocation(`/admin/partidas/${created.id}`);
+      return;
+    }
+    if (!match) return;
+    const r = await adminFetch(`/admin/matches/${match.id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        ...data,
+        managerId: match.managerId,
+      }),
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      throw new Error((err as { error?: string }).error ?? "Erro ao salvar");
+    }
+    setSavedMsg("Dados gerais salvos.");
+    await load();
+  }
+
+  async function deleteMatch() {
+    if (!match) return;
+    const r = await adminFetch(`/admin/matches/${match.id}`, { method: "DELETE" });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      throw new Error((err as { error?: string }).error ?? "Erro ao excluir");
+    }
+    setLocation("/admin/partidas");
+  }
+
   async function saveManager() {
     if (!match) return;
     setSavingManager(true);
@@ -224,6 +286,7 @@ export default function AdminMatchSheet() {
           managerId: managerIdDraft === "" ? null : Number(managerIdDraft),
           attendance: match.attendance,
           scorers: match.scorers,
+          ownGoalsForCount: match.ownGoalsForCount ?? 0,
         }),
       });
       if (!r.ok) {
@@ -289,6 +352,7 @@ export default function AdminMatchSheet() {
   }
 
   async function save() {
+    if (matchId == null) return;
     setSaving(true);
     setError("");
     setSavedMsg("");
@@ -344,10 +408,10 @@ export default function AdminMatchSheet() {
   }
 
   if (loading) {
-    return <p className="text-sm text-gray-400">Carregando ficha...</p>;
+    return <p className="text-sm text-gray-400">Carregando...</p>;
   }
 
-  if (!match) {
+  if (!isNew && (error || !match) && !lookup) {
     return (
       <div>
         <p className="text-sm text-red-600">{error || "Partida não encontrada"}</p>
@@ -358,23 +422,47 @@ export default function AdminMatchSheet() {
     );
   }
 
+  if (!isNew && !match) {
+    return (
+      <div>
+        <p className="text-sm text-red-600">{error || "Partida não encontrada"}</p>
+        <Link href="/admin/partidas" className="text-sm text-[#1B3A6B] hover:underline mt-2 inline-block">
+          Voltar às partidas
+        </Link>
+      </div>
+    );
+  }
+
+  if (!lookup) {
+    return <p className="text-sm text-red-600">Erro ao carregar lookups</p>;
+  }
+
   const selectCls = "w-full border rounded px-2 py-1.5 text-sm bg-white";
   const sheetGoalCount = goals.length;
   const goalsMismatch =
-    match.goalsFor != null && sheetGoalCount !== Number(match.goalsFor);
+    match != null && match.goalsFor != null && sheetGoalCount !== Number(match.goalsFor);
 
-  const tabs: { id: typeof tab; label: string; count?: number }[] = [
-    { id: "lineup", label: "Escalação", count: lineups.length },
-    { id: "goals", label: "Gols", count: goals.length },
-    { id: "cards", label: "Cartões", count: cards.length },
-    { id: "subs", label: "Substituições", count: subs.length },
-  ];
+  const tabs: { id: TabId; label: string; count?: number }[] = isNew
+    ? [{ id: "general", label: "Dados Gerais" }]
+    : [
+        { id: "general", label: "Dados Gerais" },
+        { id: "manager", label: "Técnico" },
+        { id: "lineup", label: "Escalação", count: lineups.length },
+        { id: "goals", label: "Gols", count: goals.length },
+        { id: "cards", label: "Cartões", count: cards.length },
+        { id: "subs", label: "Substituições", count: subs.length },
+      ];
+
+  const sheetTabs: TabId[] = ["lineup", "goals", "cards", "subs"];
+  const showSheetFooter = !isNew && sheetTabs.includes(tab);
 
   const showSoftBanner =
-    starters.length !== 11 || goalsMismatch || softSubWarnings.length > 0;
+    !isNew &&
+    match != null &&
+    (starters.length !== 11 || goalsMismatch || softSubWarnings.length > 0);
 
   return (
-    <div className="space-y-4 pb-20">
+    <div className={`space-y-4 ${showSheetFooter ? "pb-20" : "pb-6"}`}>
       <div>
         <Link
           href="/admin/partidas"
@@ -382,48 +470,21 @@ export default function AdminMatchSheet() {
         >
           <ChevronLeft size={13} /> Partidas
         </Link>
-        <h1 className="text-xl font-bold text-gray-900">Ficha CSA</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          {match.matchDate} · CSA {match.goalsFor}–{match.goalsAgainst} {match.opponentName} ·{" "}
-          {match.competitionName} · temp. {match.season}
-        </p>
+        <h1 className="text-xl font-bold text-gray-900">
+          {isNew
+            ? "Nova partida"
+            : `CSA ${match!.goalsFor}–${match!.goalsAgainst} ${match!.opponentName}`}
+        </h1>
+        {!isNew && match && (
+          <p className="text-sm text-gray-500 mt-1">
+            {match.matchDate} · {match.competitionName} · temp. {match.season}
+          </p>
+        )}
         <p className="text-xs text-gray-400 mt-1">
-          Só o lado do CSA nesta fase. O campo “Artilheiros” texto da partida continua separado.
+          {isNew
+            ? "Preencha os dados gerais e salve para liberar a ficha CSA."
+            : "Dados gerais e técnico salvam separados. Escalação, gols, cartões e substituições salvam juntos na ficha CSA."}
         </p>
-        <div className="mt-3 flex flex-wrap items-end gap-2 max-w-md">
-          <div className="flex-1 min-w-[12rem]">
-            <label className="text-[10px] uppercase text-gray-400 block mb-1">Técnico</label>
-            <select
-              className="w-full border rounded px-2 py-1.5 text-sm bg-white"
-              value={managerIdDraft}
-              onChange={(e) => {
-                setManagerIdDraft(e.target.value);
-                setSavedMsg("");
-              }}
-            >
-              <option value="">– sem técnico –</option>
-              {managers.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            disabled={
-              savingManager ||
-              (managerIdDraft === ""
-                ? match.managerId == null
-                : Number(managerIdDraft) === match.managerId)
-            }
-            onClick={saveManager}
-          >
-            {savingManager ? "Salvando..." : "Salvar técnico"}
-          </Button>
-        </div>
       </div>
 
       {showSoftBanner && (
@@ -433,7 +494,7 @@ export default function AdminMatchSheet() {
               Aviso: {starters.length} titulares (o usual é 11). Pode salvar mesmo assim.
             </p>
           )}
-          {goalsMismatch && (
+          {goalsMismatch && match && (
             <p>
               Aviso: {sheetGoalCount} gol(s) na ficha ≠ placar da partida ({match.goalsFor}{" "}
               gol(s) do CSA). Pode salvar mesmo assim — o placar oficial continua sendo o da
@@ -466,7 +527,56 @@ export default function AdminMatchSheet() {
         ))}
       </div>
 
-      {tab === "lineup" && (
+      {tab === "general" && (
+        <MatchGeneralForm
+          key={isNew ? "new" : match!.id}
+          initial={isNew ? undefined : match!}
+          lookup={lookup}
+          isNew={isNew}
+          onSave={saveGeneral}
+          onDelete={isNew ? undefined : deleteMatch}
+        />
+      )}
+
+      {tab === "manager" && match && (
+        <div className="space-y-4 max-w-md">
+          <div>
+            <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+              Técnico
+            </label>
+            <select
+              className="w-full border rounded px-3 py-2 text-sm bg-white"
+              value={managerIdDraft}
+              onChange={(e) => {
+                setManagerIdDraft(e.target.value);
+                setSavedMsg("");
+              }}
+            >
+              <option value="">– sem técnico –</option>
+              {managers.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Button
+            type="button"
+            className="bg-[#1B3A6B]"
+            disabled={
+              savingManager ||
+              (managerIdDraft === ""
+                ? match.managerId == null
+                : Number(managerIdDraft) === match.managerId)
+            }
+            onClick={saveManager}
+          >
+            {savingManager ? "Salvando…" : "Salvar técnico"}
+          </Button>
+        </div>
+      )}
+
+      {tab === "lineup" && match && (
       <section className="bg-white border rounded-lg p-4 space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
@@ -647,7 +757,7 @@ export default function AdminMatchSheet() {
       </section>
       )}
 
-      {tab === "goals" && (
+      {tab === "goals" && match && (
       <section className="bg-white border rounded-lg p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>
@@ -772,7 +882,7 @@ export default function AdminMatchSheet() {
       </section>
       )}
 
-      {tab === "cards" && (
+      {tab === "cards" && match && (
       <section className="bg-white border rounded-lg p-4 space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
@@ -886,7 +996,7 @@ export default function AdminMatchSheet() {
       </section>
       )}
 
-      {tab === "subs" && (
+      {tab === "subs" && match && (
       <section className="bg-white border rounded-lg p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>
@@ -1033,19 +1143,21 @@ export default function AdminMatchSheet() {
       {error && <p className="text-sm text-red-600">{error}</p>}
       {savedMsg && <p className="text-sm text-green-700">{savedMsg}</p>}
 
-      <div className="flex gap-2 fixed bottom-0 left-52 right-0 max-w-5xl mx-auto px-6 py-3 bg-gray-50/95 border-t z-10">
-        <Button className="bg-[#1B3A6B]" onClick={save} disabled={saving}>
-          {saving ? "Salvando..." : "Salvar ficha CSA"}
-        </Button>
-        <Link href="/admin/partidas">
-          <Button type="button" variant="outline">
-            Voltar
+      {showSheetFooter && (
+        <div className="flex gap-2 fixed bottom-0 left-52 right-0 max-w-5xl mx-auto px-6 py-3 bg-gray-50/95 border-t z-10">
+          <Button className="bg-[#1B3A6B]" onClick={save} disabled={saving}>
+            {saving ? "Salvando..." : "Salvar ficha CSA"}
           </Button>
-        </Link>
-        <span className="text-xs text-gray-400 self-center ml-2">
-          Salva Escalação + Gols + Cartões + Substituições juntos
-        </span>
-      </div>
+          <Link href="/admin/partidas">
+            <Button type="button" variant="outline">
+              Voltar
+            </Button>
+          </Link>
+          <span className="text-xs text-gray-400 self-center ml-2">
+            Salva Escalação + Gols + Cartões + Substituições juntos
+          </span>
+        </div>
+      )}
     </div>
   );
 }

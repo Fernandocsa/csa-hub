@@ -233,7 +233,7 @@ export default function AdminSeasons() {
                           <span key={id}>
                             {i > 0 && ", "}
                             <Link
-                              href={`/admin/partidas/${id}/ficha`}
+                              href={`/admin/partidas/${id}`}
                               className="underline hover:text-[#1B3A6B]"
                             >
                               #{id}
