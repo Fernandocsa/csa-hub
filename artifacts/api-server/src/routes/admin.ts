@@ -1050,13 +1050,86 @@ router.get("/admin/opponents", requireAdmin, async (req, res) => {
   }
 });
 
+const BRAZIL_UFS = new Set([
+  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
+  "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
+  "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+]);
+
+function parseOpponentLocation(body: {
+  city?: string | null;
+  state?: string | null;
+}): { ok: true; city: string | null; state: string | null } | { ok: false; error: string } {
+  const city =
+    body.city == null || String(body.city).trim() === ""
+      ? null
+      : String(body.city).trim();
+  let state =
+    body.state == null || String(body.state).trim() === ""
+      ? null
+      : String(body.state).trim().toUpperCase();
+  if (state != null && !BRAZIL_UFS.has(state)) {
+    return { ok: false, error: "UF inválida" };
+  }
+  return { ok: true, city, state };
+}
+
+router.get("/admin/opponents/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+
+    const [opponent] = await db
+      .select()
+      .from(opponentsTable)
+      .where(eq(opponentsTable.id, id))
+      .limit(1);
+    if (!opponent) return res.status(404).json({ error: "Adversário não encontrado" });
+
+    const matches = await db
+      .select({
+        id: matchesTable.id,
+        matchDate: matchesTable.matchDate,
+        season: matchesTable.season,
+        goalsFor: matchesTable.goalsFor,
+        goalsAgainst: matchesTable.goalsAgainst,
+        result: matchesTable.result,
+        homeAway: matchesTable.homeAway,
+        competitionName: competitionsTable.name,
+        stadiumName: stadiumsTable.name,
+        isFriendly: matchesTable.isFriendly,
+      })
+      .from(matchesTable)
+      .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
+      .where(eq(matchesTable.opponentId, id))
+      .orderBy(desc(matchesTable.matchDate));
+
+    res.json({ ...opponent, matches });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 router.post("/admin/opponents", requireAdmin, async (req, res) => {
   try {
-    const { name } = req.body as { name: string };
-    if (!name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+    const body = req.body as {
+      name?: string;
+      city?: string | null;
+      state?: string | null;
+    };
+    if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+    const loc = parseOpponentLocation(body);
+    if (!loc.ok) return res.status(400).json({ error: loc.error });
+
     const [opponent] = await db
       .insert(opponentsTable)
-      .values({ name: name.trim() })
+      .values({
+        name: body.name.trim(),
+        city: loc.city,
+        state: loc.state,
+      })
       .returning();
     res.status(201).json(opponent);
   } catch (err) {
@@ -1067,13 +1140,24 @@ router.post("/admin/opponents", requireAdmin, async (req, res) => {
 
 router.put("/admin/opponents/:id", requireAdmin, async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id, 10);
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
-    const { name } = req.body as { name: string };
-    if (!name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+    const body = req.body as {
+      name?: string;
+      city?: string | null;
+      state?: string | null;
+    };
+    if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+    const loc = parseOpponentLocation(body);
+    if (!loc.ok) return res.status(400).json({ error: loc.error });
+
     const [updated] = await db
       .update(opponentsTable)
-      .set({ name: name.trim() })
+      .set({
+        name: body.name.trim(),
+        city: loc.city,
+        state: loc.state,
+      })
       .where(eq(opponentsTable.id, id))
       .returning();
     if (!updated) return res.status(404).json({ error: "Adversário não encontrado" });
@@ -1086,7 +1170,7 @@ router.put("/admin/opponents/:id", requireAdmin, async (req, res) => {
 
 router.delete("/admin/opponents/:id", requireAdmin, async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id, 10);
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
     await db.delete(opponentsTable).where(eq(opponentsTable.id, id));
     res.json({ ok: true });

@@ -5,6 +5,8 @@ import { z } from "zod/v4";
 export const opponentsTable = pgTable("opponents", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
+  city: text("city"),
+  state: text("state"),
 });
 
 export const stadiumsTable = pgTable("stadiums", {

@@ -10,6 +10,7 @@ import AdminManagerDetail from "./AdminManagerDetail";
 import AdminSeasons from "./AdminSeasons";
 import AdminMatches from "./AdminMatches";
 import AdminOpponents from "./AdminOpponents";
+import AdminOpponentDetail from "./AdminOpponentDetail";
 import AdminImportExport from "./AdminImportExport";
 import AdminNextMatch from "./AdminNextMatch";
 import AdminMatchSheet from "./AdminMatchSheet";
@@ -42,6 +43,8 @@ export default function AdminRoot() {
         <Route path="/admin/temporadas" component={AdminSeasons} />
         <Route path="/admin/partidas/:id/ficha" component={AdminMatchSheet} />
         <Route path="/admin/partidas" component={AdminMatches} />
+        <Route path="/admin/adversarios/novo" component={AdminOpponentDetail} />
+        <Route path="/admin/adversarios/:id" component={AdminOpponentDetail} />
         <Route path="/admin/adversarios" component={AdminOpponents} />
         <Route path="/admin/proximo-jogo" component={AdminNextMatch} />
         <Route path="/admin/importar-exportar" component={AdminImportExport} />

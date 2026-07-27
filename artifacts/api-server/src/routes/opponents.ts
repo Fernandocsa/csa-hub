@@ -143,6 +143,8 @@ router.get("/opponents/:id", async (req, res) => {
     res.json({
       id: opponent.id,
       name: opponent.name,
+      city: opponent.city ?? null,
+      state: opponent.state ?? null,
       matches: stats?.matches || 0,
       wins: stats?.wins || 0,
       draws: stats?.draws || 0,
