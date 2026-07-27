@@ -298,6 +298,22 @@ export default function SeasonDetail() {
         ))}
       </div>
 
+      {/* Competition summary */}
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          Resumo da Temporada
+        </h2>
+        <CompetitionSummary rows={competitionStats} />
+      </section>
+
+      {/* Roster by position */}
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          Elenco
+        </h2>
+        <RosterByPosition players={season.players} />
+      </section>
+
       {/* Managers */}
       {managers.length > 0 && (
         <section className="space-y-3">
@@ -324,22 +340,6 @@ export default function SeasonDetail() {
           </div>
         </section>
       )}
-
-      {/* Competition summary */}
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Resumo da Temporada
-        </h2>
-        <CompetitionSummary rows={competitionStats} />
-      </section>
-
-      {/* Roster by position */}
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Elenco
-        </h2>
-        <RosterByPosition players={season.players} />
-      </section>
 
       {/* Top 5 */}
       <section className="space-y-3">
