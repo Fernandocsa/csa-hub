@@ -6,6 +6,7 @@ import {
   useListSeasons,
   useGetBiggestVictories,
   useGetStreaks,
+  useGetTitles,
   useGetMatchMilestones,
   useGetBiggestAttendance,
   useGetTopAssists,
@@ -143,6 +144,7 @@ export default function Home() {
   const { data: seasons, isLoading: loadSe } = useListSeasons();
   const { data: victories } = useGetBiggestVictories({ limit: 3 });
   const { data: streaks } = useGetStreaks();
+  const { data: titles } = useGetTitles();
   const { data: milestones, isLoading: loadMil } = useGetMatchMilestones();
   const { data: biggestAttendance, isLoading: loadAtt } = useGetBiggestAttendance(10);
   const { data: topAssists, isLoading: loadAsst } = useGetTopAssists(10);
@@ -375,30 +377,44 @@ export default function Home() {
       <div>
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Recordes Históricos</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {summary && (
+          {titles && (
             <Link
-              href={`/jogadores/${summary.topScorer.id}`}
+              href="/titulos"
               className="border rounded p-4 space-y-1 block hover:bg-muted/40 transition-colors"
-              data-testid="record-top-scorer"
+              data-testid="record-titles"
             >
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Artilheiro</p>
-              <p className="font-bold text-base">{summary.topScorer.name}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Títulos</p>
+              <p className="font-bold text-base">Campeonatos conquistados</p>
               <p className="text-2xl font-black text-primary">
-                {summary.topScorer.goals}{" "}
-                <span className="text-sm font-normal text-muted-foreground">gols</span>
+                {titles.total}{" "}
+                <span className="text-sm font-normal text-muted-foreground">títulos</span>
               </p>
             </Link>
           )}
-          {summary && (
+          {winStreak && (
             <Link
-              href={`/jogadores/${summary.appearanceLeader.id}`}
+              href="/registros/sequencias/vitorias"
               className="border rounded p-4 space-y-1 block hover:bg-muted/40 transition-colors"
-              data-testid="record-top-appearances"
+              data-testid="record-win-streak"
             >
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Mais Partidas</p>
-              <p className="font-bold text-base">{summary.appearanceLeader.name}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Sequência de Vitórias</p>
+              <p className="font-bold text-base">Vitórias consecutivas</p>
+              <p className="text-2xl font-black text-green-600">
+                {winStreak.length}{" "}
+                <span className="text-sm font-normal text-muted-foreground">jogos</span>
+              </p>
+            </Link>
+          )}
+          {unbeatenStreak && (
+            <Link
+              href="/registros/sequencias/invencibilidade"
+              className="border rounded p-4 space-y-1 block hover:bg-muted/40 transition-colors"
+              data-testid="record-unbeaten"
+            >
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Invencibilidade</p>
+              <p className="font-bold text-base">Sequência invicta</p>
               <p className="text-2xl font-black text-primary">
-                {summary.appearanceLeader.appearances}{" "}
+                {unbeatenStreak.length}{" "}
                 <span className="text-sm font-normal text-muted-foreground">jogos</span>
               </p>
             </Link>
@@ -416,20 +432,6 @@ export default function Home() {
                 <span className="text-sm font-normal text-muted-foreground">
                   {fmtDate(biggestWin.date)}
                 </span>
-              </p>
-            </Link>
-          )}
-          {unbeatenStreak && (
-            <Link
-              href="/partidas/recordes"
-              className="border rounded p-4 space-y-1 block hover:bg-muted/40 transition-colors"
-              data-testid="record-unbeaten"
-            >
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Invencibilidade</p>
-              <p className="font-bold text-base">Sequência invicta</p>
-              <p className="text-2xl font-black text-primary">
-                {unbeatenStreak.length}{" "}
-                <span className="text-sm font-normal text-muted-foreground">jogos</span>
               </p>
             </Link>
           )}

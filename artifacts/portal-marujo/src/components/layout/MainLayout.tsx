@@ -69,6 +69,7 @@ const navigation: NavItem[] = [
     icon: Award,
     children: [
       { name: "Visão Geral", href: "/registros" },
+      { name: "Títulos", href: "/titulos" },
       { name: "Por Competição", href: "/registros/competicao" },
       { name: "Por Década", href: "/registros/decada" },
       { name: "Sequências", href: "/registros/sequencias" },
@@ -76,7 +77,6 @@ const navigation: NavItem[] = [
     ],
   },
 ];
-
 function NavGroup({
   item,
   location,

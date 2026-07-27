@@ -1,3 +1,4 @@
+import { Link } from "wouter";
 import { useGetBiggestVictories, useGetBiggestDefeats, useGetStreaks } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -64,18 +65,26 @@ export default function MatchRecords() {
             : (
               <>
                 {winStreak && (
-                  <div className="border rounded p-4" data-testid="streak-winning">
+                  <Link
+                    href="/registros/sequencias/vitorias"
+                    className="border rounded p-4 block hover:bg-muted/40 transition-colors"
+                    data-testid="streak-winning"
+                  >
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Sequência de Vitórias</p>
                     <p className="text-3xl font-black text-green-600 mt-1">{winStreak.length} <span className="text-sm font-normal text-muted-foreground">jogos</span></p>
                     <p className="text-xs text-muted-foreground mt-1">{fmtDate(winStreak.startDate)} — {fmtDate(winStreak.endDate)}</p>
-                  </div>
+                  </Link>
                 )}
                 {unbeatenStreak && (
-                  <div className="border rounded p-4" data-testid="streak-unbeaten">
+                  <Link
+                    href="/registros/sequencias/invencibilidade"
+                    className="border rounded p-4 block hover:bg-muted/40 transition-colors"
+                    data-testid="streak-unbeaten"
+                  >
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Invencibilidade</p>
                     <p className="text-3xl font-black text-primary mt-1">{unbeatenStreak.length} <span className="text-sm font-normal text-muted-foreground">jogos</span></p>
                     <p className="text-xs text-muted-foreground mt-1">{fmtDate(unbeatenStreak.startDate)} — {fmtDate(unbeatenStreak.endDate)}</p>
-                  </div>
+                  </Link>
                 )}
                 {losingStreak && (
                   <div className="border rounded p-4" data-testid="streak-losing">

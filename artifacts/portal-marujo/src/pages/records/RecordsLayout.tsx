@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 
 const tabs = [
   { label: "Visão Geral", href: "/registros" },
+  { label: "Títulos", href: "/titulos" },
   { label: "Por Competição", href: "/registros/competicao" },
   { label: "Por Década", href: "/registros/decada" },
   { label: "Sequências", href: "/registros/sequencias" },
@@ -19,7 +20,10 @@ export function RecordsLayout({ children, title, subtitle }: { children: React.R
       </div>
       <div className="flex gap-0 border-b overflow-x-auto">
         {tabs.map((tab) => {
-          const isActive = location === tab.href;
+          const isActive =
+            location === tab.href ||
+            (tab.href !== "/registros" && location.startsWith(tab.href + "/"));
+
           return (
             <Link key={tab.href} href={tab.href}>
               <span

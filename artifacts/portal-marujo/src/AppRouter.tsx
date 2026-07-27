@@ -41,6 +41,9 @@ import Records from "./pages/records/Records";
 import ByDecade from "./pages/records/ByDecade";
 import ByCompetition from "./pages/records/ByCompetition";
 import Streaks from "./pages/records/Streaks";
+import StreakWinning from "./pages/records/StreakWinning";
+import StreakUnbeaten from "./pages/records/StreakUnbeaten";
+import Titles from "./pages/records/Titles";
 import HomeAway from "./pages/records/HomeAway";
 import AdminRoot from "./pages/admin/AdminRoot";
 import NotFound from "./pages/not-found";
@@ -92,9 +95,12 @@ export default function AppRouter() {
         <Route path="/estadios" component={StadiumsList} />
         <Route path="/competicoes" component={CompetitionsList} />
         <Route path="/competicoes/:id" component={CompetitionDetail} />
+        <Route path="/titulos" component={Titles} />
         <Route path="/registros" component={Records} />
         <Route path="/registros/competicao" component={ByCompetition} />
         <Route path="/registros/decada" component={ByDecade} />
+        <Route path="/registros/sequencias/vitorias" component={StreakWinning} />
+        <Route path="/registros/sequencias/invencibilidade" component={StreakUnbeaten} />
         <Route path="/registros/sequencias" component={Streaks} />
         <Route path="/registros/mando" component={HomeAway} />
         <Route component={NotFound} />

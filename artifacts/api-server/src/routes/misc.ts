@@ -7,6 +7,7 @@ import {
   playersTable,
   playerSeasonStatsTable,
   opponentsTable,
+  seasonCompetitionStatsTable,
 } from "@workspace/db";
 import { sql, eq, and, desc, asc } from "drizzle-orm";
 
@@ -320,102 +321,187 @@ router.get("/records/home-away", async (req, res) => {
 });
 
 // Streaks
+type StreakType = "winning" | "unbeaten" | "losing";
+
+type StreakMatchRow = {
+  id: number;
+  matchDate: string;
+  result: string;
+  goalsFor: number | null;
+  goalsAgainst: number | null;
+  homeAway: string;
+  opponentName: string;
+  competitionName: string;
+};
+
+function findBestStreakRange(
+  matches: { result: string }[],
+  type: StreakType,
+): { length: number; start: number; end: number } | null {
+  let max = 0;
+  let cur = 0;
+  let start = 0;
+  let end = 0;
+  let bestStart = 0;
+  let bestEnd = 0;
+
+  const continues = (result: string) => {
+    if (type === "winning") return result === "win";
+    if (type === "losing") return result === "loss";
+    // unbeaten: anything that is not a loss (draws + unknown included)
+    return result !== "loss";
+  };
+
+  for (let i = 0; i < matches.length; i++) {
+    if (continues(matches[i].result)) {
+      if (cur === 0) start = i;
+      cur++;
+      end = i;
+      if (cur > max) {
+        max = cur;
+        bestStart = start;
+        bestEnd = end;
+      }
+    } else {
+      cur = 0;
+    }
+  }
+  if (max <= 0) return null;
+  return { length: max, start: bestStart, end: bestEnd };
+}
+
+function streakSummary(
+  type: StreakType,
+  matches: StreakMatchRow[],
+  range: { length: number; start: number; end: number },
+) {
+  const descriptions: Record<StreakType, string> = {
+    winning: `Melhor sequência de vitórias consecutivas: ${range.length} jogos`,
+    unbeaten: `Melhor invencibilidade: ${range.length} jogos sem derrota`,
+    losing: `Pior sequência de derrotas: ${range.length} jogos`,
+  };
+  return {
+    type,
+    length: range.length,
+    startDate: matches[range.start].matchDate,
+    endDate: matches[range.end].matchDate,
+    description: descriptions[type],
+    isCurrent: false,
+  };
+}
+
+async function loadOfficialMatchesForStreaks(): Promise<StreakMatchRow[]> {
+  return db
+    .select({
+      id: matchesTable.id,
+      matchDate: matchesTable.matchDate,
+      result: matchesTable.result,
+      goalsFor: matchesTable.goalsFor,
+      goalsAgainst: matchesTable.goalsAgainst,
+      homeAway: matchesTable.homeAway,
+      opponentName: opponentsTable.name,
+      competitionName: competitionsTable.name,
+    })
+    .from(matchesTable)
+    .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+    .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+    .where(eq(matchesTable.isFriendly, false))
+    .orderBy(matchesTable.matchDate);
+}
+
 router.get("/records/streaks", async (req, res) => {
   try {
-    const matches = await db
-      .select({
-        id: matchesTable.id,
-        matchDate: matchesTable.matchDate,
-        result: matchesTable.result,
-      })
-      .from(matchesTable)
-      .where(eq(matchesTable.isFriendly, false))
-      .orderBy(matchesTable.matchDate);
-
-    const streaks: any[] = [];
-
-    // Find best winning streak
-    let maxWin = 0, curWin = 0, winStart = 0, winEnd = 0, bestWinStart = 0, bestWinEnd = 0;
-    for (let i = 0; i < matches.length; i++) {
-      if (matches[i].result === "win") {
-        if (curWin === 0) winStart = i;
-        curWin++;
-        winEnd = i;
-        if (curWin > maxWin) {
-          maxWin = curWin;
-          bestWinStart = winStart;
-          bestWinEnd = winEnd;
-        }
-      } else {
-        curWin = 0;
-      }
+    const matches = await loadOfficialMatchesForStreaks();
+    const streaks = [];
+    for (const type of ["winning", "unbeaten", "losing"] as StreakType[]) {
+      const range = findBestStreakRange(matches, type);
+      if (range) streaks.push(streakSummary(type, matches, range));
     }
-    if (maxWin > 0) {
-      streaks.push({
-        type: "winning",
-        length: maxWin,
-        startDate: matches[bestWinStart].matchDate,
-        endDate: matches[bestWinEnd].matchDate,
-        description: `Melhor sequência de vitórias consecutivas: ${maxWin} jogos`,
-        isCurrent: false,
-      });
-    }
-
-    // Find best unbeaten streak
-    let maxUnbeaten = 0, curUnbeaten = 0, unbeatStart = 0, unbeatEnd = 0, bestUnbeatStart = 0, bestUnbeatEnd = 0;
-    for (let i = 0; i < matches.length; i++) {
-      if (matches[i].result !== "loss") {
-        if (curUnbeaten === 0) unbeatStart = i;
-        curUnbeaten++;
-        unbeatEnd = i;
-        if (curUnbeaten > maxUnbeaten) {
-          maxUnbeaten = curUnbeaten;
-          bestUnbeatStart = unbeatStart;
-          bestUnbeatEnd = unbeatEnd;
-        }
-      } else {
-        curUnbeaten = 0;
-      }
-    }
-    if (maxUnbeaten > 0) {
-      streaks.push({
-        type: "unbeaten",
-        length: maxUnbeaten,
-        startDate: matches[bestUnbeatStart].matchDate,
-        endDate: matches[bestUnbeatEnd].matchDate,
-        description: `Melhor invencibilidade: ${maxUnbeaten} jogos sem derrota`,
-        isCurrent: false,
-      });
-    }
-
-    // Find longest losing streak
-    let maxLoss = 0, curLoss = 0, lossStart = 0, lossEnd = 0, bestLossStart = 0, bestLossEnd = 0;
-    for (let i = 0; i < matches.length; i++) {
-      if (matches[i].result === "loss") {
-        if (curLoss === 0) lossStart = i;
-        curLoss++;
-        lossEnd = i;
-        if (curLoss > maxLoss) {
-          maxLoss = curLoss;
-          bestLossStart = lossStart;
-          bestLossEnd = lossEnd;
-        }
-      } else {
-        curLoss = 0;
-      }
-    }
-    if (maxLoss > 0) {
-      streaks.push({
-        type: "losing",
-        length: maxLoss,
-        startDate: matches[bestLossStart].matchDate,
-        endDate: matches[bestLossEnd].matchDate,
-        description: `Pior sequência de derrotas: ${maxLoss} jogos`,
-        isCurrent: false,
-      });
-    }
-
     res.json(streaks);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+router.get("/records/streaks/:type", async (req, res) => {
+  try {
+    const type = req.params.type as string;
+    if (type !== "winning" && type !== "unbeaten" && type !== "losing") {
+      return res.status(400).json({ error: "Tipo de sequência inválido" });
+    }
+    const matches = await loadOfficialMatchesForStreaks();
+    const range = findBestStreakRange(matches, type);
+    if (!range) {
+      return res.status(404).json({ error: "Sequência não encontrada" });
+    }
+    const summary = streakSummary(type, matches, range);
+    const slice = matches.slice(range.start, range.end + 1).map((m) => ({
+      id: m.id,
+      date: m.matchDate,
+      opponent: m.opponentName,
+      goalsFor: m.goalsFor,
+      goalsAgainst: m.goalsAgainst,
+      result: m.result,
+      homeAway: m.homeAway,
+      competition: m.competitionName,
+    }));
+    res.json({ ...summary, matches: slice });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+/** Titles: season_competition_stats rows with classification exactly "1º". */
+router.get("/titles", async (req, res) => {
+  try {
+    const rows = await db
+      .select({
+        competitionId: seasonCompetitionStatsTable.competitionId,
+        competitionName: competitionsTable.name,
+        season: seasonCompetitionStatsTable.season,
+      })
+      .from(seasonCompetitionStatsTable)
+      .innerJoin(
+        competitionsTable,
+        eq(seasonCompetitionStatsTable.competitionId, competitionsTable.id),
+      )
+      .where(eq(seasonCompetitionStatsTable.classification, "1º"))
+      .orderBy(asc(competitionsTable.name), asc(seasonCompetitionStatsTable.season));
+
+    const byComp = new Map<
+      number,
+      { competitionId: number; competitionName: string; seasons: string[] }
+    >();
+    for (const r of rows) {
+      let entry = byComp.get(r.competitionId);
+      if (!entry) {
+        entry = {
+          competitionId: r.competitionId,
+          competitionName: r.competitionName,
+          seasons: [],
+        };
+        byComp.set(r.competitionId, entry);
+      }
+      entry.seasons.push(r.season);
+    }
+
+    const competitions = [...byComp.values()]
+      .map((c) => ({
+        competitionId: c.competitionId,
+        competitionName: c.competitionName,
+        count: c.seasons.length,
+        seasons: c.seasons,
+      }))
+      .sort(
+        (a, b) =>
+          b.count - a.count ||
+          a.competitionName.localeCompare(b.competitionName, "pt-BR"),
+      );
+
+    const total = competitions.reduce((sum, c) => sum + c.count, 0);
+    res.json({ total, competitions });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno do servidor" });

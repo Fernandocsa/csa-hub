@@ -954,6 +954,9 @@ export default function AdminSeasonDetail() {
           <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
             Resumo por competição
           </h2>
+          <p className="text-xs text-gray-400 w-full order-last basis-full">
+            Classif. <span className="font-mono">1º</span> = título (página pública /titulos).
+          </p>
           <div className="flex items-center gap-2">
             <Button
               type="button"
@@ -1043,7 +1046,8 @@ export default function AdminSeasonDetail() {
                               onChange={(e) =>
                                 updateDraft(stat.id, "classification", e.target.value)
                               }
-                              placeholder="—"
+                              placeholder="1º"
+                              title='Use exatamente "1º" para contar como título'
                               className="h-8 w-[5.5rem] px-1.5"
                             />
                           </td>
