@@ -11,7 +11,7 @@ import {
   managersTable,
   nextMatchTable,
 } from "@workspace/db";
-import { eq, asc, desc, sql } from "drizzle-orm";
+import { eq, asc, desc, sql, ilike, and } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet } from "../lib/match-sheet";
 
 const NEXT_MATCH_ID = 1;
@@ -670,6 +670,71 @@ router.put("/admin/matches/:id/sheet", requireAdmin, async (req, res) => {
     if (err?.status === 400) {
       return res.status(400).json({ error: err.message });
     }
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+/** CSA roster for a match season (+ optional name search fallback). */
+router.get("/admin/matches/:id/roster", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const q = String((req.query as { q?: string }).q ?? "").trim();
+
+    const [match] = await db
+      .select({ id: matchesTable.id, season: matchesTable.season })
+      .from(matchesTable)
+      .where(eq(matchesTable.id, id))
+      .limit(1);
+    if (!match) return res.status(404).json({ error: "Partida não encontrada" });
+
+    const seasonRows = await db
+      .select({
+        id: playersTable.id,
+        name: playersTable.name,
+        position: playersTable.position,
+        appearances: playerSeasonStatsTable.appearances,
+        goals: playerSeasonStatsTable.goals,
+        assists: playerSeasonStatsTable.assists,
+      })
+      .from(playerSeasonStatsTable)
+      .innerJoin(playersTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
+      .where(eq(playerSeasonStatsTable.season, match.season))
+      .orderBy(desc(playerSeasonStatsTable.appearances), asc(playersTable.name));
+
+    let searchRows: typeof seasonRows = [];
+    if (q.length >= 2) {
+      searchRows = await db
+        .select({
+          id: playersTable.id,
+          name: playersTable.name,
+          position: playersTable.position,
+          appearances: sql<number>`0`.as("appearances"),
+          goals: sql<number>`0`.as("goals"),
+          assists: sql<number>`0`.as("assists"),
+        })
+        .from(playersTable)
+        .where(ilike(playersTable.name, `%${q}%`))
+        .orderBy(asc(playersTable.name))
+        .limit(30);
+    }
+
+    const byId = new Map<number, (typeof seasonRows)[0] & { inSeason: boolean }>();
+    for (const p of seasonRows) {
+      byId.set(p.id, { ...p, inSeason: true });
+    }
+    for (const p of searchRows) {
+      if (!byId.has(p.id)) {
+        byId.set(p.id, { ...p, inSeason: false });
+      }
+    }
+
+    res.json({
+      season: match.season,
+      players: Array.from(byId.values()),
+    });
+  } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
   }

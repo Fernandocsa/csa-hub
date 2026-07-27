@@ -8,6 +8,7 @@ import AdminMatches from "./AdminMatches";
 import AdminOpponents from "./AdminOpponents";
 import AdminImportExport from "./AdminImportExport";
 import AdminNextMatch from "./AdminNextMatch";
+import AdminMatchSheet from "./AdminMatchSheet";
 
 export default function AdminRoot() {
   const { checked, authenticated, login, logout } = useAdminAuth();
@@ -29,6 +30,7 @@ export default function AdminRoot() {
       <Switch>
         <Route path="/admin" component={AdminDashboard} />
         <Route path="/admin/jogadores" component={AdminPlayers} />
+        <Route path="/admin/partidas/:id/ficha" component={AdminMatchSheet} />
         <Route path="/admin/partidas" component={AdminMatches} />
         <Route path="/admin/adversarios" component={AdminOpponents} />
         <Route path="/admin/proximo-jogo" component={AdminNextMatch} />

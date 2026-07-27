@@ -3,8 +3,9 @@ import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, ClipboardList } from "lucide-react";
 import { ResultBadge } from "@/components/ui/result-badge";
+import { Link } from "wouter";
 
 interface LookupData {
   opponents: { id: number; name: string }[];
@@ -335,16 +336,25 @@ export default function AdminMatches() {
                   <td className="px-3 py-2 text-gray-600 max-w-[160px] truncate">{m.competitionName}</td>
                   <td className="px-3 py-2">
                     <div className="flex items-center justify-end gap-1">
+                      <Link
+                        href={`/admin/partidas/${m.id}/ficha`}
+                        className="p-1 text-gray-400 hover:text-[#1B3A6B] rounded"
+                        title="Ficha CSA (escalação, gols, cartões)"
+                      >
+                        <ClipboardList size={13} />
+                      </Link>
                       <button
                         onClick={() => { setEditMatch(m); setDialogOpen(true); }}
                         className="p-1 text-gray-400 hover:text-[#1B3A6B] rounded"
                         disabled={!lookup}
+                        title="Editar dados da partida"
                       >
                         <Pencil size={13} />
                       </button>
                       <button
                         onClick={() => deleteMatch(m.id)}
                         className="p-1 text-gray-400 hover:text-red-600 rounded"
+                        title="Excluir"
                       >
                         <Trash2 size={13} />
                       </button>
