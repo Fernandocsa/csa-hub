@@ -14,7 +14,7 @@ import { StarRating } from "@/components/StarRating";
 import { EntityComments } from "@/components/EntityComments";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
-import { OpponentCrest } from "@/components/OpponentCrest";
+import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
 
 function fmtDate(d: string) {
   return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
@@ -239,7 +239,14 @@ function TeamName({
   opponentId: number;
   logoUrl?: string | null;
 }) {
-  if (isCsa) return <>{name}</>;
+  if (isCsa) {
+    return (
+      <span className="inline-flex items-center gap-2">
+        <CsaCrest size="md" />
+        {name}
+      </span>
+    );
+  }
   return (
     <Link
       href={`/adversarios/${opponentId}`}

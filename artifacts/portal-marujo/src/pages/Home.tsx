@@ -23,7 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
-import { OpponentCrest } from "@/components/OpponentCrest";
+import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
 
 function pct(wins: number, total: number) {
   if (!total) return "0.0%";
@@ -40,7 +40,7 @@ const resultColor: Record<string, string> = {
   loss: "text-red-600",
 };
 
-/** CSA × Opponent (or reverse), with crest only beside the opponent name. */
+/** CSA × Opponent (or reverse), with crests beside both club names. */
 function MatchSidesLabel({
   homeAway,
   opponent,
@@ -52,23 +52,33 @@ function MatchSidesLabel({
   logoUrl?: string | null;
   separator?: string;
 }) {
-  const crest = <OpponentCrest url={logoUrl} name={opponent} size="sm" />;
+  const oppCrest = <OpponentCrest url={logoUrl} name={opponent} size="sm" />;
+  const csa = (
+    <span className="inline-flex items-center gap-1.5 shrink-0">
+      <CsaCrest size="sm" />
+      <span>CSA</span>
+    </span>
+  );
+  const opp = (
+    <span className="inline-flex items-center gap-1.5 min-w-0">
+      {oppCrest}
+      <span className="truncate">{opponent}</span>
+    </span>
+  );
   if (homeAway === "home") {
     return (
       <span className="inline-flex items-center gap-1.5 min-w-0">
-        <span>CSA</span>
+        {csa}
         <span className="text-muted-foreground">{separator}</span>
-        {crest}
-        <span className="truncate">{opponent}</span>
+        {opp}
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1.5 min-w-0">
-      {crest}
-      <span className="truncate">{opponent}</span>
+      {opp}
       <span className="text-muted-foreground">{separator}</span>
-      <span>CSA</span>
+      {csa}
     </span>
   );
 }

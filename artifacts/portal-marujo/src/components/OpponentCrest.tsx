@@ -1,5 +1,9 @@
 import { cn } from "@/lib/utils";
 
+/** Official CSA crest (Wikimedia / enwiki upload). Validated: 200 image/png 268×382. */
+export const CSA_CREST_URL =
+  "https://upload.wikimedia.org/wikipedia/en/9/93/Centro_Sportivo_Alagoano.png";
+
 type CrestSize = "sm" | "md" | "lg";
 
 const SIZE_CLASS: Record<CrestSize, string> = {
@@ -9,8 +13,7 @@ const SIZE_CLASS: Record<CrestSize, string> = {
 };
 
 /**
- * Opponent crest from Wikimedia Commons (or any public logo_url).
- * Renders nothing when url is missing — never a broken placeholder.
+ * Club crest image. Renders nothing when url is missing — never a broken placeholder.
  */
 export function OpponentCrest({
   url,
@@ -40,4 +43,14 @@ export function OpponentCrest({
       }}
     />
   );
+}
+
+export function CsaCrest({
+  size = "sm",
+  className,
+}: {
+  size?: CrestSize;
+  className?: string;
+}) {
+  return <OpponentCrest url={CSA_CREST_URL} name="CSA" size={size} className={className} />;
 }

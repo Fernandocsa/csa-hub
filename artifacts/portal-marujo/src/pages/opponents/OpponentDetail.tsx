@@ -13,7 +13,7 @@ import { ChevronLeft, ChevronLeft as PrevIcon, ChevronRight } from "lucide-react
 import { ResultBadge } from "@/components/ui/result-badge";
 import { Button } from "@/components/ui/button";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
-import { OpponentCrest } from "@/components/OpponentCrest";
+import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
 
 const PAGE_SIZE = 25;
 
@@ -232,9 +232,16 @@ export default function OpponentDetail() {
       </Link>
 
       <div className="border-b pb-4">
-        <h1 className="text-2xl font-bold inline-flex items-center gap-3" data-testid="heading-opponent">
-          <OpponentCrest url={opponent.logoUrl} name={opponent.name} size="lg" />
-          <span>CSA x {opponent.name}</span>
+        <h1 className="text-2xl font-bold inline-flex items-center gap-3 flex-wrap" data-testid="heading-opponent">
+          <span className="inline-flex items-center gap-2">
+            <CsaCrest size="lg" />
+            <span>CSA</span>
+          </span>
+          <span className="text-muted-foreground font-normal">x</span>
+          <span className="inline-flex items-center gap-2">
+            <OpponentCrest url={opponent.logoUrl} name={opponent.name} size="lg" />
+            <span>{opponent.name}</span>
+          </span>
         </h1>
       </div>
 
