@@ -6,8 +6,9 @@ import {
   competitionsTable,
   playersTable,
   playerSeasonStatsTable,
+  opponentsTable,
 } from "@workspace/db";
-import { sql, eq, and, desc } from "drizzle-orm";
+import { sql, eq, and, desc, asc } from "drizzle-orm";
 
 const router = Router();
 
@@ -56,6 +57,7 @@ router.get("/stadiums", async (req, res) => {
         id: stadiumsTable.id,
         name: stadiumsTable.name,
         city: stadiumsTable.city,
+        state: stadiumsTable.state,
         capacity: stadiumsTable.capacity,
         matches: sql<number>`cast(count(${matchesTable.id}) as int)`,
         wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
@@ -68,7 +70,13 @@ router.get("/stadiums", async (req, res) => {
       })
       .from(stadiumsTable)
       .leftJoin(matchesTable, and(eq(matchesTable.stadiumId, stadiumsTable.id), eq(matchesTable.isFriendly, false)))
-      .groupBy(stadiumsTable.id, stadiumsTable.name, stadiumsTable.city, stadiumsTable.capacity)
+      .groupBy(
+        stadiumsTable.id,
+        stadiumsTable.name,
+        stadiumsTable.city,
+        stadiumsTable.state,
+        stadiumsTable.capacity,
+      )
       .orderBy(sql`count(${matchesTable.id}) desc`);
 
     res.json(rows);
@@ -88,6 +96,7 @@ router.get("/stadiums/:id", async (req, res) => {
         id: stadiumsTable.id,
         name: stadiumsTable.name,
         city: stadiumsTable.city,
+        state: stadiumsTable.state,
         capacity: stadiumsTable.capacity,
       })
       .from(stadiumsTable)
@@ -95,6 +104,15 @@ router.get("/stadiums/:id", async (req, res) => {
       .limit(1);
 
     if (!stadium) return res.status(404).json({ error: "Estádio não encontrado" });
+
+    const homeClubs = await db
+      .select({
+        id: opponentsTable.id,
+        name: opponentsTable.name,
+      })
+      .from(opponentsTable)
+      .where(eq(opponentsTable.homeStadiumId, id))
+      .orderBy(asc(opponentsTable.name));
 
     const [stats] = await db
       .select({
@@ -119,7 +137,9 @@ router.get("/stadiums/:id", async (req, res) => {
       id: stadium.id,
       name: stadium.name,
       city: stadium.city ?? null,
+      state: stadium.state ?? null,
       capacity: stadium.capacity ?? null,
+      homeClubs,
       matches,
       wins,
       draws: stats?.draws ?? 0,

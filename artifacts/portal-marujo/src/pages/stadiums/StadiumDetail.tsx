@@ -56,10 +56,32 @@ export default function StadiumDetail() {
           {stadium.name}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          {[stadium.city, stadium.capacity != null ? `Capacidade ${stadium.capacity.toLocaleString("pt-BR")}` : null]
+          {[
+            stadium.city,
+            stadium.state,
+            stadium.capacity != null
+              ? `Capacidade ${stadium.capacity.toLocaleString("pt-BR")}`
+              : null,
+          ]
             .filter(Boolean)
             .join(" · ") || "Desempenho histórico do CSA neste estádio"}
         </p>
+        {stadium.homeClubs && stadium.homeClubs.length > 0 && (
+          <p className="text-sm mt-2">
+            <span className="text-muted-foreground">Sede de: </span>
+            {stadium.homeClubs.map((club, i) => (
+              <span key={club.id}>
+                {i > 0 ? ", " : ""}
+                <Link
+                  href={`/adversarios/${club.id}`}
+                  className="text-primary hover:underline"
+                >
+                  {club.name}
+                </Link>
+              </span>
+            ))}
+          </p>
+        )}
       </div>
 
       <div

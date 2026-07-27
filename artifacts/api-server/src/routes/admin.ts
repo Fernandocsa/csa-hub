@@ -930,11 +930,101 @@ router.get("/admin/matches/:id/roster", requireAdmin, async (req, res) => {
 
 // ── Stadiums ──────────────────────────────────────────────────────────────────
 
+const BRAZIL_UFS = new Set([
+  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
+  "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
+  "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+]);
+
+function parseStadiumBody(body: {
+  name?: string;
+  city?: string | null;
+  state?: string | null;
+  capacity?: number | string | null;
+}):
+  | {
+      ok: true;
+      name: string;
+      city: string | null;
+      state: string | null;
+      capacity: number | null;
+    }
+  | { ok: false; error: string } {
+  if (!body.name?.trim()) return { ok: false, error: "Nome obrigatório" };
+  const city =
+    body.city == null || String(body.city).trim() === ""
+      ? null
+      : String(body.city).trim();
+  let state =
+    body.state == null || String(body.state).trim() === ""
+      ? null
+      : String(body.state).trim().toUpperCase();
+  if (state != null && !BRAZIL_UFS.has(state)) {
+    return { ok: false, error: "UF inválida" };
+  }
+  let capacity: number | null = null;
+  if (body.capacity != null && String(body.capacity).trim() !== "") {
+    const n =
+      typeof body.capacity === "number"
+        ? body.capacity
+        : parseInt(String(body.capacity), 10);
+    if (!Number.isInteger(n) || n < 0) {
+      return { ok: false, error: "capacidade inválida" };
+    }
+    capacity = n;
+  }
+  return { ok: true, name: body.name.trim(), city, state, capacity };
+}
+
+router.get("/admin/stadiums/search", requireAdmin, async (req, res) => {
+  try {
+    const { q = "", limit = "20" } = req.query as Record<string, string>;
+    const term = q.trim();
+    const lim = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 50);
+    const whereClause = term
+      ? or(
+          ilike(stadiumsTable.name, `%${term}%`),
+          ilike(stadiumsTable.city, `%${term}%`),
+          ilike(stadiumsTable.state, `%${term}%`),
+        )
+      : undefined;
+    const rows = await db
+      .select({
+        id: stadiumsTable.id,
+        name: stadiumsTable.name,
+        city: stadiumsTable.city,
+        state: stadiumsTable.state,
+        capacity: stadiumsTable.capacity,
+      })
+      .from(stadiumsTable)
+      .where(whereClause)
+      .orderBy(asc(stadiumsTable.name))
+      .limit(lim);
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 router.post("/admin/stadiums", requireAdmin, async (req, res) => {
   try {
-    const { name } = req.body as { name: string };
-    if (!name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
-    const [stadium] = await db.insert(stadiumsTable).values({ name: name.trim() }).returning();
+    const parsed = parseStadiumBody(req.body as {
+      name?: string;
+      city?: string | null;
+      state?: string | null;
+      capacity?: number | string | null;
+    });
+    if (!parsed.ok) return res.status(400).json({ error: parsed.error });
+    const [stadium] = await db
+      .insert(stadiumsTable)
+      .values({
+        name: parsed.name,
+        city: parsed.city,
+        state: parsed.state,
+        capacity: parsed.capacity,
+      })
+      .returning();
     res.status(201).json(stadium);
   } catch (err) {
     req.log.error(err);
@@ -944,16 +1034,27 @@ router.post("/admin/stadiums", requireAdmin, async (req, res) => {
 
 router.put("/admin/stadiums/:id", requireAdmin, async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id, 10);
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
-    const { name } = req.body as { name: string };
-    if (!name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
-    const result = await pgPool.query(
-      `UPDATE stadiums SET name=$1 WHERE id=$2 RETURNING *`,
-      [name.trim(), id]
-    );
-    if (result.rowCount === 0) return res.status(404).json({ error: "Estádio não encontrado" });
-    res.json(result.rows[0]);
+    const parsed = parseStadiumBody(req.body as {
+      name?: string;
+      city?: string | null;
+      state?: string | null;
+      capacity?: number | string | null;
+    });
+    if (!parsed.ok) return res.status(400).json({ error: parsed.error });
+    const [updated] = await db
+      .update(stadiumsTable)
+      .set({
+        name: parsed.name,
+        city: parsed.city,
+        state: parsed.state,
+        capacity: parsed.capacity,
+      })
+      .where(eq(stadiumsTable.id, id))
+      .returning();
+    if (!updated) return res.status(404).json({ error: "Estádio não encontrado" });
+    res.json(updated);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -1050,12 +1151,6 @@ router.get("/admin/opponents", requireAdmin, async (req, res) => {
   }
 });
 
-const BRAZIL_UFS = new Set([
-  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
-  "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
-  "RS", "RO", "RR", "SC", "SP", "SE", "TO",
-]);
-
 function parseOpponentLocation(body: {
   city?: string | null;
   state?: string | null;
@@ -1074,6 +1169,21 @@ function parseOpponentLocation(body: {
   return { ok: true, city, state };
 }
 
+function parseHomeStadiumId(
+  raw: unknown,
+  present: boolean,
+): { ok: true; set: boolean; value: number | null } | { ok: false; error: string } {
+  if (!present) return { ok: true, set: false, value: null };
+  if (raw == null || String(raw).trim() === "") {
+    return { ok: true, set: true, value: null };
+  }
+  const id = typeof raw === "number" ? raw : parseInt(String(raw), 10);
+  if (!Number.isInteger(id) || id < 1) {
+    return { ok: false, error: "homeStadiumId inválido" };
+  }
+  return { ok: true, set: true, value: id };
+}
+
 router.get("/admin/opponents/:id", requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -1085,6 +1195,16 @@ router.get("/admin/opponents/:id", requireAdmin, async (req, res) => {
       .where(eq(opponentsTable.id, id))
       .limit(1);
     if (!opponent) return res.status(404).json({ error: "Adversário não encontrado" });
+
+    let homeStadium = null;
+    if (opponent.homeStadiumId != null) {
+      const [stadium] = await db
+        .select()
+        .from(stadiumsTable)
+        .where(eq(stadiumsTable.id, opponent.homeStadiumId))
+        .limit(1);
+      homeStadium = stadium ?? null;
+    }
 
     const matches = await db
       .select({
@@ -1105,7 +1225,7 @@ router.get("/admin/opponents/:id", requireAdmin, async (req, res) => {
       .where(eq(matchesTable.opponentId, id))
       .orderBy(desc(matchesTable.matchDate));
 
-    res.json({ ...opponent, matches });
+    res.json({ ...opponent, homeStadium, matches });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -1118,10 +1238,27 @@ router.post("/admin/opponents", requireAdmin, async (req, res) => {
       name?: string;
       city?: string | null;
       state?: string | null;
+      homeStadiumId?: number | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
     const loc = parseOpponentLocation(body);
     if (!loc.ok) return res.status(400).json({ error: loc.error });
+    const homeParsed = parseHomeStadiumId(
+      body.homeStadiumId,
+      Object.prototype.hasOwnProperty.call(body, "homeStadiumId"),
+    );
+    if (!homeParsed.ok) return res.status(400).json({ error: homeParsed.error });
+
+    let homeStadiumId: number | null = null;
+    if (homeParsed.set && homeParsed.value != null) {
+      const [stadium] = await db
+        .select({ id: stadiumsTable.id })
+        .from(stadiumsTable)
+        .where(eq(stadiumsTable.id, homeParsed.value))
+        .limit(1);
+      if (!stadium) return res.status(400).json({ error: "estádio sede não encontrado" });
+      homeStadiumId = stadium.id;
+    }
 
     const [opponent] = await db
       .insert(opponentsTable)
@@ -1129,6 +1266,7 @@ router.post("/admin/opponents", requireAdmin, async (req, res) => {
         name: body.name.trim(),
         city: loc.city,
         state: loc.state,
+        homeStadiumId: homeParsed.set ? homeStadiumId : null,
       })
       .returning();
     res.status(201).json(opponent);
@@ -1146,18 +1284,42 @@ router.put("/admin/opponents/:id", requireAdmin, async (req, res) => {
       name?: string;
       city?: string | null;
       state?: string | null;
+      homeStadiumId?: number | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
     const loc = parseOpponentLocation(body);
     if (!loc.ok) return res.status(400).json({ error: loc.error });
 
+    const values: {
+      name: string;
+      city: string | null;
+      state: string | null;
+      homeStadiumId?: number | null;
+    } = {
+      name: body.name.trim(),
+      city: loc.city,
+      state: loc.state,
+    };
+
+    if (Object.prototype.hasOwnProperty.call(body, "homeStadiumId")) {
+      const homeParsed = parseHomeStadiumId(body.homeStadiumId, true);
+      if (!homeParsed.ok) return res.status(400).json({ error: homeParsed.error });
+      if (homeParsed.value != null) {
+        const [stadium] = await db
+          .select({ id: stadiumsTable.id })
+          .from(stadiumsTable)
+          .where(eq(stadiumsTable.id, homeParsed.value))
+          .limit(1);
+        if (!stadium) return res.status(400).json({ error: "estádio sede não encontrado" });
+        values.homeStadiumId = stadium.id;
+      } else {
+        values.homeStadiumId = null;
+      }
+    }
+
     const [updated] = await db
       .update(opponentsTable)
-      .set({
-        name: body.name.trim(),
-        city: loc.city,
-        state: loc.state,
-      })
+      .set(values)
       .where(eq(opponentsTable.id, id))
       .returning();
     if (!updated) return res.status(404).json({ error: "Adversário não encontrado" });

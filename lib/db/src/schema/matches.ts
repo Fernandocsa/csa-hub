@@ -2,18 +2,20 @@ import { pgTable, text, serial, integer, date, boolean, timestamp } from "drizzl
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
+export const stadiumsTable = pgTable("stadiums", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  city: text("city"),
+  state: text("state"),
+  capacity: integer("capacity"),
+});
+
 export const opponentsTable = pgTable("opponents", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
   city: text("city"),
   state: text("state"),
-});
-
-export const stadiumsTable = pgTable("stadiums", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  city: text("city"),
-  capacity: integer("capacity"),
+  homeStadiumId: integer("home_stadium_id").references(() => stadiumsTable.id),
 });
 
 export const competitionsTable = pgTable("competitions", {

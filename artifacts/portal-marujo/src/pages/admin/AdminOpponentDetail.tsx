@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,15 @@ export type Opponent = {
   name: string;
   city: string | null;
   state: string | null;
+  homeStadiumId?: number | null;
+};
+
+type HomeStadium = {
+  id: number;
+  name: string;
+  city: string | null;
+  state: string | null;
+  capacity: number | null;
 };
 
 type OpponentMatch = {
@@ -40,12 +49,16 @@ type OpponentMatch = {
   isFriendly: boolean;
 };
 
-type OpponentDetail = Opponent & { matches: OpponentMatch[] };
+type OpponentDetail = Opponent & {
+  matches: OpponentMatch[];
+  homeStadium?: HomeStadium | null;
+};
 
 type OpponentPayload = {
   name: string;
   city: string | null;
   state: string | null;
+  homeStadiumId?: number | null;
 };
 
 type TabId = "perfil" | "historico";
@@ -233,6 +246,280 @@ function OpponentProfileForm({
   );
 }
 
+function formatStadiumLabel(s: {
+  name: string;
+  city?: string | null;
+  state?: string | null;
+  capacity?: number | null;
+}) {
+  const bits = [s.name];
+  const place = [s.city, s.state].filter(Boolean).join("/");
+  if (place) bits.push(place);
+  if (s.capacity != null) bits.push(`cap. ${s.capacity.toLocaleString("pt-BR")}`);
+  return bits.join(" · ");
+}
+
+function HomeStadiumSection({
+  opponentId,
+  opponentName,
+  current,
+  defaultCity,
+  defaultState,
+  onChanged,
+}: {
+  opponentId: number;
+  opponentName: string;
+  current: HomeStadium | null | undefined;
+  defaultCity: string | null;
+  defaultState: string | null;
+  onChanged: () => Promise<void>;
+}) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<HomeStadium[]>([]);
+  const [open, setOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [stadiumName, setStadiumName] = useState("");
+  const [stadiumCity, setStadiumCity] = useState(defaultCity ?? "");
+  const [stadiumState, setStadiumState] = useState(defaultState ?? "");
+  const [stadiumCapacity, setStadiumCapacity] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onDoc(e: MouseEvent) {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
+
+  useEffect(() => {
+    const term = query.trim();
+    if (term.length < 2) {
+      setResults([]);
+      return;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      const r = await adminFetch(
+        `/admin/stadiums/search?q=${encodeURIComponent(term)}&limit=15`,
+      );
+      if (!r.ok || cancelled) return;
+      const data = (await r.json()) as HomeStadium[];
+      if (!cancelled) {
+        setResults(Array.isArray(data) ? data : []);
+        setOpen(true);
+      }
+    }, 250);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [query]);
+
+  async function linkStadium(stadiumId: number | null) {
+    setBusy(true);
+    setError("");
+    try {
+      const r = await adminFetch(`/admin/opponents/${opponentId}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          name: opponentName,
+          city: defaultCity,
+          state: defaultState,
+          homeStadiumId: stadiumId,
+        }),
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error((err as { error?: string }).error ?? "Erro ao vincular");
+      }
+      setQuery("");
+      setCreating(false);
+      await onChanged();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Erro");
+    }
+    setBusy(false);
+  }
+
+  async function createAndLink(e: React.FormEvent) {
+    e.preventDefault();
+    if (!stadiumName.trim()) return;
+    setBusy(true);
+    setError("");
+    try {
+      const body: {
+        name: string;
+        city?: string | null;
+        state?: string | null;
+        capacity?: number | null;
+      } = {
+        name: stadiumName.trim(),
+        city: stadiumCity.trim() || null,
+        state: stadiumState.trim() ? stadiumState.trim().toUpperCase() : null,
+      };
+      if (stadiumCapacity.trim()) {
+        body.capacity = parseInt(stadiumCapacity, 10);
+      }
+      const created = await adminFetch("/admin/stadiums", {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+      if (!created.ok) {
+        const err = await created.json().catch(() => ({}));
+        throw new Error((err as { error?: string }).error ?? "Erro ao criar estádio");
+      }
+      const stadium = (await created.json()) as HomeStadium;
+      await linkStadium(stadium.id);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Erro");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="mt-8 pt-6 border-t max-w-xl space-y-3">
+      <h2 className="text-sm font-semibold text-gray-800 uppercase tracking-wide">
+        Estádio sede
+      </h2>
+
+      {current ? (
+        <div className="rounded border bg-white px-3 py-2 text-sm">
+          <p className="font-medium">{formatStadiumLabel(current)}</p>
+          <div className="flex flex-wrap gap-2 mt-2">
+            <Link
+              href={`/estadios/${current.id}`}
+              className="text-xs text-[#1B3A6B] hover:underline"
+            >
+              Ver página pública
+            </Link>
+            <button
+              type="button"
+              className="text-xs text-red-600 hover:underline"
+              disabled={busy}
+              onClick={() => linkStadium(null)}
+            >
+              Remover vínculo
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p className="text-xs text-gray-500">Nenhum estádio sede vinculado.</p>
+      )}
+
+      <div ref={rootRef} className="relative">
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+          Buscar estádio existente
+        </label>
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Nome, cidade ou UF"
+          className="h-8 text-xs"
+          autoComplete="off"
+        />
+        {open && query.trim().length >= 2 && (
+          <ul className="absolute z-30 mt-1 w-full max-h-56 overflow-auto rounded-md border bg-white shadow-md text-xs">
+            {results.length === 0 ? (
+              <li className="px-3 py-2 text-gray-400">Nenhum estádio</li>
+            ) : (
+              results.map((s) => (
+                <li key={s.id}>
+                  <button
+                    type="button"
+                    className="w-full text-left px-3 py-2 hover:bg-gray-50"
+                    disabled={busy}
+                    onClick={() => linkStadium(s.id)}
+                  >
+                    {formatStadiumLabel(s)}
+                  </button>
+                </li>
+              ))
+            )}
+          </ul>
+        )}
+      </div>
+
+      {!creating ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setCreating(true);
+            setStadiumName("");
+            setStadiumCity(defaultCity ?? "");
+            setStadiumState(defaultState ?? "");
+            setStadiumCapacity("");
+          }}
+        >
+          Criar estádio sede
+        </Button>
+      ) : (
+        <form onSubmit={createAndLink} className="space-y-2 rounded border p-3 bg-gray-50">
+          <p className="text-xs font-semibold text-gray-600 uppercase">Novo estádio</p>
+          <Input
+            value={stadiumName}
+            onChange={(e) => setStadiumName(e.target.value)}
+            placeholder="Nome do estádio *"
+            className="h-8 text-xs"
+            required
+          />
+          <div className="grid grid-cols-3 gap-2">
+            <Input
+              value={stadiumCity}
+              onChange={(e) => setStadiumCity(e.target.value)}
+              placeholder="Cidade"
+              className="h-8 text-xs"
+            />
+            <Select
+              value={stadiumState || "__none__"}
+              onValueChange={(v) => setStadiumState(v === "__none__" ? "" : v)}
+            >
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="UF" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">—</SelectItem>
+                {BRAZIL_UFS.map((uf) => (
+                  <SelectItem key={uf} value={uf} className="text-xs">
+                    {uf}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              value={stadiumCapacity}
+              onChange={(e) => setStadiumCapacity(e.target.value)}
+              placeholder="Capacidade"
+              className="h-8 text-xs"
+              inputMode="numeric"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button type="submit" size="sm" className="bg-[#1B3A6B]" disabled={busy}>
+              {busy ? "…" : "Criar e vincular"}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setCreating(false)}
+              disabled={busy}
+            >
+              Cancelar
+            </Button>
+          </div>
+        </form>
+      )}
+
+      {error && <p className="text-xs text-red-600">{error}</p>}
+    </div>
+  );
+}
+
 function OpponentHistory({ matches }: { matches: OpponentMatch[] }) {
   if (matches.length === 0) {
     return <p className="text-sm text-gray-400">Nenhuma partida cadastrada contra este adversário.</p>;
@@ -399,12 +686,24 @@ export default function AdminOpponentDetail() {
       </div>
 
       {tab === "perfil" && (
-        <OpponentProfileForm
-          key={isNew ? "new" : String(detail?.id)}
-          initial={isNew ? undefined : detail ?? undefined}
-          onSave={save}
-          isNew={isNew}
-        />
+        <>
+          <OpponentProfileForm
+            key={isNew ? "new" : String(detail?.id)}
+            initial={isNew ? undefined : detail ?? undefined}
+            onSave={save}
+            isNew={isNew}
+          />
+          {!isNew && detail && (
+            <HomeStadiumSection
+              opponentId={detail.id}
+              opponentName={detail.name}
+              current={detail.homeStadium}
+              defaultCity={detail.city}
+              defaultState={detail.state}
+              onChanged={load}
+            />
+          )}
+        </>
       )}
 
       {tab === "historico" && detail && <OpponentHistory matches={detail.matches} />}
