@@ -35,6 +35,11 @@ import {
   hasAnyStoredStat,
   recalculateManagerStoredStats,
 } from "../lib/manager-stats";
+import countriesList from "../../../portal-marujo/src/lib/countries.json" with { type: "json" };
+
+const VALID_COUNTRY_CODES = new Set(
+  (countriesList as { code: string }[]).map((c) => c.code.toUpperCase()),
+);
 
 const NEXT_MATCH_ID = 1;
 
@@ -1151,10 +1156,13 @@ router.get("/admin/opponents", requireAdmin, async (req, res) => {
   }
 });
 
-function parseOpponentLocation(body: {
+function parseOpponentProfile(body: {
   city?: string | null;
   state?: string | null;
-}): { ok: true; city: string | null; state: string | null } | { ok: false; error: string } {
+  country?: string | null;
+}):
+  | { ok: true; city: string | null; state: string | null; country: string | null }
+  | { ok: false; error: string } {
   const city =
     body.city == null || String(body.city).trim() === ""
       ? null
@@ -1163,10 +1171,26 @@ function parseOpponentLocation(body: {
     body.state == null || String(body.state).trim() === ""
       ? null
       : String(body.state).trim().toUpperCase();
+  let country =
+    body.country == null || String(body.country).trim() === ""
+      ? null
+      : String(body.country).trim().toUpperCase();
+
+  if (country === "BRA") country = null;
+
+  if (country != null && !VALID_COUNTRY_CODES.has(country)) {
+    return { ok: false, error: "País inválido" };
+  }
+  if (country != null && state != null) {
+    return { ok: false, error: "País e UF não podem ser preenchidos ao mesmo tempo" };
+  }
+  if (country != null) {
+    state = null;
+  }
   if (state != null && !BRAZIL_UFS.has(state)) {
     return { ok: false, error: "UF inválida" };
   }
-  return { ok: true, city, state };
+  return { ok: true, city, state, country };
 }
 
 function parseHomeStadiumId(
@@ -1238,11 +1262,12 @@ router.post("/admin/opponents", requireAdmin, async (req, res) => {
       name?: string;
       city?: string | null;
       state?: string | null;
+      country?: string | null;
       homeStadiumId?: number | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
-    const loc = parseOpponentLocation(body);
-    if (!loc.ok) return res.status(400).json({ error: loc.error });
+    const profile = parseOpponentProfile(body);
+    if (!profile.ok) return res.status(400).json({ error: profile.error });
     const homeParsed = parseHomeStadiumId(
       body.homeStadiumId,
       Object.prototype.hasOwnProperty.call(body, "homeStadiumId"),
@@ -1264,8 +1289,9 @@ router.post("/admin/opponents", requireAdmin, async (req, res) => {
       .insert(opponentsTable)
       .values({
         name: body.name.trim(),
-        city: loc.city,
-        state: loc.state,
+        city: profile.city,
+        state: profile.state,
+        country: profile.country,
         homeStadiumId: homeParsed.set ? homeStadiumId : null,
       })
       .returning();
@@ -1284,21 +1310,24 @@ router.put("/admin/opponents/:id", requireAdmin, async (req, res) => {
       name?: string;
       city?: string | null;
       state?: string | null;
+      country?: string | null;
       homeStadiumId?: number | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
-    const loc = parseOpponentLocation(body);
-    if (!loc.ok) return res.status(400).json({ error: loc.error });
+    const profile = parseOpponentProfile(body);
+    if (!profile.ok) return res.status(400).json({ error: profile.error });
 
     const values: {
       name: string;
       city: string | null;
       state: string | null;
+      country: string | null;
       homeStadiumId?: number | null;
     } = {
       name: body.name.trim(),
-      city: loc.city,
-      state: loc.state,
+      city: profile.city,
+      state: profile.state,
+      country: profile.country,
     };
 
     if (Object.prototype.hasOwnProperty.call(body, "homeStadiumId")) {
