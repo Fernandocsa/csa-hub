@@ -671,6 +671,9 @@ components:
         seasonAge:
           type: ["integer", "null"]
           description: Age during this season year (not current age)
+        shirtNumber:
+          type: ["integer", "null"]
+          description: Squad shirt number for this season (from player_season_stats)
 
     SeasonCompetitionStat:
       type: object

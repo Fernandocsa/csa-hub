@@ -162,6 +162,7 @@ router.get("/seasons/:year", async (req, res) => {
         appearances: playerSeasonStatsTable.appearances,
         goals: playerSeasonStatsTable.goals,
         assists: playerSeasonStatsTable.assists,
+        shirtNumber: playerSeasonStatsTable.shirtNumber,
       })
       .from(playerSeasonStatsTable)
       .innerJoin(playersTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
@@ -177,6 +178,7 @@ router.get("/seasons/:year", async (req, res) => {
       appearances: p.appearances,
       goals: p.goals,
       assists: p.assists,
+      shirtNumber: p.shirtNumber ?? null,
       birthYear: p.birthYear,
       birthDate: p.birthDate,
       seasonAge: calcAgeInSeason(p.birthDate, p.birthYear, seasonYear),

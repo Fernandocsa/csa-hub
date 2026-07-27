@@ -186,14 +186,21 @@ function RosterByPosition({ players }: { players: PlayerStat[] }) {
               <li key={player.id} data-testid={`row-squad-${player.id}`}>
                 <Link
                   href={`/jogadores/${player.id}`}
-                  className="block px-3 py-2 text-sm hover:bg-muted/50 hover:text-primary"
+                  className="flex items-start gap-2 px-3 py-2 text-sm hover:bg-muted/50 hover:text-primary"
                 >
-                  <span className="font-medium">{player.name}</span>
-                  {player.seasonAge != null ? (
-                    <span className="block text-xs text-muted-foreground font-normal mt-0.5">
-                      {player.seasonAge} anos
+                  {player.shirtNumber != null ? (
+                    <span className="w-7 text-center text-xs tabular-nums text-muted-foreground shrink-0 pt-0.5">
+                      {player.shirtNumber}
                     </span>
                   ) : null}
+                  <span className="min-w-0">
+                    <span className="font-medium">{player.name}</span>
+                    {player.seasonAge != null ? (
+                      <span className="block text-xs text-muted-foreground font-normal mt-0.5">
+                        {player.seasonAge} anos
+                      </span>
+                    ) : null}
+                  </span>
                 </Link>
               </li>
             ))}

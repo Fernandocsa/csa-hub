@@ -34,6 +34,8 @@ export interface PlayerStat {
   birthDate?: string | null;
   /** Age during this season year (not current age). @nullable */
   seasonAge?: number | null;
+  /** Squad shirt number for this season (from player_season_stats). @nullable */
+  shirtNumber?: number | null;
 }
 
 export interface OpponentSummary {
