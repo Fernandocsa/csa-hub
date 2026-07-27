@@ -209,6 +209,7 @@ router.post("/admin/players", requireAdmin, async (req, res) => {
       birthCountry?: string | null;
       preferredFoot?: string | null;
       heightCm?: number | null;
+      weightKg?: number | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
 
@@ -231,6 +232,7 @@ router.post("/admin/players", requireAdmin, async (req, res) => {
         birthCountry: body.birthCountry?.trim() || null,
         preferredFoot: foot,
         heightCm: body.heightCm ?? null,
+        weightKg: body.weightKg ?? null,
       })
       .returning();
     res.status(201).json(player);
@@ -256,6 +258,7 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
       birthCountry?: string | null;
       preferredFoot?: string | null;
       heightCm?: number | null;
+      weightKg?: number | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
 
@@ -278,6 +281,7 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
         birthCountry: body.birthCountry?.trim() || null,
         preferredFoot: foot,
         heightCm: body.heightCm ?? null,
+        weightKg: body.weightKg ?? null,
       })
       .where(eq(playersTable.id, id))
       .returning();

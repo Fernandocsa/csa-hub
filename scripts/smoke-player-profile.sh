@@ -39,12 +39,12 @@ try {
     WHERE table_schema='public' AND table_name='players'
       AND column_name IN (
         'full_name','birth_date','birth_city','birth_state',
-        'birth_country','preferred_foot','height_cm'
+        'birth_country','preferred_foot','height_cm','weight_kg'
       )
     ORDER BY column_name
   `);
   console.log("OK columns:", rows.map((r) => r.column_name).join(", "));
-  if (rows.length !== 7) throw new Error("expected 7 new columns");
+  if (rows.length !== 8) throw new Error("expected 8 new columns");
 } finally {
   await pool.end();
 }

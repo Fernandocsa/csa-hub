@@ -396,6 +396,7 @@ router.get("/players/:id", async (req, res) => {
       birthCountry: player.birthCountry ?? null,
       preferredFoot: player.preferredFoot ?? null,
       heightCm: player.heightCm ?? null,
+      weightKg: player.weightKg ?? null,
       verificationStatus: player.verificationStatus,
       verifiedAt: player.verifiedAt,
       verifiedBy: player.verifiedBy,

@@ -18,6 +18,7 @@ interface Player {
   birthCountry: string | null;
   preferredFoot: string | null;
   heightCm: number | null;
+  weightKg: number | null;
 }
 
 interface StatRow {
@@ -68,6 +69,9 @@ function PlayerForm({
   const [heightCm, setHeightCm] = useState(
     initial?.heightCm != null ? String(initial.heightCm) : "",
   );
+  const [weightKg, setWeightKg] = useState(
+    initial?.weightKg != null ? String(initial.weightKg) : "",
+  );
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -90,6 +94,7 @@ function PlayerForm({
         birthCountry: birthCountry.trim() || null,
         preferredFoot: preferredFoot || null,
         heightCm: heightCm ? parseInt(heightCm) : null,
+        weightKg: weightKg ? parseInt(weightKg) : null,
       });
     } catch (err: any) {
       setError(err.message ?? "Erro ao salvar");
@@ -197,7 +202,7 @@ function PlayerForm({
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <div>
           <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
             Pé preferencial
@@ -226,6 +231,19 @@ function PlayerForm({
             placeholder="180"
             min={140}
             max={220}
+          />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Peso (kg)
+          </label>
+          <Input
+            type="number"
+            value={weightKg}
+            onChange={(e) => setWeightKg(e.target.value)}
+            placeholder="75"
+            min={40}
+            max={150}
           />
         </div>
       </div>

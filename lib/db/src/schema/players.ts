@@ -16,6 +16,7 @@ export const playersTable = pgTable("players", {
   birthCountry: text("birth_country"),
   preferredFoot: text("preferred_foot"), // destro | canhoto | ambidestro
   heightCm: integer("height_cm"),
+  weightKg: integer("weight_kg"),
   verificationStatus: text("verification_status").notNull().default("unverified"),
   verifiedAt: timestamp("verified_at", { withTimezone: true }),
   verifiedBy: text("verified_by"),
