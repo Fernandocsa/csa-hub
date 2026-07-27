@@ -44,6 +44,7 @@ const navigation: NavItem[] = [
       { name: "Maiores Públicos", href: "/publicos" },
       { name: "CSA x Estados", href: "/partidas/por-estado" },
       { name: "CSA x Estrangeiros", href: "/partidas/estrangeiros" },
+      { name: "CSA x Regiões", href: "/partidas/por-regiao" },
     ],
   },
   { name: "Temporadas", href: "/temporadas", icon: CalendarDays },

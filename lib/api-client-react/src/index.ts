@@ -13,5 +13,6 @@ export * from "./match-detail";
 export * from "./stadium-detail";
 export * from "./opponents-by-state";
 export * from "./opponents-by-foreign";
+export * from "./opponents-by-region";
 export * from "./players-by-birth-state";
 export * from "./player-matches";

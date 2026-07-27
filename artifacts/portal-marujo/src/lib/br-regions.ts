@@ -72,6 +72,6 @@ export function regionFromSlug(slug: string | null | undefined): BrazilRegion | 
   return SLUG_TO_REGION[slug.trim().toLowerCase()] ?? null;
 }
 
-export function regionDisplayName(region: BrazilRegion): string {
-  return region;
+export function regionDisplayName(region: BrazilRegion | string): string {
+  return String(region);
 }

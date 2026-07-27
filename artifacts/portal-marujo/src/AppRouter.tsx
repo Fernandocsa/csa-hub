@@ -18,6 +18,8 @@ import Publicos from "./pages/matches/Publicos";
 import MatchesByState from "./pages/matches/MatchesByState";
 import MatchesByStateDetail from "./pages/matches/MatchesByStateDetail";
 import MatchesByForeign from "./pages/matches/MatchesByForeign";
+import MatchesByRegion from "./pages/matches/MatchesByRegion";
+import MatchesByRegionDetail from "./pages/matches/MatchesByRegionDetail";
 import SeasonsList from "./pages/seasons/SeasonsList";
 import SeasonDetail from "./pages/seasons/SeasonDetail";
 import OpponentsList from "./pages/opponents/OpponentsList";
@@ -61,6 +63,8 @@ export default function AppRouter() {
         <Route path="/partidas/por-estado/:uf" component={MatchesByStateDetail} />
         <Route path="/partidas/por-estado" component={MatchesByState} />
         <Route path="/partidas/estrangeiros" component={MatchesByForeign} />
+        <Route path="/partidas/por-regiao/:slug" component={MatchesByRegionDetail} />
+        <Route path="/partidas/por-regiao" component={MatchesByRegion} />
         <Route path="/partidas/:id" component={MatchDetail} />
         <Route path="/partidas" component={MatchesList} />
         <Route path="/publicos" component={Publicos} />
