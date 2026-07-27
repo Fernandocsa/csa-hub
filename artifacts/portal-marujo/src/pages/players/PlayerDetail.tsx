@@ -7,6 +7,7 @@ import { ChevronLeft } from "lucide-react";
 import { VerificationCard } from "@/components/VerificationCard";
 import { PlayerMatchRows } from "@/components/PlayerMatchRows";
 import { StarRating } from "@/components/StarRating";
+import { EntityBadges } from "@/components/EntityBadges";
 import type { ReactNode } from "react";
 
 type PlayerProfile = {
@@ -37,6 +38,13 @@ type PlayerProfile = {
     assists?: number | null;
   }[];
   recentMatches?: PlayerSheetMatch[];
+  badges?: {
+    id: number;
+    label: string;
+    source?: string;
+    autoKind?: string | null;
+    seasonYear?: number | null;
+  }[];
 };
 
 function calcAge(birthDate?: string | null, birthYear?: number | null): number | null {
@@ -193,6 +201,7 @@ export default function PlayerDetail() {
               verifiedAt={player.verifiedAt}
             />
           </div>
+          <EntityBadges badges={player.badges} />
           {metaParts.length > 0 && (
             <p className="mt-1.5 text-sm text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1">
               {metaParts.map((part, i) => (

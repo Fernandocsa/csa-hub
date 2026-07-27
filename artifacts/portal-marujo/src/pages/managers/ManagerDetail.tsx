@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 import { StarRating } from "@/components/StarRating";
+import { EntityBadges } from "@/components/EntityBadges";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -45,6 +46,12 @@ export default function ManagerDetail() {
         {manager.nationality && (
           <p className="text-sm text-muted-foreground mt-1">{manager.nationality}</p>
         )}
+        <EntityBadges
+          badges={
+            (manager as { badges?: { id: number; label: string; source?: string }[] })
+              .badges
+          }
+        />
       </div>
 
       <StarRating entityType="manager" entityId={manager.id} />
