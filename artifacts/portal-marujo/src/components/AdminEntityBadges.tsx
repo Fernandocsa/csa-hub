@@ -1,10 +1,26 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  buildManualBadgeLabel,
+  templateNeedsCompetition,
+  templateNeedsYear,
+  templatesForEntity,
+  TEMPLATE_SELECT_LABELS,
+  type BadgeEntityType,
+  type ManualBadgeTemplate,
+} from "@/lib/manual-badge-templates";
 import { Plus, Trash2 } from "lucide-react";
 
-export type BadgeEntityType = "player" | "manager";
+export type { BadgeEntityType };
 
 export type EntityBadgeRow = {
   id: number;
@@ -14,8 +30,11 @@ export type EntityBadgeRow = {
   source: string;
   autoKind: string | null;
   seasonYear: number | null;
+  competitionId?: number | null;
   createdAt?: string;
 };
+
+type CompetitionOption = { id: number; name: string };
 
 export function AdminEntityBadges({
   entityType,
@@ -25,10 +44,42 @@ export function AdminEntityBadges({
   entityId: number;
 }) {
   const [badges, setBadges] = useState<EntityBadgeRow[] | null>(null);
-  const [label, setLabel] = useState("");
-  const [seasonYear, setSeasonYear] = useState("");
+  const [competitions, setCompetitions] = useState<CompetitionOption[]>([]);
+  const [template, setTemplate] = useState<ManualBadgeTemplate | "">("");
+  const [year, setYear] = useState("");
+  const [competitionId, setCompetitionId] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const templateOptions = useMemo(
+    () => templatesForEntity(entityType),
+    [entityType],
+  );
+
+  const selectedCompetition = useMemo(
+    () =>
+      competitionId
+        ? competitions.find((c) => String(c.id) === competitionId)
+        : undefined,
+    [competitionId, competitions],
+  );
+
+  const previewLabel = useMemo(() => {
+    if (!template) return "";
+    const yearNum = year.trim() ? parseInt(year, 10) : undefined;
+    if (templateNeedsYear(template) && !yearNum) return "";
+    if (templateNeedsCompetition(template) && !selectedCompetition) return "";
+    return buildManualBadgeLabel(template, {
+      year: yearNum,
+      competitionName: selectedCompetition?.name,
+    });
+  }, [template, year, selectedCompetition]);
+
+  const canSubmit =
+    !!template &&
+    !!previewLabel &&
+    (!templateNeedsYear(template) || year.trim() !== "") &&
+    (!templateNeedsCompetition(template) || competitionId !== "");
 
   const load = useCallback(async () => {
     const r = await adminFetch(`/admin/badges/${entityType}/${entityId}`);
@@ -38,18 +89,45 @@ export function AdminEntityBadges({
 
   useEffect(() => {
     setBadges(null);
+    setTemplate("");
+    setYear("");
+    setCompetitionId("");
     load();
   }, [load]);
 
+  useEffect(() => {
+    adminFetch("/admin/lookup")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.competitions) {
+          setCompetitions(
+            (data.competitions as CompetitionOption[]).map((c) => ({
+              id: c.id,
+              name: c.name,
+            })),
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   async function addBadge(e: React.FormEvent) {
     e.preventDefault();
+    if (!template || !canSubmit) return;
     setSaving(true);
     setError("");
     try {
-      const body: { label: string; seasonYear?: number | null } = {
-        label: label.trim(),
-      };
-      if (seasonYear.trim()) body.seasonYear = parseInt(seasonYear, 10);
+      const body: {
+        template: ManualBadgeTemplate;
+        year?: number;
+        competitionId?: number;
+      } = { template };
+      if (templateNeedsYear(template)) {
+        body.year = parseInt(year, 10);
+      }
+      if (templateNeedsCompetition(template)) {
+        body.competitionId = parseInt(competitionId, 10);
+      }
       const r = await adminFetch(`/admin/badges/${entityType}/${entityId}`, {
         method: "POST",
         body: JSON.stringify(body),
@@ -58,8 +136,9 @@ export function AdminEntityBadges({
         const err = await r.json().catch(() => ({}));
         throw new Error((err as { error?: string }).error ?? "Erro ao salvar");
       }
-      setLabel("");
-      setSeasonYear("");
+      setTemplate("");
+      setYear("");
+      setCompetitionId("");
       await load();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro");
@@ -115,45 +194,85 @@ export function AdminEntityBadges({
         </ul>
       )}
 
-      <form onSubmit={addBadge} className="flex flex-wrap items-end gap-2">
-        <div className="flex-1 min-w-[12rem]">
-          <label className="text-[10px] font-semibold text-gray-500 uppercase block mb-0.5">
-            Novo badge (nome livre)
-          </label>
-          <Input
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-            placeholder={
-              entityType === "player"
-                ? "ex: Cria do Mutange"
-                : "ex: Campeão Alagoano 2023"
-            }
-            required
-            maxLength={120}
-            className="h-8 text-xs"
-          />
+      <form onSubmit={addBadge} className="space-y-2">
+        <div className="flex flex-wrap items-end gap-2">
+          <div className="min-w-[10rem] flex-1">
+            <label className="text-[10px] font-semibold text-gray-500 uppercase block mb-0.5">
+              Template
+            </label>
+            <Select
+              value={template || undefined}
+              onValueChange={(v) => {
+                setTemplate(v as ManualBadgeTemplate);
+                setYear("");
+                setCompetitionId("");
+              }}
+            >
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Escolher template" />
+              </SelectTrigger>
+              <SelectContent>
+                {templateOptions.map((t) => (
+                  <SelectItem key={t} value={t} className="text-xs">
+                    {TEMPLATE_SELECT_LABELS[t]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {template && templateNeedsYear(template) && (
+            <div className="w-24">
+              <label className="text-[10px] font-semibold text-gray-500 uppercase block mb-0.5">
+                Ano
+              </label>
+              <Input
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                placeholder="2024"
+                className="h-8 text-xs"
+                inputMode="numeric"
+                required
+              />
+            </div>
+          )}
+
+          {template && templateNeedsCompetition(template) && (
+            <div className="min-w-[10rem] flex-1">
+              <label className="text-[10px] font-semibold text-gray-500 uppercase block mb-0.5">
+                Competição
+              </label>
+              <Select value={competitionId || undefined} onValueChange={setCompetitionId}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Escolher competição" />
+                </SelectTrigger>
+                <SelectContent>
+                  {competitions.map((c) => (
+                    <SelectItem key={c.id} value={String(c.id)} className="text-xs">
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          <Button
+            type="submit"
+            size="sm"
+            className="bg-[#1B3A6B] h-8"
+            disabled={saving || !canSubmit}
+          >
+            <Plus size={12} className="mr-1" />
+            {saving ? "…" : "Adicionar"}
+          </Button>
         </div>
-        <div className="w-24">
-          <label className="text-[10px] font-semibold text-gray-500 uppercase block mb-0.5">
-            Ano (opc.)
-          </label>
-          <Input
-            value={seasonYear}
-            onChange={(e) => setSeasonYear(e.target.value)}
-            placeholder="2024"
-            className="h-8 text-xs"
-            inputMode="numeric"
-          />
-        </div>
-        <Button
-          type="submit"
-          size="sm"
-          className="bg-[#1B3A6B] h-8"
-          disabled={saving || !label.trim()}
-        >
-          <Plus size={12} className="mr-1" />
-          {saving ? "…" : "Adicionar"}
-        </Button>
+
+        {previewLabel && (
+          <p className="text-xs text-gray-600">
+            Prévia: <span className="font-medium">{previewLabel}</span>
+          </p>
+        )}
       </form>
       {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
     </div>

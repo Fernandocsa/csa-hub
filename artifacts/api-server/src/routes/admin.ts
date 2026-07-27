@@ -21,6 +21,12 @@ import {
   getSeasonCompetitionBadgeStatuses,
 } from "../lib/auto-badges";
 import {
+  buildManualBadgeLabel,
+  parseCompetitionId,
+  parseSeasonYear,
+  validateManualBadgeInput,
+} from "../lib/manual-badge-templates";
+import {
   managerStoredStatsChanged,
   hasAnyStoredStat,
   recalculateManagerStoredStats,
@@ -1230,23 +1236,56 @@ router.post("/admin/badges/:entityType/:entityId", requireAdmin, async (req, res
       return res.status(404).json({ error: "Entidade não encontrada" });
     }
 
-    const body = req.body as { label?: string; seasonYear?: number | null };
-    const label = body.label?.trim() ?? "";
-    if (!label) return res.status(400).json({ error: "label obrigatório" });
-    if (label.length > 120) {
-      return res.status(400).json({ error: "label muito longo (máx. 120)" });
+    const body = req.body as {
+      template?: string;
+      year?: number | null;
+      competitionId?: number | null;
+    };
+    const templateRaw = body.template?.trim() ?? "";
+    if (!templateRaw) {
+      return res.status(400).json({ error: "template obrigatório" });
     }
 
-    let seasonYear: number | null = null;
-    if (body.seasonYear != null && String(body.seasonYear).trim() !== "") {
-      const y =
-        typeof body.seasonYear === "number"
-          ? body.seasonYear
-          : parseInt(String(body.seasonYear), 10);
-      if (!Number.isInteger(y) || y < 1900 || y > 2100) {
-        return res.status(400).json({ error: "seasonYear inválido" });
+    const yearParsed = parseSeasonYear(body.year);
+    if (!yearParsed.ok) {
+      return res.status(400).json({ error: yearParsed.error });
+    }
+    const competitionParsed = parseCompetitionId(body.competitionId);
+    if (!competitionParsed.ok) {
+      return res.status(400).json({ error: competitionParsed.error });
+    }
+
+    const validated = validateManualBadgeInput(
+      parsed.entityType,
+      templateRaw,
+      yearParsed.value,
+      competitionParsed.value,
+    );
+    if (!validated.ok) {
+      return res.status(400).json({ error: validated.error });
+    }
+
+    let competitionName: string | undefined;
+    let competitionId: number | null = null;
+    if (competitionParsed.value != null) {
+      const [comp] = await db
+        .select({ id: competitionsTable.id, name: competitionsTable.name })
+        .from(competitionsTable)
+        .where(eq(competitionsTable.id, competitionParsed.value))
+        .limit(1);
+      if (!comp) {
+        return res.status(400).json({ error: "competição não encontrada" });
       }
-      seasonYear = y;
+      competitionName = comp.name;
+      competitionId = comp.id;
+    }
+
+    const label = buildManualBadgeLabel(validated.template, {
+      year: yearParsed.value ?? undefined,
+      competitionName,
+    });
+    if (label.length > 120) {
+      return res.status(400).json({ error: "label gerado muito longo (máx. 120)" });
     }
 
     const [row] = await db
@@ -1257,7 +1296,8 @@ router.post("/admin/badges/:entityType/:entityId", requireAdmin, async (req, res
         label,
         source: "manual",
         autoKind: null,
-        seasonYear,
+        seasonYear: yearParsed.value,
+        competitionId,
       })
       .returning();
     res.status(201).json(row);
