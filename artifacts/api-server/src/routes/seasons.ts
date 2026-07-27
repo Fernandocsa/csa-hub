@@ -238,10 +238,11 @@ router.get("/seasons/:year", async (req, res) => {
               .groupBy(competitionsTable.name)
           ).map((c) => c.name);
 
-    const managers = await db
+    const managerRows = await db
       .select({
         id: managersTable.id,
         name: managersTable.name,
+        birthDate: managersTable.birthDate,
         games: managerSeasonStatsTable.games,
         wins: managerSeasonStatsTable.wins,
         draws: managerSeasonStatsTable.draws,
@@ -254,6 +255,20 @@ router.get("/seasons/:year", async (req, res) => {
       .innerJoin(managersTable, eq(managerSeasonStatsTable.managerId, managersTable.id))
       .where(eq(managerSeasonStatsTable.season, year))
       .orderBy(desc(managerSeasonStatsTable.games), asc(managersTable.name));
+
+    const managers = managerRows.map((m) => ({
+      id: m.id,
+      name: m.name,
+      birthDate: m.birthDate,
+      games: m.games,
+      wins: m.wins,
+      draws: m.draws,
+      losses: m.losses,
+      goalsFor: m.goalsFor,
+      goalsAgainst: m.goalsAgainst,
+      statsSource: m.statsSource,
+      seasonAge: calcAgeInSeason(m.birthDate, null, seasonYear),
+    }));
 
     const topAppearances = [...players]
       .sort((a, b) => b.appearances - a.appearances || a.name.localeCompare(b.name))

@@ -721,6 +721,11 @@ components:
           type: integer
         statsSource:
           type: ["string", "null"]
+        birthDate:
+          type: ["string", "null"]
+        seasonAge:
+          type: ["integer", "null"]
+          description: Age during this season year (not current age)
 
     SeasonTopEntry:
       type: object

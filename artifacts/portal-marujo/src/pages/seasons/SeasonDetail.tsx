@@ -324,15 +324,20 @@ export default function SeasonDetail() {
             {managers.map((m) => (
               <div
                 key={m.id}
-                className="px-3 py-2.5 flex flex-wrap items-baseline justify-between gap-2 text-sm"
+                className="px-3 py-2.5 flex flex-wrap items-start justify-between gap-2 text-sm"
               >
                 <Link
                   href={`/tecnicos/${m.id}`}
-                  className="font-medium hover:text-primary hover:underline"
+                  className="hover:text-primary hover:underline block min-w-0"
                 >
-                  {m.name}
+                  <span className="font-medium">{m.name}</span>
+                  {m.seasonAge != null ? (
+                    <span className="block text-xs text-muted-foreground font-normal mt-0.5">
+                      {m.seasonAge} anos
+                    </span>
+                  ) : null}
                 </Link>
-                <span className="text-xs text-muted-foreground tabular-nums">
+                <span className="text-xs text-muted-foreground tabular-nums shrink-0 pt-0.5">
                   {m.games}J · {m.wins}V · {m.draws}E · {m.losses}D
                 </span>
               </div>

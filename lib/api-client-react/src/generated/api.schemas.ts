@@ -248,6 +248,10 @@ export interface SeasonManagerEntry {
   goalsAgainst?: number;
   /** @nullable */
   statsSource?: string | null;
+  /** @nullable */
+  birthDate?: string | null;
+  /** Age during this season year (not current age). @nullable */
+  seasonAge?: number | null;
 }
 
 export interface SeasonTopEntry {
