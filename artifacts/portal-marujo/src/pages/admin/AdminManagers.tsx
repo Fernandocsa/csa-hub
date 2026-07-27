@@ -1,23 +1,16 @@
-import { useState, useEffect, useCallback, Fragment } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { Link, useLocation } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
-import { ChevronDown, ChevronRight } from "lucide-react";
-import { AdminEntityBadges } from "@/components/AdminEntityBadges";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
-
-interface Manager {
-  id: number;
-  name: string;
-  nationality: string | null;
-  startYear: number | null;
-  endYear: number | null;
-  seasons: string | null;
-}
+import type { Manager } from "./AdminManagerDetail";
 
 export default function AdminManagers() {
+  const [, setLocation] = useLocation();
   const [managers, setManagers] = useState<Manager[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -30,15 +23,6 @@ export default function AdminManagers() {
     load();
   }, [load]);
 
-  function selectManager(id: number) {
-    setExpandedId(id);
-    requestAnimationFrame(() => {
-      document
-        .querySelector(`[data-manager-row="${id}"]`)
-        ?.scrollIntoView({ behavior: "smooth", block: "center" });
-    });
-  }
-
   const filtered = managers.filter((m) =>
     m.name.toLowerCase().includes(search.toLowerCase()),
   );
@@ -49,9 +33,14 @@ export default function AdminManagers() {
         <div>
           <h1 className="text-xl font-bold text-gray-900">Técnicos</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Badges manuais (ex.: Campeão Alagoano 2023)
+            Perfil, números e badges em página dedicada
           </p>
         </div>
+        <Button className="bg-[#1B3A6B]" asChild>
+          <Link href="/admin/tecnicos/novo">
+            <Plus size={14} className="mr-1" /> Adicionar
+          </Link>
+        </Button>
       </div>
 
       <AdminEntitySearch
@@ -63,7 +52,7 @@ export default function AdminManagers() {
         placeholder="Buscar técnico…"
         value={search}
         onValueChange={setSearch}
-        onSelect={(item) => selectManager(item.id)}
+        onSelect={(item) => setLocation(`/admin/tecnicos/${item.id}`)}
       />
 
       {loading ? (
@@ -73,7 +62,6 @@ export default function AdminManagers() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 text-xs text-gray-500 uppercase border-b">
-                <th className="text-left px-3 py-2 w-8"></th>
                 <th className="text-left px-3 py-2">Nome</th>
                 <th className="text-left px-3 py-2">Nacionalidade</th>
                 <th className="text-left px-3 py-2">Período</th>
@@ -81,54 +69,27 @@ export default function AdminManagers() {
             </thead>
             <tbody>
               {filtered.map((m) => (
-                <Fragment key={m.id}>
-                  <tr
-                    className="border-b hover:bg-gray-50/80"
-                    data-manager-row={m.id}
-                  >
-                    <td className="px-3 py-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setExpandedId((id) => (id === m.id ? null : m.id))
-                        }
-                        className="text-gray-400 hover:text-[#1B3A6B]"
-                      >
-                        {expandedId === m.id ? (
-                          <ChevronDown size={16} />
-                        ) : (
-                          <ChevronRight size={16} />
-                        )}
-                      </button>
-                    </td>
-                    <td className="px-3 py-2 font-medium">{m.name}</td>
-                    <td className="px-3 py-2 text-gray-500">
-                      {m.nationality ?? "–"}
-                    </td>
-                    <td className="px-3 py-2 text-gray-500">
-                      {m.startYear != null || m.endYear != null
-                        ? `${m.startYear ?? "?"}–${m.endYear ?? "?"}`
-                        : (m.seasons ?? "–")}
-                    </td>
-                  </tr>
-                  {expandedId === m.id && (
-                    <tr>
-                      <td colSpan={4} className="bg-gray-50 px-4 py-3 border-b">
-                        <AdminEntityBadges
-                          entityType="manager"
-                          entityId={m.id}
-                        />
-                      </td>
-                    </tr>
-                  )}
-                </Fragment>
+                <tr key={m.id} className="border-b hover:bg-gray-50/80">
+                  <td className="px-3 py-2 font-medium">
+                    <Link
+                      href={`/admin/tecnicos/${m.id}`}
+                      className="text-[#1B3A6B] hover:underline"
+                    >
+                      {m.name}
+                    </Link>
+                  </td>
+                  <td className="px-3 py-2 text-gray-500">{m.nationality ?? "–"}</td>
+                  <td className="px-3 py-2 text-gray-500">
+                    {m.startYear != null || m.endYear != null
+                      ? `${m.startYear ?? "?"}–${m.endYear ?? "?"}`
+                      : (m.seasons ?? "–")}
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>
           {filtered.length === 0 && (
-            <p className="text-sm text-gray-400 text-center py-8">
-              Nenhum técnico encontrado
-            </p>
+            <p className="text-sm text-gray-400 text-center py-8">Nenhum técnico encontrado</p>
           )}
         </div>
       )}

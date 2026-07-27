@@ -202,6 +202,20 @@ router.get("/admin/players", requireAdmin, async (req, res) => {
   }
 });
 
+
+router.get("/admin/players/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [player] = await db.select().from(playersTable).where(eq(playersTable.id, id));
+    if (!player) return res.status(404).json({ error: "Jogador não encontrado" });
+    res.json(player);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 router.post("/admin/players", requireAdmin, async (req, res) => {
   try {
     const body = req.body as {
@@ -983,6 +997,20 @@ router.get("/admin/managers", requireAdmin, async (req, res) => {
   try {
     const rows = await db.select().from(managersTable).orderBy(asc(managersTable.name));
     res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+
+router.get("/admin/managers/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [manager] = await db.select().from(managersTable).where(eq(managersTable.id, id));
+    if (!manager) return res.status(404).json({ error: "Técnico não encontrado" });
+    res.json(manager);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });

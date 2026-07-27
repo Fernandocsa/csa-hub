@@ -1,0 +1,662 @@
+import { useCallback, useEffect, useState } from "react";
+import { Link, useLocation, useParams } from "wouter";
+import { adminFetch } from "@/hooks/useAdminAuth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { ChevronLeft, Pencil, Plus, Trash2 } from "lucide-react";
+import { AdminEntityBadges } from "@/components/AdminEntityBadges";
+
+export interface Player {
+  id: number;
+  name: string;
+  fullName: string | null;
+  position: string | null;
+  nationality: string | null;
+  birthYear: number | null;
+  birthDate: string | null;
+  birthCity: string | null;
+  birthState: string | null;
+  birthCountry: string | null;
+  preferredFoot: string | null;
+  heightCm: number | null;
+  weightKg: number | null;
+}
+
+interface StatRow {
+  id: number;
+  playerId: number;
+  season: string;
+  appearances: number;
+  goals: number;
+  assists: number;
+}
+
+type PlayerPayload = Omit<Player, "id">;
+
+const POSITIONS = [
+  "Goleiro",
+  "Lateral Direito",
+  "Zagueiro",
+  "Lateral Esquerdo",
+  "Lateral",
+  "Volante",
+  "Meia",
+  "Atacante",
+];
+
+const FEET = [
+  { value: "destro", label: "Destro" },
+  { value: "canhoto", label: "Canhoto" },
+  { value: "ambidestro", label: "Ambidestro" },
+];
+
+type TabId = "perfil" | "temporadas" | "badges";
+
+function PlayerProfileForm({
+  initial,
+  onSave,
+  onDelete,
+  isNew,
+}: {
+  initial?: Partial<Player>;
+  onSave: (data: PlayerPayload) => Promise<void>;
+  onDelete?: () => Promise<void>;
+  isNew: boolean;
+}) {
+  const [name, setName] = useState(initial?.name ?? "");
+  const [fullName, setFullName] = useState(initial?.fullName ?? "");
+  const [position, setPosition] = useState(initial?.position ?? "");
+  const [nationality, setNationality] = useState(initial?.nationality ?? "");
+  const [birthYear, setBirthYear] = useState(String(initial?.birthYear ?? ""));
+  const [birthDate, setBirthDate] = useState(initial?.birthDate ?? "");
+  const [birthCity, setBirthCity] = useState(initial?.birthCity ?? "");
+  const [birthState, setBirthState] = useState(initial?.birthState ?? "");
+  const [birthCountry, setBirthCountry] = useState(initial?.birthCountry ?? "");
+  const [preferredFoot, setPreferredFoot] = useState(initial?.preferredFoot ?? "");
+  const [heightCm, setHeightCm] = useState(
+    initial?.heightCm != null ? String(initial.heightCm) : "",
+  );
+  const [weightKg, setWeightKg] = useState(
+    initial?.weightKg != null ? String(initial.weightKg) : "",
+  );
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    setName(initial?.name ?? "");
+    setFullName(initial?.fullName ?? "");
+    setPosition(initial?.position ?? "");
+    setNationality(initial?.nationality ?? "");
+    setBirthYear(String(initial?.birthYear ?? ""));
+    setBirthDate(initial?.birthDate ?? "");
+    setBirthCity(initial?.birthCity ?? "");
+    setBirthState(initial?.birthState ?? "");
+    setBirthCountry(initial?.birthCountry ?? "");
+    setPreferredFoot(initial?.preferredFoot ?? "");
+    setHeightCm(initial?.heightCm != null ? String(initial.heightCm) : "");
+    setWeightKg(initial?.weightKg != null ? String(initial.weightKg) : "");
+  }, [initial]);
+
+  const sel = "w-full border rounded px-3 py-2 text-sm bg-white";
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
+    try {
+      await onSave({
+        name,
+        fullName: fullName.trim() || null,
+        position: position || null,
+        nationality: nationality || null,
+        birthYear: birthYear ? parseInt(birthYear) : null,
+        birthDate: birthDate.trim() || null,
+        birthCity: birthCity.trim() || null,
+        birthState: birthState.trim() || null,
+        birthCountry: birthCountry.trim() || null,
+        preferredFoot: preferredFoot || null,
+        heightCm: heightCm ? parseInt(heightCm) : null,
+        weightKg: weightKg ? parseInt(weightKg) : null,
+      });
+    } catch (err: any) {
+      setError(err.message ?? "Erro ao salvar");
+    }
+    setSaving(false);
+  }
+
+  async function handleDelete() {
+    if (!onDelete) return;
+    if (!confirm("Excluir este jogador e todas as suas estatísticas?")) return;
+    setDeleting(true);
+    try {
+      await onDelete();
+    } catch (err: any) {
+      setError(err.message ?? "Erro ao excluir");
+      setDeleting(false);
+    }
+  }
+
+  return (
+    <form onSubmit={submit} className="space-y-3 max-w-2xl">
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Nome *</label>
+        <Input value={name} onChange={(e) => setName(e.target.value)} required />
+      </div>
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+          Nome completo
+        </label>
+        <Input
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          placeholder="Se diferente do nome de exibição"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Posição</label>
+          <select className={sel} value={position} onChange={(e) => setPosition(e.target.value)}>
+            <option value="">–</option>
+            {POSITIONS.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Nacionalidade
+          </label>
+          <Input
+            value={nationality}
+            onChange={(e) => setNationality(e.target.value)}
+            placeholder="Brasileiro"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Data de nascimento
+          </label>
+          <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Ano de nascimento
+          </label>
+          <Input
+            type="number"
+            value={birthYear}
+            onChange={(e) => setBirthYear(e.target.value)}
+            placeholder="1990"
+            min={1950}
+            max={2010}
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Cidade nasc.
+          </label>
+          <Input
+            value={birthCity}
+            onChange={(e) => setBirthCity(e.target.value)}
+            placeholder="Maceió"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Estado nasc.
+          </label>
+          <Input
+            value={birthState}
+            onChange={(e) => setBirthState(e.target.value)}
+            placeholder="AL"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            País nasc.
+          </label>
+          <Input
+            value={birthCountry}
+            onChange={(e) => setBirthCountry(e.target.value)}
+            placeholder="Brasil"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Pé preferencial
+          </label>
+          <select
+            className={sel}
+            value={preferredFoot}
+            onChange={(e) => setPreferredFoot(e.target.value)}
+          >
+            <option value="">–</option>
+            {FEET.map((f) => (
+              <option key={f.value} value={f.value}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Altura (cm)
+          </label>
+          <Input
+            type="number"
+            value={heightCm}
+            onChange={(e) => setHeightCm(e.target.value)}
+            placeholder="180"
+            min={140}
+            max={220}
+          />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Peso (kg)
+          </label>
+          <Input
+            type="number"
+            value={weightKg}
+            onChange={(e) => setWeightKg(e.target.value)}
+            placeholder="75"
+            min={40}
+            max={150}
+          />
+        </div>
+      </div>
+      {error && <p className="text-sm text-red-600">{error}</p>}
+      <div className="flex flex-wrap items-center gap-2 pt-2">
+        <Button type="submit" className="bg-[#1B3A6B]" disabled={saving}>
+          {saving ? "Salvando..." : isNew ? "Criar jogador" : "Salvar"}
+        </Button>
+        <Link href="/admin/jogadores">
+          <Button type="button" variant="outline">
+            Cancelar
+          </Button>
+        </Link>
+        {!isNew && onDelete && (
+          <Button
+            type="button"
+            variant="outline"
+            className="text-red-600 border-red-200 hover:bg-red-50 ml-auto"
+            disabled={deleting}
+            onClick={handleDelete}
+          >
+            {deleting ? "Excluindo..." : "Excluir jogador"}
+          </Button>
+        )}
+      </div>
+    </form>
+  );
+}
+
+function StatForm({
+  initial,
+  onSave,
+  onCancel,
+}: {
+  initial?: Partial<StatRow>;
+  onSave: (data: Omit<StatRow, "id" | "playerId">) => Promise<void>;
+  onCancel: () => void;
+}) {
+  const [season, setSeason] = useState(initial?.season ?? "");
+  const [appearances, setAppearances] = useState(String(initial?.appearances ?? ""));
+  const [goals, setGoals] = useState(String(initial?.goals ?? ""));
+  const [assists, setAssists] = useState(String(initial?.assists ?? ""));
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
+    try {
+      await onSave({
+        season,
+        appearances: parseInt(appearances) || 0,
+        goals: parseInt(goals) || 0,
+        assists: parseInt(assists) || 0,
+      });
+    } catch (err: any) {
+      setError(err.message ?? "Erro ao salvar");
+    }
+    setSaving(false);
+  }
+
+  return (
+    <form onSubmit={submit} className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Temporada *
+          </label>
+          <Input
+            value={season}
+            onChange={(e) => setSeason(e.target.value)}
+            placeholder="2023"
+            required
+          />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Partidas
+          </label>
+          <Input
+            type="number"
+            value={appearances}
+            onChange={(e) => setAppearances(e.target.value)}
+            min={0}
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Gols</label>
+          <Input
+            type="number"
+            value={goals}
+            onChange={(e) => setGoals(e.target.value)}
+            min={0}
+          />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Assistências
+          </label>
+          <Input
+            type="number"
+            value={assists}
+            onChange={(e) => setAssists(e.target.value)}
+            min={0}
+          />
+        </div>
+      </div>
+      {error && <p className="text-sm text-red-600">{error}</p>}
+      <DialogFooter>
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancelar
+        </Button>
+        <Button type="submit" className="bg-[#1B3A6B]" disabled={saving}>
+          {saving ? "Salvando..." : "Salvar"}
+        </Button>
+      </DialogFooter>
+    </form>
+  );
+}
+
+export default function AdminPlayerDetail() {
+  const params = useParams<{ id?: string }>();
+  const [, setLocation] = useLocation();
+  const isNew = !params.id;
+  const playerId = params.id ? Number(params.id) : NaN;
+
+  const [player, setPlayer] = useState<Player | null>(null);
+  const [stats, setStats] = useState<StatRow[]>([]);
+  const [loading, setLoading] = useState(!isNew);
+  const [error, setError] = useState("");
+  const [savedMsg, setSavedMsg] = useState("");
+  const [tab, setTab] = useState<TabId>("perfil");
+  const [statDialog, setStatDialog] = useState<StatRow | "new" | null>(null);
+
+  const loadPlayer = useCallback(async () => {
+    if (isNew || !playerId || Number.isNaN(playerId)) return;
+    setLoading(true);
+    setError("");
+    const r = await adminFetch(`/admin/players/${playerId}`);
+    if (!r.ok) {
+      setError("Jogador não encontrado");
+      setPlayer(null);
+      setLoading(false);
+      return;
+    }
+    setPlayer(await r.json());
+    setLoading(false);
+  }, [isNew, playerId]);
+
+  const loadStats = useCallback(async () => {
+    if (isNew || !playerId || Number.isNaN(playerId)) return;
+    const r = await adminFetch(`/admin/players/${playerId}/stats`);
+    if (r.ok) setStats(await r.json());
+  }, [isNew, playerId]);
+
+  useEffect(() => {
+    loadPlayer();
+  }, [loadPlayer]);
+
+  useEffect(() => {
+    if (!isNew) loadStats();
+  }, [isNew, loadStats]);
+
+  async function savePlayer(data: PlayerPayload) {
+    const r = await adminFetch(
+      isNew ? "/admin/players" : `/admin/players/${playerId}`,
+      { method: isNew ? "POST" : "PUT", body: JSON.stringify(data) },
+    );
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      throw new Error((err as any).error ?? "Erro");
+    }
+    const saved = (await r.json()) as Player;
+    if (isNew) {
+      setLocation(`/admin/jogadores/${saved.id}`);
+      return;
+    }
+    setPlayer(saved);
+    setSavedMsg("Perfil salvo.");
+    setTimeout(() => setSavedMsg(""), 2500);
+  }
+
+  async function deletePlayer() {
+    const r = await adminFetch(`/admin/players/${playerId}`, { method: "DELETE" });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      throw new Error((err as any).error ?? "Erro ao excluir");
+    }
+    setLocation("/admin/jogadores");
+  }
+
+  async function saveStat(data: Omit<StatRow, "id" | "playerId">) {
+    const editing = statDialog && statDialog !== "new" ? statDialog : null;
+    const r = await adminFetch(
+      editing ? `/admin/player-stats/${editing.id}` : `/admin/players/${playerId}/stats`,
+      { method: editing ? "PUT" : "POST", body: JSON.stringify(data) },
+    );
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      throw new Error((err as any).error ?? "Erro");
+    }
+    setStatDialog(null);
+    await loadStats();
+  }
+
+  async function deleteStat(statId: number) {
+    if (!confirm("Excluir esta temporada?")) return;
+    await adminFetch(`/admin/player-stats/${statId}`, { method: "DELETE" });
+    await loadStats();
+  }
+
+  const tabs: { id: TabId; label: string; locked?: boolean; count?: number }[] = [
+    { id: "perfil", label: "Perfil" },
+    {
+      id: "temporadas",
+      label: "Temporadas",
+      locked: isNew,
+      count: isNew ? undefined : stats.length,
+    },
+    { id: "badges", label: "Badges", locked: isNew },
+  ];
+
+  if (!isNew && loading) {
+    return <p className="text-sm text-gray-400">Carregando...</p>;
+  }
+
+  if (!isNew && (error || !player)) {
+    return (
+      <div>
+        <p className="text-sm text-red-600">{error || "Jogador não encontrado"}</p>
+        <Link
+          href="/admin/jogadores"
+          className="text-sm text-[#1B3A6B] hover:underline mt-2 inline-block"
+        >
+          Voltar aos jogadores
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4 pb-16">
+      <div>
+        <Link
+          href="/admin/jogadores"
+          className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-[#1B3A6B] mb-2"
+        >
+          <ChevronLeft size={13} /> Jogadores
+        </Link>
+        <h1 className="text-xl font-bold text-gray-900">
+          {isNew ? "Novo jogador" : player!.name}
+        </h1>
+        {!isNew && (
+          <p className="text-sm text-gray-500 mt-0.5">
+            {[player!.position, player!.nationality].filter(Boolean).join(" · ") || "Sem posição"}
+          </p>
+        )}
+        {savedMsg && <p className="text-sm text-green-700 mt-1">{savedMsg}</p>}
+      </div>
+
+      <div className="flex gap-1 border-b">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            disabled={t.locked}
+            title={t.locked ? "Salve o perfil primeiro" : undefined}
+            onClick={() => {
+              if (!t.locked) setTab(t.id);
+            }}
+            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+              t.locked
+                ? "border-transparent text-gray-300 cursor-not-allowed"
+                : tab === t.id
+                  ? "border-[#1B3A6B] text-[#1B3A6B]"
+                  : "border-transparent text-gray-500 hover:text-gray-800"
+            }`}
+          >
+            {t.label}
+            {typeof t.count === "number" && (
+              <span className="ml-1.5 text-xs text-gray-400">({t.count})</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {tab === "perfil" && (
+        <PlayerProfileForm
+          key={isNew ? "new" : player!.id}
+          initial={isNew ? undefined : player!}
+          isNew={isNew}
+          onSave={savePlayer}
+          onDelete={isNew ? undefined : deletePlayer}
+        />
+      )}
+
+      {tab === "temporadas" && !isNew && (
+        <div className="bg-white border rounded-lg p-4 max-w-2xl">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-gray-700">Estatísticas por temporada</h2>
+            <button
+              type="button"
+              onClick={() => setStatDialog("new")}
+              className="text-xs text-[#1B3A6B] font-medium hover:underline flex items-center gap-1"
+            >
+              <Plus size={11} /> Adicionar temporada
+            </button>
+          </div>
+          {stats.length === 0 ? (
+            <p className="text-sm text-gray-400">Nenhuma temporada cadastrada</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-xs text-gray-400 border-b">
+                  <th className="text-left py-1.5">Temporada</th>
+                  <th className="text-right py-1.5">Partidas</th>
+                  <th className="text-right py-1.5">Gols</th>
+                  <th className="text-right py-1.5">Assist.</th>
+                  <th className="py-1.5"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.map((stat) => (
+                  <tr key={stat.id} className="border-b border-gray-100">
+                    <td className="py-2 font-medium">{stat.season}</td>
+                    <td className="py-2 text-right">{stat.appearances}</td>
+                    <td className="py-2 text-right">{stat.goals}</td>
+                    <td className="py-2 text-right">{stat.assists}</td>
+                    <td className="py-2">
+                      <div className="flex justify-end gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setStatDialog(stat)}
+                          className="p-0.5 text-gray-400 hover:text-[#1B3A6B]"
+                        >
+                          <Pencil size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteStat(stat.id)}
+                          className="p-0.5 text-gray-400 hover:text-red-600"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      {tab === "badges" && !isNew && (
+        <div className="bg-white border rounded-lg p-4 max-w-2xl">
+          <AdminEntityBadges entityType="player" entityId={playerId} />
+        </div>
+      )}
+
+      <Dialog open={!!statDialog} onOpenChange={(v) => { if (!v) setStatDialog(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {statDialog && statDialog !== "new" ? "Editar Temporada" : "Nova Temporada"}
+            </DialogTitle>
+          </DialogHeader>
+          {statDialog && (
+            <StatForm
+              initial={statDialog === "new" ? undefined : statDialog}
+              onSave={saveStat}
+              onCancel={() => setStatDialog(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
