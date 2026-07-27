@@ -37,10 +37,11 @@ try {
   const { rows } = await pool.query(`
     SELECT table_name FROM information_schema.tables
     WHERE table_schema='public'
-      AND table_name IN ('match_lineups','match_goals','match_cards')
+      AND table_name IN ('match_lineups','match_goals','match_cards','match_substitutions')
     ORDER BY table_name
   `);
   console.log("OK tables:", rows.map((r) => r.table_name).join(", "));
+  if (rows.length !== 4) throw new Error("expected 4 match sheet tables");
 } finally {
   await pool.end();
 }
@@ -201,6 +202,14 @@ const payload = {
       minute: 40,
     },
   ],
+  substitutions: [
+    {
+      playerOutId: Number(process.env.P1_ID),
+      playerInId: Number(process.env.P2_ID),
+      minute: 67,
+      injuryTimeMinute: null,
+    },
+  ],
 };
 process.stdout.write(JSON.stringify(payload));
 NODE
@@ -214,7 +223,7 @@ PUT=$(curl -sS -w "\nHTTP:%{http_code}" -X PUT "http://127.0.0.1:9880/api/admin/
 PUT_BODY=$(echo "$PUT" | sed '$d')
 PUT_CODE=$(echo "$PUT" | tail -1 | sed 's/HTTP://')
 echo "status=$PUT_CODE"
-echo "$PUT_BODY" | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const j=JSON.parse(s); console.log(JSON.stringify({lineups:j.lineups?.length,goals:j.goals?.length,cards:j.cards?.length,sampleGoal:j.goals?.[0],sampleCard:j.cards?.[0]},null,2))})"
+echo "$PUT_BODY" | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const j=JSON.parse(s); console.log(JSON.stringify({lineups:j.lineups?.length,goals:j.goals?.length,cards:j.cards?.length,substitutions:j.substitutions?.length,sampleSub:j.substitutions?.[0]},null,2))})"
 test "$PUT_CODE" = "200"
 
 echo "=== GET /api/matches/$MATCH_ID (public detail with sheet) ==="
@@ -222,10 +231,12 @@ GET=$(curl -sS -w "\nHTTP:%{http_code}" "http://127.0.0.1:9880/api/matches/${MAT
 GET_BODY=$(echo "$GET" | sed '$d')
 GET_CODE=$(echo "$GET" | tail -1 | sed 's/HTTP://')
 echo "status=$GET_CODE"
-echo "$GET_BODY" | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const j=JSON.parse(s); console.log(JSON.stringify({id:j.id,date:j.date,opponent:j.opponent,season:j.season,score:\`\${j.goalsFor}-\${j.goalsAgainst}\`,scorers:j.scorers,lineups:j.lineups,goals:j.goals,cards:j.cards},null,2))})"
+echo "$GET_BODY" | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const j=JSON.parse(s); console.log(JSON.stringify({id:j.id,date:j.date,opponent:j.opponent,season:j.season,score:\`\${j.goalsFor}-\${j.goalsAgainst}\`,scorers:j.scorers,lineups:j.lineups,goals:j.goals,cards:j.cards,substitutions:j.substitutions},null,2))})"
 test "$GET_CODE" = "200"
 echo "$GET_BODY" | grep -q '"side":"csa"'
 echo "$GET_BODY" | grep -q '"role":"starter"'
+echo "$GET_BODY" | grep -q '"substitutions"'
+echo "$GET_BODY" | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const j=JSON.parse(s); if(!j.substitutions?.length) throw new Error('no substitutions'); const s0=j.substitutions[0]; if(!s0.playerOutId||!s0.playerInId||s0.minute!==67) throw new Error('bad sub payload'); console.log('sub ok', s0.playerOutName, '->', s0.playerInName, s0.minute+'\\'')})"
 
 echo
-echo "MATCH_SHEET_SMOKE_OK matchId=$MATCH_ID"
+echo "MATCH_SHEET_SMOKE_OK matchId=$MATCH_ID (with substitutions)"

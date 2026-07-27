@@ -77,6 +77,28 @@ export const matchCardsTable = pgTable("match_cards", {
   injuryTimeMinute: integer("injury_time_minute"),
 });
 
+export const matchSubstitutionsTable = pgTable("match_substitutions", {
+  id: serial("id").primaryKey(),
+  matchId: integer("match_id")
+    .notNull()
+    .references(() => matchesTable.id, { onDelete: "cascade" }),
+  side: text("side").notNull().default("csa"), // csa | opponent
+  playerOutLineupId: integer("player_out_lineup_id").references(
+    () => matchLineupsTable.id,
+    { onDelete: "set null" },
+  ),
+  playerOutId: integer("player_out_id").references(() => playersTable.id),
+  playerOutName: text("player_out_name").notNull(),
+  playerInLineupId: integer("player_in_lineup_id").references(
+    () => matchLineupsTable.id,
+    { onDelete: "set null" },
+  ),
+  playerInId: integer("player_in_id").references(() => playersTable.id),
+  playerInName: text("player_in_name").notNull(),
+  minute: integer("minute").notNull(),
+  injuryTimeMinute: integer("injury_time_minute"),
+});
+
 export const insertMatchLineupSchema = createInsertSchema(matchLineupsTable).omit({
   id: true,
 });
@@ -94,3 +116,9 @@ export const insertMatchCardSchema = createInsertSchema(matchCardsTable).omit({
 });
 export type InsertMatchCard = z.infer<typeof insertMatchCardSchema>;
 export type MatchCard = typeof matchCardsTable.$inferSelect;
+
+export const insertMatchSubstitutionSchema = createInsertSchema(
+  matchSubstitutionsTable,
+).omit({ id: true });
+export type InsertMatchSubstitution = z.infer<typeof insertMatchSubstitutionSchema>;
+export type MatchSubstitution = typeof matchSubstitutionsTable.$inferSelect;

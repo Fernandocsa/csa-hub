@@ -43,3 +43,20 @@ CREATE TABLE IF NOT EXISTS match_cards (
 CREATE INDEX IF NOT EXISTS match_lineups_match_id_idx ON match_lineups (match_id);
 CREATE INDEX IF NOT EXISTS match_goals_match_id_idx ON match_goals (match_id);
 CREATE INDEX IF NOT EXISTS match_cards_match_id_idx ON match_cards (match_id);
+
+-- Phase 2: substitutions (CSA). `side` kept for future opponent support.
+CREATE TABLE IF NOT EXISTS match_substitutions (
+  id serial PRIMARY KEY,
+  match_id integer NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
+  side text NOT NULL DEFAULT 'csa',
+  player_out_lineup_id integer REFERENCES match_lineups(id) ON DELETE SET NULL,
+  player_out_id integer REFERENCES players(id),
+  player_out_name text NOT NULL,
+  player_in_lineup_id integer REFERENCES match_lineups(id) ON DELETE SET NULL,
+  player_in_id integer REFERENCES players(id),
+  player_in_name text NOT NULL,
+  minute integer NOT NULL,
+  injury_time_minute integer
+);
+
+CREATE INDEX IF NOT EXISTS match_substitutions_match_id_idx ON match_substitutions (match_id);

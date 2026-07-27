@@ -261,6 +261,7 @@ router.get("/matches/:id", async (req, res) => {
       lineups: sheet.lineups,
       goals: sheet.goals,
       cards: sheet.cards,
+      substitutions: sheet.substitutions,
     });
   } catch (err) {
     req.log.error(err);

@@ -662,6 +662,7 @@ router.put("/admin/matches/:id/sheet", requireAdmin, async (req, res) => {
       lineups?: Parameters<typeof replaceCsaMatchSheet>[1]["lineups"];
       goals?: Parameters<typeof replaceCsaMatchSheet>[1]["goals"];
       cards?: Parameters<typeof replaceCsaMatchSheet>[1]["cards"];
+      substitutions?: Parameters<typeof replaceCsaMatchSheet>[1]["substitutions"];
     };
 
     const sheet = await replaceCsaMatchSheet(id, body);

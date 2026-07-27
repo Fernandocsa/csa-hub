@@ -3,6 +3,7 @@ import {
   matchLineupsTable,
   matchGoalsTable,
   matchCardsTable,
+  matchSubstitutionsTable,
   playersTable,
 } from "@workspace/db";
 import { eq, asc, and } from "drizzle-orm";
@@ -33,6 +34,16 @@ export type CardInput = {
   cardType: "yellow" | "red" | string;
   playerId?: number | null;
   playerName?: string | null;
+  minute: number;
+  injuryTimeMinute?: number | null;
+  side?: MatchSheetSide;
+};
+
+export type SubstitutionInput = {
+  playerOutId?: number | null;
+  playerOutName?: string | null;
+  playerInId?: number | null;
+  playerInName?: string | null;
   minute: number;
   injuryTimeMinute?: number | null;
   side?: MatchSheetSide;
@@ -82,8 +93,26 @@ export function serializeCard(row: typeof matchCardsTable.$inferSelect) {
   };
 }
 
+export function serializeSubstitution(
+  row: typeof matchSubstitutionsTable.$inferSelect,
+) {
+  return {
+    id: row.id,
+    matchId: row.matchId,
+    side: row.side,
+    playerOutLineupId: row.playerOutLineupId,
+    playerOutId: row.playerOutId,
+    playerOutName: row.playerOutName,
+    playerInLineupId: row.playerInLineupId,
+    playerInId: row.playerInId,
+    playerInName: row.playerInName,
+    minute: row.minute,
+    injuryTimeMinute: row.injuryTimeMinute,
+  };
+}
+
 export async function loadMatchSheet(matchId: number) {
-  const [lineups, goals, cards] = await Promise.all([
+  const [lineups, goals, cards, substitutions] = await Promise.all([
     db
       .select()
       .from(matchLineupsTable)
@@ -99,12 +128,21 @@ export async function loadMatchSheet(matchId: number) {
       .from(matchCardsTable)
       .where(eq(matchCardsTable.matchId, matchId))
       .orderBy(asc(matchCardsTable.minute), asc(matchCardsTable.id)),
+    db
+      .select()
+      .from(matchSubstitutionsTable)
+      .where(eq(matchSubstitutionsTable.matchId, matchId))
+      .orderBy(
+        asc(matchSubstitutionsTable.minute),
+        asc(matchSubstitutionsTable.id),
+      ),
   ]);
 
   return {
     lineups: lineups.map(serializeLineup),
     goals: goals.map(serializeGoal),
     cards: cards.map(serializeCard),
+    substitutions: substitutions.map(serializeSubstitution),
   };
 }
 
@@ -124,7 +162,7 @@ async function resolvePlayerName(
 
 /**
  * Replace the full CSA match sheet for a match (delete + insert).
- * Phase 1: only persists side = 'csa'.
+ * Phase 1–2: only persists side = 'csa'.
  */
 export async function replaceCsaMatchSheet(
   matchId: number,
@@ -132,6 +170,7 @@ export async function replaceCsaMatchSheet(
     lineups?: LineupInput[];
     goals?: GoalInput[];
     cards?: CardInput[];
+    substitutions?: SubstitutionInput[];
   },
 ) {
   const lineupsIn = (input.lineups ?? []).filter(
@@ -139,22 +178,30 @@ export async function replaceCsaMatchSheet(
   );
   const goalsIn = (input.goals ?? []).filter((g) => !g.side || g.side === "csa");
   const cardsIn = (input.cards ?? []).filter((c) => !c.side || c.side === "csa");
+  const subsIn = (input.substitutions ?? []).filter(
+    (s) => !s.side || s.side === "csa",
+  );
 
-  // Validate CSA lineups require playerId
   for (const l of lineupsIn) {
     if (!l.playerId) {
-      throw Object.assign(new Error("Cada jogador da escalação CSA precisa de playerId"), {
+      throw Object.assign(
+        new Error("Cada jogador da escalação CSA precisa de playerId"),
+        { status: 400 },
+      );
+    }
+    if (l.role !== "starter" && l.role !== "bench") {
+      throw Object.assign(new Error("role deve ser starter ou bench"), {
         status: 400,
       });
     }
-    if (l.role !== "starter" && l.role !== "bench") {
-      throw Object.assign(new Error("role deve ser starter ou bench"), { status: 400 });
-    }
   }
 
-  // Delete dependents first (goals/cards reference lineups)
+  // Delete dependents first (goals/cards/subs reference lineups)
   await db.delete(matchGoalsTable).where(eq(matchGoalsTable.matchId, matchId));
   await db.delete(matchCardsTable).where(eq(matchCardsTable.matchId, matchId));
+  await db
+    .delete(matchSubstitutionsTable)
+    .where(eq(matchSubstitutionsTable.matchId, matchId));
   await db
     .delete(matchLineupsTable)
     .where(
@@ -267,6 +314,53 @@ export async function replaceCsaMatchSheet(
       minute: Number(c.minute),
       injuryTimeMinute:
         c.injuryTimeMinute == null ? null : Number(c.injuryTimeMinute),
+    });
+  }
+
+  for (const s of subsIn) {
+    if (s.minute == null || Number.isNaN(Number(s.minute))) {
+      throw Object.assign(new Error("Substituição precisa de minuto"), {
+        status: 400,
+      });
+    }
+    const outId = s.playerOutId ?? null;
+    const inId = s.playerInId ?? null;
+    if (!outId || !lineupIdByPlayer.has(outId)) {
+      throw Object.assign(
+        new Error("Jogador que saiu precisa estar na escalação CSA"),
+        { status: 400 },
+      );
+    }
+    if (!inId || !lineupIdByPlayer.has(inId)) {
+      throw Object.assign(
+        new Error("Jogador que entrou precisa estar na escalação CSA"),
+        { status: 400 },
+      );
+    }
+    if (outId === inId) {
+      throw Object.assign(
+        new Error("Jogador que saiu e que entrou devem ser diferentes"),
+        { status: 400 },
+      );
+    }
+
+    const playerOutName =
+      (await resolvePlayerName(outId, s.playerOutName)) ?? `Jogador #${outId}`;
+    const playerInName =
+      (await resolvePlayerName(inId, s.playerInName)) ?? `Jogador #${inId}`;
+
+    await db.insert(matchSubstitutionsTable).values({
+      matchId,
+      side: "csa",
+      playerOutLineupId: lineupIdByPlayer.get(outId) ?? null,
+      playerOutId: outId,
+      playerOutName,
+      playerInLineupId: lineupIdByPlayer.get(inId) ?? null,
+      playerInId: inId,
+      playerInName,
+      minute: Number(s.minute),
+      injuryTimeMinute:
+        s.injuryTimeMinute == null ? null : Number(s.injuryTimeMinute),
     });
   }
 
