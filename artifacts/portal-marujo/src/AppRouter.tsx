@@ -12,6 +12,9 @@ import NationalityDetail from "./pages/players/NationalityDetail";
 import PlayersByState from "./pages/players/PlayersByState";
 import PlayersByStateDetail from "./pages/players/PlayersByStateDetail";
 import MatchesList from "./pages/matches/MatchesList";
+import MatchesFriendlies from "./pages/matches/MatchesFriendlies";
+import MatchesUnknown from "./pages/matches/MatchesUnknown";
+import MatchesWalkovers from "./pages/matches/MatchesWalkovers";
 import MatchRecords from "./pages/matches/MatchRecords";
 import MatchDetail from "./pages/matches/MatchDetail";
 import Publicos from "./pages/matches/Publicos";
@@ -64,6 +67,9 @@ export default function AppRouter() {
         <Route path="/jogadores/:id/jogos" component={PlayerMatches} />
         <Route path="/jogadores/:id" component={PlayerDetail} />
         <Route path="/partidas/recordes" component={MatchRecords} />
+        <Route path="/partidas/amistosos" component={MatchesFriendlies} />
+        <Route path="/partidas/sem-resultado" component={MatchesUnknown} />
+        <Route path="/partidas/wo" component={MatchesWalkovers} />
         <Route path="/partidas/por-estado/:uf" component={MatchesByStateDetail} />
         <Route path="/partidas/por-estado" component={MatchesByState} />
         <Route path="/partidas/estrangeiros" component={MatchesByForeign} />

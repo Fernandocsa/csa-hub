@@ -141,6 +141,8 @@ function serializeNextMatch(row: typeof nextMatchTable.$inferSelect) {
     competition: row.competition,
     homeAway: row.homeAway,
     stadium: row.stadium,
+    opponentId: row.opponentId ?? null,
+    matchId: row.matchId ?? null,
   };
 }
 
@@ -166,6 +168,8 @@ router.put("/admin/next-match", requireAdmin, async (req, res) => {
       competition?: string;
       homeAway?: string;
       stadium?: string | null;
+      opponentId?: number | null;
+      matchId?: number | null;
       clear?: boolean;
     };
 
@@ -179,12 +183,26 @@ router.put("/admin/next-match", requireAdmin, async (req, res) => {
     const competition = body.competition?.trim() ?? "";
     const homeAway = body.homeAway?.trim() ?? "";
     const stadium = body.stadium?.trim() ? body.stadium.trim() : null;
+    const opponentId =
+      body.opponentId == null || body.opponentId === ("" as unknown)
+        ? null
+        : Number(body.opponentId);
+    const matchId =
+      body.matchId == null || body.matchId === ("" as unknown)
+        ? null
+        : Number(body.matchId);
 
     if (!opponent || !matchDate || !competition) {
       return res.status(400).json({ error: "adversário, data e competição são obrigatórios" });
     }
     if (homeAway !== "home" && homeAway !== "away") {
       return res.status(400).json({ error: "mando deve ser home ou away" });
+    }
+    if (opponentId != null && !Number.isInteger(opponentId)) {
+      return res.status(400).json({ error: "opponentId inválido" });
+    }
+    if (matchId != null && !Number.isInteger(matchId)) {
+      return res.status(400).json({ error: "matchId inválido" });
     }
 
     const [row] = await db
@@ -196,6 +214,8 @@ router.put("/admin/next-match", requireAdmin, async (req, res) => {
         competition,
         homeAway,
         stadium,
+        opponentId,
+        matchId,
         updatedAt: new Date(),
       })
       .onConflictDoUpdate({
@@ -206,6 +226,8 @@ router.put("/admin/next-match", requireAdmin, async (req, res) => {
           competition,
           homeAway,
           stadium,
+          opponentId,
+          matchId,
           updatedAt: new Date(),
         },
       })
@@ -1004,6 +1026,8 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
       ownGoalsForCount?: number | null;
       phase?: string | null;
       round?: string | null;
+      isWalkover?: boolean;
+      isFriendly?: boolean;
     };
     const ownGoals = Math.max(0, body.ownGoalsForCount ?? 0);
     const phase =
@@ -1033,6 +1057,8 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
         ownGoalsForCount: ownGoals,
         phase,
         round,
+        isWalkover: body.isWalkover === true,
+        isFriendly: body.isFriendly === true,
       })
       .returning();
     res.status(201).json(match);
@@ -1077,30 +1103,34 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
       body.round == null || String(body.round).trim() === ""
         ? null
         : String(body.round).trim();
+    const patch: Record<string, unknown> = {
+      matchDate: body.matchDate,
+      season: body.season,
+      opponentId: body.opponentId,
+      goalsFor: body.goalsFor,
+      goalsAgainst: body.goalsAgainst,
+      result: body.result,
+      homeAway: body.homeAway,
+      competitionId: body.competitionId,
+      stadiumId: body.stadiumId ?? null,
+      managerId: body.managerId ?? null,
+      refereeId: body.refereeId ?? null,
+      attendance: body.attendance ?? null,
+      scorers: body.scorers ?? null,
+      grossRevenue: body.grossRevenue ?? null,
+      grossRevenueText: body.grossRevenueText ?? null,
+      ownGoalsForCount: ownGoals,
+      phase,
+      round,
+    };
+    // Only update flags when explicitly sent — never default missing to false
+    // (would wipe W.O./amistoso on unrelated edits, e.g. manager-only save).
+    if (typeof body.isWalkover === "boolean") patch.isWalkover = body.isWalkover;
+    if (typeof body.isFriendly === "boolean") patch.isFriendly = body.isFriendly;
+
     const [updated] = await db
       .update(matchesTable)
-      .set({
-        matchDate: body.matchDate,
-        season: body.season,
-        opponentId: body.opponentId,
-        goalsFor: body.goalsFor,
-        goalsAgainst: body.goalsAgainst,
-        result: body.result,
-        homeAway: body.homeAway,
-        competitionId: body.competitionId,
-        stadiumId: body.stadiumId ?? null,
-        managerId: body.managerId ?? null,
-        refereeId: body.refereeId ?? null,
-        attendance: body.attendance ?? null,
-        scorers: body.scorers ?? null,
-        isWalkover: body.isWalkover ?? false,
-        isFriendly: body.isFriendly ?? false,
-        grossRevenue: body.grossRevenue ?? null,
-        grossRevenueText: body.grossRevenueText ?? null,
-        ownGoalsForCount: ownGoals,
-        phase,
-        round,
-      })
+      .set(patch)
       .where(eq(matchesTable.id, id))
       .returning();
     if (!updated) return res.status(404).json({ error: "Partida não encontrada" });

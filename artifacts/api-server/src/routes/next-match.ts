@@ -13,6 +13,8 @@ function serialize(row: typeof nextMatchTable.$inferSelect) {
     competition: row.competition,
     homeAway: row.homeAway,
     stadium: row.stadium,
+    opponentId: row.opponentId ?? null,
+    matchId: row.matchId ?? null,
   };
 }
 

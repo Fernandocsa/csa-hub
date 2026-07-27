@@ -26,6 +26,8 @@ export interface MatchGeneralInitial {
   ownGoalsForCount?: number | null;
   phase?: string | null;
   round?: string | null;
+  isWalkover?: boolean;
+  isFriendly?: boolean;
 }
 
 export interface MatchGeneralFormData {
@@ -45,6 +47,8 @@ export interface MatchGeneralFormData {
   ownGoalsForCount: number;
   phase: string | null;
   round: string | null;
+  isWalkover: boolean;
+  isFriendly: boolean;
 }
 
 export default function MatchGeneralForm({
@@ -78,6 +82,8 @@ export default function MatchGeneralForm({
   );
   const [phase, setPhase] = useState(initial?.phase ?? "");
   const [round, setRound] = useState(initial?.round ?? "");
+  const [isWalkover, setIsWalkover] = useState(initial?.isWalkover === true);
+  const [isFriendly, setIsFriendly] = useState(initial?.isFriendly === true);
   const [refereeId, setRefereeId] = useState(
     initial?.refereeId != null ? String(initial.refereeId) : "",
   );
@@ -101,6 +107,8 @@ export default function MatchGeneralForm({
     setOwnGoalsForCount(String(initial?.ownGoalsForCount ?? "0"));
     setPhase(initial?.phase ?? "");
     setRound(initial?.round ?? "");
+    setIsWalkover(initial?.isWalkover === true);
+    setIsFriendly(initial?.isFriendly === true);
     setRefereeId(initial?.refereeId != null ? String(initial.refereeId) : "");
     setRefereeQuery("");
   }, [initial]);
@@ -143,6 +151,8 @@ export default function MatchGeneralForm({
         ownGoalsForCount: Math.max(0, parseInt(ownGoalsForCount, 10) || 0),
         phase: phase.trim() || null,
         round: round.trim() || null,
+        isWalkover,
+        isFriendly,
       });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro ao salvar");
@@ -264,8 +274,30 @@ export default function MatchGeneralForm({
             <option value="win">Vitória</option>
             <option value="draw">Empate</option>
             <option value="loss">Derrota</option>
+            <option value="unknown">Desconhecido</option>
           </select>
         </div>
+      </div>
+
+      <div className="flex flex-wrap gap-4">
+        <label className="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isWalkover}
+            onChange={(e) => setIsWalkover(e.target.checked)}
+            className="rounded border-gray-300"
+          />
+          W.O. (Walkover)
+        </label>
+        <label className="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isFriendly}
+            onChange={(e) => setIsFriendly(e.target.checked)}
+            className="rounded border-gray-300"
+          />
+          Amistoso
+        </label>
       </div>
 
       <div>

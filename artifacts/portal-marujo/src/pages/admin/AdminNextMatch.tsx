@@ -10,6 +10,8 @@ interface NextMatchForm {
   competition: string;
   homeAway: "home" | "away";
   stadium: string;
+  opponentId: string;
+  matchId: string;
 }
 
 const emptyForm: NextMatchForm = {
@@ -18,10 +20,13 @@ const emptyForm: NextMatchForm = {
   competition: "",
   homeAway: "home",
   stadium: "",
+  opponentId: "",
+  matchId: "",
 };
 
 export default function AdminNextMatch() {
   const [form, setForm] = useState<NextMatchForm>(emptyForm);
+  const [opponents, setOpponents] = useState<{ id: number; name: string }[]>([]);
   const [hasMatch, setHasMatch] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -31,7 +36,14 @@ export default function AdminNextMatch() {
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
-    const r = await adminFetch("/admin/next-match");
+    const [r, lookupR] = await Promise.all([
+      adminFetch("/admin/next-match"),
+      adminFetch("/admin/lookup"),
+    ]);
+    if (lookupR.ok) {
+      const lookup = await lookupR.json();
+      setOpponents(lookup.opponents ?? []);
+    }
     if (r.ok) {
       const data = await r.json();
       if (data) {
@@ -42,6 +54,8 @@ export default function AdminNextMatch() {
           competition: data.competition ?? "",
           homeAway: data.homeAway === "away" ? "away" : "home",
           stadium: data.stadium ?? "",
+          opponentId: data.opponentId != null ? String(data.opponentId) : "",
+          matchId: data.matchId != null ? String(data.matchId) : "",
         });
       } else {
         setHasMatch(false);
@@ -62,12 +76,36 @@ export default function AdminNextMatch() {
     setSavedMsg("");
   }
 
+  function onOpponentSelect(id: string) {
+    const opp = opponents.find((o) => String(o.id) === id);
+    setForm((prev) => ({
+      ...prev,
+      opponentId: id,
+      opponent: opp?.name ?? prev.opponent,
+    }));
+    setSavedMsg("");
+  }
+
   async function save(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError("");
     setSavedMsg("");
     try {
+      const opponentId = form.opponentId.trim()
+        ? parseInt(form.opponentId, 10)
+        : null;
+      const matchId = form.matchId.trim() ? parseInt(form.matchId, 10) : null;
+      if (form.opponentId.trim() && !Number.isInteger(opponentId)) {
+        setError("Adversário inválido");
+        setSaving(false);
+        return;
+      }
+      if (form.matchId.trim() && !Number.isInteger(matchId)) {
+        setError("ID de partida inválido");
+        setSaving(false);
+        return;
+      }
       const r = await adminFetch("/admin/next-match", {
         method: "PUT",
         body: JSON.stringify({
@@ -76,6 +114,8 @@ export default function AdminNextMatch() {
           competition: form.competition.trim(),
           homeAway: form.homeAway,
           stadium: form.stadium.trim() || null,
+          opponentId,
+          matchId,
         }),
       });
       if (!r.ok) {
@@ -124,6 +164,8 @@ export default function AdminNextMatch() {
         </h1>
         <p className="text-sm text-gray-500 mt-1">
           Edita o card “Próxima Partida” da Home. Não cria partida no histórico.
+          Com partida vinculada, o card abre `/partidas/:id`; senão, com adversário
+          vinculado, abre `/adversarios/:id`.
           {hasMatch ? "" : " Nenhum jogo cadastrado no momento."}
         </p>
       </div>
@@ -131,14 +173,45 @@ export default function AdminNextMatch() {
       <form onSubmit={save} className="bg-white border rounded-lg p-5 space-y-4 max-w-lg">
         <div>
           <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
-            Adversário *
+            Adversário (cadastro) *
           </label>
+          <select
+            value={form.opponentId}
+            onChange={(e) => onOpponentSelect(e.target.value)}
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm mb-2"
+          >
+            <option value="">— escolher adversário —</option>
+            {opponents.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.name}
+              </option>
+            ))}
+          </select>
           <Input
             value={form.opponent}
             onChange={(e) => setField("opponent", e.target.value)}
-            placeholder="Ex: São Luiz de Ijuí-RS"
+            placeholder="Nome exibido no card"
             required
           />
+          <p className="text-[10px] text-gray-400 mt-1">
+            O select preenche o nome; você pode ajustar o texto do card.
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
+            Partida vinculada (opcional)
+          </label>
+          <Input
+            type="number"
+            min={1}
+            value={form.matchId}
+            onChange={(e) => setField("matchId", e.target.value)}
+            placeholder="ID em /admin/partidas/:id"
+          />
+          <p className="text-[10px] text-gray-400 mt-1">
+            Se preenchido, a Home prioriza o link para essa partida.
+          </p>
         </div>
 
         <div>

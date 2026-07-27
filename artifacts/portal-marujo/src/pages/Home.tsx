@@ -9,7 +9,6 @@ import {
   useGetMatchMilestones,
   useGetBiggestAttendance,
   useGetTopAssists,
-  useListUnknownResults,
   useGetNextMatch,
   type MilestoneMatch,
 } from "@workspace/api-client-react";
@@ -96,9 +95,15 @@ function NextMatchCard() {
   const home = isHome ? "CSA" : nextMatch.opponent;
   const away = isHome ? nextMatch.opponent : "CSA";
   const year = new Date(nextMatch.matchDate + "T12:00:00").getFullYear();
+  const href =
+    nextMatch.matchId != null
+      ? `/partidas/${nextMatch.matchId}`
+      : nextMatch.opponentId != null
+        ? `/adversarios/${nextMatch.opponentId}`
+        : null;
 
-  return (
-    <div className="border rounded p-4 space-y-2">
+  const body = (
+    <>
       <p className="text-xs text-muted-foreground uppercase tracking-wider">Próxima Partida</p>
       <div>
         <p className="text-xs text-muted-foreground">
@@ -113,8 +118,22 @@ function NextMatchCard() {
         –<span className="text-muted-foreground font-normal text-lg mx-1">×</span>–
       </p>
       <p className="text-xs text-muted-foreground">{year}</p>
-    </div>
+    </>
   );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className="border rounded p-4 space-y-2 block hover:bg-muted/40 transition-colors"
+        data-testid="link-next-match"
+      >
+        {body}
+      </Link>
+    );
+  }
+
+  return <div className="border rounded p-4 space-y-2">{body}</div>;
 }
 
 export default function Home() {
@@ -127,7 +146,6 @@ export default function Home() {
   const { data: milestones, isLoading: loadMil } = useGetMatchMilestones();
   const { data: biggestAttendance, isLoading: loadAtt } = useGetBiggestAttendance(10);
   const { data: topAssists, isLoading: loadAsst } = useGetTopAssists(10);
-  const { data: unknownResults } = useListUnknownResults({ limit: 1 });
 
   const victoryList = Array.isArray(victories) ? victories : [];
   const streakList = Array.isArray(streaks) ? streaks : [];
@@ -180,22 +198,6 @@ export default function Home() {
           ))}
         </div>
       ) : null}
-
-      {/* Aviso: partidas com resultado desconhecido */}
-      {unknownResults && unknownResults.total > 0 && (
-        <div className="flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
-          <span className="shrink-0 mt-0.5">⚠️</span>
-          <span>
-            {unknownResults.total === 1
-              ? "Existe 1 partida com resultado desconhecido."
-              : `Existem ${unknownResults.total} partidas com resultado desconhecido.`}{" "}
-            Por isso, a soma de vitórias, empates e derrotas pode não coincidir com o total de partidas.{" "}
-            <Link href="/partidas?status=unknown" className="underline font-medium hover:text-amber-900 dark:hover:text-amber-200">
-              Clique aqui para ver a lista.
-            </Link>
-          </span>
-        </div>
-      )}
 
       {/* Primeira e Última Partida */}
       <div>

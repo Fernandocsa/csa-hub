@@ -41,6 +41,9 @@ const navigation: NavItem[] = [
     icon: Swords,
     children: [
       { name: "Histórico de Partidas", href: "/partidas" },
+      { name: "Amistosos", href: "/partidas/amistosos" },
+      { name: "Sem Resultado", href: "/partidas/sem-resultado" },
+      { name: "W.O.", href: "/partidas/wo" },
       { name: "Maiores Vitórias & Derrotas", href: "/partidas/recordes" },
       { name: "Maiores Públicos", href: "/publicos" },
       { name: "CSA x Estados", href: "/partidas/por-estado" },

@@ -78,6 +78,8 @@ type MatchMeta = {
   ownGoalsForCount?: number | null;
   phase?: string | null;
   round?: string | null;
+  isWalkover?: boolean;
+  isFriendly?: boolean;
 };
 
 type TabId = "general" | "manager" | "lineup" | "goals" | "cards" | "subs";
@@ -296,6 +298,8 @@ export default function AdminMatchSheet() {
           ownGoalsForCount: match.ownGoalsForCount ?? 0,
           phase: match.phase ?? null,
           round: match.round ?? null,
+          isWalkover: match.isWalkover === true,
+          isFriendly: match.isFriendly === true,
         }),
       });
       if (!r.ok) {

@@ -7,6 +7,8 @@ export interface NextMatch {
   competition: string;
   homeAway: "home" | "away" | string;
   stadium: string | null;
+  opponentId?: number | null;
+  matchId?: number | null;
 }
 
 export const getNextMatch = async (): Promise<NextMatch | null> =>
