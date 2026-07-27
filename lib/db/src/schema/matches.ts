@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, date, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, date, boolean, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -35,6 +35,9 @@ export const managersTable = pgTable("managers", {
   storedLosses:     integer("stored_losses"),
   storedGoalsFor:   integer("stored_goals_for"),
   storedGoalsAgainst: integer("stored_goals_against"),
+  /** 'manual' | 'calculated' — origin of stored_* aggregate stats */
+  statsSource: text("stats_source"),
+  statsRecalculatedAt: timestamp("stats_recalculated_at", { withTimezone: true }),
 });
 
 export const matchesTable = pgTable("matches", {

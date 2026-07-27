@@ -20,6 +20,11 @@ import {
   setSeasonStatsVerification,
   getSeasonCompetitionBadgeStatuses,
 } from "../lib/auto-badges";
+import {
+  managerStoredStatsChanged,
+  hasAnyStoredStat,
+  recalculateManagerStoredStats,
+} from "../lib/manager-stats";
 
 const NEXT_MATCH_ID = 1;
 
@@ -201,7 +206,6 @@ router.get("/admin/players", requireAdmin, async (req, res) => {
     res.status(500).json({ error: "Erro interno" });
   }
 });
-
 
 router.get("/admin/players/:id", requireAdmin, async (req, res) => {
   try {
@@ -1003,7 +1007,6 @@ router.get("/admin/managers", requireAdmin, async (req, res) => {
   }
 });
 
-
 router.get("/admin/managers/:id", requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
@@ -1026,6 +1029,7 @@ router.post("/admin/managers", requireAdmin, async (req, res) => {
       storedLosses?: number; storedGoalsFor?: number; storedGoalsAgainst?: number;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+    const statsManual = hasAnyStoredStat(body);
     const [manager] = await db.insert(managersTable).values({
       name: body.name.trim(),
       nationality: body.nationality ?? "Brasileiro",
@@ -1038,6 +1042,8 @@ router.post("/admin/managers", requireAdmin, async (req, res) => {
       storedLosses: body.storedLosses ?? null,
       storedGoalsFor: body.storedGoalsFor ?? null,
       storedGoalsAgainst: body.storedGoalsAgainst ?? null,
+      statsSource: statsManual ? "manual" : null,
+      statsRecalculatedAt: null,
     }).returning();
     res.status(201).json(manager);
   } catch (err) {
@@ -1050,12 +1056,16 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [current] = await db.select().from(managersTable).where(eq(managersTable.id, id));
+    if (!current) return res.status(404).json({ error: "Técnico não encontrado" });
+
     const body = req.body as {
       name?: string; nationality?: string;
       startYear?: number | null; endYear?: number | null; seasons?: string | null;
       storedGames?: number | null; storedWins?: number | null; storedDraws?: number | null;
       storedLosses?: number | null; storedGoalsFor?: number | null; storedGoalsAgainst?: number | null;
     };
+    const statsChanged = managerStoredStatsChanged(current, body);
     const [updated] = await db.update(managersTable).set({
       ...(body.name !== undefined && { name: body.name.trim() }),
       ...(body.nationality !== undefined && { nationality: body.nationality }),
@@ -1068,9 +1078,25 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
       ...(body.storedLosses !== undefined && { storedLosses: body.storedLosses }),
       ...(body.storedGoalsFor !== undefined && { storedGoalsFor: body.storedGoalsFor }),
       ...(body.storedGoalsAgainst !== undefined && { storedGoalsAgainst: body.storedGoalsAgainst }),
+      ...(statsChanged && { statsSource: "manual" as const }),
     }).where(eq(managersTable.id, id)).returning();
-    if (!updated) return res.status(404).json({ error: "Técnico não encontrado" });
     res.json(updated);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.post("/admin/managers/:id/recalculate-stats", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const result = await recalculateManagerStoredStats(id);
+    if (!result) return res.status(404).json({ error: "Técnico não encontrado" });
+    res.json({
+      manager: result.manager,
+      matchCount: result.matchCount,
+    });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
