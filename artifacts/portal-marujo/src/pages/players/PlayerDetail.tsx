@@ -25,6 +25,7 @@ type PlayerProfile = {
   preferredFoot?: string | null;
   heightCm?: number | null;
   weightKg?: number | null;
+  isDeceased?: boolean;
   verificationStatus?: string | null;
   verifiedAt?: string | null;
   verifiedBy?: string | null;
@@ -125,7 +126,7 @@ export default function PlayerDetail() {
 
   const flag = player.nationalityFlag;
   const isForeign = !!player.nationality && player.nationality !== "Brasil";
-  const age = calcAge(player.birthDate, player.birthYear);
+  const age = player.isDeceased ? null : calcAge(player.birthDate, player.birthYear);
   const showFullName =
     !!player.fullName?.trim() &&
     player.fullName.trim().toLowerCase() !== player.name.trim().toLowerCase();

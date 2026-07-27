@@ -27,6 +27,10 @@ export interface Player {
   preferredFoot: string | null;
   heightCm: number | null;
   weightKg: number | null;
+  isDeceased: boolean;
+  verificationStatus: string;
+  verifiedAt: string | null;
+  verifiedBy: string | null;
 }
 
 interface StatRow {
@@ -58,6 +62,7 @@ const FEET = [
 ];
 
 type TabId = "perfil" | "temporadas" | "badges";
+type BirthMode = "exact" | "year";
 
 function PlayerProfileForm({
   initial,
@@ -76,6 +81,9 @@ function PlayerProfileForm({
   const [nationality, setNationality] = useState(initial?.nationality ?? "");
   const [birthYear, setBirthYear] = useState(String(initial?.birthYear ?? ""));
   const [birthDate, setBirthDate] = useState(initial?.birthDate ?? "");
+  const [birthMode, setBirthMode] = useState<BirthMode>(
+    initial?.birthDate ? "exact" : initial?.birthYear != null ? "year" : "exact",
+  );
   const [birthCity, setBirthCity] = useState(initial?.birthCity ?? "");
   const [birthState, setBirthState] = useState(initial?.birthState ?? "");
   const [birthCountry, setBirthCountry] = useState(initial?.birthCountry ?? "");
@@ -86,6 +94,9 @@ function PlayerProfileForm({
   const [weightKg, setWeightKg] = useState(
     initial?.weightKg != null ? String(initial.weightKg) : "",
   );
+  const [isDeceased, setIsDeceased] = useState(initial?.isDeceased ?? false);
+  const [isVerified, setIsVerified] = useState(initial?.verificationStatus === "verified");
+  const [verifiedBy, setVerifiedBy] = useState(initial?.verifiedBy ?? "");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -97,12 +108,16 @@ function PlayerProfileForm({
     setNationality(initial?.nationality ?? "");
     setBirthYear(String(initial?.birthYear ?? ""));
     setBirthDate(initial?.birthDate ?? "");
+    setBirthMode(initial?.birthDate ? "exact" : initial?.birthYear != null ? "year" : "exact");
     setBirthCity(initial?.birthCity ?? "");
     setBirthState(initial?.birthState ?? "");
     setBirthCountry(initial?.birthCountry ?? "");
     setPreferredFoot(initial?.preferredFoot ?? "");
     setHeightCm(initial?.heightCm != null ? String(initial.heightCm) : "");
     setWeightKg(initial?.weightKg != null ? String(initial.weightKg) : "");
+    setIsDeceased(initial?.isDeceased ?? false);
+    setIsVerified(initial?.verificationStatus === "verified");
+    setVerifiedBy(initial?.verifiedBy ?? "");
   }, [initial]);
 
   const sel = "w-full border rounded px-3 py-2 text-sm bg-white";
@@ -112,19 +127,32 @@ function PlayerProfileForm({
     setSaving(true);
     setError("");
     try {
+      const normalizedBirthDate = birthMode === "exact" ? birthDate.trim() || null : null;
+      const normalizedBirthYear =
+        birthMode === "exact"
+          ? normalizedBirthDate
+            ? parseInt(normalizedBirthDate.slice(0, 4), 10)
+            : null
+          : birthYear
+            ? parseInt(birthYear, 10)
+            : null;
       await onSave({
         name,
         fullName: fullName.trim() || null,
         position: position || null,
         nationality: nationality || null,
-        birthYear: birthYear ? parseInt(birthYear) : null,
-        birthDate: birthDate.trim() || null,
+        birthYear: normalizedBirthYear,
+        birthDate: normalizedBirthDate,
         birthCity: birthCity.trim() || null,
         birthState: birthState.trim() || null,
         birthCountry: birthCountry.trim() || null,
         preferredFoot: preferredFoot || null,
         heightCm: heightCm ? parseInt(heightCm) : null,
         weightKg: weightKg ? parseInt(weightKg) : null,
+        isDeceased,
+        verificationStatus: isVerified ? "verified" : "unverified",
+        verifiedAt: null,
+        verifiedBy: isVerified ? verifiedBy.trim() || null : null,
       });
     } catch (err: any) {
       setError(err.message ?? "Erro ao salvar");
@@ -186,22 +214,40 @@ function PlayerProfileForm({
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
-            Data de nascimento
+            Nascimento
           </label>
-          <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
+          <select
+            className={sel}
+            value={birthMode}
+            onChange={(e) => setBirthMode(e.target.value as BirthMode)}
+          >
+            <option value="exact">Sei a data exata</option>
+            <option value="year">Só sei o ano aproximado</option>
+          </select>
         </div>
         <div>
-          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
-            Ano de nascimento
-          </label>
-          <Input
-            type="number"
-            value={birthYear}
-            onChange={(e) => setBirthYear(e.target.value)}
-            placeholder="1990"
-            min={1950}
-            max={2010}
-          />
+          {birthMode === "exact" ? (
+            <>
+              <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+                Data de nascimento
+              </label>
+              <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
+            </>
+          ) : (
+            <>
+              <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+                Ano de nascimento
+              </label>
+              <Input
+                type="number"
+                value={birthYear}
+                onChange={(e) => setBirthYear(e.target.value)}
+                placeholder="1990"
+                min={1850}
+                max={2100}
+              />
+            </>
+          )}
         </div>
       </div>
       <div className="grid grid-cols-3 gap-3">
@@ -237,6 +283,17 @@ function PlayerProfileForm({
         </div>
       </div>
       <div className="grid grid-cols-3 gap-3">
+        <div className="flex items-end">
+          <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+            <input
+              type="checkbox"
+              checked={isDeceased}
+              onChange={(e) => setIsDeceased(e.target.checked)}
+              className="rounded border-gray-300"
+            />
+            Falecido
+          </label>
+        </div>
         <div>
           <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
             Pé preferencial
@@ -279,6 +336,41 @@ function PlayerProfileForm({
             min={40}
             max={150}
           />
+        </div>
+      </div>
+      <div className="rounded-lg border p-4 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-800">Verificação</h3>
+            <p className="text-xs text-gray-500">
+              {initial?.verificationStatus === "verified" && initial?.verifiedAt
+                ? `Atualmente verificado em ${new Date(initial.verifiedAt).toLocaleString("pt-BR")}${
+                    initial?.verifiedBy ? ` por ${initial.verifiedBy}` : ""
+                  }`
+                : "Atualmente não verificado"}
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsVerified((value) => !value)}
+          >
+            {isVerified ? "Remover verificação" : "Marcar como Verificado"}
+          </Button>
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Verificado por
+          </label>
+          <Input
+            value={verifiedBy}
+            onChange={(e) => setVerifiedBy(e.target.value)}
+            placeholder="Portal Marujo"
+            disabled={!isVerified}
+          />
+          <p className="text-xs text-gray-400 mt-1">
+            A alteração de verificação só é gravada ao salvar o perfil.
+          </p>
         </div>
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}

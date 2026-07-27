@@ -235,6 +235,9 @@ router.post("/admin/players", requireAdmin, async (req, res) => {
       preferredFoot?: string | null;
       heightCm?: number | null;
       weightKg?: number | null;
+      isDeceased?: boolean;
+      verificationStatus?: string | null;
+      verifiedBy?: string | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
 
@@ -242,6 +245,14 @@ router.post("/admin/players", requireAdmin, async (req, res) => {
     if (foot && !["destro", "canhoto", "ambidestro"].includes(foot)) {
       return res.status(400).json({ error: "Pé preferencial inválido" });
     }
+    const verificationStatus = body.verificationStatus === "verified" ? "verified" : "unverified";
+    const verifiedBy = verificationStatus === "verified" ? body.verifiedBy?.trim() || null : null;
+    const verifiedAt = verificationStatus === "verified" ? new Date() : null;
+    const birthDate = body.birthDate?.trim() || null;
+    const birthYear =
+      birthDate && /^\d{4}-\d{2}-\d{2}$/.test(birthDate)
+        ? parseInt(birthDate.slice(0, 4), 10)
+        : body.birthYear ?? null;
 
     const [player] = await db
       .insert(playersTable)
@@ -250,14 +261,18 @@ router.post("/admin/players", requireAdmin, async (req, res) => {
         fullName: body.fullName?.trim() || null,
         position: body.position || null,
         nationality: body.nationality || null,
-        birthYear: body.birthYear ?? null,
-        birthDate: body.birthDate?.trim() || null,
+        birthYear,
+        birthDate,
         birthCity: body.birthCity?.trim() || null,
         birthState: body.birthState?.trim() || null,
         birthCountry: body.birthCountry?.trim() || null,
         preferredFoot: foot,
         heightCm: body.heightCm ?? null,
         weightKg: body.weightKg ?? null,
+        isDeceased: body.isDeceased ?? false,
+        verificationStatus,
+        verifiedAt,
+        verifiedBy,
       })
       .returning();
     res.status(201).json(player);
@@ -284,6 +299,9 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
       preferredFoot?: string | null;
       heightCm?: number | null;
       weightKg?: number | null;
+      isDeceased?: boolean;
+      verificationStatus?: string | null;
+      verifiedBy?: string | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
 
@@ -291,6 +309,14 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
     if (foot && !["destro", "canhoto", "ambidestro"].includes(foot)) {
       return res.status(400).json({ error: "Pé preferencial inválido" });
     }
+    const verificationStatus = body.verificationStatus === "verified" ? "verified" : "unverified";
+    const verifiedBy = verificationStatus === "verified" ? body.verifiedBy?.trim() || null : null;
+    const verifiedAt = verificationStatus === "verified" ? new Date() : null;
+    const birthDate = body.birthDate?.trim() || null;
+    const birthYear =
+      birthDate && /^\d{4}-\d{2}-\d{2}$/.test(birthDate)
+        ? parseInt(birthDate.slice(0, 4), 10)
+        : body.birthYear ?? null;
 
     const [updated] = await db
       .update(playersTable)
@@ -299,14 +325,18 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
         fullName: body.fullName?.trim() || null,
         position: body.position || null,
         nationality: body.nationality || null,
-        birthYear: body.birthYear ?? null,
-        birthDate: body.birthDate?.trim() || null,
+        birthYear,
+        birthDate,
         birthCity: body.birthCity?.trim() || null,
         birthState: body.birthState?.trim() || null,
         birthCountry: body.birthCountry?.trim() || null,
         preferredFoot: foot,
         heightCm: body.heightCm ?? null,
         weightKg: body.weightKg ?? null,
+        isDeceased: body.isDeceased ?? false,
+        verificationStatus,
+        verifiedAt,
+        verifiedBy,
       })
       .where(eq(playersTable.id, id))
       .returning();
