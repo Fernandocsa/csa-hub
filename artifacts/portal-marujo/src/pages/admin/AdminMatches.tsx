@@ -32,6 +32,7 @@ interface MatchRow {
   stadiumName: string | null;
   managerId: number | null;
   managerName: string | null;
+  ownGoalsForCount?: number | null;
 }
 
 interface MatchFormData {
@@ -47,6 +48,7 @@ interface MatchFormData {
   managerId: number | null;
   attendance: number | null;
   scorers: string;
+  ownGoalsForCount: number;
 }
 
 function MatchForm({
@@ -71,6 +73,9 @@ function MatchForm({
   const [stadiumId, setStadiumId] = useState(String(initial?.stadiumId ?? ""));
   const [attendance, setAttendance] = useState(String(initial?.attendance ?? ""));
   const [scorers, setScorers] = useState(initial?.scorers ?? "");
+  const [ownGoalsForCount, setOwnGoalsForCount] = useState(
+    String(initial?.ownGoalsForCount ?? "0"),
+  );
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   // Técnico is edited on the match sheet page; preserve existing managerId on edit.
@@ -111,6 +116,7 @@ function MatchForm({
         managerId: initial?.managerId ?? null,
         attendance: attendance ? parseInt(attendance) : null,
         scorers: scorers || null,
+        ownGoalsForCount: Math.max(0, parseInt(ownGoalsForCount) || 0),
       });
     } catch (err: any) {
       setError(err.message ?? "Erro ao salvar");
@@ -159,6 +165,23 @@ function MatchForm({
             <option value="loss">Derrota</option>
           </select>
         </div>
+      </div>
+
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+          Gols contra a favor (own goals)
+        </label>
+        <Input
+          type="number"
+          min={0}
+          value={ownGoalsForCount}
+          onChange={(e) => setOwnGoalsForCount(e.target.value)}
+          className="max-w-[8rem]"
+        />
+        <p className="text-[10px] text-gray-400 mt-1">
+          Quantos gols do placar CSA vieram de gol contra do adversário (não entram na ficha de gols).
+          Usado no gate de Artilheiro por competição: ficha + este número = gols pró.
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">

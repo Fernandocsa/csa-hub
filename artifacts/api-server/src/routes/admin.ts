@@ -18,6 +18,7 @@ import { loadMatchSheet, replaceCsaMatchSheet } from "../lib/match-sheet";
 import {
   recalculateSeasonAutoBadges,
   setSeasonStatsVerification,
+  getSeasonCompetitionBadgeStatuses,
 } from "../lib/auto-badges";
 
 const NEXT_MATCH_ID = 1;
@@ -569,6 +570,7 @@ router.get("/admin/matches", requireAdmin, async (req, res) => {
         stadiumName: stadiumsTable.name,
         managerId: matchesTable.managerId,
         managerName: managersTable.name,
+        ownGoalsForCount: matchesTable.ownGoalsForCount,
       })
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
@@ -599,7 +601,9 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
       managerId?: number | null;
       attendance?: number | null;
       scorers?: string | null;
+      ownGoalsForCount?: number | null;
     };
+    const ownGoals = Math.max(0, body.ownGoalsForCount ?? 0);
     const [match] = await db
       .insert(matchesTable)
       .values({
@@ -615,6 +619,7 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
         managerId: body.managerId ?? null,
         attendance: body.attendance ?? null,
         scorers: body.scorers ?? null,
+        ownGoalsForCount: ownGoals,
       })
       .returning();
     res.status(201).json(match);
@@ -645,7 +650,9 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
       isFriendly?: boolean;
       grossRevenue?: number | null;
       grossRevenueText?: string | null;
+      ownGoalsForCount?: number | null;
     };
+    const ownGoals = Math.max(0, body.ownGoalsForCount ?? 0);
     const [updated] = await db
       .update(matchesTable)
       .set({
@@ -665,6 +672,7 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
         isFriendly: body.isFriendly ?? false,
         grossRevenue: body.grossRevenue ?? null,
         grossRevenueText: body.grossRevenueText ?? null,
+        ownGoalsForCount: ownGoals,
       })
       .where(eq(matchesTable.id, id))
       .returning();
@@ -1252,6 +1260,32 @@ router.post(
       }
       const result = await recalculateSeasonAutoBadges(year);
       res.json(result);
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "Erro interno" });
+    }
+  },
+);
+
+router.get(
+  "/admin/seasons/:year/competition-badges",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const year = parseInt(req.params.year, 10);
+      if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+        return res.status(400).json({ error: "Ano inválido" });
+      }
+      const [season] = await db
+        .select({ year: seasonsTable.year })
+        .from(seasonsTable)
+        .where(eq(seasonsTable.year, year))
+        .limit(1);
+      if (!season) {
+        return res.status(404).json({ error: "Temporada não encontrada" });
+      }
+      const details = await getSeasonCompetitionBadgeStatuses(year);
+      res.json({ year, details });
     } catch (err) {
       req.log.error(err);
       res.status(500).json({ error: "Erro interno" });
