@@ -481,6 +481,94 @@ router.delete("/admin/player-stats/:statId", requireAdmin, async (req, res) => {
   }
 });
 
+router.put("/admin/players/:id/stats/bulk", requireAdmin, async (req, res) => {
+  const client = await pgPool.connect();
+  try {
+    const playerId = parseInt(req.params.id, 10);
+    if (isNaN(playerId)) return res.status(400).json({ error: "ID inválido" });
+
+    const raw = (req.body as { stats?: unknown })?.stats;
+    if (!Array.isArray(raw)) {
+      return res.status(400).json({ error: "stats deve ser um array" });
+    }
+    if (raw.length === 0) {
+      return res.json([]);
+    }
+
+    const updates: { id: number; appearances: number; goals: number; assists: number }[] = [];
+    for (const row of raw) {
+      const item = row as {
+        id?: unknown;
+        appearances?: unknown;
+        goals?: unknown;
+        assists?: unknown;
+      };
+      const id = typeof item.id === "number" ? item.id : parseInt(String(item.id), 10);
+      const appearances =
+        typeof item.appearances === "number"
+          ? item.appearances
+          : parseInt(String(item.appearances ?? 0), 10);
+      const goals =
+        typeof item.goals === "number" ? item.goals : parseInt(String(item.goals ?? 0), 10);
+      const assists =
+        typeof item.assists === "number" ? item.assists : parseInt(String(item.assists ?? 0), 10);
+      if (!Number.isInteger(id) || id < 1) {
+        return res.status(400).json({ error: "id de stat inválido" });
+      }
+      if (
+        !Number.isInteger(appearances) ||
+        appearances < 0 ||
+        !Number.isInteger(goals) ||
+        goals < 0 ||
+        !Number.isInteger(assists) ||
+        assists < 0
+      ) {
+        return res.status(400).json({ error: "valores numéricos inválidos" });
+      }
+      updates.push({ id, appearances, goals, assists });
+    }
+
+    await client.query("BEGIN");
+    const updated = [];
+    for (const u of updates) {
+      const r = await client.query(
+        `UPDATE player_season_stats
+         SET appearances = $1, goals = $2, assists = $3
+         WHERE id = $4 AND player_id = $5
+         RETURNING id, player_id, season, appearances, goals, assists`,
+        [u.appearances, u.goals, u.assists, u.id, playerId],
+      );
+      if (r.rowCount !== 1) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({
+          error: `Stat ${u.id} não encontrada para este jogador`,
+        });
+      }
+      const row = r.rows[0];
+      updated.push({
+        id: row.id,
+        playerId: row.player_id,
+        season: row.season,
+        appearances: row.appearances,
+        goals: row.goals,
+        assists: row.assists,
+      });
+    }
+    await client.query("COMMIT");
+    res.json(updated);
+  } catch (err) {
+    try {
+      await client.query("ROLLBACK");
+    } catch {
+      /* ignore */
+    }
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  } finally {
+    client.release();
+  }
+});
+
 // ── Matches ───────────────────────────────────────────────────────────────────
 
 // Standardize Alagoano club names: append -AL to all clubs that play in Alagoano competitions

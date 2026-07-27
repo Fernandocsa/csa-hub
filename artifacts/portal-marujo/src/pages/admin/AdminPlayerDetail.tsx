@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { ChevronLeft, Pencil, Plus, Trash2 } from "lucide-react";
+import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { AdminEntityBadges } from "@/components/AdminEntityBadges";
 import { PLAYER_POSITIONS } from "@/lib/position-groups";
 
@@ -443,18 +443,16 @@ function PlayerProfileForm({
 }
 
 function StatForm({
-  initial,
   onSave,
   onCancel,
 }: {
-  initial?: Partial<StatRow>;
   onSave: (data: Omit<StatRow, "id" | "playerId">) => Promise<void>;
   onCancel: () => void;
 }) {
-  const [season, setSeason] = useState(initial?.season ?? "");
-  const [appearances, setAppearances] = useState(String(initial?.appearances ?? ""));
-  const [goals, setGoals] = useState(String(initial?.goals ?? ""));
-  const [assists, setAssists] = useState(String(initial?.assists ?? ""));
+  const [season, setSeason] = useState("");
+  const [appearances, setAppearances] = useState("0");
+  const [goals, setGoals] = useState("0");
+  const [assists, setAssists] = useState("0");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -465,9 +463,9 @@ function StatForm({
     try {
       await onSave({
         season,
-        appearances: parseInt(appearances) || 0,
-        goals: parseInt(goals) || 0,
-        assists: parseInt(assists) || 0,
+        appearances: parseInt(appearances, 10) || 0,
+        goals: parseInt(goals, 10) || 0,
+        assists: parseInt(assists, 10) || 0,
       });
     } catch (err: any) {
       setError(err.message ?? "Erro ao salvar");
@@ -529,11 +527,29 @@ function StatForm({
           Cancelar
         </Button>
         <Button type="submit" className="bg-[#1B3A6B]" disabled={saving}>
-          {saving ? "Salvando..." : "Salvar"}
+          {saving ? "Salvando..." : "Adicionar"}
         </Button>
       </DialogFooter>
     </form>
   );
+}
+
+type StatDraft = {
+  appearances: string;
+  goals: string;
+  assists: string;
+};
+
+function draftsFromStats(rows: StatRow[]): Record<number, StatDraft> {
+  const next: Record<number, StatDraft> = {};
+  for (const s of rows) {
+    next[s.id] = {
+      appearances: String(s.appearances ?? 0),
+      goals: String(s.goals ?? 0),
+      assists: String(s.assists ?? 0),
+    };
+  }
+  return next;
 }
 
 export default function AdminPlayerDetail() {
@@ -548,7 +564,11 @@ export default function AdminPlayerDetail() {
   const [error, setError] = useState("");
   const [savedMsg, setSavedMsg] = useState("");
   const [tab, setTab] = useState<TabId>("perfil");
-  const [statDialog, setStatDialog] = useState<StatRow | "new" | null>(null);
+  const [statDialog, setStatDialog] = useState(false);
+  const [statDrafts, setStatDrafts] = useState<Record<number, StatDraft>>({});
+  const [savingStats, setSavingStats] = useState(false);
+  const [statsError, setStatsError] = useState("");
+  const [statsSavedMsg, setStatsSavedMsg] = useState("");
 
   const loadPlayer = useCallback(async () => {
     if (isNew || !playerId || Number.isNaN(playerId)) return;
@@ -568,7 +588,11 @@ export default function AdminPlayerDetail() {
   const loadStats = useCallback(async () => {
     if (isNew || !playerId || Number.isNaN(playerId)) return;
     const r = await adminFetch(`/admin/players/${playerId}/stats`);
-    if (r.ok) setStats(await r.json());
+    if (r.ok) {
+      const rows = (await r.json()) as StatRow[];
+      setStats(rows);
+      setStatDrafts(draftsFromStats(rows));
+    }
   }, [isNew, playerId]);
 
   useEffect(() => {
@@ -578,6 +602,58 @@ export default function AdminPlayerDetail() {
   useEffect(() => {
     if (!isNew) loadStats();
   }, [isNew, loadStats]);
+
+  const dirtyStats = useMemo(() => {
+    return stats.filter((s) => {
+      const d = statDrafts[s.id];
+      if (!d) return false;
+      const appearances = parseInt(d.appearances, 10) || 0;
+      const goals = parseInt(d.goals, 10) || 0;
+      const assists = parseInt(d.assists, 10) || 0;
+      return (
+        appearances !== s.appearances ||
+        goals !== s.goals ||
+        assists !== s.assists
+      );
+    });
+  }, [stats, statDrafts]);
+
+  const statsDirty = dirtyStats.length > 0;
+
+  const draftTotals = useMemo(() => {
+    let appearances = 0;
+    let goals = 0;
+    let assists = 0;
+    for (const s of stats) {
+      const d = statDrafts[s.id];
+      appearances += parseInt(d?.appearances ?? String(s.appearances), 10) || 0;
+      goals += parseInt(d?.goals ?? String(s.goals), 10) || 0;
+      assists += parseInt(d?.assists ?? String(s.assists), 10) || 0;
+    }
+    return { appearances, goals, assists };
+  }, [stats, statDrafts]);
+
+  useEffect(() => {
+    if (!statsDirty) return;
+    function onBeforeUnload(e: BeforeUnloadEvent) {
+      e.preventDefault();
+      e.returnValue = "";
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [statsDirty]);
+
+  function requestTabChange(next: TabId) {
+    if (next === tab) return;
+    if (statsDirty && tab === "temporadas") {
+      if (!confirm("Há alterações não salvas nas temporadas. Deseja sair sem salvar?")) {
+        return;
+      }
+      setStatDrafts(draftsFromStats(stats));
+      setStatsError("");
+    }
+    setTab(next);
+  }
 
   async function savePlayer(data: PlayerPayload) {
     const r = await adminFetch(
@@ -599,6 +675,11 @@ export default function AdminPlayerDetail() {
   }
 
   async function deletePlayer() {
+    if (statsDirty) {
+      if (!confirm("Há alterações não salvas nas temporadas. Continuar e excluir o jogador?")) {
+        return;
+      }
+    }
     const r = await adminFetch(`/admin/players/${playerId}`, { method: "DELETE" });
     if (!r.ok) {
       const err = await r.json().catch(() => ({}));
@@ -607,24 +688,72 @@ export default function AdminPlayerDetail() {
     setLocation("/admin/jogadores");
   }
 
-  async function saveStat(data: Omit<StatRow, "id" | "playerId">) {
-    const editing = statDialog && statDialog !== "new" ? statDialog : null;
-    const r = await adminFetch(
-      editing ? `/admin/player-stats/${editing.id}` : `/admin/players/${playerId}/stats`,
-      { method: editing ? "PUT" : "POST", body: JSON.stringify(data) },
-    );
+  async function addStat(data: Omit<StatRow, "id" | "playerId">) {
+    const r = await adminFetch(`/admin/players/${playerId}/stats`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
     if (!r.ok) {
       const err = await r.json().catch(() => ({}));
       throw new Error((err as any).error ?? "Erro");
     }
-    setStatDialog(null);
+    setStatDialog(false);
     await loadStats();
   }
 
+  async function saveStatsBulk() {
+    if (!statsDirty) return;
+    setSavingStats(true);
+    setStatsError("");
+    setStatsSavedMsg("");
+    try {
+      const payload = dirtyStats.map((s) => {
+        const d = statDrafts[s.id];
+        return {
+          id: s.id,
+          appearances: parseInt(d.appearances, 10) || 0,
+          goals: parseInt(d.goals, 10) || 0,
+          assists: parseInt(d.assists, 10) || 0,
+        };
+      });
+      const r = await adminFetch(`/admin/players/${playerId}/stats/bulk`, {
+        method: "PUT",
+        body: JSON.stringify({ stats: payload }),
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error((err as { error?: string }).error ?? "Erro ao salvar");
+      }
+      await loadStats();
+      setStatsSavedMsg("Temporadas salvas.");
+      setTimeout(() => setStatsSavedMsg(""), 2500);
+    } catch (e: unknown) {
+      setStatsError(e instanceof Error ? e.message : "Erro ao salvar");
+    }
+    setSavingStats(false);
+  }
+
   async function deleteStat(statId: number) {
+    if (statsDirty) {
+      if (
+        !confirm(
+          "Há alterações não salvas. Excluir esta temporada descarta as mudanças dessa linha no servidor; as outras edições continuam no formulário. Continuar?",
+        )
+      ) {
+        return;
+      }
+    }
     if (!confirm("Excluir esta temporada?")) return;
     await adminFetch(`/admin/player-stats/${statId}`, { method: "DELETE" });
     await loadStats();
+  }
+
+  function updateDraft(statId: number, field: keyof StatDraft, value: string) {
+    setStatDrafts((prev) => ({
+      ...prev,
+      [statId]: { ...prev[statId], [field]: value },
+    }));
+    setStatsSavedMsg("");
   }
 
   const tabs: { id: TabId; label: string; locked?: boolean; count?: number }[] = [
@@ -661,6 +790,12 @@ export default function AdminPlayerDetail() {
       <div>
         <Link
           href="/admin/jogadores"
+          onClick={(e) => {
+            if (!statsDirty) return;
+            if (!confirm("Há alterações não salvas nas temporadas. Deseja sair sem salvar?")) {
+              e.preventDefault();
+            }
+          }}
           className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-[#1B3A6B] mb-2"
         >
           <ChevronLeft size={13} /> Jogadores
@@ -684,7 +819,7 @@ export default function AdminPlayerDetail() {
             disabled={t.locked}
             title={t.locked ? "Salve o perfil primeiro" : undefined}
             onClick={() => {
-              if (!t.locked) setTab(t.id);
+              if (!t.locked) requestTabChange(t.id);
             }}
             className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
               t.locked
@@ -718,7 +853,7 @@ export default function AdminPlayerDetail() {
             <h2 className="text-sm font-semibold text-gray-700">Estatísticas por temporada</h2>
             <button
               type="button"
-              onClick={() => setStatDialog("new")}
+              onClick={() => setStatDialog(true)}
               className="text-xs text-[#1B3A6B] font-medium hover:underline flex items-center gap-1"
             >
               <Plus size={11} /> Adicionar temporada
@@ -727,45 +862,106 @@ export default function AdminPlayerDetail() {
           {stats.length === 0 ? (
             <p className="text-sm text-gray-400">Nenhuma temporada cadastrada</p>
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-xs text-gray-400 border-b">
-                  <th className="text-left py-1.5">Temporada</th>
-                  <th className="text-right py-1.5">Partidas</th>
-                  <th className="text-right py-1.5">Gols</th>
-                  <th className="text-right py-1.5">Assist.</th>
-                  <th className="py-1.5"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats.map((stat) => (
-                  <tr key={stat.id} className="border-b border-gray-100">
-                    <td className="py-2 font-medium">{stat.season}</td>
-                    <td className="py-2 text-right">{stat.appearances}</td>
-                    <td className="py-2 text-right">{stat.goals}</td>
-                    <td className="py-2 text-right">{stat.assists}</td>
-                    <td className="py-2">
-                      <div className="flex justify-end gap-1">
-                        <button
-                          type="button"
-                          onClick={() => setStatDialog(stat)}
-                          className="p-0.5 text-gray-400 hover:text-[#1B3A6B]"
-                        >
-                          <Pencil size={12} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => deleteStat(stat.id)}
-                          className="p-0.5 text-gray-400 hover:text-red-600"
-                        >
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
-                    </td>
+            <>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-xs text-gray-400 border-b">
+                    <th className="text-left py-1.5">Temporada</th>
+                    <th className="text-right py-1.5 w-24">Partidas</th>
+                    <th className="text-right py-1.5 w-24">Gols</th>
+                    <th className="text-right py-1.5 w-24">Assist.</th>
+                    <th className="py-1.5 w-10" />
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {stats.map((stat) => {
+                    const d = statDrafts[stat.id] ?? {
+                      appearances: String(stat.appearances),
+                      goals: String(stat.goals),
+                      assists: String(stat.assists),
+                    };
+                    return (
+                      <tr key={stat.id} className="border-b border-gray-100">
+                        <td className="py-2 font-medium">{stat.season}</td>
+                        <td className="py-1.5 text-right">
+                          <Input
+                            type="number"
+                            min={0}
+                            value={d.appearances}
+                            onChange={(e) =>
+                              updateDraft(stat.id, "appearances", e.target.value)
+                            }
+                            className="h-8 w-[4.25rem] ml-auto text-right px-2"
+                          />
+                        </td>
+                        <td className="py-1.5 text-right">
+                          <Input
+                            type="number"
+                            min={0}
+                            value={d.goals}
+                            onChange={(e) => updateDraft(stat.id, "goals", e.target.value)}
+                            className="h-8 w-[4.25rem] ml-auto text-right px-2"
+                          />
+                        </td>
+                        <td className="py-1.5 text-right">
+                          <Input
+                            type="number"
+                            min={0}
+                            value={d.assists}
+                            onChange={(e) => updateDraft(stat.id, "assists", e.target.value)}
+                            className="h-8 w-[4.25rem] ml-auto text-right px-2"
+                          />
+                        </td>
+                        <td className="py-2">
+                          <div className="flex justify-end">
+                            <button
+                              type="button"
+                              onClick={() => deleteStat(stat.id)}
+                              className="p-0.5 text-gray-400 hover:text-red-600"
+                              title="Excluir temporada"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  <tr className="border-t-2 border-gray-200">
+                    <td className="py-2 font-semibold text-gray-800">Total</td>
+                    <td className="py-2 text-right font-semibold tabular-nums">
+                      {draftTotals.appearances}
+                    </td>
+                    <td className="py-2 text-right font-semibold tabular-nums">
+                      {draftTotals.goals}
+                    </td>
+                    <td className="py-2 text-right font-semibold tabular-nums">
+                      {draftTotals.assists}
+                    </td>
+                    <td />
+                  </tr>
+                </tbody>
+              </table>
+
+              {statsDirty && (
+                <p className="text-xs text-amber-700 mt-2">Alterações não salvas</p>
+              )}
+              {statsError && <p className="text-sm text-red-600 mt-2">{statsError}</p>}
+              {statsSavedMsg && (
+                <p className="text-sm text-green-700 mt-2">{statsSavedMsg}</p>
+              )}
+
+              <div className="mt-3">
+                <Button
+                  type="button"
+                  className="bg-[#1B3A6B]"
+                  disabled={!statsDirty || savingStats}
+                  onClick={saveStatsBulk}
+                >
+                  {savingStats ? "Salvando…" : "Salvar"}
+                </Button>
+              </div>
+            </>
           )}
         </div>
       )}
@@ -776,19 +972,13 @@ export default function AdminPlayerDetail() {
         </div>
       )}
 
-      <Dialog open={!!statDialog} onOpenChange={(v) => { if (!v) setStatDialog(null); }}>
+      <Dialog open={statDialog} onOpenChange={setStatDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {statDialog && statDialog !== "new" ? "Editar Temporada" : "Nova Temporada"}
-            </DialogTitle>
+            <DialogTitle>Nova Temporada</DialogTitle>
           </DialogHeader>
           {statDialog && (
-            <StatForm
-              initial={statDialog === "new" ? undefined : statDialog}
-              onSave={saveStat}
-              onCancel={() => setStatDialog(null)}
-            />
+            <StatForm onSave={addStat} onCancel={() => setStatDialog(false)} />
           )}
         </DialogContent>
       </Dialog>
