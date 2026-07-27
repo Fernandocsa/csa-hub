@@ -10,6 +10,7 @@ import Estrangeiros from "./pages/players/Estrangeiros";
 import NationalityDetail from "./pages/players/NationalityDetail";
 import MatchesList from "./pages/matches/MatchesList";
 import MatchRecords from "./pages/matches/MatchRecords";
+import MatchDetail from "./pages/matches/MatchDetail";
 import Publicos from "./pages/matches/Publicos";
 import SeasonsList from "./pages/seasons/SeasonsList";
 import SeasonDetail from "./pages/seasons/SeasonDetail";
@@ -46,8 +47,9 @@ export default function AppRouter() {
         <Route path="/jogadores/estrangeiros" component={Estrangeiros} />
         <Route path="/jogadores/estrangeiros/:country" component={NationalityDetail} />
         <Route path="/jogadores/:id" component={PlayerDetail} />
-        <Route path="/partidas" component={MatchesList} />
         <Route path="/partidas/recordes" component={MatchRecords} />
+        <Route path="/partidas/:id" component={MatchDetail} />
+        <Route path="/partidas" component={MatchesList} />
         <Route path="/publicos" component={Publicos} />
         <Route path="/temporadas" component={SeasonsList} />
         <Route path="/temporadas/:year" component={SeasonDetail} />

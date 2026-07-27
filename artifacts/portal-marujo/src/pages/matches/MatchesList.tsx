@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearch } from "wouter";
+import { Link, useSearch } from "wouter";
 import {
   useListMatches,
   useListSeasons,
@@ -339,7 +339,12 @@ export default function MatchesList() {
                         {fmtDate(match.date)}
                       </TableCell>
                       <TableCell className="py-2">
-                        <span className="font-medium">{match.opponent}</span>
+                        <Link
+                          href={`/partidas/${match.id}`}
+                          className="font-medium hover:text-primary hover:underline"
+                        >
+                          {match.opponent}
+                        </Link>
                         <span className={cn(
                           "ml-2 text-xs px-1 py-0.5 rounded",
                           match.homeAway === "home"

@@ -9,3 +9,4 @@ export * from "./walkovers";
 export * from "./friendlies";
 export * from "./unknown-results";
 export * from "./next-match";
+export * from "./match-detail";
