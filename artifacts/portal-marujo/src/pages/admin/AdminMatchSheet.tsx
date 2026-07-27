@@ -43,6 +43,14 @@ type CardDraft = {
   injuryTimeMinute: string;
 };
 
+type SubDraft = {
+  key: string;
+  playerOutId: string;
+  playerInId: string;
+  minute: string;
+  injuryTimeMinute: string;
+};
+
 type MatchMeta = {
   id: number;
   matchDate: string;
@@ -68,11 +76,12 @@ export default function AdminMatchSheet() {
   const [lineups, setLineups] = useState<LineupDraft[]>([]);
   const [goals, setGoals] = useState<GoalDraft[]>([]);
   const [cards, setCards] = useState<CardDraft[]>([]);
+  const [subs, setSubs] = useState<SubDraft[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [savedMsg, setSavedMsg] = useState("");
-  const [tab, setTab] = useState<"lineup" | "goals" | "cards">("lineup");
+  const [tab, setTab] = useState<"lineup" | "goals" | "cards" | "subs">("lineup");
 
   const load = useCallback(async () => {
     if (!matchId || Number.isNaN(matchId)) return;
@@ -125,6 +134,18 @@ export default function AdminMatchSheet() {
           injuryTimeMinute: c.injuryTimeMinute != null ? String(c.injuryTimeMinute) : "",
         })),
       );
+      setSubs(
+        (sheet.substitutions ?? [])
+          .filter((s: { side?: string }) => !s.side || s.side === "csa")
+          .map((s: any) => ({
+            key: uid(),
+            playerOutId: String(s.playerOutId ?? ""),
+            playerInId: String(s.playerInId ?? ""),
+            minute: String(s.minute ?? ""),
+            injuryTimeMinute:
+              s.injuryTimeMinute != null ? String(s.injuryTimeMinute) : "",
+          })),
+      );
 
       const rosterJson = await rosterRes.json();
       setRoster(rosterJson.players ?? []);
@@ -159,6 +180,29 @@ export default function AdminMatchSheet() {
   const starters = lineups.filter((l) => l.role === "starter");
   const bench = lineups.filter((l) => l.role === "bench");
   const rosterByGroup = useMemo(() => groupPlayersByPosition(roster), [roster]);
+
+  const softSubWarnings = useMemo(() => {
+    const warnings: string[] = [];
+    for (const s of subs) {
+      const outId = Number(s.playerOutId);
+      const inId = Number(s.playerInId);
+      const out = lineupByPlayer.get(outId);
+      const inn = lineupByPlayer.get(inId);
+      const outName = out?.playerName ?? `#${s.playerOutId || "?"}`;
+      const inName = inn?.playerName ?? `#${s.playerInId || "?"}`;
+      if (s.playerOutId && (!out || out.role !== "starter")) {
+        warnings.push(
+          `Quem saiu (${outName}) não está marcado como titular.`,
+        );
+      }
+      if (s.playerInId && (!inn || inn.role !== "bench")) {
+        warnings.push(
+          `Quem entrou (${inName}) não está marcado como reserva.`,
+        );
+      }
+    }
+    return warnings;
+  }, [subs, lineupByPlayer]);
 
   function setPlayerRole(player: RosterPlayer, role: LineupRole) {
     setSavedMsg("");
@@ -216,6 +260,14 @@ export default function AdminMatchSheet() {
           injuryTimeMinute: c.injuryTimeMinute === "" ? null : Number(c.injuryTimeMinute),
           side: "csa" as const,
         })),
+        substitutions: subs.map((s) => ({
+          playerOutId: Number(s.playerOutId),
+          playerInId: Number(s.playerInId),
+          minute: Number(s.minute),
+          injuryTimeMinute:
+            s.injuryTimeMinute === "" ? null : Number(s.injuryTimeMinute),
+          side: "csa" as const,
+        })),
       };
 
       const r = await adminFetch(`/admin/matches/${matchId}/sheet`, {
@@ -258,7 +310,11 @@ export default function AdminMatchSheet() {
     { id: "lineup", label: "Escalação", count: lineups.length },
     { id: "goals", label: "Gols", count: goals.length },
     { id: "cards", label: "Cartões", count: cards.length },
+    { id: "subs", label: "Substituições", count: subs.length },
   ];
+
+  const showSoftBanner =
+    starters.length !== 11 || goalsMismatch || softSubWarnings.length > 0;
 
   return (
     <div className="space-y-4 pb-20">
@@ -279,7 +335,7 @@ export default function AdminMatchSheet() {
         </p>
       </div>
 
-      {(starters.length !== 11 || goalsMismatch) && (
+      {showSoftBanner && (
         <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 space-y-1">
           {starters.length !== 11 && (
             <p>
@@ -293,6 +349,9 @@ export default function AdminMatchSheet() {
               partida.
             </p>
           )}
+          {softSubWarnings.map((w, i) => (
+            <p key={`sub-warn-${i}`}>Aviso: {w} Pode salvar mesmo assim.</p>
+          ))}
         </div>
       )}
 
@@ -736,6 +795,150 @@ export default function AdminMatchSheet() {
       </section>
       )}
 
+      {tab === "subs" && (
+      <section className="bg-white border rounded-lg p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+              Substituições CSA
+            </h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {subs.length} substituição(ões) · o usual é titular sair e reserva entrar
+            </p>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={lineups.length < 2}
+            onClick={() =>
+              setSubs((s) => [
+                ...s,
+                {
+                  key: uid(),
+                  playerOutId: starters[0]
+                    ? String(starters[0].playerId)
+                    : lineups[0]
+                      ? String(lineups[0].playerId)
+                      : "",
+                  playerInId: bench[0]
+                    ? String(bench[0].playerId)
+                    : lineups[1]
+                      ? String(lineups[1].playerId)
+                      : "",
+                  minute: "",
+                  injuryTimeMinute: "",
+                },
+              ])
+            }
+          >
+            <Plus size={14} className="mr-1" /> Substituição
+          </Button>
+        </div>
+        {lineups.length === 0 && (
+          <p className="text-xs text-gray-400">
+            Escale jogadores na aba Escalação antes de cadastrar substituições.
+          </p>
+        )}
+        <div className="space-y-2">
+          {subs.map((s) => (
+            <div
+              key={s.key}
+              className="grid grid-cols-1 md:grid-cols-5 gap-2 items-end border rounded p-2"
+            >
+              <div>
+                <label className="text-[10px] uppercase text-gray-400">Saiu ↓</label>
+                <select
+                  className={selectCls}
+                  value={s.playerOutId}
+                  onChange={(e) => {
+                    setSavedMsg("");
+                    setSubs((all) =>
+                      all.map((x) =>
+                        x.key === s.key ? { ...x, playerOutId: e.target.value } : x,
+                      ),
+                    );
+                  }}
+                >
+                  <option value="">—</option>
+                  {lineups.map((l) => (
+                    <option key={l.playerId} value={l.playerId}>
+                      {l.playerName}
+                      {l.role === "starter" ? " (T)" : " (R)"}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] uppercase text-gray-400">Entrou ↑</label>
+                <select
+                  className={selectCls}
+                  value={s.playerInId}
+                  onChange={(e) => {
+                    setSavedMsg("");
+                    setSubs((all) =>
+                      all.map((x) =>
+                        x.key === s.key ? { ...x, playerInId: e.target.value } : x,
+                      ),
+                    );
+                  }}
+                >
+                  <option value="">—</option>
+                  {lineups
+                    .filter((l) => String(l.playerId) !== s.playerOutId)
+                    .map((l) => (
+                      <option key={l.playerId} value={l.playerId}>
+                        {l.playerName}
+                        {l.role === "starter" ? " (T)" : " (R)"}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] uppercase text-gray-400">Minuto</label>
+                <Input
+                  value={s.minute}
+                  onChange={(e) => {
+                    setSavedMsg("");
+                    setSubs((all) =>
+                      all.map((x) =>
+                        x.key === s.key ? { ...x, minute: e.target.value } : x,
+                      ),
+                    );
+                  }}
+                  placeholder="67"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase text-gray-400">Acréscimo</label>
+                <Input
+                  value={s.injuryTimeMinute}
+                  onChange={(e) => {
+                    setSavedMsg("");
+                    setSubs((all) =>
+                      all.map((x) =>
+                        x.key === s.key
+                          ? { ...x, injuryTimeMinute: e.target.value }
+                          : x,
+                      ),
+                    );
+                  }}
+                  placeholder="ex: 3 → 90+3"
+                />
+              </div>
+              <button
+                type="button"
+                className="justify-self-end p-2 text-gray-400 hover:text-red-600"
+                onClick={() => setSubs((all) => all.filter((x) => x.key !== s.key))}
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+      )}
+
       {error && <p className="text-sm text-red-600">{error}</p>}
       {savedMsg && <p className="text-sm text-green-700">{savedMsg}</p>}
 
@@ -749,7 +952,7 @@ export default function AdminMatchSheet() {
           </Button>
         </Link>
         <span className="text-xs text-gray-400 self-center ml-2">
-          Salva Escalação + Gols + Cartões juntos
+          Salva Escalação + Gols + Cartões + Substituições juntos
         </span>
       </div>
     </div>
