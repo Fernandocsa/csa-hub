@@ -10,6 +10,7 @@ import {
   competitionsTable,
   managersTable,
   managerSeasonStatsTable,
+  refereesTable,
   nextMatchTable,
   entityBadgesTable,
   seasonsTable,
@@ -44,6 +45,21 @@ import countriesList from "../../../portal-marujo/src/lib/countries.json" with {
 const VALID_COUNTRY_CODES = new Set(
   (countriesList as { code: string }[]).map((c) => c.code.toUpperCase()),
 );
+
+const VALID_BRAZIL_UFS = new Set([
+  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
+  "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
+  "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+]);
+
+function normalizeOptionalUf(raw: unknown): { ok: true; value: string | null } | { ok: false; error: string } {
+  if (raw == null || String(raw).trim() === "") return { ok: true, value: null };
+  const uf = String(raw).trim().toUpperCase();
+  if (!VALID_BRAZIL_UFS.has(uf)) {
+    return { ok: false, error: "UF inválida (use sigla brasileira, ex: AL)" };
+  }
+  return { ok: true, value: uf };
+}
 
 const NEXT_MATCH_ID = 1;
 
@@ -201,13 +217,21 @@ router.put("/admin/next-match", requireAdmin, async (req, res) => {
 
 router.get("/admin/lookup", requireAdmin, async (req, res) => {
   try {
-    const [opponents, competitions, stadiums, managers] = await Promise.all([
+    const [opponents, competitions, stadiums, managers, referees] = await Promise.all([
       db.select().from(opponentsTable).orderBy(asc(opponentsTable.name)),
       db.select().from(competitionsTable).orderBy(asc(competitionsTable.name)),
       db.select().from(stadiumsTable).orderBy(asc(stadiumsTable.name)),
       db.select().from(managersTable).orderBy(asc(managersTable.name)),
+      db
+        .select({
+          id: refereesTable.id,
+          name: refereesTable.name,
+          state: refereesTable.state,
+        })
+        .from(refereesTable)
+        .orderBy(asc(refereesTable.name)),
     ]);
-    res.json({ opponents, competitions, stadiums, managers });
+    res.json({ opponents, competitions, stadiums, managers, referees });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -827,6 +851,8 @@ router.get("/admin/matches/:id", requireAdmin, async (req, res) => {
         stadiumName: stadiumsTable.name,
         managerId: matchesTable.managerId,
         managerName: managersTable.name,
+        refereeId: matchesTable.refereeId,
+        refereeName: refereesTable.name,
         ownGoalsForCount: matchesTable.ownGoalsForCount,
         isWalkover: matchesTable.isWalkover,
         isFriendly: matchesTable.isFriendly,
@@ -838,6 +864,7 @@ router.get("/admin/matches/:id", requireAdmin, async (req, res) => {
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
       .leftJoin(managersTable, eq(matchesTable.managerId, managersTable.id))
+      .leftJoin(refereesTable, eq(matchesTable.refereeId, refereesTable.id))
       .where(eq(matchesTable.id, id))
       .limit(1);
     if (!row) return res.status(404).json({ error: "Partida não encontrada" });
@@ -861,6 +888,7 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
       competitionId: number;
       stadiumId?: number | null;
       managerId?: number | null;
+      refereeId?: number | null;
       attendance?: number | null;
       scorers?: string | null;
       ownGoalsForCount?: number | null;
@@ -889,6 +917,7 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
         competitionId: body.competitionId,
         stadiumId: body.stadiumId ?? null,
         managerId: body.managerId ?? null,
+        refereeId: body.refereeId ?? null,
         attendance: body.attendance ?? null,
         scorers: body.scorers ?? null,
         ownGoalsForCount: ownGoals,
@@ -918,6 +947,7 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
       competitionId: number;
       stadiumId?: number | null;
       managerId?: number | null;
+      refereeId?: number | null;
       attendance?: number | null;
       scorers?: string | null;
       isWalkover?: boolean;
@@ -950,6 +980,7 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
         competitionId: body.competitionId,
         stadiumId: body.stadiumId ?? null,
         managerId: body.managerId ?? null,
+        refereeId: body.refereeId ?? null,
         attendance: body.attendance ?? null,
         scorers: body.scorers ?? null,
         isWalkover: body.isWalkover ?? false,
@@ -1682,6 +1713,95 @@ router.delete("/admin/opponents/:id", requireAdmin, async (req, res) => {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
     await db.delete(opponentsTable).where(eq(opponentsTable.id, id));
+    res.json({ ok: true });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+// ── Referees ──────────────────────────────────────────────────────────────────
+
+router.get("/admin/referees", requireAdmin, async (req, res) => {
+  try {
+    const rows = await db.select().from(refereesTable).orderBy(asc(refereesTable.name));
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.get("/admin/referees/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [referee] = await db.select().from(refereesTable).where(eq(refereesTable.id, id));
+    if (!referee) return res.status(404).json({ error: "Árbitro não encontrado" });
+    res.json(referee);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.post("/admin/referees", requireAdmin, async (req, res) => {
+  try {
+    const body = req.body as { name?: string; state?: string | null };
+    if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+    const uf = normalizeOptionalUf(body.state);
+    if (!uf.ok) return res.status(400).json({ error: uf.error });
+    const [referee] = await db
+      .insert(refereesTable)
+      .values({ name: body.name.trim(), state: uf.value })
+      .returning();
+    res.status(201).json(referee);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put("/admin/referees/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [current] = await db.select().from(refereesTable).where(eq(refereesTable.id, id));
+    if (!current) return res.status(404).json({ error: "Árbitro não encontrado" });
+
+    const body = req.body as { name?: string; state?: string | null };
+    const values: { name?: string; state?: string | null } = {};
+    if (body.name !== undefined) {
+      if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+      values.name = body.name.trim();
+    }
+    if (body.state !== undefined) {
+      const uf = normalizeOptionalUf(body.state);
+      if (!uf.ok) return res.status(400).json({ error: uf.error });
+      values.state = uf.value;
+    }
+
+    const [updated] = await db
+      .update(refereesTable)
+      .set(values)
+      .where(eq(refereesTable.id, id))
+      .returning();
+    res.json(updated);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.delete("/admin/referees/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    await db
+      .update(matchesTable)
+      .set({ refereeId: null })
+      .where(eq(matchesTable.refereeId, id));
+    await db.delete(refereesTable).where(eq(refereesTable.id, id));
     res.json({ ok: true });
   } catch (err) {
     req.log.error(err);

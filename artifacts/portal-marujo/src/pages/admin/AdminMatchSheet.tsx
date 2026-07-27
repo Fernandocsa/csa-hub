@@ -73,6 +73,8 @@ type MatchMeta = {
   scorers: string | null;
   managerId: number | null;
   managerName: string | null;
+  refereeId: number | null;
+  refereeName: string | null;
   ownGoalsForCount?: number | null;
   phase?: string | null;
   round?: string | null;
@@ -118,6 +120,7 @@ export default function AdminMatchSheet() {
           opponents: lookupJson.opponents ?? [],
           competitions: lookupJson.competitions ?? [],
           stadiums: lookupJson.stadiums ?? [],
+          referees: lookupJson.referees ?? [],
         });
         setManagers(
           [...(lookupJson.managers ?? [])].sort(
@@ -287,6 +290,7 @@ export default function AdminMatchSheet() {
           competitionId: match.competitionId,
           stadiumId: match.stadiumId,
           managerId: managerIdDraft === "" ? null : Number(managerIdDraft),
+          refereeId: match.refereeId ?? null,
           attendance: match.attendance,
           scorers: match.scorers,
           ownGoalsForCount: match.ownGoalsForCount ?? 0,

@@ -6,6 +6,7 @@ export interface MatchLookupData {
   opponents: { id: number; name: string }[];
   competitions: { id: number; name: string }[];
   stadiums: { id: number; name: string }[];
+  referees: { id: number; name: string; state?: string | null }[];
 }
 
 export interface MatchGeneralInitial {
@@ -19,6 +20,7 @@ export interface MatchGeneralInitial {
   competitionId?: number;
   stadiumId?: number | null;
   managerId?: number | null;
+  refereeId?: number | null;
   attendance?: number | null;
   scorers?: string | null;
   ownGoalsForCount?: number | null;
@@ -37,6 +39,7 @@ export interface MatchGeneralFormData {
   competitionId: number;
   stadiumId: number | null;
   managerId: number | null;
+  refereeId: number | null;
   attendance: number | null;
   scorers: string | null;
   ownGoalsForCount: number;
@@ -75,6 +78,10 @@ export default function MatchGeneralForm({
   );
   const [phase, setPhase] = useState(initial?.phase ?? "");
   const [round, setRound] = useState(initial?.round ?? "");
+  const [refereeId, setRefereeId] = useState(
+    initial?.refereeId != null ? String(initial.refereeId) : "",
+  );
+  const [refereeQuery, setRefereeQuery] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -94,6 +101,8 @@ export default function MatchGeneralForm({
     setOwnGoalsForCount(String(initial?.ownGoalsForCount ?? "0"));
     setPhase(initial?.phase ?? "");
     setRound(initial?.round ?? "");
+    setRefereeId(initial?.refereeId != null ? String(initial.refereeId) : "");
+    setRefereeQuery("");
   }, [initial]);
 
   useEffect(() => {
@@ -128,6 +137,7 @@ export default function MatchGeneralForm({
         competitionId: parseInt(competitionId, 10),
         stadiumId: stadiumId ? parseInt(stadiumId, 10) : null,
         managerId: initial?.managerId ?? null,
+        refereeId: refereeId ? parseInt(refereeId, 10) : null,
         attendance: attendance ? parseInt(attendance, 10) : null,
         scorers: scorers || null,
         ownGoalsForCount: Math.max(0, parseInt(ownGoalsForCount, 10) || 0),
@@ -154,6 +164,18 @@ export default function MatchGeneralForm({
   }
 
   const sel = "w-full border rounded px-3 py-2 text-sm bg-white";
+  const q = refereeQuery.trim().toLowerCase();
+  const allReferees = lookup.referees ?? [];
+  const selectedReferee = allReferees.find((r) => String(r.id) === refereeId);
+  const filteredReferees = allReferees.filter((r) => {
+    if (!q) return true;
+    const hay = `${r.name} ${r.state ?? ""}`.toLowerCase();
+    return hay.includes(q);
+  });
+  const refereeOptions =
+    selectedReferee && !filteredReferees.some((r) => r.id === selectedReferee.id)
+      ? [selectedReferee, ...filteredReferees]
+      : filteredReferees;
 
   return (
     <form onSubmit={submit} className="space-y-3 max-w-xl">
@@ -317,6 +339,31 @@ export default function MatchGeneralForm({
         <p className="text-[10px] text-gray-400 mt-1">
           Técnico é editado na aba Técnico desta página.
         </p>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-xs font-semibold text-gray-500 uppercase block">
+          Árbitro
+        </label>
+        <Input
+          value={refereeQuery}
+          onChange={(e) => setRefereeQuery(e.target.value)}
+          placeholder="Buscar por nome ou UF…"
+          className="h-9"
+        />
+        <select
+          className={sel}
+          value={refereeId}
+          onChange={(e) => setRefereeId(e.target.value)}
+        >
+          <option value="">– sem árbitro –</option>
+          {refereeOptions.map((r) => (
+            <option key={r.id} value={r.id}>
+              {r.name}
+              {r.state ? ` (${r.state})` : ""}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
