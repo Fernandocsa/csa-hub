@@ -58,6 +58,8 @@ export interface MatchDetailSheet {
   date: string;
   opponentId: number;
   opponent: string;
+  /** @nullable */
+  opponentLogoUrl?: string | null;
   goalsFor: number | null;
   goalsAgainst: number | null;
   result: string;

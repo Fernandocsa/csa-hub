@@ -41,6 +41,8 @@ export interface PlayerStat {
 export interface OpponentSummary {
   id: number;
   name: string;
+  /** @nullable */
+  logoUrl?: string | null;
   matches: number;
   wins: number;
   draws: number;
@@ -155,6 +157,8 @@ export interface MatchDetail {
   id: number;
   date: string;
   opponent: string;
+  /** @nullable */
+  opponentLogoUrl?: string | null;
   goalsFor: number;
   goalsAgainst: number;
   result: MatchDetailResult;
@@ -288,6 +292,8 @@ export interface RecordLine {
 export interface OpponentDetail {
   id: number;
   name: string;
+  /** @nullable */
+  logoUrl?: string | null;
   matches: number;
   wins: number;
   draws: number;

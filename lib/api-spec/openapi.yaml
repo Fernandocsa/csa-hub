@@ -835,6 +835,8 @@ components:
           type: string
         opponent:
           type: string
+        opponentLogoUrl:
+          type: ["string", "null"]
         goalsFor:
           type: integer
         goalsAgainst:
@@ -997,6 +999,8 @@ components:
           type: integer
         name:
           type: string
+        logoUrl:
+          type: ["string", "null"]
         matches:
           type: integer
         wins:
@@ -1018,6 +1022,8 @@ components:
           type: integer
         name:
           type: string
+        logoUrl:
+          type: ["string", "null"]
         matches:
           type: integer
         wins:

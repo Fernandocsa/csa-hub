@@ -127,6 +127,7 @@ router.get("/opponents", async (req, res) => {
       .select({
         id: opponentsTable.id,
         name: opponentsTable.name,
+        logoUrl: opponentsTable.logoUrl,
         matches: sql<number>`cast(count(*) as int)`,
         wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
         draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
@@ -142,7 +143,7 @@ router.get("/opponents", async (req, res) => {
     if (search) conditions.push(ilike(opponentsTable.name, `%${search}%`));
     query = query.where(and(...conditions));
 
-    query = query.groupBy(opponentsTable.id, opponentsTable.name);
+    query = query.groupBy(opponentsTable.id, opponentsTable.name, opponentsTable.logoUrl);
 
     if (sort === "wins") {
       query = query.orderBy(sql`sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) desc`);
@@ -154,7 +155,17 @@ router.get("/opponents", async (req, res) => {
 
     const allRows = await query;
     const total = allRows.length;
-    const data = allRows.slice(off, off + lim);
+    const data = allRows.slice(off, off + lim).map((r) => ({
+      id: r.id,
+      name: r.name,
+      logoUrl: r.logoUrl ?? null,
+      matches: r.matches,
+      wins: r.wins,
+      draws: r.draws,
+      losses: r.losses,
+      goalsFor: r.goalsFor,
+      goalsAgainst: r.goalsAgainst,
+    }));
 
     res.json({ data, total, limit: lim, offset: off });
   } catch (err) {
@@ -650,6 +661,7 @@ router.get("/opponents/:id", async (req, res) => {
       name: opponent.name,
       city: opponent.city ?? null,
       state: opponent.state ?? null,
+      logoUrl: opponent.logoUrl ?? null,
       matches: stats?.matches || 0,
       wins: stats?.wins || 0,
       draws: stats?.draws || 0,

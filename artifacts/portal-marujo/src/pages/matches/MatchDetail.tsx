@@ -14,6 +14,7 @@ import { StarRating } from "@/components/StarRating";
 import { EntityComments } from "@/components/EntityComments";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
+import { OpponentCrest } from "@/components/OpponentCrest";
 
 function fmtDate(d: string) {
   return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
@@ -231,14 +232,20 @@ function TeamName({
   name,
   isCsa,
   opponentId,
+  logoUrl,
 }: {
   name: string;
   isCsa: boolean;
   opponentId: number;
+  logoUrl?: string | null;
 }) {
   if (isCsa) return <>{name}</>;
   return (
-    <Link href={`/adversarios/${opponentId}`} className="hover:text-primary hover:underline">
+    <Link
+      href={`/adversarios/${opponentId}`}
+      className="inline-flex items-center gap-2 hover:text-primary hover:underline"
+    >
+      <OpponentCrest url={logoUrl} name={name} size="md" />
       {name}
     </Link>
   );
@@ -378,6 +385,7 @@ export default function MatchDetail() {
               name={leftName}
               isCsa={leftIsCsa}
               opponentId={match.opponentId}
+              logoUrl={match.opponentLogoUrl}
             />{" "}
             <span className="font-mono tabular-nums mx-1">
               {isUnknown ? "?" : leftGoals ?? "–"}
@@ -388,6 +396,7 @@ export default function MatchDetail() {
               name={rightName}
               isCsa={rightIsCsa}
               opponentId={match.opponentId}
+              logoUrl={match.opponentLogoUrl}
             />
           </h1>
           {!isUnknown && match.result !== "unknown" && (

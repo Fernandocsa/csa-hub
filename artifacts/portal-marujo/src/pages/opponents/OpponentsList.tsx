@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { OpponentCrest } from "@/components/OpponentCrest";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -86,7 +87,12 @@ export default function OpponentsList() {
                     <TableRow key={opp.id} className="text-sm" data-testid={`row-opponent-${opp.id}`}>
                       <TableCell className="py-2 text-muted-foreground text-xs">{i + 1}</TableCell>
                       <TableCell className="py-2 font-medium">
-                        <Link href={`/adversarios/${opp.id}`} className="hover:text-primary hover:underline" data-testid={`link-opponent-${opp.id}`}>
+                        <Link
+                          href={`/adversarios/${opp.id}`}
+                          className="inline-flex items-center gap-2 hover:text-primary hover:underline"
+                          data-testid={`link-opponent-${opp.id}`}
+                        >
+                          <OpponentCrest url={opp.logoUrl} name={opp.name} size="sm" />
                           {opp.name}
                         </Link>
                       </TableCell>
