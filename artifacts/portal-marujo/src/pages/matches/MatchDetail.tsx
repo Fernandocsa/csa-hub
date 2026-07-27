@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
 import { ChevronLeft } from "lucide-react";
 import { sortLineupByPosition } from "@/lib/position-groups";
+import { StarRating } from "@/components/StarRating";
 
 function fmtDate(d: string) {
   return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
@@ -379,6 +380,8 @@ export default function MatchDetail() {
               : " · Neutro"}
         </p>
       </div>
+
+      <StarRating entityType="match" entityId={match.id} />
 
       {/* Legacy scorers text — only if present */}
       {scorersText.length > 0 && (

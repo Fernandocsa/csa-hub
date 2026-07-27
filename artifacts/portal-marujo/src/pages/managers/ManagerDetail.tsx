@@ -3,6 +3,7 @@ import { useGetManager, getGetManagerQueryKey } from "@workspace/api-client-reac
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
+import { StarRating } from "@/components/StarRating";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -45,6 +46,8 @@ export default function ManagerDetail() {
           <p className="text-sm text-muted-foreground mt-1">{manager.nationality}</p>
         )}
       </div>
+
+      <StarRating entityType="manager" entityId={manager.id} />
 
       {/* Stat bar */}
       <div className="grid grid-cols-5 gap-px bg-border rounded overflow-hidden" data-testid="manager-stat-bar">

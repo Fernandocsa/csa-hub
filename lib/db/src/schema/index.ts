@@ -4,3 +4,4 @@ export * from "./match_sheet";
 export * from "./league_positions";
 export * from "./seasons";
 export * from "./next_match";
+export * from "./ratings";

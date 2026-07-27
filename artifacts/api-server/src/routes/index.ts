@@ -9,6 +9,7 @@ import managersRouter from "./managers";
 import miscRouter from "./misc";
 import nextMatchRouter from "./next-match";
 import adminRouter from "./admin";
+import ratingsRouter from "./ratings";
 
 const router: IRouter = Router();
 
@@ -21,6 +22,7 @@ router.use(opponentsRouter);
 router.use(managersRouter);
 router.use(miscRouter);
 router.use(nextMatchRouter);
+router.use(ratingsRouter);
 router.use(adminRouter);
 
 export default router;

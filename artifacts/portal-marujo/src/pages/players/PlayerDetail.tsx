@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 import { VerificationCard } from "@/components/VerificationCard";
 import { PlayerMatchRows } from "@/components/PlayerMatchRows";
+import { StarRating } from "@/components/StarRating";
 import type { ReactNode } from "react";
 
 type PlayerProfile = {
@@ -22,6 +23,7 @@ type PlayerProfile = {
   birthCountry?: string | null;
   preferredFoot?: string | null;
   heightCm?: number | null;
+  weightKg?: number | null;
   verificationStatus?: string | null;
   verifiedAt?: string | null;
   verifiedBy?: string | null;
@@ -126,6 +128,11 @@ export default function PlayerDetail() {
     player.heightCm != null && Number.isFinite(player.heightCm)
       ? `${player.heightCm} cm`
       : null;
+  const weight =
+    player.weightKg != null && Number.isFinite(player.weightKg)
+      ? `${player.weightKg} kg`
+      : null;
+  const heightWeight = [height, weight].filter(Boolean).join(" / ") || null;
 
   const personalRows: { label: string; value: string }[] = [];
   if (showFullName) personalRows.push({ label: "Nome completo", value: player.fullName!.trim() });
@@ -136,7 +143,7 @@ export default function PlayerDetail() {
   if (place) personalRows.push({ label: "Local de nascimento", value: place });
   if (player.position) personalRows.push({ label: "Posição", value: player.position });
   if (foot) personalRows.push({ label: "Pé preferencial", value: foot });
-  if (height) personalRows.push({ label: "Altura", value: height });
+  if (heightWeight) personalRows.push({ label: "Altura / Peso", value: heightWeight });
 
   const latestSeason = player.seasonStats?.[0] ?? null;
 
@@ -211,6 +218,8 @@ export default function PlayerDetail() {
           </div>
         )}
       </div>
+
+      <StarRating entityType="player" entityId={player.id} />
 
       {/* Stat bar — unchanged */}
       <div
