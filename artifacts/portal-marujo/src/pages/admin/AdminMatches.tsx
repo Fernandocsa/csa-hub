@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
+import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2, Plus } from "lucide-react";
 import { ResultBadge } from "@/components/ui/result-badge";
+import { cn } from "@/lib/utils";
 
 interface MatchRow {
   id: number;
@@ -20,6 +22,8 @@ interface MatchRow {
 
 export default function AdminMatches() {
   const [, setLocation] = useLocation();
+  const { season, setSeason } = useSeasonQueryParam("/admin/partidas");
+  const [years, setYears] = useState<number[]>([]);
   const [matches, setMatches] = useState<MatchRow[]>([]);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
@@ -27,20 +31,51 @@ export default function AdminMatches() {
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 50;
 
+  useEffect(() => {
+    (async () => {
+      const r = await adminFetch("/admin/seasons");
+      if (!r.ok) return;
+      const rows = (await r.json()) as { year: number }[];
+      const ys = rows.map((s) => s.year).sort((a, b) => b - a);
+      setYears(ys);
+    })();
+  }, []);
+
+  // Default to most recent season when URL has no ?season=
+  useEffect(() => {
+    if (season !== "all" || years.length === 0) return;
+    setSeason(String(years[0]));
+  }, [season, years, setSeason]);
+
   const load = useCallback(async () => {
+    if (season === "all") {
+      setMatches([]);
+      setTotal(0);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
-    const r = await adminFetch(`/admin/matches?limit=500&offset=0`);
+    const qs = new URLSearchParams({
+      limit: "500",
+      offset: "0",
+      season,
+    });
+    const r = await adminFetch(`/admin/matches?${qs}`);
     if (r.ok) {
       const data = await r.json();
       setMatches(data.data);
       setTotal(data.total);
     }
     setLoading(false);
-  }, []);
+  }, [season]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    setPage(0);
+  }, [season]);
 
   async function deleteMatch(id: number, e: React.MouseEvent) {
     e.stopPropagation();
@@ -49,13 +84,14 @@ export default function AdminMatches() {
     await load();
   }
 
-  const filtered = matches.filter(
-    (m) =>
-      !search ||
-      m.opponentName.toLowerCase().includes(search.toLowerCase()) ||
-      m.season.includes(search) ||
-      m.competitionName.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = matches.filter((m) => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      m.opponentName.toLowerCase().includes(q) ||
+      m.competitionName.toLowerCase().includes(q)
+    );
+  });
 
   const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
@@ -69,7 +105,11 @@ export default function AdminMatches() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Partidas</h1>
-          <p className="text-sm text-gray-500">{total} registradas</p>
+          <p className="text-sm text-gray-500">
+            {season === "all"
+              ? `${total} registradas`
+              : `${total} em ${season}`}
+          </p>
         </div>
         <Button className="bg-[#1B3A6B]" asChild>
           <Link href="/admin/partidas/novo">
@@ -78,8 +118,36 @@ export default function AdminMatches() {
         </Button>
       </div>
 
+      {years.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-4" data-testid="season-year-links">
+          {years.map((y) => {
+            const value = String(y);
+            const active = season === value;
+            return (
+              <button
+                key={y}
+                type="button"
+                onClick={() => {
+                  setSeason(value);
+                  setPage(0);
+                }}
+                className={cn(
+                  "px-2.5 py-1 text-sm font-medium rounded border transition-colors",
+                  active
+                    ? "bg-[#1B3A6B] text-white border-[#1B3A6B]"
+                    : "bg-white text-gray-700 border-gray-200 hover:border-[#1B3A6B] hover:text-[#1B3A6B]",
+                )}
+                data-testid={`link-admin-season-${y}`}
+              >
+                {y}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       <Input
-        placeholder="Buscar adversário, temporada ou competição..."
+        placeholder="Buscar adversário ou competição..."
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
@@ -88,7 +156,7 @@ export default function AdminMatches() {
         className="mb-4 max-w-sm"
       />
 
-      {loading ? (
+      {loading || season === "all" ? (
         <p className="text-sm text-gray-400">Carregando...</p>
       ) : (
         <div className="bg-white border rounded-lg overflow-hidden">

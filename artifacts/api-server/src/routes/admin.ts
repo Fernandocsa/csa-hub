@@ -756,9 +756,13 @@ router.post("/admin/fix/2015-alagoano", requireAdmin, async (req, res) => {
 
 router.get("/admin/matches", requireAdmin, async (req, res) => {
   try {
-    const { limit = "100", offset = "0" } = req.query as Record<string, string>;
+    const { limit = "100", offset = "0", season } = req.query as Record<string, string>;
     const lim = Math.min(parseInt(limit) || 100, 500);
     const off = parseInt(offset) || 0;
+    const conditions = [];
+    if (season && /^\d{4}$/.test(season)) {
+      conditions.push(eq(matchesTable.season, season));
+    }
     const rows = await db
       .select({
         id: matchesTable.id,
@@ -787,6 +791,7 @@ router.get("/admin/matches", requireAdmin, async (req, res) => {
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
       .leftJoin(managersTable, eq(matchesTable.managerId, managersTable.id))
+      .where(conditions.length ? and(...conditions) : undefined)
       .orderBy(desc(matchesTable.matchDate));
     const total = rows.length;
     res.json({ data: rows.slice(off, off + lim), total });
