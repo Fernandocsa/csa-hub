@@ -17,6 +17,7 @@ import AdminImportExport from "./AdminImportExport";
 import AdminNextMatch from "./AdminNextMatch";
 import AdminMatchSheet from "./AdminMatchSheet";
 import AdminMatchSheetRedirect from "./AdminMatchSheetRedirect";
+import AdminComments from "./AdminComments";
 
 export default function AdminRoot() {
   const { checked, authenticated, login, logout } = useAdminAuth();
@@ -55,6 +56,7 @@ export default function AdminRoot() {
         <Route path="/admin/estadios/:id" component={AdminStadiumDetail} />
         <Route path="/admin/estadios" component={AdminStadiums} />
         <Route path="/admin/proximo-jogo" component={AdminNextMatch} />
+        <Route path="/admin/comentarios" component={AdminComments} />
         <Route path="/admin/importar-exportar" component={AdminImportExport} />
       </Switch>
     </AdminLayout>

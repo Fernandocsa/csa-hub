@@ -12,6 +12,7 @@ import {
   nextMatchTable,
   entityBadgesTable,
   seasonsTable,
+  commentsTable,
 } from "@workspace/db";
 import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet } from "../lib/match-sheet";
@@ -2864,6 +2865,121 @@ router.post("/admin/sync/full-matches-replace", requireAdmin, async (req, res) =
     res.status(500).json({ error: err.message, report });
   } finally {
     client.release();
+  }
+});
+
+// ── Comments moderation ───────────────────────────────────────────────────────
+
+router.get("/admin/comments", requireAdmin, async (req, res) => {
+  try {
+    const limitRaw = parseInt(String(req.query.limit ?? 50), 10);
+    const offsetRaw = parseInt(String(req.query.offset ?? 0), 10);
+    const limit = Number.isFinite(limitRaw)
+      ? Math.min(Math.max(limitRaw, 1), 100)
+      : 50;
+    const offset = Number.isFinite(offsetRaw) && offsetRaw >= 0 ? offsetRaw : 0;
+
+    const totalR = await pgPool.query(`SELECT count(*)::int AS total FROM comments`);
+    const total = totalR.rows[0]?.total ?? 0;
+
+    const { rows } = await pgPool.query(
+      `SELECT
+         c.id,
+         c.entity_type AS "entityType",
+         c.entity_id AS "entityId",
+         c.author_name AS "authorName",
+         c.body,
+         c.created_at AS "createdAt",
+         CASE
+           WHEN c.entity_type = 'player' THEN p.name
+           WHEN c.entity_type = 'manager' THEN m.name
+           WHEN c.entity_type = 'match' THEN
+             COALESCE(to_char(mt.match_date::timestamp, 'YYYY-MM-DD'), '?') ||
+             CASE WHEN o.name IS NOT NULL THEN ' vs ' || o.name ELSE '' END
+           ELSE NULL
+         END AS "entityLabel"
+       FROM comments c
+       LEFT JOIN players p
+         ON c.entity_type = 'player' AND c.entity_id = p.id
+       LEFT JOIN managers m
+         ON c.entity_type = 'manager' AND c.entity_id = m.id
+       LEFT JOIN matches mt
+         ON c.entity_type = 'match' AND c.entity_id = mt.id
+       LEFT JOIN opponents o
+         ON mt.opponent_id = o.id
+       ORDER BY c.created_at DESC, c.id DESC
+       LIMIT $1 OFFSET $2`,
+      [limit, offset],
+    );
+
+    res.json({
+      data: rows.map((r: {
+        id: number;
+        entityType: string;
+        entityId: number;
+        authorName: string;
+        body: string;
+        createdAt: Date | string;
+        entityLabel: string | null;
+      }) => {
+        let publicPath = "/";
+        let adminPath = "/admin";
+        let entityLabel = r.entityLabel ?? `#${r.entityId}`;
+        if (r.entityType === "player") {
+          publicPath = `/jogadores/${r.entityId}`;
+          adminPath = `/admin/jogadores/${r.entityId}`;
+          if (!r.entityLabel) entityLabel = `Jogador #${r.entityId}`;
+        } else if (r.entityType === "manager") {
+          publicPath = `/tecnicos/${r.entityId}`;
+          adminPath = `/admin/tecnicos/${r.entityId}`;
+          if (!r.entityLabel) entityLabel = `Técnico #${r.entityId}`;
+        } else if (r.entityType === "match") {
+          publicPath = `/partidas/${r.entityId}`;
+          adminPath = `/admin/partidas/${r.entityId}`;
+          if (!r.entityLabel) entityLabel = `Partida #${r.entityId}`;
+        }
+        return {
+          id: r.id,
+          entityType: r.entityType,
+          entityId: r.entityId,
+          entityLabel,
+          publicPath,
+          adminPath,
+          authorName: r.authorName,
+          body: r.body,
+          createdAt:
+            r.createdAt instanceof Date
+              ? r.createdAt.toISOString()
+              : String(r.createdAt),
+        };
+      }),
+      total,
+      limit,
+      offset,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.delete("/admin/comments/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id) || id < 1) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+    const deleted = await db
+      .delete(commentsTable)
+      .where(eq(commentsTable.id, id))
+      .returning({ id: commentsTable.id });
+    if (deleted.length === 0) {
+      return res.status(404).json({ error: "Comentário não encontrado" });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
   }
 });
 

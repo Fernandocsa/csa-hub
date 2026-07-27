@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 import { StarRating } from "@/components/StarRating";
 import { EntityBadges } from "@/components/EntityBadges";
+import { EntityComments } from "@/components/EntityComments";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -108,6 +109,8 @@ export default function ManagerDetail() {
           </div>
         </div>
       )}
+
+      <EntityComments entityType="manager" entityId={manager.id} />
     </div>
   );
 }

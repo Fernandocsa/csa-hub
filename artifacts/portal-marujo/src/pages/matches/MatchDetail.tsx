@@ -11,6 +11,7 @@ import { ResultBadge } from "@/components/ui/result-badge";
 import { ChevronLeft } from "lucide-react";
 import { sortLineupByPosition } from "@/lib/position-groups";
 import { StarRating } from "@/components/StarRating";
+import { EntityComments } from "@/components/EntityComments";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 
 function fmtDate(d: string) {
@@ -283,6 +284,11 @@ export default function MatchDetail() {
     (s) => s.side === "csa",
   );
   const hasLineup = csaLineups.length > 0;
+  const hasAnySheet =
+    csaLineups.length > 0 ||
+    goals.length > 0 ||
+    cards.length > 0 ||
+    substitutions.length > 0;
   const scorersText = Array.isArray(match.scorers) ? match.scorers : [];
 
   const isHome = match.homeAway === "home";
@@ -387,6 +393,16 @@ export default function MatchDetail() {
 
       <StarRating entityType="match" entityId={match.id} />
 
+      {/* Empty sheet: explain why escalação / eventos estão ausentes */}
+      {!hasAnySheet && (
+        <div
+          role="status"
+          className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-950"
+        >
+          Ainda não temos a ficha completa desse jogo.
+        </div>
+      )}
+
       {/* Legacy scorers text — only if present */}
       {scorersText.length > 0 && (
         <div>
@@ -429,6 +445,8 @@ export default function MatchDetail() {
 
       {/* Treinador when there is no lineup section */}
       {!hasLineup && trainerBlock}
+
+      <EntityComments entityType="match" entityId={match.id} />
     </div>
   );
 }

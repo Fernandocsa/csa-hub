@@ -6,3 +6,4 @@ export * from "./seasons";
 export * from "./next_match";
 export * from "./ratings";
 export * from "./entity_badges";
+export * from "./comments";

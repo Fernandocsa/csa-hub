@@ -7,6 +7,7 @@ import { ChevronLeft } from "lucide-react";
 import { VerificationCard } from "@/components/VerificationCard";
 import { PlayerMatchRows } from "@/components/PlayerMatchRows";
 import { StarRating } from "@/components/StarRating";
+import { EntityComments } from "@/components/EntityComments";
 import { EntityBadges } from "@/components/EntityBadges";
 import type { ReactNode } from "react";
 
@@ -348,6 +349,8 @@ export default function PlayerDetail() {
           </Table>
         </div>
       </div>
+
+      <EntityComments entityType="player" entityId={player.id} />
     </div>
   );
 }
