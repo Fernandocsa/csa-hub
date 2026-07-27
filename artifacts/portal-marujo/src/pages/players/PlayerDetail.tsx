@@ -8,6 +8,7 @@ import { VerificationCard } from "@/components/VerificationCard";
 import { PlayerMatchRows } from "@/components/PlayerMatchRows";
 import { StarRating } from "@/components/StarRating";
 import { EntityComments } from "@/components/EntityComments";
+import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { EntityBadges } from "@/components/EntityBadges";
 import type { ReactNode } from "react";
 
@@ -351,6 +352,7 @@ export default function PlayerDetail() {
       </div>
 
       <EntityComments entityType="player" entityId={player.id} />
+      <EntitySuggestionForm entityType="player" entityId={player.id} />
     </div>
   );
 }

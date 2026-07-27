@@ -12,6 +12,7 @@ import { ChevronLeft } from "lucide-react";
 import { sortLineupByPosition } from "@/lib/position-groups";
 import { StarRating } from "@/components/StarRating";
 import { EntityComments } from "@/components/EntityComments";
+import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 
 function fmtDate(d: string) {
@@ -447,6 +448,7 @@ export default function MatchDetail() {
       {!hasLineup && trainerBlock}
 
       <EntityComments entityType="match" entityId={match.id} />
+      <EntitySuggestionForm entityType="match" entityId={match.id} />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { ChevronLeft } from "lucide-react";
 import { StarRating } from "@/components/StarRating";
 import { EntityBadges } from "@/components/EntityBadges";
 import { EntityComments } from "@/components/EntityComments";
+import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -111,6 +112,7 @@ export default function ManagerDetail() {
       )}
 
       <EntityComments entityType="manager" entityId={manager.id} />
+      <EntitySuggestionForm entityType="manager" entityId={manager.id} />
     </div>
   );
 }

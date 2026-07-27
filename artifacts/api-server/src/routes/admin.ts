@@ -13,6 +13,7 @@ import {
   entityBadgesTable,
   seasonsTable,
   commentsTable,
+  suggestionsTable,
 } from "@workspace/db";
 import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet } from "../lib/match-sheet";
@@ -2975,6 +2976,179 @@ router.delete("/admin/comments/:id", requireAdmin, async (req, res) => {
       .returning({ id: commentsTable.id });
     if (deleted.length === 0) {
       return res.status(404).json({ error: "Comentário não encontrado" });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+// ── Suggestions review ────────────────────────────────────────────────────────
+
+router.get("/admin/suggestions", requireAdmin, async (req, res) => {
+  try {
+    const limitRaw = parseInt(String(req.query.limit ?? 50), 10);
+    const offsetRaw = parseInt(String(req.query.offset ?? 0), 10);
+    const limit = Number.isFinite(limitRaw)
+      ? Math.min(Math.max(limitRaw, 1), 100)
+      : 50;
+    const offset = Number.isFinite(offsetRaw) && offsetRaw >= 0 ? offsetRaw : 0;
+    const statusFilter =
+      typeof req.query.status === "string" &&
+      (req.query.status === "new" || req.query.status === "reviewed")
+        ? req.query.status
+        : null;
+
+    const totalR = statusFilter
+      ? await pgPool.query(
+          `SELECT count(*)::int AS total FROM suggestions WHERE status = $1`,
+          [statusFilter],
+        )
+      : await pgPool.query(`SELECT count(*)::int AS total FROM suggestions`);
+    const total = totalR.rows[0]?.total ?? 0;
+
+    const params: unknown[] = [];
+    let where = "";
+    if (statusFilter) {
+      params.push(statusFilter);
+      where = `WHERE s.status = $${params.length}`;
+    }
+    params.push(limit);
+    const limitIdx = params.length;
+    params.push(offset);
+    const offsetIdx = params.length;
+
+    const { rows } = await pgPool.query(
+      `SELECT
+         s.id,
+         s.entity_type AS "entityType",
+         s.entity_id AS "entityId",
+         s.author_name AS "authorName",
+         s.message,
+         s.contact,
+         s.status,
+         s.created_at AS "createdAt",
+         CASE
+           WHEN s.entity_type = 'player' THEN p.name
+           WHEN s.entity_type = 'manager' THEN m.name
+           WHEN s.entity_type = 'match' THEN
+             COALESCE(to_char(mt.match_date::timestamp, 'YYYY-MM-DD'), '?') ||
+             CASE WHEN o.name IS NOT NULL THEN ' vs ' || o.name ELSE '' END
+           ELSE NULL
+         END AS "entityLabel"
+       FROM suggestions s
+       LEFT JOIN players p
+         ON s.entity_type = 'player' AND s.entity_id = p.id
+       LEFT JOIN managers m
+         ON s.entity_type = 'manager' AND s.entity_id = m.id
+       LEFT JOIN matches mt
+         ON s.entity_type = 'match' AND s.entity_id = mt.id
+       LEFT JOIN opponents o
+         ON mt.opponent_id = o.id
+       ${where}
+       ORDER BY s.created_at DESC, s.id DESC
+       LIMIT $${limitIdx} OFFSET $${offsetIdx}`,
+      params,
+    );
+
+    res.json({
+      data: rows.map(
+        (r: {
+          id: number;
+          entityType: string;
+          entityId: number;
+          authorName: string;
+          message: string;
+          contact: string | null;
+          status: string;
+          createdAt: Date | string;
+          entityLabel: string | null;
+        }) => {
+          let publicPath = "/";
+          let adminPath = "/admin";
+          let entityLabel = r.entityLabel ?? `#${r.entityId}`;
+          if (r.entityType === "player") {
+            publicPath = `/jogadores/${r.entityId}`;
+            adminPath = `/admin/jogadores/${r.entityId}`;
+            if (!r.entityLabel) entityLabel = `Jogador #${r.entityId}`;
+          } else if (r.entityType === "manager") {
+            publicPath = `/tecnicos/${r.entityId}`;
+            adminPath = `/admin/tecnicos/${r.entityId}`;
+            if (!r.entityLabel) entityLabel = `Técnico #${r.entityId}`;
+          } else if (r.entityType === "match") {
+            publicPath = `/partidas/${r.entityId}`;
+            adminPath = `/admin/partidas/${r.entityId}`;
+            if (!r.entityLabel) entityLabel = `Partida #${r.entityId}`;
+          }
+          return {
+            id: r.id,
+            entityType: r.entityType,
+            entityId: r.entityId,
+            entityLabel,
+            publicPath,
+            adminPath,
+            authorName: r.authorName,
+            message: r.message,
+            contact: r.contact,
+            status: r.status,
+            createdAt:
+              r.createdAt instanceof Date
+                ? r.createdAt.toISOString()
+                : String(r.createdAt),
+          };
+        },
+      ),
+      total,
+      limit,
+      offset,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.patch("/admin/suggestions/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id) || id < 1) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+    const status = (req.body as { status?: unknown })?.status;
+    if (status !== "new" && status !== "reviewed") {
+      return res.status(400).json({ error: "status deve ser new ou reviewed" });
+    }
+    const updated = await db
+      .update(suggestionsTable)
+      .set({ status })
+      .where(eq(suggestionsTable.id, id))
+      .returning({
+        id: suggestionsTable.id,
+        status: suggestionsTable.status,
+      });
+    if (updated.length === 0) {
+      return res.status(404).json({ error: "Sugestão não encontrada" });
+    }
+    res.json(updated[0]);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.delete("/admin/suggestions/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id) || id < 1) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+    const deleted = await db
+      .delete(suggestionsTable)
+      .where(eq(suggestionsTable.id, id))
+      .returning({ id: suggestionsTable.id });
+    if (deleted.length === 0) {
+      return res.status(404).json({ error: "Sugestão não encontrada" });
     }
     res.json({ ok: true });
   } catch (err) {
