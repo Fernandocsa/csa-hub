@@ -1,6 +1,7 @@
 import { pgTable, text, serial, integer, date, boolean, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
+import { refereesTable } from "./referees";
 
 export const stadiumsTable = pgTable("stadiums", {
   id: serial("id").primaryKey(),
@@ -63,6 +64,7 @@ export const matchesTable = pgTable("matches", {
   competitionId: integer("competition_id").notNull().references(() => competitionsTable.id),
   stadiumId: integer("stadium_id").references(() => stadiumsTable.id),
   managerId: integer("manager_id").references(() => managersTable.id),
+  refereeId: integer("referee_id").references(() => refereesTable.id),
   attendance: integer("attendance"),
   attendancePaid: integer("attendance_paid"),
   grossRevenue: integer("gross_revenue"), // in BRL (reais), for modern matches
