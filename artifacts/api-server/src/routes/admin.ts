@@ -9,6 +9,7 @@ import {
   stadiumsTable,
   competitionsTable,
   managersTable,
+  managerSeasonStatsTable,
   nextMatchTable,
   entityBadgesTable,
   seasonsTable,
@@ -34,8 +35,9 @@ import {
 } from "../lib/manual-badge-templates";
 import {
   managerStoredStatsChanged,
-  hasAnyStoredStat,
-  recalculateManagerStoredStats,
+  periodFromSeasons,
+  recalculateManagerSeasonStats,
+  syncManagerCareerFromSeasonRows,
 } from "../lib/manager-stats";
 import countriesList from "../../../portal-marujo/src/lib/countries.json" with { type: "json" };
 
@@ -1689,10 +1691,63 @@ router.delete("/admin/opponents/:id", requireAdmin, async (req, res) => {
 
 // ── Managers ──────────────────────────────────────────────────────────────────
 
+function serializeManagerSeasonStat(row: typeof managerSeasonStatsTable.$inferSelect) {
+  return {
+    id: row.id,
+    managerId: row.managerId,
+    season: row.season,
+    games: row.games,
+    wins: row.wins,
+    draws: row.draws,
+    losses: row.losses,
+    goalsFor: row.goalsFor,
+    goalsAgainst: row.goalsAgainst,
+    statsSource: row.statsSource,
+    statsRecalculatedAt:
+      row.statsRecalculatedAt instanceof Date
+        ? row.statsRecalculatedAt.toISOString()
+        : row.statsRecalculatedAt,
+  };
+}
+
+function parseNonNegInt(raw: unknown, fallback = 0): number | null {
+  const n =
+    typeof raw === "number" ? raw : raw == null || raw === "" ? fallback : parseInt(String(raw), 10);
+  if (!Number.isInteger(n) || n < 0) return null;
+  return n;
+}
+
+async function seasonsByManagerIds(managerIds: number[]): Promise<Map<number, string[]>> {
+  const map = new Map<number, string[]>();
+  if (managerIds.length === 0) return map;
+  const periodRows = await db
+    .select({
+      managerId: managerSeasonStatsTable.managerId,
+      season: managerSeasonStatsTable.season,
+    })
+    .from(managerSeasonStatsTable)
+    .where(inArray(managerSeasonStatsTable.managerId, managerIds));
+  for (const p of periodRows) {
+    const list = map.get(p.managerId) ?? [];
+    list.push(p.season);
+    map.set(p.managerId, list);
+  }
+  return map;
+}
+
+function withDerivedPeriod<T extends { id: number }>(
+  manager: T,
+  seasons: string[],
+): T & { startYear: number | null; endYear: number | null } {
+  const period = periodFromSeasons(seasons);
+  return { ...manager, startYear: period.startYear, endYear: period.endYear };
+}
+
 router.get("/admin/managers", requireAdmin, async (req, res) => {
   try {
     const rows = await db.select().from(managersTable).orderBy(asc(managersTable.name));
-    res.json(rows);
+    const seasonsMap = await seasonsByManagerIds(rows.map((r) => r.id));
+    res.json(rows.map((r) => withDerivedPeriod(r, seasonsMap.get(r.id) ?? [])));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -1705,7 +1760,8 @@ router.get("/admin/managers/:id", requireAdmin, async (req, res) => {
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
     const [manager] = await db.select().from(managersTable).where(eq(managersTable.id, id));
     if (!manager) return res.status(404).json({ error: "Técnico não encontrado" });
-    res.json(manager);
+    const seasonsMap = await seasonsByManagerIds([id]);
+    res.json(withDerivedPeriod(manager, seasonsMap.get(id) ?? []));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -1715,29 +1771,36 @@ router.get("/admin/managers/:id", requireAdmin, async (req, res) => {
 router.post("/admin/managers", requireAdmin, async (req, res) => {
   try {
     const body = req.body as {
-      name: string; nationality?: string;
-      startYear?: number; endYear?: number; seasons?: string;
-      storedGames?: number; storedWins?: number; storedDraws?: number;
-      storedLosses?: number; storedGoalsFor?: number; storedGoalsAgainst?: number;
+      name: string;
+      fullName?: string | null;
+      nationality?: string | null;
+      birthDate?: string | null;
+      birthCity?: string | null;
+      birthState?: string | null;
+      birthCountry?: string | null;
+      isDeceased?: boolean;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
-    const statsManual = hasAnyStoredStat(body);
-    const [manager] = await db.insert(managersTable).values({
-      name: body.name.trim(),
-      nationality: body.nationality ?? "Brasileiro",
-      startYear: body.startYear ?? null,
-      endYear: body.endYear ?? null,
-      seasons: body.seasons ?? null,
-      storedGames: body.storedGames ?? null,
-      storedWins: body.storedWins ?? null,
-      storedDraws: body.storedDraws ?? null,
-      storedLosses: body.storedLosses ?? null,
-      storedGoalsFor: body.storedGoalsFor ?? null,
-      storedGoalsAgainst: body.storedGoalsAgainst ?? null,
-      statsSource: statsManual ? "manual" : null,
-      statsRecalculatedAt: null,
-    }).returning();
-    res.status(201).json(manager);
+    const birthDate = body.birthDate?.trim() || null;
+    if (birthDate && !/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) {
+      return res.status(400).json({ error: "birthDate inválida (YYYY-MM-DD)" });
+    }
+    const [manager] = await db
+      .insert(managersTable)
+      .values({
+        name: body.name.trim(),
+        fullName: body.fullName?.trim() || null,
+        nationality: body.nationality?.trim() || "Brasileiro",
+        birthDate,
+        birthCity: body.birthCity?.trim() || null,
+        birthState: body.birthState?.trim() || null,
+        birthCountry: body.birthCountry?.trim() || null,
+        isDeceased: body.isDeceased ?? false,
+        statsSource: null,
+        statsRecalculatedAt: null,
+      })
+      .returning();
+    res.status(201).json(withDerivedPeriod(manager, []));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -1752,27 +1815,283 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
     if (!current) return res.status(404).json({ error: "Técnico não encontrado" });
 
     const body = req.body as {
-      name?: string; nationality?: string;
-      startYear?: number | null; endYear?: number | null; seasons?: string | null;
-      storedGames?: number | null; storedWins?: number | null; storedDraws?: number | null;
-      storedLosses?: number | null; storedGoalsFor?: number | null; storedGoalsAgainst?: number | null;
+      name?: string;
+      fullName?: string | null;
+      nationality?: string | null;
+      birthDate?: string | null;
+      birthCity?: string | null;
+      birthState?: string | null;
+      birthCountry?: string | null;
+      isDeceased?: boolean;
+      // career totals: prefer season-stats endpoints; still accepted for rare overrides
+      storedGames?: number | null;
+      storedWins?: number | null;
+      storedDraws?: number | null;
+      storedLosses?: number | null;
+      storedGoalsFor?: number | null;
+      storedGoalsAgainst?: number | null;
     };
+
+    if (body.birthDate !== undefined && body.birthDate != null && body.birthDate !== "") {
+      const bd = String(body.birthDate).trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(bd)) {
+        return res.status(400).json({ error: "birthDate inválida (YYYY-MM-DD)" });
+      }
+    }
+
     const statsChanged = managerStoredStatsChanged(current, body);
-    const [updated] = await db.update(managersTable).set({
-      ...(body.name !== undefined && { name: body.name.trim() }),
-      ...(body.nationality !== undefined && { nationality: body.nationality }),
-      ...(body.startYear !== undefined && { startYear: body.startYear }),
-      ...(body.endYear !== undefined && { endYear: body.endYear }),
-      ...(body.seasons !== undefined && { seasons: body.seasons }),
-      ...(body.storedGames !== undefined && { storedGames: body.storedGames }),
-      ...(body.storedWins !== undefined && { storedWins: body.storedWins }),
-      ...(body.storedDraws !== undefined && { storedDraws: body.storedDraws }),
-      ...(body.storedLosses !== undefined && { storedLosses: body.storedLosses }),
-      ...(body.storedGoalsFor !== undefined && { storedGoalsFor: body.storedGoalsFor }),
-      ...(body.storedGoalsAgainst !== undefined && { storedGoalsAgainst: body.storedGoalsAgainst }),
-      ...(statsChanged && { statsSource: "manual" as const }),
-    }).where(eq(managersTable.id, id)).returning();
+    const [updated] = await db
+      .update(managersTable)
+      .set({
+        ...(body.name !== undefined && { name: body.name.trim() }),
+        ...(body.fullName !== undefined && { fullName: body.fullName?.trim() || null }),
+        ...(body.nationality !== undefined && {
+          nationality: body.nationality?.trim() || null,
+        }),
+        ...(body.birthDate !== undefined && {
+          birthDate: body.birthDate?.trim() || null,
+        }),
+        ...(body.birthCity !== undefined && {
+          birthCity: body.birthCity?.trim() || null,
+        }),
+        ...(body.birthState !== undefined && {
+          birthState: body.birthState?.trim() || null,
+        }),
+        ...(body.birthCountry !== undefined && {
+          birthCountry: body.birthCountry?.trim() || null,
+        }),
+        ...(body.isDeceased !== undefined && { isDeceased: !!body.isDeceased }),
+        ...(body.storedGames !== undefined && { storedGames: body.storedGames }),
+        ...(body.storedWins !== undefined && { storedWins: body.storedWins }),
+        ...(body.storedDraws !== undefined && { storedDraws: body.storedDraws }),
+        ...(body.storedLosses !== undefined && { storedLosses: body.storedLosses }),
+        ...(body.storedGoalsFor !== undefined && { storedGoalsFor: body.storedGoalsFor }),
+        ...(body.storedGoalsAgainst !== undefined && {
+          storedGoalsAgainst: body.storedGoalsAgainst,
+        }),
+        ...(statsChanged && { statsSource: "manual" as const }),
+      })
+      .where(eq(managersTable.id, id))
+      .returning();
+    const seasonsMap = await seasonsByManagerIds([id]);
+    res.json(withDerivedPeriod(updated, seasonsMap.get(id) ?? []));
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.get("/admin/managers/:id/stats", requireAdmin, async (req, res) => {
+  try {
+    const managerId = parseInt(req.params.id, 10);
+    if (isNaN(managerId)) return res.status(400).json({ error: "ID inválido" });
+    const [manager] = await db
+      .select({ id: managersTable.id })
+      .from(managersTable)
+      .where(eq(managersTable.id, managerId));
+    if (!manager) return res.status(404).json({ error: "Técnico não encontrado" });
+
+    const rows = await db
+      .select()
+      .from(managerSeasonStatsTable)
+      .where(eq(managerSeasonStatsTable.managerId, managerId))
+      .orderBy(desc(managerSeasonStatsTable.season));
+    res.json(rows.map(serializeManagerSeasonStat));
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.post("/admin/managers/:id/stats", requireAdmin, async (req, res) => {
+  try {
+    const managerId = parseInt(req.params.id, 10);
+    if (isNaN(managerId)) return res.status(400).json({ error: "ID inválido" });
+    const [manager] = await db
+      .select({ id: managersTable.id })
+      .from(managersTable)
+      .where(eq(managersTable.id, managerId));
+    if (!manager) return res.status(404).json({ error: "Técnico não encontrado" });
+
+    const body = req.body as {
+      season?: unknown;
+      games?: unknown;
+      wins?: unknown;
+      draws?: unknown;
+      losses?: unknown;
+      goalsFor?: unknown;
+      goalsAgainst?: unknown;
+    };
+    const season = typeof body.season === "string" ? body.season.trim() : "";
+    if (!season) return res.status(400).json({ error: "season obrigatória" });
+
+    const games = parseNonNegInt(body.games, 0);
+    const wins = parseNonNegInt(body.wins, 0);
+    const draws = parseNonNegInt(body.draws, 0);
+    const losses = parseNonNegInt(body.losses, 0);
+    const goalsFor = parseNonNegInt(body.goalsFor, 0);
+    const goalsAgainst = parseNonNegInt(body.goalsAgainst, 0);
+    if (
+      games == null ||
+      wins == null ||
+      draws == null ||
+      losses == null ||
+      goalsFor == null ||
+      goalsAgainst == null
+    ) {
+      return res.status(400).json({ error: "valores numéricos inválidos" });
+    }
+
+    try {
+      const [inserted] = await db
+        .insert(managerSeasonStatsTable)
+        .values({
+          managerId,
+          season,
+          games,
+          wins,
+          draws,
+          losses,
+          goalsFor,
+          goalsAgainst,
+          statsSource: "manual",
+          statsRecalculatedAt: null,
+        })
+        .returning();
+      await syncManagerCareerFromSeasonRows(managerId);
+      res.status(201).json(serializeManagerSeasonStat(inserted));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (/unique|duplicate/i.test(msg)) {
+        return res.status(409).json({ error: "Já existe temporada para este técnico" });
+      }
+      throw err;
+    }
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put("/admin/managers/:id/stats/bulk", requireAdmin, async (req, res) => {
+  const client = await pgPool.connect();
+  try {
+    const managerId = parseInt(req.params.id, 10);
+    if (isNaN(managerId)) return res.status(400).json({ error: "ID inválido" });
+
+    const raw = (req.body as { stats?: unknown })?.stats;
+    if (!Array.isArray(raw)) {
+      return res.status(400).json({ error: "stats deve ser um array" });
+    }
+    if (raw.length === 0) {
+      return res.json([]);
+    }
+
+    const updates: {
+      id: number;
+      games: number;
+      wins: number;
+      draws: number;
+      losses: number;
+      goalsFor: number;
+      goalsAgainst: number;
+    }[] = [];
+
+    for (const row of raw) {
+      const item = row as Record<string, unknown>;
+      const id = typeof item.id === "number" ? item.id : parseInt(String(item.id), 10);
+      const games = parseNonNegInt(item.games, 0);
+      const wins = parseNonNegInt(item.wins, 0);
+      const draws = parseNonNegInt(item.draws, 0);
+      const losses = parseNonNegInt(item.losses, 0);
+      const goalsFor = parseNonNegInt(item.goalsFor, 0);
+      const goalsAgainst = parseNonNegInt(item.goalsAgainst, 0);
+      if (!Number.isInteger(id) || id < 1) {
+        return res.status(400).json({ error: "id de stat inválido" });
+      }
+      if (
+        games == null ||
+        wins == null ||
+        draws == null ||
+        losses == null ||
+        goalsFor == null ||
+        goalsAgainst == null
+      ) {
+        return res.status(400).json({ error: "valores numéricos inválidos" });
+      }
+      updates.push({ id, games, wins, draws, losses, goalsFor, goalsAgainst });
+    }
+
+    await client.query("BEGIN");
+    const updated = [];
+    for (const u of updates) {
+      const r = await client.query(
+        `UPDATE manager_season_stats
+         SET games = $1, wins = $2, draws = $3, losses = $4,
+             goals_for = $5, goals_against = $6,
+             stats_source = 'manual', stats_recalculated_at = NULL
+         WHERE id = $7 AND manager_id = $8
+         RETURNING id, manager_id, season, games, wins, draws, losses,
+                   goals_for, goals_against, stats_source, stats_recalculated_at`,
+        [
+          u.games,
+          u.wins,
+          u.draws,
+          u.losses,
+          u.goalsFor,
+          u.goalsAgainst,
+          u.id,
+          managerId,
+        ],
+      );
+      if (r.rowCount !== 1) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({
+          error: `Stat ${u.id} não encontrada para este técnico`,
+        });
+      }
+      const row = r.rows[0];
+      updated.push({
+        id: row.id,
+        managerId: row.manager_id,
+        season: row.season,
+        games: row.games,
+        wins: row.wins,
+        draws: row.draws,
+        losses: row.losses,
+        goalsFor: row.goals_for,
+        goalsAgainst: row.goals_against,
+        statsSource: row.stats_source,
+        statsRecalculatedAt: row.stats_recalculated_at,
+      });
+    }
+    await client.query("COMMIT");
+    await syncManagerCareerFromSeasonRows(managerId);
     res.json(updated);
+  } catch (err) {
+    try {
+      await client.query("ROLLBACK");
+    } catch {
+      /* ignore */
+    }
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  } finally {
+    client.release();
+  }
+});
+
+router.delete("/admin/manager-stats/:statId", requireAdmin, async (req, res) => {
+  try {
+    const statId = parseInt(req.params.statId, 10);
+    if (isNaN(statId)) return res.status(400).json({ error: "ID inválido" });
+    const [row] = await db
+      .delete(managerSeasonStatsTable)
+      .where(eq(managerSeasonStatsTable.id, statId))
+      .returning();
+    if (!row) return res.status(404).json({ error: "Stat não encontrada" });
+    await syncManagerCareerFromSeasonRows(row.managerId);
+    res.json({ ok: true });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -1783,11 +2102,16 @@ router.post("/admin/managers/:id/recalculate-stats", requireAdmin, async (req, r
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
-    const result = await recalculateManagerStoredStats(id);
+    const result = await recalculateManagerSeasonStats(id);
     if (!result) return res.status(404).json({ error: "Técnico não encontrado" });
     res.json({
       manager: result.manager,
       matchCount: result.matchCount,
+      seasonsFromMatches: result.seasonsFromMatches,
+      upserted: result.upserted,
+      preservedManual: result.preservedManual,
+      removedCalculated: result.removedCalculated,
+      seasonStats: result.seasonRows.map(serializeManagerSeasonStat),
     });
   } catch (err) {
     req.log.error(err);
@@ -2574,22 +2898,19 @@ router.post("/admin/sync/apply", requireAdmin, async (req, res) => {
     let mgrUpserted = 0;
     for (const m of managers_upsert as any[]) {
       await client.query(
-        `INSERT INTO managers (id, name, nationality, start_year, end_year, seasons,
+        `INSERT INTO managers (id, name, nationality,
            stored_games, stored_wins, stored_draws, stored_losses, stored_goals_for, stored_goals_against)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
          ON CONFLICT (id) DO UPDATE SET
            name = EXCLUDED.name,
            nationality = EXCLUDED.nationality,
-           start_year = EXCLUDED.start_year,
-           end_year = EXCLUDED.end_year,
-           seasons = EXCLUDED.seasons,
            stored_games = COALESCE(EXCLUDED.stored_games, managers.stored_games),
            stored_wins = COALESCE(EXCLUDED.stored_wins, managers.stored_wins),
            stored_draws = COALESCE(EXCLUDED.stored_draws, managers.stored_draws),
            stored_losses = COALESCE(EXCLUDED.stored_losses, managers.stored_losses),
            stored_goals_for = COALESCE(EXCLUDED.stored_goals_for, managers.stored_goals_for),
            stored_goals_against = COALESCE(EXCLUDED.stored_goals_against, managers.stored_goals_against)`,
-        [m.id, m.name, m.nationality, m.start_year, m.end_year, m.seasons,
+        [m.id, m.name, m.nationality,
          m.stored_games, m.stored_wins, m.stored_draws, m.stored_losses,
          m.stored_goals_for, m.stored_goals_against]
       );

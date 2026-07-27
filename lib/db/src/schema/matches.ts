@@ -29,17 +29,19 @@ export const competitionsTable = pgTable("competitions", {
 export const managersTable = pgTable("managers", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  fullName: text("full_name"),
   nationality: text("nationality"),
-  startYear: integer("start_year"),
-  endYear: integer("end_year"),
-  // Comma-separated season years, e.g. "2018,2019,2024"
-  seasons: text("seasons"),
-  // Stored aggregate stats — used as fallback when match data is incomplete
-  storedGames:      integer("stored_games"),
-  storedWins:       integer("stored_wins"),
-  storedDraws:      integer("stored_draws"),
-  storedLosses:     integer("stored_losses"),
-  storedGoalsFor:   integer("stored_goals_for"),
+  birthDate: date("birth_date", { mode: "string" }),
+  birthCity: text("birth_city"),
+  birthState: text("birth_state"),
+  birthCountry: text("birth_country"),
+  isDeceased: boolean("is_deceased").notNull().default(false),
+  // Stored aggregate stats — synced from season rows / matches
+  storedGames: integer("stored_games"),
+  storedWins: integer("stored_wins"),
+  storedDraws: integer("stored_draws"),
+  storedLosses: integer("stored_losses"),
+  storedGoalsFor: integer("stored_goals_for"),
   storedGoalsAgainst: integer("stored_goals_against"),
   /** 'manual' | 'calculated' — origin of stored_* aggregate stats */
   statsSource: text("stats_source"),
