@@ -1,5 +1,6 @@
 export * from "./players";
 export * from "./matches";
+export * from "./match_sheet";
 export * from "./league_positions";
 export * from "./seasons";
 export * from "./next_match";

@@ -12,6 +12,7 @@ import {
   nextMatchTable,
 } from "@workspace/db";
 import { eq, asc, desc, sql } from "drizzle-orm";
+import { loadMatchSheet, replaceCsaMatchSheet } from "../lib/match-sheet";
 
 const NEXT_MATCH_ID = 1;
 
@@ -622,6 +623,53 @@ router.delete("/admin/matches/:id", requireAdmin, async (req, res) => {
     await db.delete(matchesTable).where(eq(matchesTable.id, id));
     res.json({ ok: true });
   } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+// ── Match sheet (lineups / goals / cards — CSA Phase 1) ───────────────────────
+
+router.get("/admin/matches/:id/sheet", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [match] = await db
+      .select({ id: matchesTable.id })
+      .from(matchesTable)
+      .where(eq(matchesTable.id, id))
+      .limit(1);
+    if (!match) return res.status(404).json({ error: "Partida não encontrada" });
+    res.json(await loadMatchSheet(id));
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put("/admin/matches/:id/sheet", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [match] = await db
+      .select({ id: matchesTable.id })
+      .from(matchesTable)
+      .where(eq(matchesTable.id, id))
+      .limit(1);
+    if (!match) return res.status(404).json({ error: "Partida não encontrada" });
+
+    const body = req.body as {
+      lineups?: Parameters<typeof replaceCsaMatchSheet>[1]["lineups"];
+      goals?: Parameters<typeof replaceCsaMatchSheet>[1]["goals"];
+      cards?: Parameters<typeof replaceCsaMatchSheet>[1]["cards"];
+    };
+
+    const sheet = await replaceCsaMatchSheet(id, body);
+    res.json(sheet);
+  } catch (err: any) {
+    if (err?.status === 400) {
+      return res.status(400).json({ error: err.message });
+    }
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
   }
