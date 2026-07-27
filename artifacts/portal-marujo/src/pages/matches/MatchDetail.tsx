@@ -297,7 +297,6 @@ export default function MatchDetail() {
             : match.homeAway === "away"
               ? " · Fora"
               : " · Neutro"}
-          {match.manager ? ` · ${match.manager}` : ""}
         </p>
       </div>
 
@@ -339,6 +338,14 @@ export default function MatchDetail() {
           </p>
         </section>
       )}
+
+      {/* Treinador — only if present */}
+      {match.manager ? (
+        <p className="text-sm">
+          <span className="text-muted-foreground">Treinador:</span>{" "}
+          <span className="font-medium">{match.manager}</span>
+        </p>
+      ) : null}
     </div>
   );
 }
