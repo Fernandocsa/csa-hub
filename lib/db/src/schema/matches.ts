@@ -7,6 +7,7 @@ export const stadiumsTable = pgTable("stadiums", {
   name: text("name").notNull(),
   city: text("city"),
   state: text("state"),
+  country: text("country"),
   capacity: integer("capacity"),
 });
 

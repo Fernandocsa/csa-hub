@@ -11,6 +11,8 @@ import AdminSeasons from "./AdminSeasons";
 import AdminMatches from "./AdminMatches";
 import AdminOpponents from "./AdminOpponents";
 import AdminOpponentDetail from "./AdminOpponentDetail";
+import AdminStadiums from "./AdminStadiums";
+import AdminStadiumDetail from "./AdminStadiumDetail";
 import AdminImportExport from "./AdminImportExport";
 import AdminNextMatch from "./AdminNextMatch";
 import AdminMatchSheet from "./AdminMatchSheet";
@@ -46,6 +48,9 @@ export default function AdminRoot() {
         <Route path="/admin/adversarios/novo" component={AdminOpponentDetail} />
         <Route path="/admin/adversarios/:id" component={AdminOpponentDetail} />
         <Route path="/admin/adversarios" component={AdminOpponents} />
+        <Route path="/admin/estadios/novo" component={AdminStadiumDetail} />
+        <Route path="/admin/estadios/:id" component={AdminStadiumDetail} />
+        <Route path="/admin/estadios" component={AdminStadiums} />
         <Route path="/admin/proximo-jogo" component={AdminNextMatch} />
         <Route path="/admin/importar-exportar" component={AdminImportExport} />
       </Switch>

@@ -58,6 +58,7 @@ router.get("/stadiums", async (req, res) => {
         name: stadiumsTable.name,
         city: stadiumsTable.city,
         state: stadiumsTable.state,
+        country: stadiumsTable.country,
         capacity: stadiumsTable.capacity,
         matches: sql<number>`cast(count(${matchesTable.id}) as int)`,
         wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
@@ -75,6 +76,7 @@ router.get("/stadiums", async (req, res) => {
         stadiumsTable.name,
         stadiumsTable.city,
         stadiumsTable.state,
+        stadiumsTable.country,
         stadiumsTable.capacity,
       )
       .orderBy(sql`count(${matchesTable.id}) desc`);
@@ -97,6 +99,7 @@ router.get("/stadiums/:id", async (req, res) => {
         name: stadiumsTable.name,
         city: stadiumsTable.city,
         state: stadiumsTable.state,
+        country: stadiumsTable.country,
         capacity: stadiumsTable.capacity,
       })
       .from(stadiumsTable)
@@ -138,6 +141,7 @@ router.get("/stadiums/:id", async (req, res) => {
       name: stadium.name,
       city: stadium.city ?? null,
       state: stadium.state ?? null,
+      country: stadium.country ?? null,
       capacity: stadium.capacity ?? null,
       homeClubs,
       matches,

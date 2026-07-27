@@ -13,7 +13,7 @@ import {
   entityBadgesTable,
   seasonsTable,
 } from "@workspace/db";
-import { eq, asc, desc, sql, ilike, and, or } from "drizzle-orm";
+import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet } from "../lib/match-sheet";
 import {
   recalculateSeasonAutoBadges,
@@ -941,21 +941,13 @@ const BRAZIL_UFS = new Set([
   "RS", "RO", "RR", "SC", "SP", "SE", "TO",
 ]);
 
-function parseStadiumBody(body: {
-  name?: string;
+function parseLocationProfile(body: {
   city?: string | null;
   state?: string | null;
-  capacity?: number | string | null;
+  country?: string | null;
 }):
-  | {
-      ok: true;
-      name: string;
-      city: string | null;
-      state: string | null;
-      capacity: number | null;
-    }
+  | { ok: true; city: string | null; state: string | null; country: string | null }
   | { ok: false; error: string } {
-  if (!body.name?.trim()) return { ok: false, error: "Nome obrigatório" };
   const city =
     body.city == null || String(body.city).trim() === ""
       ? null
@@ -964,9 +956,47 @@ function parseStadiumBody(body: {
     body.state == null || String(body.state).trim() === ""
       ? null
       : String(body.state).trim().toUpperCase();
+  let country =
+    body.country == null || String(body.country).trim() === ""
+      ? null
+      : String(body.country).trim().toUpperCase();
+
+  if (country === "BRA") country = null;
+
+  if (country != null && !VALID_COUNTRY_CODES.has(country)) {
+    return { ok: false, error: "País inválido" };
+  }
+  if (country != null && state != null) {
+    return { ok: false, error: "País e UF não podem ser preenchidos ao mesmo tempo" };
+  }
+  if (country != null) {
+    state = null;
+  }
   if (state != null && !BRAZIL_UFS.has(state)) {
     return { ok: false, error: "UF inválida" };
   }
+  return { ok: true, city, state, country };
+}
+
+function parseStadiumBody(body: {
+  name?: string;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  capacity?: number | string | null;
+}):
+  | {
+      ok: true;
+      name: string;
+      city: string | null;
+      state: string | null;
+      country: string | null;
+      capacity: number | null;
+    }
+  | { ok: false; error: string } {
+  if (!body.name?.trim()) return { ok: false, error: "Nome obrigatório" };
+  const location = parseLocationProfile(body);
+  if (!location.ok) return location;
   let capacity: number | null = null;
   if (body.capacity != null && String(body.capacity).trim() !== "") {
     const n =
@@ -978,8 +1008,25 @@ function parseStadiumBody(body: {
     }
     capacity = n;
   }
-  return { ok: true, name: body.name.trim(), city, state, capacity };
+  return {
+    ok: true,
+    name: body.name.trim(),
+    city: location.city,
+    state: location.state,
+    country: location.country,
+    capacity,
+  };
 }
+
+router.get("/admin/stadiums", requireAdmin, async (req, res) => {
+  try {
+    const rows = await db.select().from(stadiumsTable).orderBy(asc(stadiumsTable.name));
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
 
 router.get("/admin/stadiums/search", requireAdmin, async (req, res) => {
   try {
@@ -999,6 +1046,7 @@ router.get("/admin/stadiums/search", requireAdmin, async (req, res) => {
         name: stadiumsTable.name,
         city: stadiumsTable.city,
         state: stadiumsTable.state,
+        country: stadiumsTable.country,
         capacity: stadiumsTable.capacity,
       })
       .from(stadiumsTable)
@@ -1018,6 +1066,7 @@ router.post("/admin/stadiums", requireAdmin, async (req, res) => {
       name?: string;
       city?: string | null;
       state?: string | null;
+      country?: string | null;
       capacity?: number | string | null;
     });
     if (!parsed.ok) return res.status(400).json({ error: parsed.error });
@@ -1027,10 +1076,110 @@ router.post("/admin/stadiums", requireAdmin, async (req, res) => {
         name: parsed.name,
         city: parsed.city,
         state: parsed.state,
+        country: parsed.country,
         capacity: parsed.capacity,
       })
       .returning();
     res.status(201).json(stadium);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.get("/admin/stadiums/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+
+    const [stadium] = await db
+      .select()
+      .from(stadiumsTable)
+      .where(eq(stadiumsTable.id, id))
+      .limit(1);
+    if (!stadium) return res.status(404).json({ error: "Estádio não encontrado" });
+
+    const homeClubs = await db
+      .select({
+        id: opponentsTable.id,
+        name: opponentsTable.name,
+        city: opponentsTable.city,
+        state: opponentsTable.state,
+        country: opponentsTable.country,
+      })
+      .from(opponentsTable)
+      .where(eq(opponentsTable.homeStadiumId, id))
+      .orderBy(asc(opponentsTable.name));
+
+    res.json({ ...stadium, homeClubs });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put("/admin/stadiums/:id/home-clubs", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+
+    const [stadium] = await db
+      .select({ id: stadiumsTable.id })
+      .from(stadiumsTable)
+      .where(eq(stadiumsTable.id, id))
+      .limit(1);
+    if (!stadium) return res.status(404).json({ error: "Estádio não encontrado" });
+
+    const raw = (req.body as { opponentIds?: unknown })?.opponentIds;
+    if (!Array.isArray(raw)) {
+      return res.status(400).json({ error: "opponentIds deve ser um array" });
+    }
+    const opponentIds = [...new Set(
+      raw.map((v) => (typeof v === "number" ? v : parseInt(String(v), 10))),
+    )].filter((n) => Number.isInteger(n) && n > 0);
+
+    if (opponentIds.length > 0) {
+      const found = await db
+        .select({ id: opponentsTable.id })
+        .from(opponentsTable)
+        .where(inArray(opponentsTable.id, opponentIds));
+      if (found.length !== opponentIds.length) {
+        return res.status(400).json({ error: "Um ou mais adversários não encontrados" });
+      }
+    }
+
+    await db
+      .update(opponentsTable)
+      .set({ homeStadiumId: null })
+      .where(
+        and(
+          eq(opponentsTable.homeStadiumId, id),
+          opponentIds.length > 0
+            ? notInArray(opponentsTable.id, opponentIds)
+            : sql`true`,
+        ),
+      );
+
+    if (opponentIds.length > 0) {
+      await db
+        .update(opponentsTable)
+        .set({ homeStadiumId: id })
+        .where(inArray(opponentsTable.id, opponentIds));
+    }
+
+    const homeClubs = await db
+      .select({
+        id: opponentsTable.id,
+        name: opponentsTable.name,
+        city: opponentsTable.city,
+        state: opponentsTable.state,
+        country: opponentsTable.country,
+      })
+      .from(opponentsTable)
+      .where(eq(opponentsTable.homeStadiumId, id))
+      .orderBy(asc(opponentsTable.name));
+
+    res.json({ homeClubs });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -1045,6 +1194,7 @@ router.put("/admin/stadiums/:id", requireAdmin, async (req, res) => {
       name?: string;
       city?: string | null;
       state?: string | null;
+      country?: string | null;
       capacity?: number | string | null;
     });
     if (!parsed.ok) return res.status(400).json({ error: parsed.error });
@@ -1054,12 +1204,45 @@ router.put("/admin/stadiums/:id", requireAdmin, async (req, res) => {
         name: parsed.name,
         city: parsed.city,
         state: parsed.state,
+        country: parsed.country,
         capacity: parsed.capacity,
       })
       .where(eq(stadiumsTable.id, id))
       .returning();
     if (!updated) return res.status(404).json({ error: "Estádio não encontrado" });
     res.json(updated);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.delete("/admin/stadiums/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+
+    const [matchUse] = await db
+      .select({ n: sql<number>`cast(count(*) as int)` })
+      .from(matchesTable)
+      .where(eq(matchesTable.stadiumId, id));
+    if ((matchUse?.n ?? 0) > 0) {
+      return res.status(400).json({
+        error: "Estádio vinculado a partidas — não é possível excluir",
+      });
+    }
+
+    await db
+      .update(opponentsTable)
+      .set({ homeStadiumId: null })
+      .where(eq(opponentsTable.homeStadiumId, id));
+
+    const deleted = await db
+      .delete(stadiumsTable)
+      .where(eq(stadiumsTable.id, id))
+      .returning({ id: stadiumsTable.id });
+    if (!deleted.length) return res.status(404).json({ error: "Estádio não encontrado" });
+    res.json({ ok: true });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -1163,34 +1346,7 @@ function parseOpponentProfile(body: {
 }):
   | { ok: true; city: string | null; state: string | null; country: string | null }
   | { ok: false; error: string } {
-  const city =
-    body.city == null || String(body.city).trim() === ""
-      ? null
-      : String(body.city).trim();
-  let state =
-    body.state == null || String(body.state).trim() === ""
-      ? null
-      : String(body.state).trim().toUpperCase();
-  let country =
-    body.country == null || String(body.country).trim() === ""
-      ? null
-      : String(body.country).trim().toUpperCase();
-
-  if (country === "BRA") country = null;
-
-  if (country != null && !VALID_COUNTRY_CODES.has(country)) {
-    return { ok: false, error: "País inválido" };
-  }
-  if (country != null && state != null) {
-    return { ok: false, error: "País e UF não podem ser preenchidos ao mesmo tempo" };
-  }
-  if (country != null) {
-    state = null;
-  }
-  if (state != null && !BRAZIL_UFS.has(state)) {
-    return { ok: false, error: "UF inválida" };
-  }
-  return { ok: true, city, state, country };
+  return parseLocationProfile(body);
 }
 
 function parseHomeStadiumId(
