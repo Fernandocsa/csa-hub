@@ -3,6 +3,7 @@ import { MainLayout } from "./components/layout/MainLayout";
 import Home from "./pages/Home";
 import PlayersList from "./pages/players/PlayersList";
 import PlayerDetail from "./pages/players/PlayerDetail";
+import PlayerMatches from "./pages/players/PlayerMatches";
 import TopScorers from "./pages/players/TopScorers";
 import TopAppearances from "./pages/players/TopAppearances";
 import TopAssists from "./pages/players/TopAssists";
@@ -47,6 +48,7 @@ export default function AppRouter() {
         <Route path="/jogadores/assistencias" component={TopAssists} />
         <Route path="/jogadores/estrangeiros" component={Estrangeiros} />
         <Route path="/jogadores/estrangeiros/:country" component={NationalityDetail} />
+        <Route path="/jogadores/:id/jogos" component={PlayerMatches} />
         <Route path="/jogadores/:id" component={PlayerDetail} />
         <Route path="/partidas/recordes" component={MatchRecords} />
         <Route path="/partidas/:id" component={MatchDetail} />
