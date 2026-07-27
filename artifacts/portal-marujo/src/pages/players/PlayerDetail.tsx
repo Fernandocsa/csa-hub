@@ -163,8 +163,6 @@ export default function PlayerDetail() {
   if (foot) personalRows.push({ label: "Pé preferencial", value: foot });
   if (heightWeight) personalRows.push({ label: "Altura / Peso", value: heightWeight });
 
-  const latestSeason = player.seasonStats?.[0] ?? null;
-
   const metaParts: ReactNode[] = [];
   if (player.nationality) {
     metaParts.push(
@@ -259,25 +257,6 @@ export default function PlayerDetail() {
           </div>
         ))}
       </div>
-
-      {/* Latest season compact summary */}
-      {latestSeason && (
-        <div data-testid="player-latest-season">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-            Temporada{" "}
-            <Link
-              href={`/temporadas/${latestSeason.season}`}
-              className="hover:text-primary hover:underline normal-case font-semibold tracking-normal"
-            >
-              {latestSeason.season}
-            </Link>
-          </h2>
-          <p className="text-sm">
-            {latestSeason.appearances} Jogos · {latestSeason.goals} Gols ·{" "}
-            {latestSeason.assists ?? 0} Assistências
-          </p>
-        </div>
-      )}
 
       {/* Recent sheet matches — omitted when empty */}
       {(player.recentMatches?.length ?? 0) > 0 && (
