@@ -658,6 +658,8 @@ router.get("/admin/matches", requireAdmin, async (req, res) => {
         managerId: matchesTable.managerId,
         managerName: managersTable.name,
         ownGoalsForCount: matchesTable.ownGoalsForCount,
+        phase: matchesTable.phase,
+        round: matchesTable.round,
       })
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
@@ -736,6 +738,8 @@ router.get("/admin/matches/:id", requireAdmin, async (req, res) => {
         ownGoalsForCount: matchesTable.ownGoalsForCount,
         isWalkover: matchesTable.isWalkover,
         isFriendly: matchesTable.isFriendly,
+        phase: matchesTable.phase,
+        round: matchesTable.round,
       })
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
@@ -768,8 +772,18 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
       attendance?: number | null;
       scorers?: string | null;
       ownGoalsForCount?: number | null;
+      phase?: string | null;
+      round?: string | null;
     };
     const ownGoals = Math.max(0, body.ownGoalsForCount ?? 0);
+    const phase =
+      body.phase == null || String(body.phase).trim() === ""
+        ? null
+        : String(body.phase).trim();
+    const round =
+      body.round == null || String(body.round).trim() === ""
+        ? null
+        : String(body.round).trim();
     const [match] = await db
       .insert(matchesTable)
       .values({
@@ -786,6 +800,8 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
         attendance: body.attendance ?? null,
         scorers: body.scorers ?? null,
         ownGoalsForCount: ownGoals,
+        phase,
+        round,
       })
       .returning();
     res.status(201).json(match);
@@ -817,8 +833,18 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
       grossRevenue?: number | null;
       grossRevenueText?: string | null;
       ownGoalsForCount?: number | null;
+      phase?: string | null;
+      round?: string | null;
     };
     const ownGoals = Math.max(0, body.ownGoalsForCount ?? 0);
+    const phase =
+      body.phase == null || String(body.phase).trim() === ""
+        ? null
+        : String(body.phase).trim();
+    const round =
+      body.round == null || String(body.round).trim() === ""
+        ? null
+        : String(body.round).trim();
     const [updated] = await db
       .update(matchesTable)
       .set({
@@ -839,6 +865,8 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
         grossRevenue: body.grossRevenue ?? null,
         grossRevenueText: body.grossRevenueText ?? null,
         ownGoalsForCount: ownGoals,
+        phase,
+        round,
       })
       .where(eq(matchesTable.id, id))
       .returning();

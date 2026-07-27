@@ -77,6 +77,8 @@ export interface MatchDetailSheet {
   isWalkover: boolean;
   isFriendly?: boolean;
   isUnknownResult: boolean;
+  phase?: string | null;
+  round?: string | null;
   lineups: MatchLineupRow[];
   goals: MatchGoalRow[];
   cards: MatchCardRow[];

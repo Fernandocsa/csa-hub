@@ -67,6 +67,10 @@ export const matchesTable = pgTable("matches", {
   isFriendly: boolean("is_friendly").notNull().default(false),
   /** CSA goals from opponent own-goals (not in match_goals). Used for sheet completeness gate. */
   ownGoalsForCount: integer("own_goals_for_count").notNull().default(0),
+  /** Competition phase label, e.g. "Final", "1º Turno", "Oitavas de Final". */
+  phase: text("phase"),
+  /** Round / leg label, e.g. "15", "15ª rodada", "Ida", "Volta". */
+  round: text("round"),
 });
 
 export const insertOpponentSchema = createInsertSchema(opponentsTable).omit({ id: true });

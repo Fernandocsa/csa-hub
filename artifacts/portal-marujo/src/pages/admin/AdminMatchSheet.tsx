@@ -9,6 +9,7 @@ import MatchGeneralForm, {
   type MatchGeneralFormData,
   type MatchLookupData,
 } from "./MatchGeneralForm";
+import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 
 type RosterPlayer = {
   id: number;
@@ -73,6 +74,8 @@ type MatchMeta = {
   managerId: number | null;
   managerName: string | null;
   ownGoalsForCount?: number | null;
+  phase?: string | null;
+  round?: string | null;
 };
 
 type TabId = "general" | "manager" | "lineup" | "goals" | "cards" | "subs";
@@ -287,6 +290,8 @@ export default function AdminMatchSheet() {
           attendance: match.attendance,
           scorers: match.scorers,
           ownGoalsForCount: match.ownGoalsForCount ?? 0,
+          phase: match.phase ?? null,
+          round: match.round ?? null,
         }),
       });
       if (!r.ok) {
@@ -477,7 +482,11 @@ export default function AdminMatchSheet() {
         </h1>
         {!isNew && match && (
           <p className="text-sm text-gray-500 mt-1">
-            {match.matchDate} · {match.competitionName} · temp. {match.season}
+            {match.matchDate} · {match.competitionName}
+            {matchPhaseRoundLabel(match.phase, match.round)
+              ? ` · ${matchPhaseRoundLabel(match.phase, match.round)}`
+              : ""}
+            {" · "}temp. {match.season}
           </p>
         )}
         <p className="text-xs text-gray-400 mt-1">

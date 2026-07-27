@@ -11,6 +11,7 @@ import { ResultBadge } from "@/components/ui/result-badge";
 import { ChevronLeft } from "lucide-react";
 import { sortLineupByPosition } from "@/lib/position-groups";
 import { StarRating } from "@/components/StarRating";
+import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 
 function fmtDate(d: string) {
   return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
@@ -329,6 +330,9 @@ export default function MatchDetail() {
           >
             {match.competition}
           </Link>
+          {matchPhaseRoundLabel(match.phase, match.round) && (
+            <> · {matchPhaseRoundLabel(match.phase, match.round)}</>
+          )}
           {match.stadium && match.stadiumId != null ? (
             <>
               {" · "}

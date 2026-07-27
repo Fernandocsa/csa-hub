@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
 import { cn } from "@/lib/utils";
+import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 
 function fmtDate(d: string) {
   return new Date(d).toLocaleDateString("pt-BR");
@@ -383,7 +384,20 @@ export default function MatchesList() {
                         </TableCell>
                       )}
 
-                      <TableCell className="py-2 text-muted-foreground text-xs">{match.competition}</TableCell>
+                      <TableCell className="py-2 text-muted-foreground text-xs">
+                        <div>{match.competition}</div>
+                        {matchPhaseRoundLabel(
+                          (match as { phase?: string | null }).phase,
+                          (match as { round?: string | null }).round,
+                        ) && (
+                          <div className="text-[11px] text-muted-foreground/80 mt-0.5">
+                            {matchPhaseRoundLabel(
+                              (match as { phase?: string | null }).phase,
+                              (match as { round?: string | null }).round,
+                            )}
+                          </div>
+                        )}
+                      </TableCell>
                       <TableCell className="py-2 text-muted-foreground text-xs hidden sm:table-cell">
                         {match.stadium ?? "–"}
                       </TableCell>

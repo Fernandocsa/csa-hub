@@ -22,6 +22,8 @@ export interface MatchGeneralInitial {
   attendance?: number | null;
   scorers?: string | null;
   ownGoalsForCount?: number | null;
+  phase?: string | null;
+  round?: string | null;
 }
 
 export interface MatchGeneralFormData {
@@ -38,6 +40,8 @@ export interface MatchGeneralFormData {
   attendance: number | null;
   scorers: string | null;
   ownGoalsForCount: number;
+  phase: string | null;
+  round: string | null;
 }
 
 export default function MatchGeneralForm({
@@ -69,6 +73,8 @@ export default function MatchGeneralForm({
   const [ownGoalsForCount, setOwnGoalsForCount] = useState(
     String(initial?.ownGoalsForCount ?? "0"),
   );
+  const [phase, setPhase] = useState(initial?.phase ?? "");
+  const [round, setRound] = useState(initial?.round ?? "");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -86,6 +92,8 @@ export default function MatchGeneralForm({
     setAttendance(initial?.attendance != null ? String(initial.attendance) : "");
     setScorers(initial?.scorers ?? "");
     setOwnGoalsForCount(String(initial?.ownGoalsForCount ?? "0"));
+    setPhase(initial?.phase ?? "");
+    setRound(initial?.round ?? "");
   }, [initial]);
 
   useEffect(() => {
@@ -123,6 +131,8 @@ export default function MatchGeneralForm({
         attendance: attendance ? parseInt(attendance, 10) : null,
         scorers: scorers || null,
         ownGoalsForCount: Math.max(0, parseInt(ownGoalsForCount, 10) || 0),
+        phase: phase.trim() || null,
+        round: round.trim() || null,
       });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro ao salvar");
@@ -307,6 +317,31 @@ export default function MatchGeneralForm({
         <p className="text-[10px] text-gray-400 mt-1">
           Técnico é editado na aba Técnico desta página.
         </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Fase
+          </label>
+          <Input
+            value={phase}
+            onChange={(e) => setPhase(e.target.value)}
+            placeholder="ex: Final, 1º Turno, Oitavas"
+            className="h-9"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Rodada
+          </label>
+          <Input
+            value={round}
+            onChange={(e) => setRound(e.target.value)}
+            placeholder="ex: 15, 15ª rodada, Ida, Volta"
+            className="h-9"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">

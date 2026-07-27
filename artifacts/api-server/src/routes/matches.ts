@@ -25,6 +25,8 @@ function buildMatchRow(row: any) {
     isWalkover: row.isWalkover ?? false,
     isFriendly: row.isFriendly ?? false,
     isUnknownResult: (row.result ?? "") === "unknown",
+    phase: row.phase ?? null,
+    round: row.round ?? null,
   };
 }
 
@@ -38,6 +40,8 @@ const matchSelectFields = {
   homeAway: matchesTable.homeAway,
   isWalkover: matchesTable.isWalkover,
   isFriendly: matchesTable.isFriendly,
+  phase: matchesTable.phase,
+  round: matchesTable.round,
   opponentName: opponentsTable.name,
   competitionName: competitionsTable.name,
   stadiumName: stadiumsTable.name,
@@ -216,6 +220,8 @@ router.get("/matches/:id", async (req, res) => {
         homeAway: matchesTable.homeAway,
         isWalkover: matchesTable.isWalkover,
         isFriendly: matchesTable.isFriendly,
+        phase: matchesTable.phase,
+        round: matchesTable.round,
         opponentId: matchesTable.opponentId,
         opponentName: opponentsTable.name,
         competitionId: matchesTable.competitionId,
@@ -266,6 +272,8 @@ router.get("/matches/:id", async (req, res) => {
       isWalkover: row.isWalkover ?? false,
       isFriendly: row.isFriendly ?? false,
       isUnknownResult: (row.result ?? "") === "unknown",
+      phase: row.phase ?? null,
+      round: row.round ?? null,
       lineups: sheet.lineups,
       goals: sheet.goals,
       cards: sheet.cards,

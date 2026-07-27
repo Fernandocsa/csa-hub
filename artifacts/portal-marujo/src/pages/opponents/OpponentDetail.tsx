@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, ChevronLeft as PrevIcon, ChevronRight } from "lucide-react";
 import { ResultBadge } from "@/components/ui/result-badge";
 import { Button } from "@/components/ui/button";
+import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 
 const PAGE_SIZE = 25;
 
@@ -163,7 +164,14 @@ export default function OpponentDetail() {
                     </TableCell>
                     <TableCell className="py-2 text-center font-mono font-bold">{match.goalsFor}–{match.goalsAgainst}</TableCell>
                     <TableCell className="py-2 text-xs text-muted-foreground">{match.homeAway === "home" ? "Casa" : "Fora"}</TableCell>
-                    <TableCell className="py-2 text-xs text-muted-foreground">{match.competition}</TableCell>
+                    <TableCell className="py-2 text-xs text-muted-foreground">
+                      <div>{match.competition}</div>
+                      {matchPhaseRoundLabel(match.phase, match.round) && (
+                        <div className="text-[11px] text-muted-foreground/80 mt-0.5">
+                          {matchPhaseRoundLabel(match.phase, match.round)}
+                        </div>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))
               )}
