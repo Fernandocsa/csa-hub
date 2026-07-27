@@ -10,6 +10,41 @@ export const BRAZIL_UFS = [
 
 export type BrazilUf = (typeof BRAZIL_UFS)[number];
 
+export const BRAZIL_UF_NAMES: Record<BrazilUf, string> = {
+  AC: "Acre",
+  AL: "Alagoas",
+  AP: "Amapá",
+  AM: "Amazonas",
+  BA: "Bahia",
+  CE: "Ceará",
+  DF: "Distrito Federal",
+  ES: "Espírito Santo",
+  GO: "Goiás",
+  MA: "Maranhão",
+  MT: "Mato Grosso",
+  MS: "Mato Grosso do Sul",
+  MG: "Minas Gerais",
+  PA: "Pará",
+  PB: "Paraíba",
+  PR: "Paraná",
+  PE: "Pernambuco",
+  PI: "Piauí",
+  RJ: "Rio de Janeiro",
+  RN: "Rio Grande do Norte",
+  RS: "Rio Grande do Sul",
+  RO: "Rondônia",
+  RR: "Roraima",
+  SC: "Santa Catarina",
+  SP: "São Paulo",
+  SE: "Sergipe",
+  TO: "Tocantins",
+};
+
+export function ufDisplayName(uf: string): string {
+  const key = uf.toUpperCase() as BrazilUf;
+  return BRAZIL_UF_NAMES[key] ?? uf.toUpperCase();
+}
+
 const BR_CITIES = cities as BrCity[];
 
 export function normalizeCityName(value: string): string {

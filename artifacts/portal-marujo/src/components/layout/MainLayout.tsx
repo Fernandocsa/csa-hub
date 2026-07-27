@@ -41,6 +41,7 @@ const navigation: NavItem[] = [
       { name: "Histórico de Partidas", href: "/partidas" },
       { name: "Maiores Vitórias & Derrotas", href: "/partidas/recordes" },
       { name: "Maiores Públicos", href: "/publicos" },
+      { name: "CSA x Estados", href: "/partidas/por-estado" },
     ],
   },
   { name: "Temporadas", href: "/temporadas", icon: CalendarDays },
