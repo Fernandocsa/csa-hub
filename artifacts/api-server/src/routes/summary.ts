@@ -63,6 +63,7 @@ router.get("/summary", async (req, res) => {
       .select({
         id: opponentsTable.id,
         name: opponentsTable.name,
+        logoUrl: opponentsTable.logoUrl,
         matches: sql<number>`cast(count(*) as int)`,
         wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
         draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
@@ -73,7 +74,7 @@ router.get("/summary", async (req, res) => {
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
       .where(eq(matchesTable.isFriendly, false))
-      .groupBy(opponentsTable.id, opponentsTable.name)
+      .groupBy(opponentsTable.id, opponentsTable.name, opponentsTable.logoUrl)
       .orderBy(sql`count(*) desc`)
       .limit(5);
 
@@ -87,7 +88,10 @@ router.get("/summary", async (req, res) => {
       winPercentage,
       appearanceLeader: appearanceLeaderRows[0] || { id: 0, name: "N/A", appearances: 0, goals: 0 },
       topScorer: topScorerRows[0] || { id: 0, name: "N/A", appearances: 0, goals: 0 },
-      mostCommonOpponents,
+      mostCommonOpponents: mostCommonOpponents.map((o) => ({
+        ...o,
+        logoUrl: o.logoUrl ?? null,
+      })),
       foundedYear: 1933,
     });
   } catch (err) {

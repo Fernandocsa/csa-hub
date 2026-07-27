@@ -5,6 +5,8 @@ export interface AttendanceMatch {
   id: number;
   date: string;
   opponent: string;
+  /** @nullable */
+  opponentLogoUrl?: string | null;
   goalsFor: number;
   goalsAgainst: number;
   result: string;

@@ -23,6 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { OpponentCrest } from "@/components/OpponentCrest";
 
 function pct(wins: number, total: number) {
   if (!total) return "0.0%";
@@ -39,10 +40,41 @@ const resultColor: Record<string, string> = {
   loss: "text-red-600",
 };
 
+/** CSA × Opponent (or reverse), with crest only beside the opponent name. */
+function MatchSidesLabel({
+  homeAway,
+  opponent,
+  logoUrl,
+  separator = "×",
+}: {
+  homeAway: string;
+  opponent: string;
+  logoUrl?: string | null;
+  separator?: string;
+}) {
+  const crest = <OpponentCrest url={logoUrl} name={opponent} size="sm" />;
+  if (homeAway === "home") {
+    return (
+      <span className="inline-flex items-center gap-1.5 min-w-0">
+        <span>CSA</span>
+        <span className="text-muted-foreground">{separator}</span>
+        {crest}
+        <span className="truncate">{opponent}</span>
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5 min-w-0">
+      {crest}
+      <span className="truncate">{opponent}</span>
+      <span className="text-muted-foreground">{separator}</span>
+      <span>CSA</span>
+    </span>
+  );
+}
+
 function MilestoneCard({ label, match }: { label: string; match: MilestoneMatch }) {
   const isHome = match.homeAway === "home";
-  const home = isHome ? "CSA" : match.opponent;
-  const away = isHome ? match.opponent : "CSA";
   const scoreColor = resultColor[match.result] ?? "text-foreground";
 
   return (
@@ -54,7 +86,13 @@ function MilestoneCard({ label, match }: { label: string; match: MilestoneMatch 
       <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
       <div>
         <p className="text-xs text-muted-foreground">{fmtDate(match.date)} · {match.competition}</p>
-        <p className="font-semibold text-sm mt-0.5 truncate">{home} × {away}</p>
+        <p className="font-semibold text-sm mt-0.5">
+          <MatchSidesLabel
+            homeAway={match.homeAway}
+            opponent={match.opponent}
+            logoUrl={match.opponentLogoUrl}
+          />
+        </p>
       </div>
       <p className={`text-2xl font-black ${scoreColor}`}>
         {isHome ? match.goalsFor : match.goalsAgainst}
@@ -93,8 +131,6 @@ function NextMatchCard() {
   }
 
   const isHome = nextMatch.homeAway === "home";
-  const home = isHome ? "CSA" : nextMatch.opponent;
-  const away = isHome ? nextMatch.opponent : "CSA";
   const year = new Date(nextMatch.matchDate + "T12:00:00").getFullYear();
   const href =
     nextMatch.matchId != null
@@ -111,8 +147,12 @@ function NextMatchCard() {
           {fmtDate(nextMatch.matchDate)} · {nextMatch.competition}
           {nextMatch.stadium ? ` · ${nextMatch.stadium}` : ""}
         </p>
-        <p className="font-semibold text-sm mt-0.5 truncate">
-          {home} × {away}
+        <p className="font-semibold text-sm mt-0.5">
+          <MatchSidesLabel
+            homeAway={isHome ? "home" : "away"}
+            opponent={nextMatch.opponent}
+            logoUrl={nextMatch.opponentLogoUrl}
+          />
         </p>
       </div>
       <p className="text-2xl font-black text-muted-foreground">
@@ -426,7 +466,10 @@ export default function Home() {
               data-testid="record-biggest-win"
             >
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Vitória</p>
-              <p className="font-bold text-base">{biggestWin.opponent}</p>
+              <p className="font-bold text-base inline-flex items-center gap-2">
+                <OpponentCrest url={biggestWin.opponentLogoUrl} name={biggestWin.opponent} size="sm" />
+                {biggestWin.opponent}
+              </p>
               <p className="text-2xl font-black text-green-600">
                 {biggestWin.goalsFor}–{biggestWin.goalsAgainst}{" "}
                 <span className="text-sm font-normal text-muted-foreground">
@@ -460,20 +503,22 @@ export default function Home() {
                     </TableRow>
                   ))
                 : attendanceList.slice(0, 10).map((m, i) => {
-                    const isHome = m.homeAway === "home";
-                    const home = isHome ? "CSA" : m.opponent;
-                    const away = isHome ? m.opponent : "CSA";
                     return (
                       <TableRow key={m.id} className="text-sm">
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
                         <TableCell className="py-1.5 font-medium">
                           <Link
                             href={`/partidas/${m.id}`}
-                            className="hover:text-primary hover:underline"
+                            className="hover:text-primary hover:underline inline-flex items-center gap-1.5 flex-wrap"
                             data-testid={`link-attendance-match-${m.id}`}
                           >
-                            {home} {m.goalsFor}–{m.goalsAgainst} {away}
-                            <span className="ml-1.5 text-xs text-muted-foreground">({m.season})</span>
+                            <MatchSidesLabel
+                              homeAway={m.homeAway}
+                              opponent={m.opponent}
+                              logoUrl={m.opponentLogoUrl}
+                              separator={`${m.goalsFor}–${m.goalsAgainst}`}
+                            />
+                            <span className="text-xs text-muted-foreground">({m.season})</span>
                           </Link>
                         </TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary">
@@ -557,7 +602,12 @@ export default function Home() {
                   <TableRow key={opp.id} className="text-sm">
                     <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
                     <TableCell className="py-1.5 font-medium">
-                      <Link href={`/adversarios/${opp.id}`} className="hover:text-primary hover:underline" data-testid={`link-opponent-${opp.id}`}>
+                      <Link
+                        href={`/adversarios/${opp.id}`}
+                        className="inline-flex items-center gap-2 hover:text-primary hover:underline"
+                        data-testid={`link-opponent-${opp.id}`}
+                      >
+                        <OpponentCrest url={opp.logoUrl} name={opp.name} size="sm" />
                         {opp.name}
                       </Link>
                     </TableCell>

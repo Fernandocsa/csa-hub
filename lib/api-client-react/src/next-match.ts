@@ -9,6 +9,8 @@ export interface NextMatch {
   stadium: string | null;
   opponentId?: number | null;
   matchId?: number | null;
+  /** @nullable */
+  opponentLogoUrl?: string | null;
 }
 
 export const getNextMatch = async (): Promise<NextMatch | null> =>
