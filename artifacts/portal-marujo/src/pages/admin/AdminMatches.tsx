@@ -191,7 +191,13 @@ function MatchForm({
           <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Técnico</label>
           <select className={sel} value={managerId} onChange={(e) => setManagerId(e.target.value)}>
             <option value="">–</option>
-            {lookup.managers.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+            {[...lookup.managers]
+              .sort((a, b) => a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }))
+              .map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
           </select>
         </div>
       </div>

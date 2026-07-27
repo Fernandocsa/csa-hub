@@ -4,6 +4,7 @@ import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
+import { groupPlayersByPosition } from "@/lib/position-groups";
 
 type RosterPlayer = {
   id: number;
@@ -157,6 +158,7 @@ export default function AdminMatchSheet() {
 
   const starters = lineups.filter((l) => l.role === "starter");
   const bench = lineups.filter((l) => l.role === "bench");
+  const rosterByGroup = useMemo(() => groupPlayersByPosition(roster), [roster]);
 
   function setPlayerRole(player: RosterPlayer, role: LineupRole) {
     setSavedMsg("");
@@ -441,41 +443,50 @@ export default function AdminMatchSheet() {
           <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">
             Elenco da temporada {match.season}
           </h3>
-          <div className="border rounded max-h-72 overflow-auto divide-y">
-            {roster.map((p) => {
-              const current = lineupByPlayer.get(p.id);
-              const role: LineupRole = current ? current.role : "out";
-              return (
-                <div
-                  key={p.id}
-                  className="px-3 py-2 flex flex-wrap items-center gap-2 text-sm hover:bg-gray-50"
-                >
-                  <div className="min-w-[10rem] flex-1">
-                    <span className="font-medium">{p.name}</span>
-                    <span className="text-xs text-gray-400 ml-2">
-                      {p.position || "—"}
-                      {p.inSeason ? ` · ${p.appearances} j` : " · busca"}
-                    </span>
-                  </div>
-                  <div className="flex gap-1">
-                    {(["starter", "bench", "out"] as LineupRole[]).map((r) => (
-                      <button
-                        key={r}
-                        type="button"
-                        onClick={() => setPlayerRole(p, r)}
-                        className={`px-2 py-1 rounded text-xs border ${
-                          role === r
-                            ? "bg-[#1B3A6B] text-white border-[#1B3A6B]"
-                            : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
-                        }`}
-                      >
-                        {r === "starter" ? "Titular" : r === "bench" ? "Reserva" : "Fora"}
-                      </button>
-                    ))}
-                  </div>
+          <div className="border rounded max-h-72 overflow-auto">
+            {rosterByGroup.map(({ group, players }) => (
+              <div key={group}>
+                <div className="sticky top-0 z-[1] bg-gray-100 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 border-b border-t first:border-t-0">
+                  {group}
                 </div>
-              );
-            })}
+                <div className="divide-y">
+                  {players.map((p) => {
+                    const current = lineupByPlayer.get(p.id);
+                    const role: LineupRole = current ? current.role : "out";
+                    return (
+                      <div
+                        key={p.id}
+                        className="px-3 py-2 flex flex-wrap items-center gap-2 text-sm hover:bg-gray-50"
+                      >
+                        <div className="min-w-[10rem] flex-1">
+                          <span className="font-medium">{p.name}</span>
+                          <span className="text-xs text-gray-400 ml-2">
+                            {p.position || "—"}
+                            {p.inSeason ? ` · ${p.appearances} j` : " · busca"}
+                          </span>
+                        </div>
+                        <div className="flex gap-1">
+                          {(["starter", "bench", "out"] as LineupRole[]).map((r) => (
+                            <button
+                              key={r}
+                              type="button"
+                              onClick={() => setPlayerRole(p, r)}
+                              className={`px-2 py-1 rounded text-xs border ${
+                                role === r
+                                  ? "bg-[#1B3A6B] text-white border-[#1B3A6B]"
+                                  : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
+                              }`}
+                            >
+                              {r === "starter" ? "Titular" : r === "bench" ? "Reserva" : "Fora"}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
             {roster.length === 0 && (
               <p className="text-xs text-gray-400 p-3">
                 Nenhum jogador na temporada. Use a busca por nome.
