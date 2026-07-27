@@ -4,6 +4,7 @@ import {
   type MatchCardRow,
   type MatchGoalRow,
   type MatchLineupRow,
+  type MatchSubstitutionRow,
 } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
@@ -19,7 +20,7 @@ function fmtMinute(minute: number, injury: number | null | undefined) {
 }
 
 type PlayerEvent = {
-  kind: "goal" | "assist" | "yellow" | "red";
+  kind: "goal" | "assist" | "yellow" | "red" | "sub_out" | "sub_in";
   minute: number;
   injuryTimeMinute: number | null;
 };
@@ -29,6 +30,7 @@ function eventsForPlayer(
   playerName: string,
   goals: MatchGoalRow[],
   cards: MatchCardRow[],
+  substitutions: MatchSubstitutionRow[],
 ): PlayerEvent[] {
   const events: PlayerEvent[] = [];
   for (const g of goals) {
@@ -66,10 +68,49 @@ function eventsForPlayer(
       });
     }
   }
+  for (const s of substitutions) {
+    if (
+      (playerId != null && s.playerOutId === playerId) ||
+      (!playerId && s.playerOutName === playerName)
+    ) {
+      events.push({
+        kind: "sub_out",
+        minute: s.minute,
+        injuryTimeMinute: s.injuryTimeMinute,
+      });
+    }
+    if (
+      (playerId != null && s.playerInId === playerId) ||
+      (!playerId && s.playerInName === playerName)
+    ) {
+      events.push({
+        kind: "sub_in",
+        minute: s.minute,
+        injuryTimeMinute: s.injuryTimeMinute,
+      });
+    }
+  }
   return events.sort((a, b) => {
     if (a.minute !== b.minute) return a.minute - b.minute;
     return (a.injuryTimeMinute ?? 0) - (b.injuryTimeMinute ?? 0);
   });
+}
+
+function eventTitle(kind: PlayerEvent["kind"]) {
+  switch (kind) {
+    case "goal":
+      return "Gol";
+    case "assist":
+      return "Assistência";
+    case "red":
+      return "Cartão vermelho";
+    case "yellow":
+      return "Cartão amarelo";
+    case "sub_out":
+      return "Saiu";
+    case "sub_in":
+      return "Entrou";
+  }
 }
 
 function EventIcons({ events }: { events: PlayerEvent[] }) {
@@ -80,15 +121,7 @@ function EventIcons({ events }: { events: PlayerEvent[] }) {
         <span
           key={`${e.kind}-${e.minute}-${e.injuryTimeMinute}-${i}`}
           className="inline-flex items-center gap-0.5 text-xs text-muted-foreground"
-          title={
-            e.kind === "goal"
-              ? "Gol"
-              : e.kind === "assist"
-                ? "Assistência"
-                : e.kind === "red"
-                  ? "Cartão vermelho"
-                  : "Cartão amarelo"
-          }
+          title={eventTitle(e.kind)}
         >
           {e.kind === "goal" && <span aria-hidden>⚽</span>}
           {e.kind === "assist" && (
@@ -108,6 +141,16 @@ function EventIcons({ events }: { events: PlayerEvent[] }) {
               className="inline-block w-2.5 h-3.5 rounded-[1px] bg-red-600 border border-red-800/40"
             />
           )}
+          {e.kind === "sub_out" && (
+            <span aria-hidden className="font-semibold text-red-600/90">
+              ↓
+            </span>
+          )}
+          {e.kind === "sub_in" && (
+            <span aria-hidden className="font-semibold text-emerald-700/90">
+              ↑
+            </span>
+          )}
           <span className="tabular-nums">{fmtMinute(e.minute, e.injuryTimeMinute)}</span>
         </span>
       ))}
@@ -120,11 +163,13 @@ function LineupList({
   players,
   goals,
   cards,
+  substitutions,
 }: {
   title: string;
   players: MatchLineupRow[];
   goals: MatchGoalRow[];
   cards: MatchCardRow[];
+  substitutions: MatchSubstitutionRow[];
 }) {
   if (players.length === 0) return null;
   return (
@@ -134,7 +179,13 @@ function LineupList({
       </h3>
       <ul className="border rounded divide-y">
         {players.map((p) => {
-          const events = eventsForPlayer(p.playerId, p.playerName, goals, cards);
+          const events = eventsForPlayer(
+            p.playerId,
+            p.playerName,
+            goals,
+            cards,
+            substitutions,
+          );
           return (
             <li
               key={p.id}
@@ -193,6 +244,9 @@ export default function MatchDetail() {
   const bench = csaLineups.filter((l) => l.role === "bench");
   const goals = (match.goals ?? []).filter((g) => g.side === "csa");
   const cards = (match.cards ?? []).filter((c) => c.side === "csa");
+  const substitutions = (match.substitutions ?? []).filter(
+    (s) => s.side === "csa",
+  );
   const hasLineup = csaLineups.length > 0;
   const scorersText = Array.isArray(match.scorers) ? match.scorers : [];
 
@@ -259,11 +313,24 @@ export default function MatchDetail() {
             Escalação CSA
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <LineupList title="Titulares" players={starters} goals={goals} cards={cards} />
-            <LineupList title="Reservas" players={bench} goals={goals} cards={cards} />
+            <LineupList
+              title="Titulares"
+              players={starters}
+              goals={goals}
+              cards={cards}
+              substitutions={substitutions}
+            />
+            <LineupList
+              title="Reservas"
+              players={bench}
+              goals={goals}
+              cards={cards}
+              substitutions={substitutions}
+            />
           </div>
           <p className="text-xs text-muted-foreground">
-            ⚽ gol · A assistência · retângulo amarelo/vermelho cartão · minuto ao lado
+            ⚽ gol · A assistência · retângulo amarelo/vermelho cartão · ↓ saiu · ↑ entrou ·
+            minuto ao lado
           </p>
         </section>
       )}

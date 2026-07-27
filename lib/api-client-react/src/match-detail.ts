@@ -39,6 +39,20 @@ export interface MatchCardRow {
   injuryTimeMinute: number | null;
 }
 
+export interface MatchSubstitutionRow {
+  id: number;
+  matchId: number;
+  side: string;
+  playerOutLineupId: number | null;
+  playerOutId: number | null;
+  playerOutName: string;
+  playerInLineupId: number | null;
+  playerInId: number | null;
+  playerInName: string;
+  minute: number;
+  injuryTimeMinute: number | null;
+}
+
 export interface MatchDetailSheet {
   id: number;
   date: string;
@@ -62,6 +76,7 @@ export interface MatchDetailSheet {
   lineups: MatchLineupRow[];
   goals: MatchGoalRow[];
   cards: MatchCardRow[];
+  substitutions: MatchSubstitutionRow[];
 }
 
 export const getMatchDetail = (id: number) =>
