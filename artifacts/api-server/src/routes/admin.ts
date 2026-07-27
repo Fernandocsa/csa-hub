@@ -828,6 +828,106 @@ router.get("/admin/matches/search", requireAdmin, async (req, res) => {
   }
 });
 
+/** Groups of matches that share the same match_date (for admin review). */
+router.get("/admin/matches/duplicate-dates", requireAdmin, async (req, res) => {
+  try {
+    const rows = await db
+      .select({
+        id: matchesTable.id,
+        matchDate: matchesTable.matchDate,
+        season: matchesTable.season,
+        goalsFor: matchesTable.goalsFor,
+        goalsAgainst: matchesTable.goalsAgainst,
+        result: matchesTable.result,
+        homeAway: matchesTable.homeAway,
+        isFriendly: matchesTable.isFriendly,
+        isWalkover: matchesTable.isWalkover,
+        phase: matchesTable.phase,
+        round: matchesTable.round,
+        opponentName: opponentsTable.name,
+        competitionName: competitionsTable.name,
+      })
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .where(
+        sql`${matchesTable.matchDate} IN (
+          SELECT match_date FROM matches
+          GROUP BY match_date
+          HAVING count(*) > 1
+        )`,
+      )
+      .orderBy(desc(matchesTable.matchDate), asc(matchesTable.id));
+
+    type MatchRow = (typeof rows)[number];
+    const byDate = new Map<string, MatchRow[]>();
+    for (const row of rows) {
+      const key = row.matchDate;
+      const list = byDate.get(key);
+      if (list) list.push(row);
+      else byDate.set(key, [row]);
+    }
+
+    const groups = [...byDate.entries()].map(([matchDate, matches]) => {
+      const year = parseInt(matchDate.slice(0, 4), 10);
+      const is1920sPlaceholder = year >= 1920 && year < 1930;
+      return {
+        matchDate,
+        year: Number.isFinite(year) ? year : null,
+        is1920sPlaceholder,
+        count: matches.length,
+        matches,
+      };
+    });
+
+    res.json({
+      groups,
+      totalGroups: groups.length,
+      totalMatches: rows.length,
+      placeholder1920sGroups: groups.filter((g) => g.is1920sPlaceholder).length,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+/** Official matches with result = unknown (same concept as public ?status=unknown). */
+router.get("/admin/matches/unknown-results", requireAdmin, async (req, res) => {
+  try {
+    const rows = await db
+      .select({
+        id: matchesTable.id,
+        matchDate: matchesTable.matchDate,
+        season: matchesTable.season,
+        goalsFor: matchesTable.goalsFor,
+        goalsAgainst: matchesTable.goalsAgainst,
+        result: matchesTable.result,
+        homeAway: matchesTable.homeAway,
+        phase: matchesTable.phase,
+        round: matchesTable.round,
+        opponentName: opponentsTable.name,
+        competitionName: competitionsTable.name,
+      })
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .where(
+        and(
+          eq(matchesTable.result, "unknown"),
+          eq(matchesTable.isWalkover, false),
+          eq(matchesTable.isFriendly, false),
+        ),
+      )
+      .orderBy(desc(matchesTable.matchDate), asc(matchesTable.id));
+
+    res.json({ data: rows, total: rows.length });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 router.get("/admin/matches/:id", requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);

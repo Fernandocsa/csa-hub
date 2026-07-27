@@ -1,6 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Users, Trophy, Shield, Download, LogOut, ChevronLeft, CalendarDays, UserCog, CalendarRange, Landmark, MessageSquare, Flag, Scale } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LayoutDashboard, Users, Trophy, Shield, Download, LogOut, ChevronLeft, CalendarDays, UserCog, CalendarRange, Landmark, MessageSquare, Flag, Scale, ClipboardList } from "lucide-react";
 
 interface Props {
   children: React.ReactNode;
@@ -19,6 +18,7 @@ const navItems = [
   { href: "/admin/proximo-jogo", label: "Próximo Jogo", icon: CalendarDays },
   { href: "/admin/comentarios", label: "Comentários", icon: MessageSquare },
   { href: "/admin/sugestoes", label: "Sugestões", icon: Flag },
+  { href: "/admin/partidas-duplicadas", label: "Revisão Partidas", icon: ClipboardList },
   { href: "/admin/importar-exportar", label: "Importar / Exportar", icon: Download },
 ];
 
@@ -37,7 +37,10 @@ export default function AdminLayout({ children, onLogout }: Props) {
         </div>
         <nav className="flex-1 py-2">
           {navItems.map((item) => {
-            const active = item.exact ? location === item.href : location.startsWith(item.href);
+            // Exact segment match so /admin/partidas does not light up on /admin/partidas-duplicadas
+            const active = item.exact
+              ? location === item.href
+              : location === item.href || location.startsWith(`${item.href}/`);
             return (
               <Link
                 key={item.href}
