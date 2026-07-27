@@ -11,6 +11,46 @@ const BRAZIL_UFS = new Set([
   "RS", "RO", "RR", "SC", "SP", "SE", "TO",
 ]);
 
+const COUNTRY_NAMES: Record<string, string> = {
+  ARG: "Argentina",
+  AUS: "Austrália",
+  BEL: "Bélgica",
+  BOL: "Bolívia",
+  CAN: "Canadá",
+  CHL: "Chile",
+  CHN: "China",
+  COL: "Colômbia",
+  DEU: "Alemanha",
+  ECU: "Equador",
+  ENG: "Inglaterra",
+  ESP: "Espanha",
+  FRA: "França",
+  GBR: "Reino Unido",
+  GER: "Alemanha",
+  ITA: "Itália",
+  JPN: "Japão",
+  KOR: "Coreia do Sul",
+  MEX: "México",
+  NED: "Países Baixos",
+  NLD: "Países Baixos",
+  PAR: "Paraguai",
+  PER: "Peru",
+  POR: "Portugal",
+  PRY: "Paraguai",
+  URY: "Uruguai",
+  URU: "Uruguai",
+  USA: "Estados Unidos",
+  VEN: "Venezuela",
+};
+
+function foreignMatchCondition() {
+  return and(
+    eq(matchesTable.isFriendly, false),
+    isNotNull(opponentsTable.country),
+    sql`trim(${opponentsTable.country}) <> ''`,
+  );
+}
+
 router.get("/opponents", async (req, res) => {
   try {
     const { search, sort, limit = "50", offset = "0" } = req.query as Record<string, string>;
@@ -195,6 +235,112 @@ router.get("/opponents/by-state/:uf", async (req, res) => {
       goalsAgainst: overall?.goalsAgainst ?? 0,
       opponentCount: overall?.opponentCount ?? 0,
       opponents,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+router.get("/opponents/by-foreign", async (req, res) => {
+  try {
+    const whereForeign = foreignMatchCondition();
+
+    const [overall] = await db
+      .select({
+        opponentCount: sql<number>`cast(count(distinct ${opponentsTable.id}) as int)`,
+        matches: sql<number>`cast(count(*) as int)`,
+        wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+        draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+        losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+        goalsFor: sql<number>`cast(sum(${matchesTable.goalsFor}) as int)`,
+        goalsAgainst: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
+      })
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .where(whereForeign);
+
+    const countryRows = await db
+      .select({
+        country: opponentsTable.country,
+        opponentCount: sql<number>`cast(count(distinct ${opponentsTable.id}) as int)`,
+        matches: sql<number>`cast(count(*) as int)`,
+        wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+        draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+        losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+        goalsFor: sql<number>`cast(sum(${matchesTable.goalsFor}) as int)`,
+        goalsAgainst: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
+      })
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .where(whereForeign)
+      .groupBy(opponentsTable.country)
+      .orderBy(desc(sql`count(*)`));
+
+    const opponents = await db
+      .select({
+        id: opponentsTable.id,
+        name: opponentsTable.name,
+        city: opponentsTable.city,
+        country: opponentsTable.country,
+        matches: sql<number>`cast(count(*) as int)`,
+        wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+        draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+        losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+        goalsFor: sql<number>`cast(sum(${matchesTable.goalsFor}) as int)`,
+        goalsAgainst: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
+      })
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .where(whereForeign)
+      .groupBy(
+        opponentsTable.id,
+        opponentsTable.name,
+        opponentsTable.city,
+        opponentsTable.country,
+      )
+      .orderBy(desc(sql`count(*)`), asc(opponentsTable.name));
+
+    const mapAggregate = (row: {
+      opponentCount?: number | null;
+      matches?: number | null;
+      wins?: number | null;
+      draws?: number | null;
+      losses?: number | null;
+      goalsFor?: number | null;
+      goalsAgainst?: number | null;
+    }) => ({
+      opponentCount: row.opponentCount ?? 0,
+      matches: row.matches ?? 0,
+      wins: row.wins ?? 0,
+      draws: row.draws ?? 0,
+      losses: row.losses ?? 0,
+      goalsFor: row.goalsFor ?? 0,
+      goalsAgainst: row.goalsAgainst ?? 0,
+    });
+
+    res.json({
+      overall: mapAggregate(overall ?? {}),
+      countries: countryRows
+        .filter((r) => r.country)
+        .map((r) => {
+          const code = String(r.country).toUpperCase();
+          return {
+            code,
+            name: COUNTRY_NAMES[code] ?? code,
+            ...mapAggregate(r),
+          };
+        }),
+      opponents: opponents.map((o) => ({
+        id: o.id,
+        name: o.name,
+        city: o.city ?? null,
+        country: o.country ? String(o.country).toUpperCase() : null,
+        countryName: o.country
+          ? COUNTRY_NAMES[String(o.country).toUpperCase()] ?? String(o.country).toUpperCase()
+          : null,
+        ...mapAggregate(o),
+      })),
     });
   } catch (err) {
     req.log.error(err);
