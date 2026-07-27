@@ -32,7 +32,7 @@ export default function PlayersList() {
   return (
     <div className="space-y-5">
       <div className="border-b pb-3">
-        <h1 className="text-xl font-bold" data-testid="heading-jogadores">Banco de Jogadores</h1>
+        <h1 className="text-xl font-bold" data-testid="heading-jogadores">Todos os Jogadores</h1>
         <p className="text-sm text-muted-foreground">Todos os atletas que vestiram a camisa do CSA</p>
       </div>
 

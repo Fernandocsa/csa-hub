@@ -150,7 +150,7 @@ export default function MatchesList() {
   return (
     <div className="space-y-5">
       <div className="border-b pb-3">
-        <h1 className="text-xl font-bold" data-testid="heading-partidas">Banco de Partidas</h1>
+        <h1 className="text-xl font-bold" data-testid="heading-partidas">Histórico de Partidas</h1>
         <p className="text-sm text-muted-foreground">Histórico completo de partidas do CSA</p>
       </div>
 

@@ -27,9 +27,9 @@ const navigation: NavItem[] = [
     name: "Jogadores",
     icon: Users,
     children: [
-      { name: "Banco de Jogadores", href: "/jogadores" },
+      { name: "Todos os Jogadores", href: "/jogadores" },
       { name: "Artilheiros", href: "/jogadores/artilheiros" },
-      { name: "Presenças", href: "/jogadores/presencas" },
+      { name: "Mais Jogos", href: "/jogadores/presencas" },
       { name: "Assistências", href: "/jogadores/assistencias" },
       { name: "Estrangeiros", href: "/jogadores/estrangeiros" },
     ],
@@ -38,7 +38,7 @@ const navigation: NavItem[] = [
     name: "Partidas",
     icon: Swords,
     children: [
-      { name: "Banco de Partidas", href: "/partidas" },
+      { name: "Histórico de Partidas", href: "/partidas" },
       { name: "Maiores Vitórias & Derrotas", href: "/partidas/recordes" },
       { name: "Maiores Públicos", href: "/publicos" },
     ],

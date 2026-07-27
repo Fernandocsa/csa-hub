@@ -18,7 +18,7 @@ export default function TopAppearances() {
     <div className="space-y-5">
       <div className="border-b pb-3 flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold" data-testid="heading-presencas">Mais Presenças</h1>
+          <h1 className="text-xl font-bold" data-testid="heading-presencas">Mais Jogos</h1>
           <p className="text-sm text-muted-foreground">Ranking de jogadores com mais partidas pelo CSA</p>
         </div>
         <div className="flex items-center gap-2">
