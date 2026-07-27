@@ -1,5 +1,9 @@
 import { Link, useParams } from "wouter";
-import { useGetSeason, getGetSeasonQueryKey } from "@workspace/api-client-react";
+import {
+  useGetSeason,
+  getGetSeasonQueryKey,
+  useListMatches,
+} from "@workspace/api-client-react";
 import type {
   PlayerStat,
   SeasonCompetitionStat,
@@ -7,8 +11,14 @@ import type {
 } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ResultBadge } from "@/components/ui/result-badge";
 import { ChevronLeft } from "lucide-react";
 import { groupPlayersByPosition } from "@/lib/position-groups";
+import { cn } from "@/lib/utils";
+
+function fmtDate(d: string) {
+  return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
+}
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -171,49 +181,127 @@ function RosterByPosition({ players }: { players: PlayerStat[] }) {
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
             {group}
           </h3>
-          <div className="border rounded overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="text-xs">
-                  <TableHead className="py-2">Jogador</TableHead>
-                  <TableHead className="py-2 text-right">J</TableHead>
-                  <TableHead className="py-2 text-right">G</TableHead>
-                  <TableHead className="py-2 text-right">A</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {list.map((player) => (
-                  <TableRow key={player.id} className="text-sm" data-testid={`row-squad-${player.id}`}>
-                    <TableCell className="py-2">
-                      <Link
-                        href={`/jogadores/${player.id}`}
-                        className="hover:text-primary hover:underline block"
-                      >
-                        <span className="font-medium">{player.name}</span>
-                        {player.seasonAge != null ? (
-                          <span className="block text-xs text-muted-foreground font-normal mt-0.5">
-                            {player.seasonAge} anos
-                          </span>
-                        ) : null}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="py-2 text-right font-medium tabular-nums align-top">
-                      {player.appearances}
-                    </TableCell>
-                    <TableCell className="py-2 text-right text-primary font-bold tabular-nums align-top">
-                      {player.goals}
-                    </TableCell>
-                    <TableCell className="py-2 text-right text-muted-foreground tabular-nums align-top">
-                      {player.assists ?? "–"}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <ul className="border rounded divide-y overflow-hidden">
+            {list.map((player) => (
+              <li key={player.id} data-testid={`row-squad-${player.id}`}>
+                <Link
+                  href={`/jogadores/${player.id}`}
+                  className="block px-3 py-2 text-sm hover:bg-muted/50 hover:text-primary"
+                >
+                  <span className="font-medium">{player.name}</span>
+                  {player.seasonAge != null ? (
+                    <span className="block text-xs text-muted-foreground font-normal mt-0.5">
+                      {player.seasonAge} anos
+                    </span>
+                  ) : null}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </section>
       ))}
     </div>
+  );
+}
+
+function SeasonRecentMatches({ year }: { year: string }) {
+  const { data, isLoading } = useListMatches({
+    season: year,
+    limit: 5,
+    offset: 0,
+  });
+
+  const matches = data?.data ?? [];
+
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          Jogos
+        </h2>
+        <Link
+          href={`/partidas?season=${year}`}
+          className="text-xs font-medium text-primary hover:underline"
+        >
+          Ver todos
+        </Link>
+      </div>
+
+      <div className="border rounded overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="text-xs">
+              <TableHead className="py-2">Data</TableHead>
+              <TableHead className="py-2">Adversário</TableHead>
+              <TableHead className="py-2 text-center">Res.</TableHead>
+              <TableHead className="py-2 text-center">Placar</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell colSpan={4}>
+                    <Skeleton className="h-4" />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : matches.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="h-16 text-center text-muted-foreground">
+                  Nenhuma partida nesta temporada.
+                </TableCell>
+              </TableRow>
+            ) : (
+              matches.map((match) => {
+                const isUnknown =
+                  (match as { isUnknownResult?: boolean }).isUnknownResult === true ||
+                  match.result === "unknown";
+                return (
+                  <TableRow key={match.id} className="text-sm" data-testid={`row-season-match-${match.id}`}>
+                    <TableCell className="py-2 text-muted-foreground text-xs whitespace-nowrap">
+                      {fmtDate(match.date)}
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <Link
+                        href={`/partidas/${match.id}`}
+                        className="font-medium hover:text-primary hover:underline"
+                      >
+                        {match.opponent}
+                      </Link>
+                      <span
+                        className={cn(
+                          "ml-2 text-xs px-1 py-0.5 rounded",
+                          match.homeAway === "home"
+                            ? "bg-primary/10 text-primary"
+                            : "bg-muted text-muted-foreground",
+                        )}
+                      >
+                        {match.homeAway === "home" ? "Casa" : "Fora"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-2 text-center">
+                      {isUnknown ? (
+                        <span className="text-xs text-muted-foreground">❓</span>
+                      ) : (
+                        <ResultBadge result={match.result} />
+                      )}
+                    </TableCell>
+                    <TableCell className="py-2 text-center font-mono font-bold">
+                      {isUnknown ? (
+                        <span className="text-muted-foreground">❓</span>
+                      ) : (
+                        `${match.goalsFor}–${match.goalsAgainst}`
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </section>
   );
 }
 
@@ -305,6 +393,9 @@ export default function SeasonDetail() {
         </h2>
         <CompetitionSummary rows={competitionStats} />
       </section>
+
+      {/* Recent matches */}
+      <SeasonRecentMatches year={season.year} />
 
       {/* Roster by position */}
       <section className="space-y-3">

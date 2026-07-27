@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
 import { cn } from "@/lib/utils";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
+import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
 
 function fmtDate(d: string) {
   return new Date(d).toLocaleDateString("pt-BR");
@@ -56,13 +57,13 @@ type StatusFilter = "all" | "unknown" | "walkover";
 
 export default function MatchesList() {
   const search = useSearch();
+  const { season, setSeason } = useSeasonQueryParam("/partidas");
   const initialStatus = (() => {
     const s = new URLSearchParams(search).get("status");
     return (s === "unknown" || s === "walkover") ? (s as StatusFilter) : "all";
   })();
 
   const [tab, setTab] = useState<"official" | "walkover" | "friendly">("official");
-  const [season, setSeason] = useState("all");
   const [result, setResult] = useState("all");
   const [homeAway, setHomeAway] = useState("all");
   const [opponent, setOpponent] = useState("");
@@ -190,7 +191,13 @@ export default function MatchesList() {
 
       {/* Filter bar */}
       <div className="flex flex-wrap gap-2 items-center pt-2">
-        <Select value={season} onValueChange={(v) => { setSeason(v); setPage(1); }}>
+        <Select
+          value={season}
+          onValueChange={(v) => {
+            setSeason(v);
+            setPage(1);
+          }}
+        >
           <SelectTrigger className="h-8 w-28 text-xs" data-testid="select-season">
             <SelectValue placeholder="Temporada" />
           </SelectTrigger>
