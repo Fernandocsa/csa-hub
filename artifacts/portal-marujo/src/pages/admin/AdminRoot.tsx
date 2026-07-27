@@ -4,6 +4,8 @@ import AdminLogin from "./AdminLogin";
 import AdminLayout from "./AdminLayout";
 import AdminDashboard from "./AdminDashboard";
 import AdminPlayers from "./AdminPlayers";
+import AdminManagers from "./AdminManagers";
+import AdminSeasons from "./AdminSeasons";
 import AdminMatches from "./AdminMatches";
 import AdminOpponents from "./AdminOpponents";
 import AdminImportExport from "./AdminImportExport";
@@ -30,6 +32,8 @@ export default function AdminRoot() {
       <Switch>
         <Route path="/admin" component={AdminDashboard} />
         <Route path="/admin/jogadores" component={AdminPlayers} />
+        <Route path="/admin/tecnicos" component={AdminManagers} />
+        <Route path="/admin/temporadas" component={AdminSeasons} />
         <Route path="/admin/partidas/:id/ficha" component={AdminMatchSheet} />
         <Route path="/admin/partidas" component={AdminMatches} />
         <Route path="/admin/adversarios" component={AdminOpponents} />

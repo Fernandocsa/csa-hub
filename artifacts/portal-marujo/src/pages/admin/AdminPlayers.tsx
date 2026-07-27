@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Pencil, Trash2, Plus, ChevronDown, ChevronUp } from "lucide-react";
+import { AdminEntityBadges } from "@/components/AdminEntityBadges";
 
 interface Player {
   id: number;
@@ -535,6 +536,7 @@ export default function AdminPlayers() {
                             </tbody>
                           </table>
                         )}
+                        <AdminEntityBadges entityType="player" entityId={player.id} />
                       </td>
                     </tr>
                   )}
