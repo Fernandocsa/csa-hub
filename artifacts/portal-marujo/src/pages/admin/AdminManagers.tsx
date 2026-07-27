@@ -33,7 +33,7 @@ export default function AdminManagers() {
         <div>
           <h1 className="text-xl font-bold text-gray-900">Técnicos</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Perfil, números e badges em página dedicada
+            Perfil, temporadas e badges em página dedicada
           </p>
         </div>
         <Button className="bg-[#1B3A6B]" asChild>
@@ -82,7 +82,9 @@ export default function AdminManagers() {
                   <td className="px-3 py-2 text-gray-500">
                     {m.startYear != null || m.endYear != null
                       ? `${m.startYear ?? "?"}–${m.endYear ?? "?"}`
-                      : (m.seasons ?? "–")}
+                      : m.storedGames != null
+                        ? `${m.storedGames} jogos`
+                        : "–"}
                   </td>
                 </tr>
               ))}

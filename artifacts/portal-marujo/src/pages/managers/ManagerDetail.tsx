@@ -45,8 +45,19 @@ export default function ManagerDetail() {
 
       <div className="border-b pb-4">
         <h1 className="text-2xl font-bold" data-testid="heading-manager">{manager.name}</h1>
-        {manager.nationality && (
-          <p className="text-sm text-muted-foreground mt-1">{manager.nationality}</p>
+        {(manager.nationality || manager.startYear != null) && (
+          <p className="text-sm text-muted-foreground mt-1">
+            {[
+              manager.nationality,
+              manager.startYear != null
+                ? manager.endYear != null && manager.endYear !== manager.startYear
+                  ? `${manager.startYear}–${manager.endYear}`
+                  : String(manager.startYear)
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
         )}
         <EntityBadges
           badges={

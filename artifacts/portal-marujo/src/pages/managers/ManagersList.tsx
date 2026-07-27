@@ -53,14 +53,26 @@ export default function ManagersList() {
                       </Link>
                     </TableCell>
                     <TableCell className="py-2 text-right text-muted-foreground text-xs">
-                      {m.startYear ?? "–"}{m.endYear && m.endYear !== m.startYear ? `–${m.endYear}` : ""}
+                      {m.startYear != null
+                        ? m.endYear != null && m.endYear !== m.startYear
+                          ? `${m.startYear}–${m.endYear}`
+                          : String(m.startYear)
+                        : "–"}
                     </TableCell>
                     <TableCell className="py-2 text-right">{m.matches}</TableCell>
                     <TableCell className="py-2 text-right text-green-600 font-medium">{m.wins}</TableCell>
                     <TableCell className="py-2 text-right text-amber-600">{m.draws}</TableCell>
                     <TableCell className="py-2 text-right text-red-600">{m.losses}</TableCell>
-                    <TableCell className="py-2 text-right">{m.goalsFor ?? "–"}</TableCell>
-                    <TableCell className="py-2 text-right">{m.goalsAgainst ?? "–"}</TableCell>
+                    <TableCell className="py-2 text-right">
+                      {(m as { goalsFor?: number; goalsScored?: number }).goalsFor ??
+                        (m as { goalsScored?: number }).goalsScored ??
+                        "–"}
+                    </TableCell>
+                    <TableCell className="py-2 text-right">
+                      {(m as { goalsAgainst?: number; goalsConceded?: number }).goalsAgainst ??
+                        (m as { goalsConceded?: number }).goalsConceded ??
+                        "–"}
+                    </TableCell>
                     <TableCell className="py-2 text-right font-bold text-primary">{(m.winPercentage ?? 0).toFixed(1)}%</TableCell>
                   </TableRow>
                 ))}
