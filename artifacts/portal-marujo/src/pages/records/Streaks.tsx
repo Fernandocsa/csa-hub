@@ -24,7 +24,7 @@ const typeConfig = {
     label: "Derrotas Consecutivas",
     color: "text-red-600",
     bg: "border-red-200 bg-red-50",
-    href: null as string | null,
+    href: "/registros/sequencias/derrotas",
   },
 };
 

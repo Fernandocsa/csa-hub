@@ -43,6 +43,7 @@ import ByCompetition from "./pages/records/ByCompetition";
 import Streaks from "./pages/records/Streaks";
 import StreakWinning from "./pages/records/StreakWinning";
 import StreakUnbeaten from "./pages/records/StreakUnbeaten";
+import StreakLosing from "./pages/records/StreakLosing";
 import Titles from "./pages/records/Titles";
 import HomeAway from "./pages/records/HomeAway";
 import AdminRoot from "./pages/admin/AdminRoot";
@@ -101,6 +102,7 @@ export default function AppRouter() {
         <Route path="/registros/decada" component={ByDecade} />
         <Route path="/registros/sequencias/vitorias" component={StreakWinning} />
         <Route path="/registros/sequencias/invencibilidade" component={StreakUnbeaten} />
+        <Route path="/registros/sequencias/derrotas" component={StreakLosing} />
         <Route path="/registros/sequencias" component={Streaks} />
         <Route path="/registros/mando" component={HomeAway} />
         <Route component={NotFound} />

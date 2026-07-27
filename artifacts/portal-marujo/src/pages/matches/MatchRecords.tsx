@@ -87,11 +87,15 @@ export default function MatchRecords() {
                   </Link>
                 )}
                 {losingStreak && (
-                  <div className="border rounded p-4" data-testid="streak-losing">
+                  <Link
+                    href="/registros/sequencias/derrotas"
+                    className="border rounded p-4 block hover:bg-muted/40 transition-colors"
+                    data-testid="streak-losing"
+                  >
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Sequência de Derrotas</p>
                     <p className="text-3xl font-black text-red-600 mt-1">{losingStreak.length} <span className="text-sm font-normal text-muted-foreground">jogos</span></p>
                     <p className="text-xs text-muted-foreground mt-1">{fmtDate(losingStreak.startDate)} — {fmtDate(losingStreak.endDate)}</p>
-                  </div>
+                  </Link>
                 )}
               </>
             )}

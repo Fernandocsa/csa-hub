@@ -446,7 +446,9 @@ router.get("/records/streaks/:type", async (req, res) => {
       homeAway: m.homeAway,
       competition: m.competitionName,
     }));
-    res.json({ ...summary, matches: slice });
+    const goalsFor = slice.reduce((sum, m) => sum + (m.goalsFor ?? 0), 0);
+    const goalsAgainst = slice.reduce((sum, m) => sum + (m.goalsAgainst ?? 0), 0);
+    res.json({ ...summary, goalsFor, goalsAgainst, matches: slice });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno do servidor" });

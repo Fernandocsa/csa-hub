@@ -21,6 +21,8 @@ export interface StreakDetail {
   endDate: string;
   description: string;
   isCurrent?: boolean;
+  goalsFor: number;
+  goalsAgainst: number;
   matches: StreakDetailMatch[];
 }
 

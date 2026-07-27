@@ -63,9 +63,18 @@ export default function StreakDetailPage({ type }: { type: StreakDetailType }) {
               </p>
               <p className="text-sm text-muted-foreground mt-1">{data.description}</p>
             </div>
-            <p className="text-sm text-muted-foreground">
-              {fmtDate(data.startDate)} — {fmtDate(data.endDate)}
-            </p>
+            <div className="text-sm text-right space-y-1">
+              <p className="text-muted-foreground">
+                {fmtDate(data.startDate)} — {fmtDate(data.endDate)}
+              </p>
+              <p>
+                <span className="text-muted-foreground">Gols marcados:</span>{" "}
+                <span className="font-bold text-green-600">{data.goalsFor}</span>
+                <span className="text-muted-foreground mx-2">·</span>
+                <span className="text-muted-foreground">Gols sofridos:</span>{" "}
+                <span className="font-bold text-red-600">{data.goalsAgainst}</span>
+              </p>
+            </div>
           </div>
 
           <div className="border rounded overflow-hidden">
