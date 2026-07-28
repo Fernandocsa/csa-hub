@@ -43,7 +43,8 @@ const META: Record<
     title: string;
     subtitle: string;
     basePath: string;
-    banner: { tone: "yellow" | "blue" | "gray"; icon: string; text: ReactNode };
+    /** Optional intro under the title — muted, not an alert. */
+    intro?: ReactNode;
     empty: string;
     showScore: boolean;
   }
@@ -52,16 +53,12 @@ const META: Record<
     title: "Amistosos",
     subtitle: "Partidas amistosas do CSA",
     basePath: "/partidas/amistosos",
-    banner: {
-      tone: "blue",
-      icon: "ℹ️",
-      text: (
-        <>
-          Partidas amistosas. Esses jogos <strong>não</strong> são contabilizados nas estatísticas
-          oficiais (jogos, vitórias, gols, aproveitamento etc.).
-        </>
-      ),
-    },
+    intro: (
+      <>
+        Esses jogos <strong>não</strong> são contabilizados nas estatísticas oficiais (jogos,
+        vitórias, gols, aproveitamento etc.).
+      </>
+    ),
     empty: "Nenhum amistoso registrado.",
     showScore: true,
   },
@@ -69,11 +66,8 @@ const META: Record<
     title: "W.O.",
     subtitle: "Partidas decididas por Walkover",
     basePath: "/partidas/wo",
-    banner: {
-      tone: "yellow",
-      icon: "⚠️",
-      text: "Partidas decididas por W.O. (Walkover). Não houve disputa em campo. Esses jogos são contabilizados nas estatísticas oficiais.",
-    },
+    intro:
+      "Não houve disputa em campo. Contam nas estatísticas oficiais como vitória ou derrota por 1–0 (sem gol atribuído a artilheiros).",
     empty: "Nenhum W.O. registrado.",
     showScore: false,
   },
@@ -81,21 +75,11 @@ const META: Record<
     title: "Sem Resultado",
     subtitle: "Partidas com resultado oficial ainda não localizado",
     basePath: "/partidas/sem-resultado",
-    banner: {
-      tone: "gray",
-      icon: "❓",
-      text: "Partidas cujo resultado oficial ainda não foi localizado. O placar pode ser atualizado conforme novas fontes forem encontradas.",
-    },
+    intro:
+      "O placar pode ser atualizado conforme novas fontes forem encontradas.",
     empty: "Nenhuma partida com resultado desconhecido.",
     showScore: true,
   },
-};
-
-const bannerCls = {
-  yellow:
-    "border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-700 text-yellow-800 dark:text-yellow-300",
-  blue: "border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-700 text-blue-800 dark:text-blue-300",
-  gray: "border-gray-300 bg-gray-50 dark:bg-gray-800/40 dark:border-gray-700 text-gray-700 dark:text-gray-300",
 };
 
 export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind }) {
@@ -121,7 +105,7 @@ export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind })
     kind === "walkover" ? walkovers : kind === "friendly" ? friendlies : unknowns;
   const data = active.data;
   const isLoading = active.isLoading;
-  const colSpan = meta.showScore ? 6 : 5;
+  const colSpan = meta.showScore ? 6 : 6;
 
   return (
     <div className="space-y-5">
@@ -130,16 +114,9 @@ export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind })
           {meta.title}
         </h1>
         <p className="text-sm text-muted-foreground">{meta.subtitle}</p>
-      </div>
-
-      <div
-        className={cn(
-          "flex items-start gap-2 rounded-md border px-4 py-3 text-sm",
-          bannerCls[meta.banner.tone],
-        )}
-      >
-        <span className="mt-0.5 shrink-0">{meta.banner.icon}</span>
-        <span>{meta.banner.text}</span>
+        {meta.intro ? (
+          <p className="text-sm text-muted-foreground mt-1.5 max-w-3xl">{meta.intro}</p>
+        ) : null}
       </div>
 
       <div className="flex flex-wrap gap-2 items-center">
@@ -203,7 +180,10 @@ export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind })
                   <TableHead className="py-2 text-center">Placar</TableHead>
                 </>
               ) : (
-                <TableHead className="py-2 text-center">Tipo</TableHead>
+                <>
+                  <TableHead className="py-2 text-center">Tipo</TableHead>
+                  <TableHead className="py-2 text-center">Res.</TableHead>
+                </>
               )}
               <TableHead className="py-2">Competição</TableHead>
               <TableHead className="py-2 hidden sm:table-cell">Estádio</TableHead>
@@ -271,11 +251,20 @@ export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind })
                           </TableCell>
                         </>
                       ) : (
-                        <TableCell className="py-2 text-center">
-                          <span className="text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 px-2 py-0.5 rounded">
-                            W.O.
-                          </span>
-                        </TableCell>
+                        <>
+                          <TableCell className="py-2 text-center">
+                            <span className="text-xs font-semibold text-muted-foreground border px-2 py-0.5 rounded">
+                              W.O.
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-2 text-center">
+                            {match.result === "win" || match.result === "loss" ? (
+                              <ResultBadge result={match.result} />
+                            ) : (
+                              <span className="text-xs text-muted-foreground">–</span>
+                            )}
+                          </TableCell>
+                        </>
                       )}
                       <TableCell className="py-2 text-muted-foreground text-xs">
                         <div>{match.competition}</div>

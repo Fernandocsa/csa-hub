@@ -284,7 +284,23 @@ export default function MatchGeneralForm({
           <input
             type="checkbox"
             checked={isWalkover}
-            onChange={(e) => setIsWalkover(e.target.checked)}
+            onChange={(e) => {
+              const on = e.target.checked;
+              setIsWalkover(on);
+              if (on) {
+                // Conventional official score: 1–0 win / 0–1 loss (no scorer credit).
+                if (result === "loss") {
+                  setGoalsFor("0");
+                  setGoalsAgainst("1");
+                } else {
+                  setGoalsFor("1");
+                  setGoalsAgainst("0");
+                  if (!result || result === "draw" || result === "unknown") {
+                    setResult("win");
+                  }
+                }
+              }
+            }}
             className="rounded border-gray-300"
           />
           W.O. (Walkover)

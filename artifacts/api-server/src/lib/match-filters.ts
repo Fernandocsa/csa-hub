@@ -4,8 +4,9 @@ import { matchesTable } from "@workspace/db";
 /**
  * Official matches that already count toward historical stats / rankings.
  * Excludes friendlies, scheduled fixtures, and unknown-result placeholders.
- * Walkovers are included here (they count in aggregates) unless a caller
- * adds an extra `is_walkover = false` filter.
+ *
+ * Walkovers (is_walkover) ARE included: they are official results, conventionally
+ * recorded as 1–0 (win) or 0–1 (loss) at match level — no player goals credited.
  */
 export function officialPlayedMatchConditions(): SQL | undefined {
   return and(
@@ -17,7 +18,7 @@ export function officialPlayedMatchConditions(): SQL | undefined {
 
 /**
  * Official field matches with a known score — for margin rankings
- * (maiores vitórias/derrotas). Excludes W.O. and null placares.
+ * (maiores vitórias/derrotas). Excludes W.O. (even when scored 1–0) and null placares.
  */
 export function scoredFieldMatchConditions(): SQL | undefined {
   return and(
