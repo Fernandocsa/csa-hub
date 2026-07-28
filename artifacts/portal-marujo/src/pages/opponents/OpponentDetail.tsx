@@ -242,7 +242,7 @@ export default function OpponentDetail() {
             <span className="text-muted-foreground font-normal">x</span>
             <span className="inline-flex items-center gap-2">
               <span>{opponent.name}</span>
-              <OpponentCrest url={opponent.logoUrl} name={opponent.name} size="lg" />
+              <OpponentCrest url={opponent.logoUrl} name={opponent.name} size="lg" fallback />
             </span>
           </h1>
           <ShareButton title={`CSA x ${opponent.name}`} />

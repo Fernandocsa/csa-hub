@@ -145,6 +145,7 @@ router.get("/stadiums/:id", async (req, res) => {
       state: stadium.state ?? null,
       country: stadium.country ?? null,
       capacity: stadium.capacity ?? null,
+      photoUrl: stadium.photoUrl ?? null,
       homeClubs,
       matches,
       wins,

@@ -1185,6 +1185,8 @@ components:
           type: integer
         name:
           type: string
+        photoUrl:
+          type: ["string", "null"]
         nationality:
           type: ["string", "null"]
         startYear:

@@ -373,6 +373,8 @@ export interface ManagerDetail {
   id: number;
   name: string;
   /** @nullable */
+  photoUrl?: string | null;
+  /** @nullable */
   nationality?: string | null;
   /** @nullable */
   startYear?: number | null;

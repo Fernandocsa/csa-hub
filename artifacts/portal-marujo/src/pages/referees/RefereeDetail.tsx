@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { ufDisplayName } from "@/lib/br-locations";
 import { ShareButton } from "@/components/ShareButton";
+import { EntityPhoto } from "@/components/EntityPhoto";
 
 const PAGE_SIZE = 25;
 
@@ -80,17 +81,28 @@ export default function RefereeDetail() {
       </Link>
 
       <div className="border-b pb-4">
-        <div className="inline-flex items-center gap-2">
-          <h1 className="text-2xl font-bold" data-testid="heading-referee">
-            {referee.name}
-          </h1>
-          <ShareButton title={referee.name} />
+        <div className="flex items-start gap-3">
+          <EntityPhoto
+            url={referee.photoUrl}
+            name={referee.name}
+            size="lg"
+            className="mt-0.5"
+            label="Foto do árbitro"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="inline-flex items-center gap-2">
+              <h1 className="text-2xl font-bold" data-testid="heading-referee">
+                {referee.name}
+              </h1>
+              <ShareButton title={referee.name} />
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">
+              {referee.state
+                ? `${referee.state} · ${ufDisplayName(referee.state)}`
+                : "Federação não informada"}
+            </p>
+          </div>
         </div>
-        <p className="text-sm text-muted-foreground mt-1">
-          {referee.state
-            ? `${referee.state} · ${ufDisplayName(referee.state)}`
-            : "Federação não informada"}
-        </p>
       </div>
 
       <div className="grid grid-cols-5 gap-px bg-border rounded overflow-hidden">

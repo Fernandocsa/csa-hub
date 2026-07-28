@@ -25,6 +25,7 @@ import {
   type Country,
 } from "@/lib/countries";
 import { ChevronLeft } from "lucide-react";
+import { OpponentCrest } from "@/components/OpponentCrest";
 
 export type Opponent = {
   id: number;
@@ -32,6 +33,7 @@ export type Opponent = {
   city: string | null;
   state: string | null;
   country: string | null;
+  logoUrl?: string | null;
   homeStadiumId?: number | null;
 };
 
@@ -66,6 +68,7 @@ type OpponentPayload = {
   city: string | null;
   state: string | null;
   country: string | null;
+  logoUrl?: string | null;
   homeStadiumId?: number | null;
 };
 
@@ -96,6 +99,7 @@ function OpponentProfileForm({
   isNew: boolean;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
+  const [logoUrl, setLogoUrl] = useState(initial?.logoUrl ?? "");
   const [city, setCity] = useState(initial?.city ?? "");
   const [state, setState] = useState(initial?.state ?? "");
   const [countryQuery, setCountryQuery] = useState(
@@ -113,6 +117,7 @@ function OpponentProfileForm({
 
   useEffect(() => {
     setName(initial?.name ?? "");
+    setLogoUrl(initial?.logoUrl ?? "");
     setCity(initial?.city ?? "");
     setState(initial?.state ?? "");
     setCountryCode(initial?.country ?? null);
@@ -170,6 +175,7 @@ function OpponentProfileForm({
         city: city.trim() || null,
         state: isForeign ? null : state.trim() ? state.trim().toUpperCase() : null,
         country: isForeign ? countryCode : null,
+        logoUrl: logoUrl.trim() || null,
       });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro ao salvar");
@@ -199,6 +205,31 @@ function OpponentProfileForm({
 
   return (
     <form onSubmit={submit} className="space-y-4 max-w-xl">
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+          Escudo (logo)
+        </label>
+        <div className="flex items-start gap-3">
+          <OpponentCrest
+            url={logoUrl.trim() || null}
+            name={name || "Adversário"}
+            size="lg"
+            fallback
+            className="mt-0.5"
+          />
+          <div className="flex-1 min-w-0">
+            <Input
+              value={logoUrl}
+              onChange={(e) => setLogoUrl(e.target.value)}
+              placeholder="https://… (logo_url existente)"
+              className="h-9"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              Usa a coluna logo_url. URL HTTPS ou caminho local. Sem upload nesta tela.
+            </p>
+          </div>
+        </div>
+      </div>
       <div>
         <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
           Nome *

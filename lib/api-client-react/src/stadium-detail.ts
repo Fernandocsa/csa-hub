@@ -7,6 +7,7 @@ export interface StadiumDetail {
   city: string | null;
   state?: string | null;
   capacity: number | null;
+  photoUrl?: string | null;
   homeClubs?: { id: number; name: string }[];
   matches: number;
   wins: number;
