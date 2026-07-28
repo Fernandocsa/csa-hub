@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Users, Trophy, Shield, Download, LogOut, ChevronLeft, CalendarDays, UserCog, CalendarRange, Landmark, MessageSquare, Flag, Scale, ClipboardList } from "lucide-react";
+import { LayoutDashboard, Users, Trophy, Shield, Download, LogOut, ChevronLeft, CalendarDays, UserCog, CalendarRange, Landmark, MessageSquare, Flag, Scale, ClipboardList, BarChart3 } from "lucide-react";
 
 interface Props {
   children: React.ReactNode;
@@ -20,6 +20,7 @@ const navItems = [
   { href: "/admin/sugestoes", label: "Sugestões", icon: Flag },
   { href: "/admin/partidas-duplicadas", label: "Revisão Partidas", icon: ClipboardList },
   { href: "/admin/importar-exportar", label: "Importar / Exportar", icon: Download },
+  { href: "/admin/acessos", label: "Acessos", icon: BarChart3 },
 ];
 
 export default function AdminLayout({ children, onLogout }: Props) {
