@@ -6,7 +6,7 @@ import {
   playersTable,
   playerSeasonStatsTable,
 } from "@workspace/db";
-import { sql, desc, count } from "drizzle-orm";
+import { sql, desc, eq, count } from "drizzle-orm";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
 
 const router = Router();
