@@ -137,6 +137,11 @@ function ImportSection() {
       <h2 className="font-semibold text-gray-900 mb-1">Importar CSV</h2>
       <p className="text-sm text-gray-500 mb-4">
         Selecione um arquivo CSV para importar dados. Baixe o template para ver o formato esperado.
+        Para lote de temporada com IA, use{" "}
+        <a href="/admin/importar-ia" className="text-[#1B3A6B] hover:underline">
+          Importação IA
+        </a>
+        .
       </p>
       <div className="space-y-3">
         {imports.map((imp) => {

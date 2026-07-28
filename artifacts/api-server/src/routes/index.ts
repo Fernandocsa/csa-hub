@@ -10,6 +10,7 @@ import refereesRouter from "./referees";
 import miscRouter from "./misc";
 import nextMatchRouter from "./next-match";
 import adminRouter from "./admin";
+import aiImportRouter from "./ai-import";
 import ratingsRouter from "./ratings";
 import commentsRouter from "./comments";
 import suggestionsRouter from "./suggestions";
@@ -30,5 +31,6 @@ router.use(ratingsRouter);
 router.use(commentsRouter);
 router.use(suggestionsRouter);
 router.use(adminRouter);
+router.use(aiImportRouter);
 
 export default router;

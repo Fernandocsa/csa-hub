@@ -17,6 +17,7 @@ import AdminRefereeDetail from "./AdminRefereeDetail";
 import AdminStadiums from "./AdminStadiums";
 import AdminStadiumDetail from "./AdminStadiumDetail";
 import AdminImportExport from "./AdminImportExport";
+import AdminAiImport from "./AdminAiImport";
 import AdminAccesses from "./AdminAccesses";
 import AdminNextMatch from "./AdminNextMatch";
 import AdminMatchSheet from "./AdminMatchSheet";
@@ -70,6 +71,7 @@ export default function AdminRoot() {
         <Route path="/admin/sugestoes" component={AdminSuggestions} />
         <Route path="/admin/partidas-duplicadas" component={AdminMatchReview} />
         <Route path="/admin/importar-exportar" component={AdminImportExport} />
+        <Route path="/admin/importar-ia" component={AdminAiImport} />
         <Route path="/admin/acessos" component={AdminAccesses} />
       </Switch>
     </AdminLayout>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
-import { Users, Trophy, Shield, Download, CalendarDays, CalendarRange, UserCog, Scale, ClipboardList, BarChart3 } from "lucide-react";
+import { Users, Trophy, Shield, Download, CalendarDays, CalendarRange, UserCog, Scale, ClipboardList, BarChart3, Sparkles } from "lucide-react";
 
 interface Summary {
   totalMatches: number;
@@ -19,6 +19,7 @@ const sections = [
   { href: "/admin/proximo-jogo", label: "Próximo Jogo", icon: CalendarDays, desc: "Editar o card Próxima Partida da Home" },
   { href: "/admin/partidas-duplicadas", label: "Revisão Partidas", icon: ClipboardList, desc: "Datas duplicadas e partidas sem resultado" },
   { href: "/admin/importar-exportar", label: "Importar / Exportar", icon: Download, desc: "Importar dados via CSV ou exportar para planilha" },
+  { href: "/admin/importar-ia", label: "Importação IA", icon: Sparkles, desc: "Extrair lote de temporada com Claude e confirmar na prévia" },
   { href: "/admin/acessos", label: "Acessos", icon: BarChart3, desc: "Abrir o dashboard de Web Analytics na Vercel" },
 ];
 
