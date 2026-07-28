@@ -14,7 +14,7 @@ import {
   getOpponentCompetitionStats,
   getOpponentHighlights,
 } from "../lib/opponent-detail.js";
-import { officialPlayedMatchConditions } from "../lib/match-filters";
+import { officialPlayedMatchConditions, scoredFieldMatchConditions } from "../lib/match-filters";
 
 const router = Router();
 
@@ -636,7 +636,7 @@ router.get("/opponents/:id", async (req, res) => {
         matchDate: matchesTable.matchDate,
       })
       .from(matchesTable)
-      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.result, "win"), officialPlayedMatchConditions()))
+      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.result, "win"), scoredFieldMatchConditions()))
       .orderBy(sql`(${matchesTable.goalsFor} - ${matchesTable.goalsAgainst}) desc`)
       .limit(1);
 
@@ -647,7 +647,7 @@ router.get("/opponents/:id", async (req, res) => {
         matchDate: matchesTable.matchDate,
       })
       .from(matchesTable)
-      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.result, "loss"), officialPlayedMatchConditions()))
+      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.result, "loss"), scoredFieldMatchConditions()))
       .orderBy(sql`(${matchesTable.goalsAgainst} - ${matchesTable.goalsFor}) desc`)
       .limit(1);
 

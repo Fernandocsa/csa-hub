@@ -5,6 +5,7 @@ import { sql, eq, and, ilike, desc, ne } from "drizzle-orm";
 import { loadMatchSheet } from "../lib/match-sheet";
 import {
   officialPlayedMatchConditions,
+  scoredFieldMatchConditions,
   unknownResultMatchConditions,
 } from "../lib/match-filters";
 
@@ -122,7 +123,7 @@ router.get("/matches/biggest-victories", async (req, res) => {
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
-      .where(and(eq(matchesTable.result, "win"), officialPlayedMatchConditions()))
+      .where(and(eq(matchesTable.result, "win"), scoredFieldMatchConditions()))
       .orderBy(sql`(${matchesTable.goalsFor} - ${matchesTable.goalsAgainst}) desc, ${matchesTable.goalsFor} desc`)
       .limit(lim);
 
@@ -144,7 +145,7 @@ router.get("/matches/biggest-defeats", async (req, res) => {
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
-      .where(and(eq(matchesTable.result, "loss"), officialPlayedMatchConditions()))
+      .where(and(eq(matchesTable.result, "loss"), scoredFieldMatchConditions()))
       .orderBy(sql`(${matchesTable.goalsAgainst} - ${matchesTable.goalsFor}) desc, ${matchesTable.goalsAgainst} desc`)
       .limit(lim);
 
