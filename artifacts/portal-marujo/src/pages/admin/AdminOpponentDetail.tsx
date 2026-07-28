@@ -608,6 +608,7 @@ function HomeStadiumSection({
 }
 
 function OpponentHistory({ matches }: { matches: OpponentMatch[] }) {
+  const [, setLocation] = useLocation();
   if (matches.length === 0) {
     return <p className="text-sm text-gray-400">Nenhuma partida cadastrada contra este adversário.</p>;
   }
@@ -625,9 +626,17 @@ function OpponentHistory({ matches }: { matches: OpponentMatch[] }) {
         </thead>
         <tbody>
           {matches.map((m) => (
-            <tr key={m.id} className="border-b hover:bg-gray-50">
+            <tr
+              key={m.id}
+              className="border-b hover:bg-gray-50 cursor-pointer"
+              onClick={() => setLocation(`/admin/partidas/${m.id}`)}
+            >
               <td className="px-3 py-2 whitespace-nowrap">
-                <Link href={`/admin/partidas`} className="text-[#1B3A6B] hover:underline">
+                <Link
+                  href={`/admin/partidas/${m.id}`}
+                  className="text-[#1B3A6B] hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   {fmtDate(m.matchDate)}
                 </Link>
                 <span className="block text-[10px] text-gray-400">{m.season}</span>

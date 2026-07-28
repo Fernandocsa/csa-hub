@@ -12,6 +12,25 @@ export type Referee = {
   state: string | null;
 };
 
+type RefereeMatch = {
+  id: number;
+  matchDate: string;
+  season: string;
+  goalsFor: number | null;
+  goalsAgainst: number | null;
+  result: string;
+  homeAway: string;
+  opponentName: string;
+  competitionName: string;
+  stadiumName: string | null;
+  phase: string | null;
+  round: string | null;
+};
+
+function fmtDate(d: string) {
+  return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
+}
+
 export default function AdminRefereeDetail() {
   const params = useParams<{ id?: string }>();
   const [, setLocation] = useLocation();
@@ -20,6 +39,7 @@ export default function AdminRefereeDetail() {
 
   const [name, setName] = useState("");
   const [state, setState] = useState("");
+  const [matches, setMatches] = useState<RefereeMatch[]>([]);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -34,9 +54,10 @@ export default function AdminRefereeDetail() {
       setLoading(false);
       return;
     }
-    const data = (await r.json()) as Referee;
+    const data = (await r.json()) as Referee & { matches?: RefereeMatch[] };
     setName(data.name);
     setState(data.state ?? "");
+    setMatches(Array.isArray(data.matches) ? data.matches : []);
     setLoading(false);
   }, [isNew, refereeId]);
 
@@ -110,7 +131,7 @@ export default function AdminRefereeDetail() {
   const sel = "w-full border rounded px-3 py-2 text-sm bg-white";
 
   return (
-    <div className="space-y-4 max-w-xl">
+    <div className="space-y-6 max-w-3xl">
       <Link
         href="/admin/arbitros"
         className="inline-flex items-center text-sm text-gray-500 hover:text-gray-800"
@@ -122,7 +143,7 @@ export default function AdminRefereeDetail() {
         {isNew ? "Novo árbitro" : name}
       </h1>
 
-      <form onSubmit={submit} className="space-y-3">
+      <form onSubmit={submit} className="space-y-3 max-w-xl">
         <div>
           <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
             Nome *
@@ -166,6 +187,84 @@ export default function AdminRefereeDetail() {
           )}
         </div>
       </form>
+
+      {!isNew && (
+        <section className="space-y-2">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+            Histórico de partidas ({matches.length})
+          </h2>
+          {matches.length === 0 ? (
+            <p className="text-sm text-gray-400">Nenhuma partida vinculada a este árbitro.</p>
+          ) : (
+            <div className="bg-white border rounded-lg overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                      Data
+                    </th>
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                      Adversário
+                    </th>
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                      Competição
+                    </th>
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                      Placar
+                    </th>
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                      Local
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {matches.map((m) => (
+                    <tr key={m.id} className="border-b hover:bg-gray-50">
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        <Link
+                          href={`/admin/partidas/${m.id}`}
+                          className="text-[#1B3A6B] hover:underline font-medium"
+                        >
+                          {fmtDate(m.matchDate)}
+                        </Link>
+                        <span className="block text-[10px] text-gray-400">{m.season}</span>
+                      </td>
+                      <td className="px-3 py-2">
+                        <Link
+                          href={`/admin/partidas/${m.id}`}
+                          className="hover:text-[#1B3A6B] hover:underline"
+                        >
+                          {m.opponentName}
+                        </Link>
+                      </td>
+                      <td className="px-3 py-2 text-gray-600">
+                        {m.competitionName}
+                        {m.phase || m.round ? (
+                          <span className="block text-[10px] text-gray-400">
+                            {[m.phase, m.round].filter(Boolean).join(" · ")}
+                          </span>
+                        ) : null}
+                      </td>
+                      <td className="px-3 py-2 font-medium whitespace-nowrap">
+                        {m.goalsFor ?? "–"}–{m.goalsAgainst ?? "–"}
+                        <span className="ml-2 text-xs text-gray-400 uppercase">{m.result}</span>
+                      </td>
+                      <td className="px-3 py-2 text-gray-600">
+                        {m.homeAway === "home"
+                          ? "Casa"
+                          : m.homeAway === "away"
+                            ? "Fora"
+                            : m.homeAway}
+                        {m.stadiumName ? ` · ${m.stadiumName}` : ""}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
     </div>
   );
 }

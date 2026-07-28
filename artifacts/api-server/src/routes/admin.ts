@@ -1878,7 +1878,30 @@ router.get("/admin/referees/:id", requireAdmin, async (req, res) => {
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
     const [referee] = await db.select().from(refereesTable).where(eq(refereesTable.id, id));
     if (!referee) return res.status(404).json({ error: "Árbitro não encontrado" });
-    res.json(referee);
+
+    const matches = await db
+      .select({
+        id: matchesTable.id,
+        matchDate: matchesTable.matchDate,
+        season: matchesTable.season,
+        goalsFor: matchesTable.goalsFor,
+        goalsAgainst: matchesTable.goalsAgainst,
+        result: matchesTable.result,
+        homeAway: matchesTable.homeAway,
+        opponentName: opponentsTable.name,
+        competitionName: competitionsTable.name,
+        stadiumName: stadiumsTable.name,
+        phase: matchesTable.phase,
+        round: matchesTable.round,
+      })
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
+      .where(eq(matchesTable.refereeId, id))
+      .orderBy(desc(matchesTable.matchDate));
+
+    res.json({ ...referee, matches });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
