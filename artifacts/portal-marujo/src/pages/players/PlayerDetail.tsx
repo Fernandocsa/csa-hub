@@ -201,7 +201,6 @@ export default function PlayerDetail() {
       <div className="border-b pb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <PlayerFlag flag={flag} nationality={player.nationality} size="lg" />
             <h1 className="text-2xl font-bold" data-testid="heading-player-name">
               {player.name}
             </h1>
