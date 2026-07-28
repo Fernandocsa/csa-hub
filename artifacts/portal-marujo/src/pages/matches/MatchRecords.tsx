@@ -2,12 +2,21 @@ import { Link } from "wouter";
 import { useGetBiggestVictories, useGetBiggestDefeats, useGetStreaks } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { assignCompetitionRanks } from "@/lib/competition-rank";
 
 function fmtDate(d: string) {
   return new Date(d).toLocaleDateString("pt-BR");
 }
 
+function matchMargin(m: { goalsFor?: number | null; goalsAgainst?: number | null; result?: string }) {
+  const gf = m.goalsFor ?? 0;
+  const ga = m.goalsAgainst ?? 0;
+  return m.result === "loss" ? ga - gf : gf - ga;
+}
+
 function MatchTable({ data, isLoading, colorClass }: { data: any[] | undefined; isLoading: boolean; colorClass: string }) {
+  const rows = data ?? [];
+  const ranks = assignCompetitionRanks(rows, matchMargin);
   return (
     <div className="border rounded">
       <Table>
@@ -25,9 +34,9 @@ function MatchTable({ data, isLoading, colorClass }: { data: any[] | undefined; 
             ? Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}><TableCell colSpan={5}><Skeleton className="h-4" /></TableCell></TableRow>
               ))
-            : data?.map((m, i) => (
+            : rows.map((m, i) => (
                 <TableRow key={m.id} className="text-sm" data-testid={`row-match-${m.id}`}>
-                  <TableCell className="py-2 text-muted-foreground text-xs">{i + 1}</TableCell>
+                  <TableCell className="py-2 text-muted-foreground text-xs">{ranks[i]}</TableCell>
                   <TableCell className="py-2 font-medium">{m.opponent}</TableCell>
                   <TableCell className={`py-2 text-center font-bold font-mono ${colorClass}`}>{m.goalsFor}–{m.goalsAgainst}</TableCell>
                   <TableCell className="py-2 text-muted-foreground text-xs">{fmtDate(m.date)}</TableCell>

@@ -2,9 +2,12 @@ import { Link } from "wouter";
 import { useListGoalkeepers } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { assignCompetitionRanks } from "@/lib/competition-rank";
 
 export default function GoalkeepersList() {
   const { data: goalkeepers, isLoading } = useListGoalkeepers({});
+  const rows = goalkeepers ?? [];
+  const ranks = assignCompetitionRanks(rows, (gk) => gk.matches);
 
   return (
     <div className="space-y-5">
@@ -31,17 +34,17 @@ export default function GoalkeepersList() {
               ? Array.from({ length: 8 }).map((_, i) => (
                   <TableRow key={i}><TableCell colSpan={7}><Skeleton className="h-4" /></TableCell></TableRow>
                 ))
-              : goalkeepers?.length === 0 ? (
+              : rows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="h-20 text-center text-muted-foreground">Nenhum goleiro encontrado.</TableCell>
                   </TableRow>
                 )
-              : goalkeepers?.map((gk, i) => {
+              : rows.map((gk, i) => {
                   const avg = gk.matches > 0 ? (gk.goalsConceeded / gk.matches).toFixed(2) : "–";
                   const csPct = gk.matches > 0 ? ((gk.cleanSheets / gk.matches) * 100).toFixed(1) + "%" : "–";
                   return (
                     <TableRow key={gk.id} className="text-sm" data-testid={`row-gk-${gk.id}`}>
-                      <TableCell className="py-2 text-muted-foreground text-xs">{i + 1}</TableCell>
+                      <TableCell className="py-2 text-muted-foreground text-xs">{ranks[i]}</TableCell>
                       <TableCell className="py-2 font-medium">
                         <Link href={`/jogadores/${gk.id}`} className="hover:text-primary hover:underline" data-testid={`link-gk-${gk.id}`}>
                           {gk.name}

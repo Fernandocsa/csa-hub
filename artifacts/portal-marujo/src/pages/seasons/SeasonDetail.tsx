@@ -16,6 +16,7 @@ import { ChevronLeft } from "lucide-react";
 import { ShareButton } from "@/components/ShareButton";
 import { groupPlayersByPosition } from "@/lib/position-groups";
 import { cn } from "@/lib/utils";
+import { assignCompetitionRanks } from "@/lib/competition-rank";
 
 function fmtDate(d: string) {
   return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
@@ -42,6 +43,7 @@ function TopBlock({
   listHref: string;
   valueLabel: string;
 }) {
+  const ranks = assignCompetitionRanks(entries ?? [], (e) => e.value);
   return (
     <div className="border rounded overflow-hidden">
       <div className="px-3 py-2 border-b bg-muted/30 flex items-center justify-between gap-2">
@@ -60,7 +62,7 @@ function TopBlock({
             <li key={e.id} className="px-3 py-2 flex items-baseline justify-between gap-3 text-sm">
               <div className="min-w-0 flex items-baseline gap-2">
                 <span className="text-xs text-muted-foreground font-mono w-4 shrink-0">
-                  {i + 1}
+                  {ranks[i]}
                 </span>
                 <Link
                   href={`/jogadores/${e.id}`}

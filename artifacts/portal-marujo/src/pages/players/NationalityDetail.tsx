@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 import { PlayerFlag } from "@/components/PlayerFlag";
+import { assignCompetitionRanks } from "@/lib/competition-rank";
 
 function formatPeriod(first: string | null, last: string | null): string {
   if (!first) return "–";
@@ -17,6 +18,8 @@ export default function NationalityDetail() {
 
   const { data: players, isLoading, isError } = useGetPlayersByNationality(country);
   const { data: nationalities } = useGetNationalities();
+  const rows = players ?? [];
+  const ranks = assignCompetitionRanks(rows, (p) => p.appearances);
 
   const summary = nationalities?.find((n) => n.nationality === country);
   const flag = players?.[0]?.nationalityFlag ?? summary?.nationalityFlag;
@@ -106,16 +109,16 @@ export default function NationalityDetail() {
                     <TableCell colSpan={6}><Skeleton className="h-4" /></TableCell>
                   </TableRow>
                 ))
-              : players?.length === 0 ? (
+              : rows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="h-16 text-center text-muted-foreground">
                       Nenhum jogador encontrado.
                     </TableCell>
                   </TableRow>
                 )
-              : players?.map((player, i) => (
+              : rows.map((player, i) => (
                   <TableRow key={player.id} className="text-sm" data-testid={`row-player-${player.id}`}>
-                    <TableCell className="py-2 text-muted-foreground text-xs">{i + 1}</TableCell>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{ranks[i]}</TableCell>
                     <TableCell className="py-2 font-medium">
                       <Link
                         href={`/jogadores/${player.id}`}

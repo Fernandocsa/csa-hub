@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { assignCompetitionRanks } from "@/lib/competition-rank";
 
 type SortKey = "appearances" | "goals" | "seasons";
 
@@ -29,6 +30,18 @@ export default function PlayersList() {
     limit,
     offset: (page - 1) * limit,
   });
+
+  const rows = data?.data ?? [];
+  const ranks = assignCompetitionRanks(
+    rows,
+    (player) =>
+      sort === "goals"
+        ? player.goals
+        : sort === "seasons"
+          ? player.seasons
+          : player.appearances,
+    { startAt: (page - 1) * limit + 1 },
+  );
 
   return (
     <div className="space-y-5">
@@ -80,14 +93,14 @@ export default function PlayersList() {
                     <TableCell colSpan={7}><Skeleton className="h-4" /></TableCell>
                   </TableRow>
                 ))
-              : data?.data.length === 0 ? (
+              : rows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="h-20 text-center text-muted-foreground">Nenhum jogador encontrado.</TableCell>
                   </TableRow>
                 )
-              : data?.data.map((player, i) => (
+              : rows.map((player, i) => (
                     <TableRow key={player.id} className="text-sm" data-testid={`row-player-${player.id}`}>
-                      <TableCell className="py-2 text-muted-foreground text-xs">{(page - 1) * limit + i + 1}</TableCell>
+                      <TableCell className="py-2 text-muted-foreground text-xs">{ranks[i]}</TableCell>
                       <TableCell className="py-2 font-medium">
                         <Link href={`/jogadores/${player.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1" data-testid={`link-player-${player.id}`}>
                           <PlayerFlag

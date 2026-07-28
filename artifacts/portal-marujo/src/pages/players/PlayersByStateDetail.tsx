@@ -11,6 +11,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 import { ufDisplayName } from "@/lib/br-locations";
+import { assignCompetitionRanks } from "@/lib/competition-rank";
 
 function formatPeriod(first: string | null, last: string | null): string {
   if (!first) return "–";
@@ -108,14 +109,16 @@ export default function PlayersByStateDetail() {
                 </TableCell>
               </TableRow>
             ) : (
-              data.players.map((player, i) => (
+              (() => {
+                const ranks = assignCompetitionRanks(data.players, (p) => p.appearances);
+                return data.players.map((player, i) => (
                 <TableRow
                   key={player.id}
                   className="text-sm"
                   data-testid={`row-birth-state-${player.id}`}
                 >
                   <TableCell className="py-2 text-muted-foreground text-xs">
-                    {i + 1}
+                    {ranks[i]}
                   </TableCell>
                   <TableCell className="py-2 font-medium">
                     <Link
@@ -141,7 +144,8 @@ export default function PlayersByStateDetail() {
                     {formatPeriod(player.firstSeason, player.lastSeason)}
                   </TableCell>
                 </TableRow>
-              ))
+              ));
+              })()
             )}
           </TableBody>
         </Table>

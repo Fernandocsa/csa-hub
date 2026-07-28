@@ -3,6 +3,7 @@ import { useListReferees } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ufDisplayName } from "@/lib/br-locations";
+import { assignCompetitionRanks } from "@/lib/competition-rank";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -11,6 +12,8 @@ function pct(wins: number, total: number) {
 
 export default function RefereesList() {
   const { data: referees, isLoading } = useListReferees();
+  const rows = referees ?? [];
+  const ranks = assignCompetitionRanks(rows, (r) => r.matches);
 
   return (
     <div className="space-y-5">
@@ -46,7 +49,7 @@ export default function RefereesList() {
                     </TableCell>
                   </TableRow>
                 ))
-              : referees?.length === 0 ? (
+              : rows.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={8}
@@ -56,10 +59,10 @@ export default function RefereesList() {
                     </TableCell>
                   </TableRow>
                 )
-              : referees?.map((r, i) => (
+              : rows.map((r, i) => (
                   <TableRow key={r.id} className="text-sm" data-testid={`row-referee-${r.id}`}>
                     <TableCell className="py-2 text-muted-foreground text-xs">
-                      {i + 1}
+                      {ranks[i]}
                     </TableCell>
                     <TableCell className="py-2 font-medium">
                       <Link

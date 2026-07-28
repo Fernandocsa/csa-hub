@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Globe } from "lucide-react";
 import { PlayerFlag } from "@/components/PlayerFlag";
+import { assignCompetitionRanks } from "@/lib/competition-rank";
 
 function formatPeriod(first: string | null, last: string | null): string {
   if (!first) return "–";
@@ -14,6 +15,8 @@ function formatPeriod(first: string | null, last: string | null): string {
 export default function Estrangeiros() {
   const { data: players, isLoading } = useGetForeignPlayers();
   const { data: nationalities } = useGetNationalities();
+  const rows = players ?? [];
+  const ranks = assignCompetitionRanks(rows, (p) => p.appearances);
 
   const totalPlayers = players?.length ?? 0;
   const totalCountries = nationalities?.length ?? 0;
@@ -84,7 +87,7 @@ export default function Estrangeiros() {
                     <TableCell colSpan={6}><Skeleton className="h-4" /></TableCell>
                   </TableRow>
                 ))
-              : players?.length === 0 ? (
+              : rows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="h-20 text-center text-muted-foreground">
                       <Globe className="h-6 w-6 mx-auto mb-1 opacity-40" />
@@ -92,9 +95,9 @@ export default function Estrangeiros() {
                     </TableCell>
                   </TableRow>
                 )
-              : players?.map((player, i) => (
+              : rows.map((player, i) => (
                   <TableRow key={player.id} className="text-sm" data-testid={`row-foreign-${player.id}`}>
-                    <TableCell className="py-2 text-muted-foreground text-xs">{i + 1}</TableCell>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{ranks[i]}</TableCell>
                     <TableCell className="py-2 font-medium">
                       <Link
                         href={`/jogadores/${player.id}`}

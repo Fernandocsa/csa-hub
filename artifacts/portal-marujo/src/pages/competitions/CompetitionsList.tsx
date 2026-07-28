@@ -3,6 +3,7 @@ import { useListCompetitions } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BrazilFlag } from "@/components/BrazilFlag";
+import { assignCompetitionRanks } from "@/lib/competition-rank";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -22,6 +23,8 @@ function nivel(type?: string | null) {
 
 export default function CompetitionsList() {
   const { data: competitions, isLoading } = useListCompetitions();
+  const rows = competitions ?? [];
+  const ranks = assignCompetitionRanks(rows, (c) => c.matches);
 
   return (
     <div className="space-y-5">
@@ -52,14 +55,14 @@ export default function CompetitionsList() {
               ? Array.from({ length: 8 }).map((_, i) => (
                   <TableRow key={i}><TableCell colSpan={11}><Skeleton className="h-4" /></TableCell></TableRow>
                 ))
-              : competitions?.length === 0 ? (
+              : rows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={11} className="h-20 text-center text-muted-foreground">Nenhuma competição encontrada.</TableCell>
                   </TableRow>
                 )
-              : competitions?.map((c, i) => (
+              : rows.map((c, i) => (
                   <TableRow key={c.id} className="text-sm" data-testid={`row-competition-${c.id}`}>
-                    <TableCell className="py-2 text-muted-foreground text-xs">{i + 1}</TableCell>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{ranks[i]}</TableCell>
                     <TableCell className="py-2 font-medium">
                       <Link href={`/competicoes/${c.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1.5" data-testid={`link-competition-${c.id}`}>
                         <BrazilFlag size="sm" title="Brasil" />

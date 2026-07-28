@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { MatchSidesLabel } from "@/components/MatchSidesLabel";
+import { assignCompetitionRanks } from "@/lib/competition-rank";
 
 function fmtNumber(n: number) {
   return n.toLocaleString("pt-BR");
@@ -47,6 +48,14 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
 
 function AttendanceTable({ sortBy }: { sortBy: Tab }) {
   const { data: matches, isLoading } = useGetBiggestAttendance(100, sortBy as AttendanceSortBy);
+  const rows = matches ?? [];
+  const ranks = assignCompetitionRanks(rows, (m) =>
+    sortBy === "attendance_paid"
+      ? m.attendancePaid
+      : sortBy === "gross_revenue"
+        ? (m.grossRevenueText ?? m.grossRevenue)
+        : m.attendance,
+  );
 
   const colSpan = sortBy === "attendance" ? 5 : sortBy === "attendance_paid" ? 5 : 5;
 
@@ -77,7 +86,7 @@ function AttendanceTable({ sortBy }: { sortBy: Tab }) {
                   <TableCell colSpan={colSpan}><Skeleton className="h-4" /></TableCell>
                 </TableRow>
               ))
-            : !matches || matches.length === 0
+            : rows.length === 0
               ? (
                 <TableRow>
                   <TableCell colSpan={colSpan} className="h-20 text-center text-muted-foreground">
@@ -85,10 +94,10 @@ function AttendanceTable({ sortBy }: { sortBy: Tab }) {
                   </TableCell>
                 </TableRow>
               )
-              : matches.map((m, i) => {
+              : rows.map((m, i) => {
                   return (
                     <TableRow key={m.id} className="text-sm">
-                      <TableCell className="py-2 text-muted-foreground font-mono text-xs">{i + 1}</TableCell>
+                      <TableCell className="py-2 text-muted-foreground font-mono text-xs">{ranks[i]}</TableCell>
                       <TableCell className="py-2 font-medium">
                         <Link
                           href={`/partidas/${m.id}`}

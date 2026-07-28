@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { useListManagers } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { assignCompetitionRanks } from "@/lib/competition-rank";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -10,6 +11,8 @@ function pct(wins: number, total: number) {
 
 export default function ManagersList() {
   const { data: managers, isLoading } = useListManagers();
+  const rows = managers ?? [];
+  const ranks = assignCompetitionRanks(rows, (m) => m.matches);
 
   return (
     <div className="space-y-5">
@@ -39,14 +42,14 @@ export default function ManagersList() {
               ? Array.from({ length: 10 }).map((_, i) => (
                   <TableRow key={i}><TableCell colSpan={10}><Skeleton className="h-4" /></TableCell></TableRow>
                 ))
-              : managers?.length === 0 ? (
+              : rows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={10} className="h-20 text-center text-muted-foreground">Nenhum técnico encontrado.</TableCell>
                   </TableRow>
                 )
-              : managers?.map((m, i) => (
+              : rows.map((m, i) => (
                   <TableRow key={m.id} className="text-sm" data-testid={`row-manager-${m.id}`}>
-                    <TableCell className="py-2 text-muted-foreground text-xs">{i + 1}</TableCell>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{ranks[i]}</TableCell>
                     <TableCell className="py-2 font-medium">
                       <Link href={`/tecnicos/${m.id}`} className="hover:text-primary hover:underline" data-testid={`link-manager-${m.id}`}>
                         {m.name}

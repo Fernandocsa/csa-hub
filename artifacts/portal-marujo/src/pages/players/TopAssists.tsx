@@ -6,6 +6,7 @@ import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { assignCompetitionRanks } from "@/lib/competition-rank";
 
 export default function TopAssists() {
   const { season, setSeason } = useSeasonQueryParam("/jogadores/assistencias");
@@ -14,6 +15,8 @@ export default function TopAssists() {
     limit: 100,
     season: season === "all" ? undefined : season,
   });
+  const rows = players ?? [];
+  const ranks = assignCompetitionRanks(rows, (p) => p.assists);
 
   return (
     <div className="space-y-5">
@@ -65,17 +68,17 @@ export default function TopAssists() {
                     </TableCell>
                   </TableRow>
                 ))
-              : players?.length === 0 ? (
+              : rows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="h-20 text-center text-muted-foreground">
                       Nenhum dado disponível.
                     </TableCell>
                   </TableRow>
                 )
-              : players?.map((p, i) => (
+              : rows.map((p, i) => (
                     <TableRow key={p.id} className="text-sm">
                       <TableCell className="py-2 text-muted-foreground font-mono text-xs">
-                        {i + 1}
+                        {ranks[i]}
                       </TableCell>
                       <TableCell className="py-2 font-medium">
                         <Link

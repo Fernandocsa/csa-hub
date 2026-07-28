@@ -27,6 +27,7 @@ import { OpponentCrest } from "@/components/OpponentCrest";
 import { MatchSidesLabel } from "@/components/MatchSidesLabel";
 import { PlayerFlag } from "@/components/PlayerFlag";
 import { ShareButton } from "@/components/ShareButton";
+import { assignCompetitionRanks } from "@/lib/competition-rank";
 
 function pct(wins: number, total: number) {
   if (!total) return "0.0%";
@@ -170,6 +171,16 @@ export default function Home() {
     ? summary.mostCommonOpponents
     : [];
 
+  const homeScorers = scorerList.slice(0, 10);
+  const homeScorerRanks = assignCompetitionRanks(homeScorers, (p) => p.goals);
+  const homeAppearances = appearanceList.slice(0, 10);
+  const homeAppearanceRanks = assignCompetitionRanks(homeAppearances, (p) => p.appearances);
+  const homeAttendance = attendanceList.slice(0, 10);
+  const homeAttendanceRanks = assignCompetitionRanks(homeAttendance, (m) => m.attendance);
+  const homeAssists = assistList.slice(0, 10);
+  const homeAssistRanks = assignCompetitionRanks(homeAssists, (p) => p.assists);
+  const homeOpponentRanks = assignCompetitionRanks(opponentList, (o) => o.matches);
+
   const biggestWin = victoryList[0];
   const unbeatenStreak = streakList.find((s) => s.type === "unbeaten");
   const winStreak = streakList.find((s) => s.type === "winning");
@@ -274,9 +285,9 @@ export default function Home() {
                         <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                       </TableRow>
                     ))
-                  : scorerList.slice(0, 10).map((p, i) => (
+                  : homeScorers.map((p, i) => (
                       <TableRow key={p.id} className="text-sm">
-                        <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
+                        <TableCell className="py-1.5 text-muted-foreground text-xs">{homeScorerRanks[i]}</TableCell>
                         <TableCell className="py-1.5 font-medium">
                           <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1" data-testid={`link-player-${p.id}`}>
                             <PlayerFlag
@@ -317,9 +328,9 @@ export default function Home() {
                         <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                       </TableRow>
                     ))
-                  : appearanceList.slice(0, 10).map((p, i) => (
+                  : homeAppearances.map((p, i) => (
                       <TableRow key={p.id} className="text-sm">
-                        <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
+                        <TableCell className="py-1.5 text-muted-foreground text-xs">{homeAppearanceRanks[i]}</TableCell>
                         <TableCell className="py-1.5 font-medium">
                           <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
                             <PlayerFlag
@@ -471,10 +482,10 @@ export default function Home() {
                       <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                     </TableRow>
                   ))
-                : attendanceList.slice(0, 10).map((m, i) => {
+                : homeAttendance.map((m, i) => {
                     return (
                       <TableRow key={m.id} className="text-sm">
-                        <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
+                        <TableCell className="py-1.5 text-muted-foreground text-xs">{homeAttendanceRanks[i]}</TableCell>
                         <TableCell className="py-1.5 font-medium">
                           <Link
                             href={`/partidas/${m.id}`}
@@ -523,9 +534,9 @@ export default function Home() {
                       <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                     </TableRow>
                   ))
-                : assistList.slice(0, 10).map((p, i) => (
+                : homeAssists.map((p, i) => (
                       <TableRow key={p.id} className="text-sm">
-                        <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
+                        <TableCell className="py-1.5 text-muted-foreground text-xs">{homeAssistRanks[i]}</TableCell>
                         <TableCell className="py-1.5 font-medium">
                           <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
                             <PlayerFlag
@@ -567,7 +578,7 @@ export default function Home() {
               <TableBody>
                 {opponentList.map((opp, i) => (
                   <TableRow key={opp.id} className="text-sm">
-                    <TableCell className="py-1.5 text-muted-foreground text-xs">{i + 1}</TableCell>
+                    <TableCell className="py-1.5 text-muted-foreground text-xs">{homeOpponentRanks[i]}</TableCell>
                     <TableCell className="py-1.5 font-medium">
                       <Link
                         href={`/adversarios/${opp.id}`}
