@@ -263,50 +263,7 @@ export default function Home() {
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Top Scorers */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Artilheiros Históricos</h2>
-            <Link href="/jogadores/artilheiros" className="text-xs text-primary hover:underline">ver todos</Link>
-          </div>
-          <div className="border rounded">
-            <Table>
-              <TableHeader>
-                <TableRow className="text-xs">
-                  <TableHead className="py-2 w-6">#</TableHead>
-                  <TableHead className="py-2">Jogador</TableHead>
-                  <TableHead className="py-2 text-right">Gols</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loadSc
-                  ? Array.from({ length: 8 }).map((_, i) => (
-                      <TableRow key={i}>
-                        <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
-                      </TableRow>
-                    ))
-                  : homeScorers.map((p, i) => (
-                      <TableRow key={p.id} className="text-sm">
-                        <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeScorerRanks[i])}</TableCell>
-                        <TableCell className="py-1.5 font-medium">
-                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1" data-testid={`link-player-${p.id}`}>
-                            <PlayerFlag
-                              flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
-                              nationality={p.nationality}
-                            />
-                            {p.name}
-                            <VerifiedBadge status={(p as any).verificationStatus} />
-                          </Link>
-                        </TableCell>
-                        <TableCell className="py-1.5 text-right font-bold text-primary">{p.goals}</TableCell>
-                      </TableRow>
-                    ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-
-        {/* Top Appearances */}
+        {/* Mais Jogos */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Mais Jogos</h2>
@@ -349,43 +306,85 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Season results */}
+        {/* Artilheiros */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Resultados por Temporada</h2>
-            <Link href="/temporadas" className="text-xs text-primary hover:underline">ver todos</Link>
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Artilheiros Históricos</h2>
+            <Link href="/jogadores/artilheiros" className="text-xs text-primary hover:underline">ver todos</Link>
           </div>
           <div className="border rounded">
             <Table>
               <TableHeader>
                 <TableRow className="text-xs">
-                  <TableHead className="py-2">Ano</TableHead>
-                  <TableHead className="py-2 text-right">J</TableHead>
-                  <TableHead className="py-2 text-right text-green-600">V</TableHead>
-                  <TableHead className="py-2 text-right text-amber-600">E</TableHead>
-                  <TableHead className="py-2 text-right text-red-600">D</TableHead>
-                  <TableHead className="py-2 text-right">%</TableHead>
+                  <TableHead className="py-2 w-6">#</TableHead>
+                  <TableHead className="py-2">Jogador</TableHead>
+                  <TableHead className="py-2 text-right">Gols</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loadSe
+                {loadSc
                   ? Array.from({ length: 8 }).map((_, i) => (
                       <TableRow key={i}>
-                        <TableCell colSpan={6}><Skeleton className="h-4" /></TableCell>
+                        <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
                       </TableRow>
                     ))
-                  : seasonList.slice(0, 10).map((s) => (
-                      <TableRow key={s.year} className="text-sm">
+                  : homeScorers.map((p, i) => (
+                      <TableRow key={p.id} className="text-sm">
+                        <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeScorerRanks[i])}</TableCell>
                         <TableCell className="py-1.5 font-medium">
-                          <Link href={`/temporadas/${s.year}`} className="hover:text-primary hover:underline" data-testid={`link-season-${s.year}`}>
-                            {s.year}
+                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1" data-testid={`link-player-${p.id}`}>
+                            <PlayerFlag
+                              flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
+                              nationality={p.nationality}
+                            />
+                            {p.name}
+                            <VerifiedBadge status={(p as any).verificationStatus} />
                           </Link>
                         </TableCell>
-                        <TableCell className="py-1.5 text-right">{s.matches}</TableCell>
-                        <TableCell className="py-1.5 text-right text-green-600 font-medium">{s.wins}</TableCell>
-                        <TableCell className="py-1.5 text-right text-amber-600">{s.draws}</TableCell>
-                        <TableCell className="py-1.5 text-right text-red-600">{s.losses}</TableCell>
-                        <TableCell className="py-1.5 text-right font-medium">{pct(s.wins, s.matches)}</TableCell>
+                        <TableCell className="py-1.5 text-right font-bold text-primary">{p.goals}</TableCell>
+                      </TableRow>
+                    ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+
+        {/* Mais Assistências */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Mais Assistências</h2>
+            <Link href="/jogadores/assistencias" className="text-xs text-primary hover:underline">ver ranking completo</Link>
+          </div>
+          <div className="border rounded">
+            <Table>
+              <TableHeader>
+                <TableRow className="text-xs">
+                  <TableHead className="py-2 w-6">#</TableHead>
+                  <TableHead className="py-2">Jogador</TableHead>
+                  <TableHead className="py-2 text-right font-bold text-primary">Assistências</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loadAsst
+                  ? Array.from({ length: 8 }).map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
+                      </TableRow>
+                    ))
+                  : homeAssists.map((p, i) => (
+                      <TableRow key={p.id} className="text-sm">
+                        <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeAssistRanks[i])}</TableCell>
+                        <TableCell className="py-1.5 font-medium">
+                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
+                            <PlayerFlag
+                              flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
+                              nationality={p.nationality}
+                            />
+                            {p.name}
+                            <VerifiedBadge status={(p as any).verificationStatus} />
+                          </Link>
+                        </TableCell>
+                        <TableCell className="py-1.5 text-right font-bold text-primary">{p.assists}</TableCell>
                       </TableRow>
                     ))}
               </TableBody>
@@ -460,6 +459,51 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      {/* Resultados por Temporada */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Resultados por Temporada</h2>
+          <Link href="/temporadas" className="text-xs text-primary hover:underline">ver todos</Link>
+        </div>
+        <div className="border rounded">
+          <Table>
+            <TableHeader>
+              <TableRow className="text-xs">
+                <TableHead className="py-2">Ano</TableHead>
+                <TableHead className="py-2 text-right">J</TableHead>
+                <TableHead className="py-2 text-right text-green-600">V</TableHead>
+                <TableHead className="py-2 text-right text-amber-600">E</TableHead>
+                <TableHead className="py-2 text-right text-red-600">D</TableHead>
+                <TableHead className="py-2 text-right">%</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loadSe
+                ? Array.from({ length: 8 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell colSpan={6}><Skeleton className="h-4" /></TableCell>
+                    </TableRow>
+                  ))
+                : seasonList.slice(0, 10).map((s) => (
+                    <TableRow key={s.year} className="text-sm">
+                      <TableCell className="py-1.5 font-medium">
+                        <Link href={`/temporadas/${s.year}`} className="hover:text-primary hover:underline" data-testid={`link-season-${s.year}`}>
+                          {s.year}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="py-1.5 text-right">{s.matches}</TableCell>
+                      <TableCell className="py-1.5 text-right text-green-600 font-medium">{s.wins}</TableCell>
+                      <TableCell className="py-1.5 text-right text-amber-600">{s.draws}</TableCell>
+                      <TableCell className="py-1.5 text-right text-red-600">{s.losses}</TableCell>
+                      <TableCell className="py-1.5 text-right font-medium">{pct(s.wins, s.matches)}</TableCell>
+                    </TableRow>
+                  ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
       {/* Maiores Públicos */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
@@ -507,49 +551,6 @@ export default function Home() {
                       </TableRow>
                     );
                   })}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
-
-      {/* Mais Assistências */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Mais Assistências</h2>
-          <Link href="/jogadores/assistencias" className="text-xs text-primary hover:underline">ver ranking completo</Link>
-        </div>
-        <div className="border rounded">
-          <Table>
-            <TableHeader>
-              <TableRow className="text-xs">
-                <TableHead className="py-2 w-6">#</TableHead>
-                <TableHead className="py-2">Jogador</TableHead>
-                <TableHead className="py-2 text-right font-bold text-primary">Assistências</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loadAsst
-                ? Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
-                    </TableRow>
-                  ))
-                : homeAssists.map((p, i) => (
-                      <TableRow key={p.id} className="text-sm">
-                        <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeAssistRanks[i])}</TableCell>
-                        <TableCell className="py-1.5 font-medium">
-                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
-                            <PlayerFlag
-                              flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
-                              nationality={p.nationality}
-                            />
-                            {p.name}
-                            <VerifiedBadge status={(p as any).verificationStatus} />
-                          </Link>
-                        </TableCell>
-                        <TableCell className="py-1.5 text-right font-bold text-primary">{p.assists}</TableCell>
-                      </TableRow>
-                    ))}
             </TableBody>
           </Table>
         </div>

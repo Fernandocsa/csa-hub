@@ -77,7 +77,7 @@ router.get("/summary", async (req, res) => {
       .where(officialPlayedMatchConditions())
       .groupBy(opponentsTable.id, opponentsTable.name, opponentsTable.logoUrl)
       .orderBy(sql`count(*) desc`)
-      .limit(5);
+      .limit(10);
 
     res.json({
       totalMatches: total,
