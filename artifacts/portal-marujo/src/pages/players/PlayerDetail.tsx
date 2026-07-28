@@ -86,14 +86,19 @@ function footLabel(foot?: string | null): string | null {
   return foot;
 }
 
-function birthPlace(p: PlayerProfile): string | null {
-  const parts = [p.birthCity, p.birthState, p.birthCountry]
+function birthPlaceParts(p: PlayerProfile): {
+  locality: string | null;
+  country: string | null;
+} {
+  const locality = [p.birthCity, p.birthState]
     .map((x) => x?.trim())
-    .filter(Boolean) as string[];
-  return parts.length ? parts.join(", ") : null;
+    .filter(Boolean)
+    .join(", ");
+  const country = p.birthCountry?.trim() || null;
+  return { locality: locality || null, country };
 }
 
-function PersonalRow({ label, value }: { label: string; value: string }) {
+function PersonalRow({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex gap-2 text-sm">
       <span className="text-muted-foreground shrink-0 min-w-[7.5rem]">{label}</span>
@@ -138,7 +143,7 @@ export default function PlayerDetail() {
     !!player.fullName?.trim() &&
     player.fullName.trim().toLowerCase() !== player.name.trim().toLowerCase();
   const birthDateLabel = fmtBirthDate(player.birthDate);
-  const place = birthPlace(player);
+  const { locality, country: birthCountry } = birthPlaceParts(player);
   const foot = footLabel(player.preferredFoot);
   const height =
     player.heightCm != null && Number.isFinite(player.heightCm)
@@ -150,13 +155,41 @@ export default function PlayerDetail() {
       : null;
   const heightWeight = [height, weight].filter(Boolean).join(" / ") || null;
 
-  const personalRows: { label: string; value: string }[] = [];
+  const birthSuffix = player.isDeceased
+    ? " (Falecido)"
+    : age != null
+      ? ` (${age} anos)`
+      : "";
+
+  const personalRows: { label: string; value: ReactNode }[] = [];
   if (showFullName) personalRows.push({ label: "Nome completo", value: player.fullName!.trim() });
-  if (birthDateLabel) personalRows.push({ label: "Data de nascimento", value: birthDateLabel });
-  else if (player.birthYear != null) {
-    personalRows.push({ label: "Ano de nascimento", value: String(player.birthYear) });
+  if (birthDateLabel) {
+    personalRows.push({
+      label: "Data de nascimento",
+      value: `${birthDateLabel}${birthSuffix}`,
+    });
+  } else if (player.birthYear != null) {
+    personalRows.push({
+      label: "Ano de nascimento",
+      value: `${player.birthYear}${birthSuffix}`,
+    });
   }
-  if (place) personalRows.push({ label: "Local de nascimento", value: place });
+  if (locality || birthCountry) {
+    personalRows.push({
+      label: "Local de nascimento",
+      value: (
+        <span className="inline-flex flex-wrap items-center gap-x-1">
+          {locality ? <span>{locality}{birthCountry ? "," : ""}</span> : null}
+          {birthCountry ? (
+            <span className="inline-flex items-center gap-1">
+              <PlayerFlag nationality={birthCountry} size="sm" />
+              <span>{birthCountry}</span>
+            </span>
+          ) : null}
+        </span>
+      ),
+    });
+  }
   if (player.position) personalRows.push({ label: "Posição", value: player.position });
   if ((player.secondaryPositions?.length ?? 0) > 0) {
     personalRows.push({
@@ -185,10 +218,6 @@ export default function PlayerDetail() {
       </span>,
     );
   }
-  if (player.isDeceased) metaParts.push(<span key="deceased">Falecido</span>);
-  else if (age != null) metaParts.push(<span key="age">{age} anos</span>);
-  if (player.position) metaParts.push(<span key="pos">{player.position}</span>);
-
   return (
     <div className="space-y-5 max-w-3xl">
       <Link href="/jogadores">
