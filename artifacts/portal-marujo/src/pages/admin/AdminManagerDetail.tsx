@@ -112,7 +112,7 @@ function ManagerProfileForm({
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [fullName, setFullName] = useState(initial?.fullName ?? "");
-  const [nationality, setNationality] = useState(initial?.nationality ?? "Brasileiro");
+  const [nationality, setNationality] = useState(initial?.nationality ?? "Brasil");
   const [birthDate, setBirthDate] = useState(initial?.birthDate ?? "");
   const [birthCity, setBirthCity] = useState(initial?.birthCity ?? "");
   const [birthState, setBirthState] = useState(initial?.birthState ?? "");
@@ -126,7 +126,7 @@ function ManagerProfileForm({
   useEffect(() => {
     setName(initial?.name ?? "");
     setFullName(initial?.fullName ?? "");
-    setNationality(initial?.nationality ?? "Brasileiro");
+    setNationality(initial?.nationality ?? "Brasil");
     setBirthDate(initial?.birthDate ?? "");
     setBirthCity(initial?.birthCity ?? "");
     setBirthState(initial?.birthState ?? "");
@@ -188,7 +188,7 @@ function ManagerProfileForm({
         <Input
           value={nationality}
           onChange={(e) => setNationality(e.target.value)}
-          placeholder="Brasileiro"
+          placeholder="Brasil"
         />
       </div>
       <div>

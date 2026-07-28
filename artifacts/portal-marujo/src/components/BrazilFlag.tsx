@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
+import { LOCAL_FLAG_PATHS } from "@/lib/nationality-flags";
 
-/** Wikimedia Commons PNG of the Brazilian flag (validated: 200, image/png, 1920×1344). */
-export const BRAZIL_FLAG_URL =
-  "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Flag_of_Brazil.svg/1920px-Flag_of_Brazil.svg.png";
+/** Local SVG (Wikimedia Commons Flag_of_Brazil.svg), no remote hotlink. */
+export const BRAZIL_FLAG_URL = LOCAL_FLAG_PATHS.br;
 
 export const BRAZIL_FLAG_EMOJI = "🇧🇷";
 
@@ -62,3 +62,6 @@ export function BrazilFlag({
     />
   );
 }
+
+export { SIZE_CLASS as FLAG_SIZE_CLASS };
+export type { FlagSize };

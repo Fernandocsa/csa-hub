@@ -1,20 +1,23 @@
+import { cn } from "@/lib/utils";
 import {
   BrazilFlag,
-  isBrazilFlagEmoji,
+  FLAG_SIZE_CLASS,
   isBrazilianNationality,
+  isBrazilFlagEmoji,
 } from "@/components/BrazilFlag";
+import { resolveNationalityFlagSrc } from "@/lib/nationality-flags";
 
 interface PlayerFlagProps {
   flag?: string | null;
   nationality?: string | null;
   size?: "sm" | "md" | "lg";
-  /** When true, Brazilian nationality renders BrazilFlag (default). When false, Brasil is hidden. */
+  /** When true, Brazilian nationality renders Brazil flag (default). When false, Brasil is hidden. */
   showBrazil?: boolean;
 }
 
 /**
  * Nationality marker next to player names.
- * Brazil → PNG image; other countries → emoji from `nationalityFlag`.
+ * Local SVG by nationality (or legacy emoji → same asset). Unknown → nothing.
  */
 export function PlayerFlag({
   flag,
@@ -36,21 +39,24 @@ export function PlayerFlag({
     );
   }
 
-  if (!flag) return null;
+  const src = resolveNationalityFlagSrc({ nationality, flag });
+  if (!src) return null;
 
   return (
-    <span
+    <img
+      src={src}
+      alt={nationality?.trim() || "Bandeira"}
       title={nationality ?? undefined}
-      aria-label={nationality ?? undefined}
-      className={
-        size === "lg"
-          ? "text-3xl mr-1.5 leading-none"
-          : size === "md"
-            ? "text-xl mr-1.5 leading-none"
-            : "mr-0.5 text-base leading-none"
-      }
-    >
-      {flag}
-    </span>
+      loading="lazy"
+      decoding="async"
+      className={cn(
+        FLAG_SIZE_CLASS[size],
+        "inline-block shrink-0 object-cover rounded-[1px] align-middle",
+        size === "md" || size === "lg" ? "mr-1.5" : "mr-0.5",
+      )}
+      onError={(e) => {
+        e.currentTarget.style.display = "none";
+      }}
+    />
   );
 }

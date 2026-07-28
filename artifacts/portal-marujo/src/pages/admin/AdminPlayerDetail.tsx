@@ -229,7 +229,7 @@ function PlayerProfileForm({
           <Input
             value={nationality}
             onChange={(e) => setNationality(e.target.value)}
-            placeholder="Brasileiro"
+            placeholder="Brasil"
           />
         </div>
       </div>

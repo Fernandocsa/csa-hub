@@ -103,7 +103,7 @@ function ImportSection() {
       endpoint: "players",
       label: "Jogadores",
       desc: "Colunas: name, position, nationality, birth_year. Nomes exact/similar pedem confirmação (Usar existente sobrescreve campos preenchidos do CSV).",
-      template: "name,position,nationality,birth_year\nJogador Exemplo,Atacante,Brasileiro,1995",
+      template: "name,position,nationality,birth_year\nJogador Exemplo,Atacante,Brasil,1995",
     },
     {
       endpoint: "player-stats",

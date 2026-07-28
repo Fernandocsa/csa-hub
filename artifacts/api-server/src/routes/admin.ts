@@ -2104,7 +2104,7 @@ router.post("/admin/managers", requireAdmin, async (req, res) => {
       .values({
         name: body.name.trim(),
         fullName: body.fullName?.trim() || null,
-        nationality: body.nationality?.trim() || "Brasileiro",
+        nationality: body.nationality?.trim() || "Brasil",
         birthDate,
         birthCity: body.birthCity?.trim() || null,
         birthState: body.birthState?.trim() || null,
