@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Globe } from "lucide-react";
 import { PlayerFlag } from "@/components/PlayerFlag";
-import { assignCompetitionRanks } from "@/lib/competition-rank";
+import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 function formatPeriod(first: string | null, last: string | null): string {
   if (!first) return "–";
@@ -97,7 +97,7 @@ export default function Estrangeiros() {
                 )
               : rows.map((player, i) => (
                   <TableRow key={player.id} className="text-sm" data-testid={`row-foreign-${player.id}`}>
-                    <TableCell className="py-2 text-muted-foreground text-xs">{ranks[i]}</TableCell>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{formatCompetitionRank(ranks[i])}</TableCell>
                     <TableCell className="py-2 font-medium">
                       <Link
                         href={`/jogadores/${player.id}`}

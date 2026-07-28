@@ -637,7 +637,7 @@ router.get("/opponents/:id", async (req, res) => {
       })
       .from(matchesTable)
       .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.result, "win"), scoredFieldMatchConditions()))
-      .orderBy(sql`(${matchesTable.goalsFor} - ${matchesTable.goalsAgainst}) desc`)
+      .orderBy(sql`${matchesTable.goalsFor} desc, (${matchesTable.goalsFor} - ${matchesTable.goalsAgainst}) desc`)
       .limit(1);
 
     const defeatRows = await db
@@ -648,7 +648,7 @@ router.get("/opponents/:id", async (req, res) => {
       })
       .from(matchesTable)
       .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.result, "loss"), scoredFieldMatchConditions()))
-      .orderBy(sql`(${matchesTable.goalsAgainst} - ${matchesTable.goalsFor}) desc`)
+      .orderBy(sql`${matchesTable.goalsAgainst} desc, (${matchesTable.goalsAgainst} - ${matchesTable.goalsFor}) desc`)
       .limit(1);
 
     const [competitionStats, highlights] = await Promise.all([

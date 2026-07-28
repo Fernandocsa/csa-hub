@@ -44,3 +44,8 @@ export function assignCompetitionRanks<T>(
 
   return ranks;
 }
+
+/** Formata posição de ranking: 1 → "1º", 4 → "4º". */
+export function formatCompetitionRank(rank: number): string {
+  return `${rank}º`;
+}

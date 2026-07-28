@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { useListStadiums } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { assignCompetitionRanks } from "@/lib/competition-rank";
+import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -49,7 +49,7 @@ export default function StadiumsList() {
                 )
               : rows.map((s, i) => (
                   <TableRow key={s.id} className="text-sm" data-testid={`row-stadium-${s.id}`}>
-                    <TableCell className="py-2 text-muted-foreground text-xs">{ranks[i]}</TableCell>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{formatCompetitionRank(ranks[i])}</TableCell>
                     <TableCell className="py-2 font-medium">
                       <Link
                         href={`/estadios/${s.id}`}

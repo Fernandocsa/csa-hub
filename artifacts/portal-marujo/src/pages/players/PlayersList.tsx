@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { assignCompetitionRanks } from "@/lib/competition-rank";
+import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 type SortKey = "appearances" | "goals" | "seasons";
 
@@ -100,7 +100,7 @@ export default function PlayersList() {
                 )
               : rows.map((player, i) => (
                     <TableRow key={player.id} className="text-sm" data-testid={`row-player-${player.id}`}>
-                      <TableCell className="py-2 text-muted-foreground text-xs">{ranks[i]}</TableCell>
+                      <TableCell className="py-2 text-muted-foreground text-xs">{formatCompetitionRank(ranks[i])}</TableCell>
                       <TableCell className="py-2 font-medium">
                         <Link href={`/jogadores/${player.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1" data-testid={`link-player-${player.id}`}>
                           <PlayerFlag

@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { MatchSidesLabel } from "@/components/MatchSidesLabel";
-import { assignCompetitionRanks } from "@/lib/competition-rank";
+import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 function fmtNumber(n: number) {
   return n.toLocaleString("pt-BR");
@@ -97,7 +97,7 @@ function AttendanceTable({ sortBy }: { sortBy: Tab }) {
               : rows.map((m, i) => {
                   return (
                     <TableRow key={m.id} className="text-sm">
-                      <TableCell className="py-2 text-muted-foreground font-mono text-xs">{ranks[i]}</TableCell>
+                      <TableCell className="py-2 text-muted-foreground font-mono text-xs">{formatCompetitionRank(ranks[i])}</TableCell>
                       <TableCell className="py-2 font-medium">
                         <Link
                           href={`/partidas/${m.id}`}

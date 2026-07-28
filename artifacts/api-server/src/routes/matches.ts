@@ -124,7 +124,7 @@ router.get("/matches/biggest-victories", async (req, res) => {
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
       .where(and(eq(matchesTable.result, "win"), scoredFieldMatchConditions()))
-      .orderBy(sql`(${matchesTable.goalsFor} - ${matchesTable.goalsAgainst}) desc, ${matchesTable.goalsFor} desc`)
+      .orderBy(sql`${matchesTable.goalsFor} desc, (${matchesTable.goalsFor} - ${matchesTable.goalsAgainst}) desc`)
       .limit(lim);
 
     res.json(rows.map(buildMatchRow));
@@ -146,7 +146,7 @@ router.get("/matches/biggest-defeats", async (req, res) => {
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
       .where(and(eq(matchesTable.result, "loss"), scoredFieldMatchConditions()))
-      .orderBy(sql`(${matchesTable.goalsAgainst} - ${matchesTable.goalsFor}) desc, ${matchesTable.goalsAgainst} desc`)
+      .orderBy(sql`${matchesTable.goalsAgainst} desc, (${matchesTable.goalsAgainst} - ${matchesTable.goalsFor}) desc`)
       .limit(lim);
 
     res.json(rows.map(buildMatchRow));

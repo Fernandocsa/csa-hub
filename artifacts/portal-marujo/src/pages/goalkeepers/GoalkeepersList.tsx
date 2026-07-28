@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { useListGoalkeepers } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { assignCompetitionRanks } from "@/lib/competition-rank";
+import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 export default function GoalkeepersList() {
   const { data: goalkeepers, isLoading } = useListGoalkeepers({});
@@ -44,7 +44,7 @@ export default function GoalkeepersList() {
                   const csPct = gk.matches > 0 ? ((gk.cleanSheets / gk.matches) * 100).toFixed(1) + "%" : "–";
                   return (
                     <TableRow key={gk.id} className="text-sm" data-testid={`row-gk-${gk.id}`}>
-                      <TableCell className="py-2 text-muted-foreground text-xs">{ranks[i]}</TableCell>
+                      <TableCell className="py-2 text-muted-foreground text-xs">{formatCompetitionRank(ranks[i])}</TableCell>
                       <TableCell className="py-2 font-medium">
                         <Link href={`/jogadores/${gk.id}`} className="hover:text-primary hover:underline" data-testid={`link-gk-${gk.id}`}>
                           {gk.name}

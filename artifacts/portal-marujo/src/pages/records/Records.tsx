@@ -3,16 +3,21 @@ import { useLocation } from "wouter";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RecordsLayout } from "./RecordsLayout";
-import { assignCompetitionRanks } from "@/lib/competition-rank";
+import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 function fmtDate(d: string) {
   return new Date(d).toLocaleDateString("pt-BR");
 }
 
-function matchMargin(m: { goalsFor?: number | null; goalsAgainst?: number | null; result?: string }) {
+/** Vitória: gols marcados, depois saldo | Derrota: gols sofridos, depois saldo. */
+function matchRankKey(m: {
+  goalsFor?: number | null;
+  goalsAgainst?: number | null;
+  result?: string;
+}) {
   const gf = m.goalsFor ?? 0;
   const ga = m.goalsAgainst ?? 0;
-  return m.result === "loss" ? ga - gf : gf - ga;
+  return m.result === "loss" ? `${ga}:${ga - gf}` : `${gf}:${gf - ga}`;
 }
 
 function MatchTable({
@@ -26,7 +31,7 @@ function MatchTable({
 }) {
   const [, setLocation] = useLocation();
   const rows = data ?? [];
-  const ranks = assignCompetitionRanks(rows, matchMargin);
+  const ranks = assignCompetitionRanks(rows, matchRankKey);
 
   return (
     <div className="border rounded">
@@ -54,7 +59,7 @@ function MatchTable({
                   onClick={() => setLocation(`/partidas/${m.id}`)}
                   data-testid={`row-match-${m.id}`}
                 >
-                  <TableCell className="py-1.5 text-muted-foreground text-xs">{ranks[i]}</TableCell>
+                  <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(ranks[i])}</TableCell>
                   <TableCell className="py-1.5 font-medium">{m.opponent}</TableCell>
                   <TableCell className={`py-1.5 text-center font-bold ${colorClass}`}>
                     {m.goalsFor}–{m.goalsAgainst}

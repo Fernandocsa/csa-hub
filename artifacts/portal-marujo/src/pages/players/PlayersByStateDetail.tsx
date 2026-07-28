@@ -11,7 +11,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 import { ufDisplayName } from "@/lib/br-locations";
-import { assignCompetitionRanks } from "@/lib/competition-rank";
+import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 function formatPeriod(first: string | null, last: string | null): string {
   if (!first) return "–";
@@ -118,7 +118,7 @@ export default function PlayersByStateDetail() {
                   data-testid={`row-birth-state-${player.id}`}
                 >
                   <TableCell className="py-2 text-muted-foreground text-xs">
-                    {ranks[i]}
+                    {formatCompetitionRank(ranks[i])}
                   </TableCell>
                   <TableCell className="py-2 font-medium">
                     <Link

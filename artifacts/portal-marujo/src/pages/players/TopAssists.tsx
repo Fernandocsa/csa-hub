@@ -6,7 +6,7 @@ import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { assignCompetitionRanks } from "@/lib/competition-rank";
+import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 export default function TopAssists() {
   const { season, setSeason } = useSeasonQueryParam("/jogadores/assistencias");
@@ -78,7 +78,7 @@ export default function TopAssists() {
               : rows.map((p, i) => (
                     <TableRow key={p.id} className="text-sm">
                       <TableCell className="py-2 text-muted-foreground font-mono text-xs">
-                        {ranks[i]}
+                        {formatCompetitionRank(ranks[i])}
                       </TableCell>
                       <TableCell className="py-2 font-medium">
                         <Link

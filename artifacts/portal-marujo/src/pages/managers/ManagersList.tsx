@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { useListManagers } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { assignCompetitionRanks } from "@/lib/competition-rank";
+import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -49,7 +49,7 @@ export default function ManagersList() {
                 )
               : rows.map((m, i) => (
                   <TableRow key={m.id} className="text-sm" data-testid={`row-manager-${m.id}`}>
-                    <TableCell className="py-2 text-muted-foreground text-xs">{ranks[i]}</TableCell>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{formatCompetitionRank(ranks[i])}</TableCell>
                     <TableCell className="py-2 font-medium">
                       <Link href={`/tecnicos/${m.id}`} className="hover:text-primary hover:underline" data-testid={`link-manager-${m.id}`}>
                         {m.name}

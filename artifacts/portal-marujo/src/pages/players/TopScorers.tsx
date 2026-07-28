@@ -6,7 +6,7 @@ import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { assignCompetitionRanks } from "@/lib/competition-rank";
+import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 export default function TopScorers() {
   const { season, setSeason } = useSeasonQueryParam("/jogadores/artilheiros");
@@ -71,7 +71,7 @@ export default function TopScorers() {
                 )
               : rows.map((p, i) => (
                     <TableRow key={p.id} className="text-sm" data-testid={`row-scorer-${p.id}`}>
-                      <TableCell className="py-2 text-muted-foreground font-mono text-xs">{ranks[i]}</TableCell>
+                      <TableCell className="py-2 text-muted-foreground font-mono text-xs">{formatCompetitionRank(ranks[i])}</TableCell>
                       <TableCell className="py-2 font-medium">
                         <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
                           <PlayerFlag

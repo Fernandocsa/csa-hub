@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OpponentCrest } from "@/components/OpponentCrest";
-import { assignCompetitionRanks } from "@/lib/competition-rank";
+import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -92,7 +92,7 @@ export default function OpponentsList() {
                   const gd = opp.goalsFor - opp.goalsAgainst;
                   return (
                     <TableRow key={opp.id} className="text-sm" data-testid={`row-opponent-${opp.id}`}>
-                      <TableCell className="py-2 text-muted-foreground text-xs">{ranks[i]}</TableCell>
+                      <TableCell className="py-2 text-muted-foreground text-xs">{formatCompetitionRank(ranks[i])}</TableCell>
                       <TableCell className="py-2 font-medium">
                         <Link
                           href={`/adversarios/${opp.id}`}

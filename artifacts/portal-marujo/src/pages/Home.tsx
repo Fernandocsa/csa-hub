@@ -27,7 +27,7 @@ import { OpponentCrest } from "@/components/OpponentCrest";
 import { MatchSidesLabel } from "@/components/MatchSidesLabel";
 import { PlayerFlag } from "@/components/PlayerFlag";
 import { ShareButton } from "@/components/ShareButton";
-import { assignCompetitionRanks } from "@/lib/competition-rank";
+import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 function pct(wins: number, total: number) {
   if (!total) return "0.0%";
@@ -287,7 +287,7 @@ export default function Home() {
                     ))
                   : homeScorers.map((p, i) => (
                       <TableRow key={p.id} className="text-sm">
-                        <TableCell className="py-1.5 text-muted-foreground text-xs">{homeScorerRanks[i]}</TableCell>
+                        <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeScorerRanks[i])}</TableCell>
                         <TableCell className="py-1.5 font-medium">
                           <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1" data-testid={`link-player-${p.id}`}>
                             <PlayerFlag
@@ -330,7 +330,7 @@ export default function Home() {
                     ))
                   : homeAppearances.map((p, i) => (
                       <TableRow key={p.id} className="text-sm">
-                        <TableCell className="py-1.5 text-muted-foreground text-xs">{homeAppearanceRanks[i]}</TableCell>
+                        <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeAppearanceRanks[i])}</TableCell>
                         <TableCell className="py-1.5 font-medium">
                           <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
                             <PlayerFlag
@@ -485,7 +485,7 @@ export default function Home() {
                 : homeAttendance.map((m, i) => {
                     return (
                       <TableRow key={m.id} className="text-sm">
-                        <TableCell className="py-1.5 text-muted-foreground text-xs">{homeAttendanceRanks[i]}</TableCell>
+                        <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeAttendanceRanks[i])}</TableCell>
                         <TableCell className="py-1.5 font-medium">
                           <Link
                             href={`/partidas/${m.id}`}
@@ -536,7 +536,7 @@ export default function Home() {
                   ))
                 : homeAssists.map((p, i) => (
                       <TableRow key={p.id} className="text-sm">
-                        <TableCell className="py-1.5 text-muted-foreground text-xs">{homeAssistRanks[i]}</TableCell>
+                        <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeAssistRanks[i])}</TableCell>
                         <TableCell className="py-1.5 font-medium">
                           <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
                             <PlayerFlag
@@ -578,7 +578,7 @@ export default function Home() {
               <TableBody>
                 {opponentList.map((opp, i) => (
                   <TableRow key={opp.id} className="text-sm">
-                    <TableCell className="py-1.5 text-muted-foreground text-xs">{homeOpponentRanks[i]}</TableCell>
+                    <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeOpponentRanks[i])}</TableCell>
                     <TableCell className="py-1.5 font-medium">
                       <Link
                         href={`/adversarios/${opp.id}`}
