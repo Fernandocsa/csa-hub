@@ -4008,14 +4008,124 @@ router.post("/admin/import/matches/resolve", requireAdmin, async (req, res) => {
 });
 
 // Competition management
+const COMPETITION_TYPES = new Set(["state", "league", "regional", "cup", "friendly"]);
+
+function parseCompetitionType(
+  raw: unknown,
+): { ok: true; value: string | null } | { ok: false; error: string } {
+  if (raw == null || String(raw).trim() === "") return { ok: true, value: null };
+  const type = String(raw).trim().toLowerCase();
+  if (!COMPETITION_TYPES.has(type)) {
+    return {
+      ok: false,
+      error: "type inválido (state, league, regional, cup, friendly)",
+    };
+  }
+  return { ok: true, value: type };
+}
+
+router.get("/admin/competitions", requireAdmin, async (req, res) => {
+  try {
+    const rows = await db
+      .select({
+        id: competitionsTable.id,
+        name: competitionsTable.name,
+        type: competitionsTable.type,
+        matchCount: sql<number>`cast(count(${matchesTable.id}) as int)`,
+      })
+      .from(competitionsTable)
+      .leftJoin(matchesTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .groupBy(competitionsTable.id, competitionsTable.name, competitionsTable.type)
+      .orderBy(asc(competitionsTable.name));
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.post("/admin/competitions", requireAdmin, async (req, res) => {
+  try {
+    const body = req.body as { name?: string; type?: string | null };
+    const name = body.name?.trim() ?? "";
+    if (!name) return res.status(400).json({ error: "Nome obrigatório" });
+    const typed = parseCompetitionType(body.type);
+    if (!typed.ok) return res.status(400).json({ error: typed.error });
+
+    const [existing] = await db
+      .select({ id: competitionsTable.id })
+      .from(competitionsTable)
+      .where(eq(competitionsTable.name, name))
+      .limit(1);
+    if (existing) {
+      return res.status(409).json({ error: "Já existe uma competição com este nome" });
+    }
+
+    const [competition] = await db
+      .insert(competitionsTable)
+      .values({ name, type: typed.value })
+      .returning();
+    res.status(201).json(competition);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 router.post("/admin/competitions/merge", requireAdmin, async (req, res) => {
   try {
     const { keepId, removeId } = req.body as { keepId: number; removeId: number };
     if (!keepId || !removeId) return res.status(400).json({ error: "keepId e removeId obrigatórios" });
+    if (keepId === removeId) {
+      return res.status(400).json({ error: "keepId e removeId devem ser diferentes" });
+    }
     await db.update(matchesTable).set({ competitionId: keepId }).where(eq(matchesTable.competitionId, removeId));
     await db.delete(competitionsTable).where(eq(competitionsTable.id, removeId));
     const [kept] = await db.select({ name: competitionsTable.name }).from(competitionsTable).where(eq(competitionsTable.id, keepId));
     res.json({ ok: true, kept: kept?.name, removedId: removeId });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.get("/admin/competitions/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+
+    const [competition] = await db
+      .select()
+      .from(competitionsTable)
+      .where(eq(competitionsTable.id, id))
+      .limit(1);
+    if (!competition) return res.status(404).json({ error: "Competição não encontrada" });
+
+    const [{ count: matchCount }] = await db
+      .select({ count: sql<number>`cast(count(*) as int)` })
+      .from(matchesTable)
+      .where(eq(matchesTable.competitionId, id));
+
+    const matches = await db
+      .select({
+        id: matchesTable.id,
+        matchDate: matchesTable.matchDate,
+        season: matchesTable.season,
+        goalsFor: matchesTable.goalsFor,
+        goalsAgainst: matchesTable.goalsAgainst,
+        result: matchesTable.result,
+        homeAway: matchesTable.homeAway,
+        opponentName: opponentsTable.name,
+        phase: matchesTable.phase,
+        round: matchesTable.round,
+      })
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .where(eq(matchesTable.competitionId, id))
+      .orderBy(desc(matchesTable.matchDate))
+      .limit(50);
+
+    res.json({ ...competition, matchCount, matches });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -4039,11 +4149,36 @@ router.delete("/admin/competitions/:id", requireAdmin, async (req, res) => {
 router.put("/admin/competitions/:id", requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const { name, type } = req.body as { name?: string; type?: string };
+    const { name, type } = req.body as { name?: string; type?: string | null };
     const updates: Record<string, unknown> = {};
-    if (name !== undefined) updates.name = name;
-    if (type !== undefined) updates.type = type;
+    if (name !== undefined) {
+      const trimmed = name.trim();
+      if (!trimmed) return res.status(400).json({ error: "Nome obrigatório" });
+      updates.name = trimmed;
+    }
+    if (type !== undefined) {
+      const typed = parseCompetitionType(type);
+      if (!typed.ok) return res.status(400).json({ error: typed.error });
+      updates.type = typed.value;
+    }
     if (!Object.keys(updates).length) return res.status(400).json({ error: "Nenhum campo para atualizar" });
+
+    if (typeof updates.name === "string") {
+      const [dup] = await db
+        .select({ id: competitionsTable.id })
+        .from(competitionsTable)
+        .where(
+          and(
+            eq(competitionsTable.name, updates.name as string),
+            sql`${competitionsTable.id} <> ${id}`,
+          ),
+        )
+        .limit(1);
+      if (dup) {
+        return res.status(409).json({ error: "Já existe uma competição com este nome" });
+      }
+    }
+
     await db.update(competitionsTable).set(updates).where(eq(competitionsTable.id, id));
     const [updated] = await db.select().from(competitionsTable).where(eq(competitionsTable.id, id));
     res.json({ ok: true, competition: updated });

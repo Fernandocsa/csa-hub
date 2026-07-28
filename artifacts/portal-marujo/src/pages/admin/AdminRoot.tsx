@@ -14,6 +14,8 @@ import AdminOpponents from "./AdminOpponents";
 import AdminOpponentDetail from "./AdminOpponentDetail";
 import AdminReferees from "./AdminReferees";
 import AdminRefereeDetail from "./AdminRefereeDetail";
+import AdminCompetitions from "./AdminCompetitions";
+import AdminCompetitionDetail from "./AdminCompetitionDetail";
 import AdminStadiums from "./AdminStadiums";
 import AdminStadiumDetail from "./AdminStadiumDetail";
 import AdminImportExport from "./AdminImportExport";
@@ -57,6 +59,9 @@ export default function AdminRoot() {
         <Route path="/admin/partidas/:id/ficha" component={AdminMatchSheetRedirect} />
         <Route path="/admin/partidas/:id" component={AdminMatchSheet} />
         <Route path="/admin/partidas" component={AdminMatches} />
+        <Route path="/admin/competicoes/novo" component={AdminCompetitionDetail} />
+        <Route path="/admin/competicoes/:id" component={AdminCompetitionDetail} />
+        <Route path="/admin/competicoes" component={AdminCompetitions} />
         <Route path="/admin/adversarios/novo" component={AdminOpponentDetail} />
         <Route path="/admin/adversarios/:id" component={AdminOpponentDetail} />
         <Route path="/admin/adversarios" component={AdminOpponents} />
