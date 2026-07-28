@@ -85,8 +85,10 @@ function ImportSection() {
     {
       endpoint: "matches",
       label: "Partidas",
-      desc: "Colunas: date (YYYY-MM-DD), season, opponent, goals_for, goals_against, result (win/draw/loss), home_away (home/away/neutral), competition, stadium, manager, scorers, attendance",
-      template: "date,season,opponent,goals_for,goals_against,result,home_away,competition,stadium,manager,scorers,attendance\n2023-05-01,2023,Adversário FC,2,1,win,home,Campeonato Exemplo,Estádio Rei Pelé,,Nome Gol,5000",
+      desc: "Colunas: date (YYYY-MM-DD), season, opponent, goals_for, goals_against, own_goals_for_count, result (win/draw/loss), home_away (home/away/neutral), competition, phase, round, stadium, manager, referee, scorers, attendance. Escalação, gols individuais, cartões e substituições ficam na Ficha da partida.",
+      template:
+        "date,season,opponent,goals_for,goals_against,own_goals_for_count,result,home_away,competition,phase,round,stadium,manager,referee,scorers,attendance\n" +
+        "2023-05-01,2023,Adversário FC,2,1,0,win,home,Campeonato Exemplo,1º Turno,5ª rodada,Estádio Rei Pelé,,Árbitro Exemplo,Nome Gol,5000",
     },
     {
       endpoint: "opponents",

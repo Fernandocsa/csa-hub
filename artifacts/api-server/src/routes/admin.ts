@@ -3652,11 +3652,15 @@ router.get("/admin/export/matches", requireAdmin, async (req, res) => {
         opponent: opponentsTable.name,
         goals_for: matchesTable.goalsFor,
         goals_against: matchesTable.goalsAgainst,
+        own_goals_for_count: matchesTable.ownGoalsForCount,
         result: matchesTable.result,
         home_away: matchesTable.homeAway,
         competition: competitionsTable.name,
+        phase: matchesTable.phase,
+        round: matchesTable.round,
         stadium: stadiumsTable.name,
         manager: managersTable.name,
+        referee: refereesTable.name,
         scorers: matchesTable.scorers,
         attendance: matchesTable.attendance,
       })
@@ -3665,8 +3669,30 @@ router.get("/admin/export/matches", requireAdmin, async (req, res) => {
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
       .leftJoin(managersTable, eq(matchesTable.managerId, managersTable.id))
+      .leftJoin(refereesTable, eq(matchesTable.refereeId, refereesTable.id))
       .orderBy(asc(matchesTable.matchDate));
-    const csv = toCSV(["id", "date", "season", "opponent", "goals_for", "goals_against", "result", "home_away", "competition", "stadium", "manager", "scorers", "attendance"], rows as Record<string, unknown>[]);
+    const csv = toCSV(
+      [
+        "id",
+        "date",
+        "season",
+        "opponent",
+        "goals_for",
+        "goals_against",
+        "own_goals_for_count",
+        "result",
+        "home_away",
+        "competition",
+        "phase",
+        "round",
+        "stadium",
+        "manager",
+        "referee",
+        "scorers",
+        "attendance",
+      ],
+      rows as Record<string, unknown>[],
+    );
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
     res.setHeader("Content-Disposition", `attachment; filename="partidas.csv"`);
     res.send(csv);
@@ -3753,11 +3779,13 @@ router.post("/admin/import/matches", requireAdmin, async (req, res) => {
     const allCompetitions = await db.select().from(competitionsTable);
     const allStadiums = await db.select().from(stadiumsTable);
     const allManagers = await db.select().from(managersTable);
+    const allReferees = await db.select().from(refereesTable);
 
     const opponentMap = new Map(allOpponents.map((o) => [o.name.toLowerCase(), o.id]));
     const competitionMap = new Map(allCompetitions.map((c) => [c.name.toLowerCase(), c.id]));
     const stadiumMap = new Map(allStadiums.map((s) => [s.name.toLowerCase(), s.id]));
     const managerMap = new Map(allManagers.map((m) => [m.name.toLowerCase(), m.id]));
+    const refereeMap = new Map(allReferees.map((r) => [r.name.toLowerCase(), r.id]));
 
     for (const row of rows) {
       if (!row.date || !row.opponent || !row.competition) { skipped++; continue; }
@@ -3788,10 +3816,30 @@ router.post("/admin/import/matches", requireAdmin, async (req, res) => {
       }
       const managerId = row.manager ? managerMap.get(row.manager.toLowerCase()) ?? null : null;
 
+      // Auto-create referee if not found (same pattern as stadium/opponent)
+      let refereeId: number | null = null;
+      if (row.referee?.trim()) {
+        const refKey = row.referee.trim().toLowerCase();
+        refereeId = refereeMap.get(refKey) ?? null;
+        if (!refereeId) {
+          const [newRef] = await db
+            .insert(refereesTable)
+            .values({ name: row.referee.trim() })
+            .returning();
+          refereeId = newRef.id;
+          refereeMap.set(refKey, refereeId);
+        }
+      }
+
       const gfRaw = row.goals_for !== "" ? parseInt(row.goals_for) : null;
       const gaRaw = row.goals_against !== "" ? parseInt(row.goals_against) : null;
       const gf = gfRaw !== null && !isNaN(gfRaw) ? gfRaw : null;
       const ga = gaRaw !== null && !isNaN(gaRaw) ? gaRaw : null;
+      const ownGoalsRaw =
+        row.own_goals_for_count !== undefined && row.own_goals_for_count !== ""
+          ? parseInt(row.own_goals_for_count, 10)
+          : 0;
+      const ownGoalsForCount = !isNaN(ownGoalsRaw) && ownGoalsRaw >= 0 ? ownGoalsRaw : 0;
       const result =
         row.result ||
         (gf != null && ga != null
@@ -3800,6 +3848,8 @@ router.post("/admin/import/matches", requireAdmin, async (req, res) => {
 
       const grossRevenue = row.gross_revenue ? parseInt(row.gross_revenue) : null;
       const grossRevenueText = row.gross_revenue_text || null;
+      const phase = row.phase?.trim() || null;
+      const round = row.round?.trim() || null;
 
       await db.insert(matchesTable).values({
         matchDate: row.date,
@@ -3807,11 +3857,15 @@ router.post("/admin/import/matches", requireAdmin, async (req, res) => {
         opponentId,
         goalsFor: gf,
         goalsAgainst: ga,
+        ownGoalsForCount,
         result,
         homeAway: row.home_away || "home",
         competitionId,
+        phase,
+        round,
         stadiumId,
         managerId,
+        refereeId,
         attendance: row.attendance ? parseInt(row.attendance) : null,
         scorers: row.scorers || null,
         grossRevenue: isNaN(grossRevenue as number) ? null : grossRevenue,
