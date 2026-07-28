@@ -307,6 +307,7 @@ router.post("/admin/players", requireAdmin, async (req, res) => {
       position?: string | null;
       secondaryPositions?: string[] | null;
       nationality?: string | null;
+      photoUrl?: string | null;
       birthYear?: number | null;
       birthDate?: string | null;
       birthCity?: string | null;
@@ -352,6 +353,7 @@ router.post("/admin/players", requireAdmin, async (req, res) => {
         position: primaryPosition,
         secondaryPositions,
         nationality: body.nationality || null,
+        photoUrl: body.photoUrl?.trim() || null,
         birthYear,
         birthDate,
         birthCity: body.birthCity?.trim() || null,
@@ -383,6 +385,7 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
       position?: string | null;
       secondaryPositions?: string[] | null;
       nationality?: string | null;
+      photoUrl?: string | null;
       birthYear?: number | null;
       birthDate?: string | null;
       birthCity?: string | null;
@@ -428,6 +431,7 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
         position: primaryPosition,
         secondaryPositions,
         nationality: body.nationality || null,
+        photoUrl: body.photoUrl?.trim() || null,
         birthYear,
         birthDate,
         birthCity: body.birthCity?.trim() || null,

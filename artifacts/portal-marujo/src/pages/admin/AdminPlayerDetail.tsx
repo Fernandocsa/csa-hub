@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { AdminEntityBadges } from "@/components/AdminEntityBadges";
+import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { PLAYER_POSITIONS } from "@/lib/position-groups";
 
 export interface Player {
@@ -21,6 +22,7 @@ export interface Player {
   position: string | null;
   secondaryPositions: string[];
   nationality: string | null;
+  photoUrl: string | null;
   birthYear: number | null;
   birthDate: string | null;
   birthCity: string | null;
@@ -76,6 +78,7 @@ function PlayerProfileForm({
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [fullName, setFullName] = useState(initial?.fullName ?? "");
+  const [photoUrl, setPhotoUrl] = useState(initial?.photoUrl ?? "");
   const [position, setPosition] = useState(initial?.position ?? "");
   const [secondaryPositions, setSecondaryPositions] = useState<string[]>(
     initial?.secondaryPositions ?? [],
@@ -106,6 +109,7 @@ function PlayerProfileForm({
   useEffect(() => {
     setName(initial?.name ?? "");
     setFullName(initial?.fullName ?? "");
+    setPhotoUrl(initial?.photoUrl ?? "");
     setPosition(initial?.position ?? "");
     setSecondaryPositions(initial?.secondaryPositions ?? []);
     setNationality(initial?.nationality ?? "");
@@ -150,6 +154,7 @@ function PlayerProfileForm({
       await onSave({
         name,
         fullName: fullName.trim() || null,
+        photoUrl: photoUrl.trim() || null,
         position: position || null,
         secondaryPositions: secondaryPositions.filter((p) => p && p !== position),
         nationality: nationality || null,
@@ -186,6 +191,24 @@ function PlayerProfileForm({
 
   return (
     <form onSubmit={submit} className="space-y-3 max-w-2xl">
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+          Foto de perfil
+        </label>
+        <div className="flex items-start gap-3">
+          <PlayerPhoto url={photoUrl.trim() || null} name={name || "Jogador"} size="md" />
+          <div className="flex-1 min-w-0">
+            <Input
+              value={photoUrl}
+              onChange={(e) => setPhotoUrl(e.target.value)}
+              placeholder="https://… ou /players/192.jpg"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              URL HTTPS ou caminho local em public (ex.: /players/id.jpg). Sem upload nesta tela.
+            </p>
+          </div>
+        </div>
+      </div>
       <div>
         <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Nome *</label>
         <Input value={name} onChange={(e) => setName(e.target.value)} required />

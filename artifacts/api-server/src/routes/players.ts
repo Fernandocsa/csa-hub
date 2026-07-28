@@ -532,6 +532,7 @@ router.get("/players/:id", async (req, res) => {
       secondaryPositions: player.secondaryPositions ?? [],
       nationality: player.nationality,
       nationalityFlag: player.nationalityFlag,
+      photoUrl: player.photoUrl ?? null,
       birthYear: player.birthYear,
       birthDate: player.birthDate ?? null,
       birthCity: player.birthCity ?? null,

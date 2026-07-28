@@ -11,6 +11,7 @@ import { EntityComments } from "@/components/EntityComments";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { EntityBadges } from "@/components/EntityBadges";
 import { PlayerFlag } from "@/components/PlayerFlag";
+import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { ShareButton } from "@/components/ShareButton";
 import type { ReactNode } from "react";
 
@@ -21,6 +22,7 @@ type PlayerProfile = {
   position?: string | null;
   nationality?: string | null;
   nationalityFlag?: string | null;
+  photoUrl?: string | null;
   birthYear?: number | null;
   birthDate?: string | null;
   birthCity?: string | null;
@@ -200,28 +202,38 @@ export default function PlayerDetail() {
       {/* Header + Dados Pessoais */}
       <div className="border-b pb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-bold" data-testid="heading-player-name">
-              {player.name}
-            </h1>
-            <ShareButton title={player.name} />
-            <VerificationCard
-              status={player.verificationStatus}
-              verifiedBy={player.verifiedBy}
-              verifiedAt={player.verifiedAt}
+          <div className="flex items-start gap-3">
+            <PlayerPhoto
+              url={player.photoUrl}
+              name={player.name}
+              size="lg"
+              className="mt-0.5"
             />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-2xl font-bold" data-testid="heading-player-name">
+                  {player.name}
+                </h1>
+                <ShareButton title={player.name} />
+                <VerificationCard
+                  status={player.verificationStatus}
+                  verifiedBy={player.verifiedBy}
+                  verifiedAt={player.verifiedAt}
+                />
+              </div>
+              <EntityBadges badges={player.badges} />
+              {metaParts.length > 0 && (
+                <p className="mt-1.5 text-sm text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1">
+                  {metaParts.map((part, i) => (
+                    <span key={i} className="inline-flex items-center gap-2">
+                      {i > 0 && <span aria-hidden className="text-muted-foreground/50">·</span>}
+                      {part}
+                    </span>
+                  ))}
+                </p>
+              )}
+            </div>
           </div>
-          <EntityBadges badges={player.badges} />
-          {metaParts.length > 0 && (
-            <p className="mt-1.5 text-sm text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1">
-              {metaParts.map((part, i) => (
-                <span key={i} className="inline-flex items-center gap-2">
-                  {i > 0 && <span aria-hidden className="text-muted-foreground/50">·</span>}
-                  {part}
-                </span>
-              ))}
-            </p>
-          )}
         </div>
 
         {personalRows.length > 0 && (

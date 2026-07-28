@@ -15,6 +15,8 @@ export const playersTable = pgTable("players", {
     .default(sql`'{}'::text[]`),
   nationality: text("nationality"),
   nationalityFlag: text("nationality_flag"),
+  /** Profile photo: absolute HTTPS URL or site path (e.g. /players/192.jpg). */
+  photoUrl: text("photo_url"),
   birthYear: integer("birth_year"),
   birthDate: date("birth_date", { mode: "string" }),
   birthCity: text("birth_city"),
