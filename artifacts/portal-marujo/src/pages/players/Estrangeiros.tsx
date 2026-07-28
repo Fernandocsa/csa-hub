@@ -3,6 +3,7 @@ import { useGetForeignPlayers, useGetNationalities } from "@workspace/api-client
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Globe } from "lucide-react";
+import { PlayerFlag } from "@/components/PlayerFlag";
 
 function formatPeriod(first: string | null, last: string | null): string {
   if (!first) return "–";
@@ -49,7 +50,11 @@ export default function Estrangeiros() {
                 href={`/jogadores/estrangeiros/${encodeURIComponent(n.nationality ?? "")}`}
               >
                 <span className="inline-flex items-center gap-1.5 border rounded-full px-3 py-1 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors">
-                  <span className="text-base">{n.nationalityFlag}</span>
+                  <PlayerFlag
+                    flag={n.nationalityFlag}
+                    nationality={n.nationality}
+                    showBrazil={false}
+                  />
                   <span className="font-medium">{n.nationality}</span>
                   <span className="text-muted-foreground">({n.playerCount})</span>
                 </span>
@@ -91,10 +96,15 @@ export default function Estrangeiros() {
                   <TableRow key={player.id} className="text-sm" data-testid={`row-foreign-${player.id}`}>
                     <TableCell className="py-2 text-muted-foreground text-xs">{i + 1}</TableCell>
                     <TableCell className="py-2 font-medium">
-                      <Link href={`/jogadores/${player.id}`} className="hover:text-primary hover:underline">
-                        {player.nationalityFlag && (
-                          <span className="mr-1">{player.nationalityFlag}</span>
-                        )}
+                      <Link
+                        href={`/jogadores/${player.id}`}
+                        className="hover:text-primary hover:underline inline-flex items-center gap-1"
+                      >
+                        <PlayerFlag
+                          flag={player.nationalityFlag}
+                          nationality={player.nationality}
+                          showBrazil={false}
+                        />
                         {player.name}
                       </Link>
                     </TableCell>

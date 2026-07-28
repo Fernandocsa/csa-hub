@@ -3,6 +3,7 @@ import { useGetPlayersByNationality, useGetNationalities } from "@workspace/api-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
+import { PlayerFlag } from "@/components/PlayerFlag";
 
 function formatPeriod(first: string | null, last: string | null): string {
   if (!first) return "–";
@@ -50,7 +51,12 @@ export default function NationalityDetail() {
         ) : (
           <>
             <div className="flex items-center gap-3">
-              {flag && <span className="text-5xl leading-none">{flag}</span>}
+              <PlayerFlag
+                flag={flag}
+                nationality={country}
+                size="lg"
+                showBrazil={false}
+              />
               <div>
                 <h1 className="text-2xl font-bold" data-testid="heading-nationality">{country}</h1>
                 <p className="text-sm text-muted-foreground mt-0.5">
@@ -111,7 +117,15 @@ export default function NationalityDetail() {
                   <TableRow key={player.id} className="text-sm" data-testid={`row-player-${player.id}`}>
                     <TableCell className="py-2 text-muted-foreground text-xs">{i + 1}</TableCell>
                     <TableCell className="py-2 font-medium">
-                      <Link href={`/jogadores/${player.id}`} className="hover:text-primary hover:underline">
+                      <Link
+                        href={`/jogadores/${player.id}`}
+                        className="hover:text-primary hover:underline inline-flex items-center gap-1"
+                      >
+                        <PlayerFlag
+                          flag={player.nationalityFlag}
+                          nationality={player.nationality}
+                          showBrazil={false}
+                        />
                         {player.name}
                       </Link>
                     </TableCell>
