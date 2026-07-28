@@ -79,6 +79,10 @@ export const matchesTable = pgTable("matches", {
   phase: text("phase"),
   /** Round / leg label, e.g. "15", "15ª rodada", "Ida", "Volta". */
   round: text("round"),
+  /** CSA penalties scored in a shootout (null = no shootout). Match result stays win/draw/loss from 90/120'. */
+  penaltiesFor: integer("penalties_for"),
+  /** Opponent penalties scored in a shootout. */
+  penaltiesAgainst: integer("penalties_against"),
 });
 
 export const insertOpponentSchema = createInsertSchema(opponentsTable).omit({ id: true });

@@ -83,6 +83,10 @@ export interface MatchDetailSheet {
   isUnknownResult: boolean;
   phase?: string | null;
   round?: string | null;
+  /** CSA penalties in shootout; null when there was no shootout. */
+  penaltiesFor?: number | null;
+  /** Opponent penalties in shootout. */
+  penaltiesAgainst?: number | null;
   lineups: MatchLineupRow[];
   goals: MatchGoalRow[];
   cards: MatchCardRow[];

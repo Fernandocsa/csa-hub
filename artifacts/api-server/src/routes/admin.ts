@@ -21,6 +21,14 @@ import {
 import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet } from "../lib/match-sheet";
 import {
+  buildAndWriteCsaSheet,
+  computeOwnGoalsForCount,
+  loadEntityMaps,
+  parsePenaltyShootout,
+  resolveNamesForRow,
+  type NameResolution,
+} from "../lib/csv-match-import";
+import {
   recalculateSeasonAutoBadges,
   setSeasonStatsVerification,
   getSeasonCompetitionBadgeStatuses,
@@ -3790,91 +3798,115 @@ router.post("/admin/import/player-stats", requireAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/import/matches", requireAdmin, async (req, res) => {
-  try {
-    const { csv } = req.body as { csv: string };
-    if (!csv) return res.status(400).json({ error: "CSV obrigatório" });
-    const rows = parseCSV(csv);
-    let created = 0;
-    let skipped = 0;
+async function runMatchesCsvImport(
+  csv: string,
+  resolutions: NameResolution[],
+  opts?: { onlyRowIndexes?: Set<number> },
+): Promise<{
+  created: number;
+  skipped: number;
+  needsConfirmation: Awaited<ReturnType<typeof resolveNamesForRow>>["conflicts"];
+}> {
+  const rows = parseCSV(csv);
+  let created = 0;
+  let skipped = 0;
+  const needsConfirmation: Awaited<ReturnType<typeof resolveNamesForRow>>["conflicts"] = [];
 
-    const allOpponents = await db.select().from(opponentsTable);
-    const allCompetitions = await db.select().from(competitionsTable);
-    const allStadiums = await db.select().from(stadiumsTable);
-    const allManagers = await db.select().from(managersTable);
-    const allReferees = await db.select().from(refereesTable);
+  const allOpponents = await db.select().from(opponentsTable);
+  const allCompetitions = await db.select().from(competitionsTable);
+  const allStadiums = await db.select().from(stadiumsTable);
+  const allReferees = await db.select().from(refereesTable);
+  const entityMaps = await loadEntityMaps();
+  const sessionResolved = new Map<string, number>();
 
-    const opponentMap = new Map(allOpponents.map((o) => [o.name.toLowerCase(), o.id]));
-    const competitionMap = new Map(allCompetitions.map((c) => [c.name.toLowerCase(), c.id]));
-    const stadiumMap = new Map(allStadiums.map((s) => [s.name.toLowerCase(), s.id]));
-    const managerMap = new Map(allManagers.map((m) => [m.name.toLowerCase(), m.id]));
-    const refereeMap = new Map(allReferees.map((r) => [r.name.toLowerCase(), r.id]));
+  const opponentMap = new Map(allOpponents.map((o) => [o.name.toLowerCase(), o.id]));
+  const competitionMap = new Map(allCompetitions.map((c) => [c.name.toLowerCase(), c.id]));
+  const stadiumMap = new Map(allStadiums.map((s) => [s.name.toLowerCase(), s.id]));
+  const refereeMap = new Map(allReferees.map((r) => [r.name.toLowerCase(), r.id]));
 
-    for (const row of rows) {
-      if (!row.date || !row.opponent || !row.competition) { skipped++; continue; }
+  for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+    if (opts?.onlyRowIndexes && !opts.onlyRowIndexes.has(rowIndex)) continue;
 
-      let opponentId = opponentMap.get(row.opponent.toLowerCase());
-      if (!opponentId) {
-        const [newOpp] = await db.insert(opponentsTable).values({ name: row.opponent }).returning();
-        opponentId = newOpp.id;
-        opponentMap.set(row.opponent.toLowerCase(), opponentId);
+    const row = rows[rowIndex];
+    if (!row.date || !row.opponent || !row.competition) {
+      skipped++;
+      continue;
+    }
+
+    const { managerId, playerIds, conflicts } = await resolveNamesForRow(
+      rowIndex,
+      row,
+      entityMaps,
+      resolutions,
+      sessionResolved,
+    );
+    if (conflicts.length) {
+      needsConfirmation.push(...conflicts);
+      continue;
+    }
+
+    let opponentId = opponentMap.get(row.opponent.toLowerCase());
+    if (!opponentId) {
+      const [newOpp] = await db.insert(opponentsTable).values({ name: row.opponent }).returning();
+      opponentId = newOpp.id;
+      opponentMap.set(row.opponent.toLowerCase(), opponentId);
+    }
+
+    let competitionId = competitionMap.get(row.competition.toLowerCase());
+    if (!competitionId) {
+      const [newComp] = await db.insert(competitionsTable).values({ name: row.competition }).returning();
+      competitionId = newComp.id;
+      competitionMap.set(row.competition.toLowerCase(), competitionId);
+    }
+
+    let stadiumId: number | null = null;
+    if (row.stadium) {
+      stadiumId = stadiumMap.get(row.stadium.toLowerCase()) ?? null;
+      if (!stadiumId) {
+        const [newStad] = await db.insert(stadiumsTable).values({ name: row.stadium }).returning();
+        stadiumId = newStad.id;
+        stadiumMap.set(row.stadium.toLowerCase(), stadiumId);
       }
+    }
 
-      let competitionId = competitionMap.get(row.competition.toLowerCase());
-      if (!competitionId) {
-        const [newComp] = await db.insert(competitionsTable).values({ name: row.competition }).returning();
-        competitionId = newComp.id;
-        competitionMap.set(row.competition.toLowerCase(), competitionId);
+    let refereeId: number | null = null;
+    if (row.referee?.trim()) {
+      const refKey = row.referee.trim().toLowerCase();
+      refereeId = refereeMap.get(refKey) ?? null;
+      if (!refereeId) {
+        const [newRef] = await db
+          .insert(refereesTable)
+          .values({ name: row.referee.trim() })
+          .returning();
+        refereeId = newRef.id;
+        refereeMap.set(refKey, refereeId);
       }
+    }
 
-      // Auto-create stadium if not found
-      let stadiumId: number | null = null;
-      if (row.stadium) {
-        stadiumId = stadiumMap.get(row.stadium.toLowerCase()) ?? null;
-        if (!stadiumId) {
-          const [newStad] = await db.insert(stadiumsTable).values({ name: row.stadium }).returning();
-          stadiumId = newStad.id;
-          stadiumMap.set(row.stadium.toLowerCase(), stadiumId);
-        }
-      }
-      const managerId = row.manager ? managerMap.get(row.manager.toLowerCase()) ?? null : null;
+    const gfRaw = row.goals_for !== "" ? parseInt(row.goals_for) : null;
+    const gaRaw = row.goals_against !== "" ? parseInt(row.goals_against) : null;
+    const gf = gfRaw !== null && !isNaN(gfRaw) ? gfRaw : null;
+    const ga = gaRaw !== null && !isNaN(gaRaw) ? gaRaw : null;
+    const ownGoalsForCount = computeOwnGoalsForCount(row);
+    const result =
+      row.result ||
+      (gf != null && ga != null ? (gf > ga ? "win" : gf < ga ? "loss" : "draw") : "unknown");
 
-      // Auto-create referee if not found (same pattern as stadium/opponent)
-      let refereeId: number | null = null;
-      if (row.referee?.trim()) {
-        const refKey = row.referee.trim().toLowerCase();
-        refereeId = refereeMap.get(refKey) ?? null;
-        if (!refereeId) {
-          const [newRef] = await db
-            .insert(refereesTable)
-            .values({ name: row.referee.trim() })
-            .returning();
-          refereeId = newRef.id;
-          refereeMap.set(refKey, refereeId);
-        }
-      }
+    const grossRevenue = row.gross_revenue ? parseInt(row.gross_revenue) : null;
+    const grossRevenueText = row.gross_revenue_text || null;
+    const phase = row.phase?.trim() || null;
+    const round = row.round?.trim() || null;
+    const penalties = parsePenaltyShootout(row.penalty_shootout);
+    const attendancePaidRaw =
+      row.attendance_paid !== undefined && row.attendance_paid !== ""
+        ? parseInt(row.attendance_paid, 10)
+        : null;
+    const attendancePaid =
+      attendancePaidRaw !== null && !isNaN(attendancePaidRaw) ? attendancePaidRaw : null;
 
-      const gfRaw = row.goals_for !== "" ? parseInt(row.goals_for) : null;
-      const gaRaw = row.goals_against !== "" ? parseInt(row.goals_against) : null;
-      const gf = gfRaw !== null && !isNaN(gfRaw) ? gfRaw : null;
-      const ga = gaRaw !== null && !isNaN(gaRaw) ? gaRaw : null;
-      const ownGoalsRaw =
-        row.own_goals_for_count !== undefined && row.own_goals_for_count !== ""
-          ? parseInt(row.own_goals_for_count, 10)
-          : 0;
-      const ownGoalsForCount = !isNaN(ownGoalsRaw) && ownGoalsRaw >= 0 ? ownGoalsRaw : 0;
-      const result =
-        row.result ||
-        (gf != null && ga != null
-          ? gf > ga ? "win" : gf < ga ? "loss" : "draw"
-          : "unknown");
-
-      const grossRevenue = row.gross_revenue ? parseInt(row.gross_revenue) : null;
-      const grossRevenueText = row.gross_revenue_text || null;
-      const phase = row.phase?.trim() || null;
-      const round = row.round?.trim() || null;
-
-      await db.insert(matchesTable).values({
+    const [inserted] = await db
+      .insert(matchesTable)
+      .values({
         matchDate: row.date,
         season: row.season || row.date.substring(0, 4),
         opponentId,
@@ -3890,18 +3922,67 @@ router.post("/admin/import/matches", requireAdmin, async (req, res) => {
         managerId,
         refereeId,
         attendance: row.attendance ? parseInt(row.attendance) : null,
+        attendancePaid,
         scorers: row.scorers || null,
+        penaltiesFor: penalties?.for ?? null,
+        penaltiesAgainst: penalties?.against ?? null,
         grossRevenue: isNaN(grossRevenue as number) ? null : grossRevenue,
         grossRevenueText,
         isWalkover: row.is_walkover === "true",
         isFriendly: row.is_friendly === "true",
-      });
-      created++;
+      })
+      .returning({ id: matchesTable.id });
+
+    try {
+      await buildAndWriteCsaSheet(inserted.id, row, playerIds, entityMaps);
+    } catch (sheetErr) {
+      // Match already created; surface sheet error but keep import going
+      throw Object.assign(
+        sheetErr instanceof Error ? sheetErr : new Error(String(sheetErr)),
+        { matchId: inserted.id, rowIndex },
+      );
     }
-    res.json({ created, skipped });
+    created++;
+  }
+
+  return { created, skipped, needsConfirmation };
+}
+
+router.post("/admin/import/matches", requireAdmin, async (req, res) => {
+  try {
+    const { csv, resolutions } = req.body as {
+      csv: string;
+      resolutions?: NameResolution[];
+    };
+    if (!csv) return res.status(400).json({ error: "CSV obrigatório" });
+    const result = await runMatchesCsvImport(csv, resolutions ?? []);
+    res.json(result);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Erro interno" });
+    res.status(500).json({
+      error: err instanceof Error ? err.message : "Erro interno",
+    });
+  }
+});
+
+router.post("/admin/import/matches/resolve", requireAdmin, async (req, res) => {
+  try {
+    const { csv, resolutions } = req.body as {
+      csv: string;
+      resolutions?: NameResolution[];
+    };
+    if (!csv) return res.status(400).json({ error: "CSV obrigatório" });
+    if (!resolutions?.length) {
+      return res.status(400).json({ error: "resolutions obrigatório" });
+    }
+    const onlyRowIndexes = new Set(resolutions.map((r) => r.rowIndex));
+    const result = await runMatchesCsvImport(csv, resolutions, { onlyRowIndexes });
+    res.json(result);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({
+      error: err instanceof Error ? err.message : "Erro interno",
+    });
   }
 });
 

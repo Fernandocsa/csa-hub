@@ -1,23 +1,37 @@
-import { useState } from "react";
-import { adminFetch, getAdminToken } from "@/hooks/useAdminAuth";
+import { useMemo, useState } from "react";
+import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Download, Upload, CheckCircle, AlertCircle } from "lucide-react";
 
 interface ImportResult {
   created: number;
   skipped: number;
+  needsConfirmation?: NameConflict[];
 }
 
+type NameConflict = {
+  rowIndex: number;
+  date: string;
+  opponent: string;
+  kind: "player" | "manager";
+  rawName: string;
+  matchType: "exact" | "similar";
+  candidates: Array<{
+    id: number;
+    name: string;
+    yearFrom: number | null;
+    yearTo: number | null;
+  }>;
+  importYear: number | null;
+  message: string;
+};
+
+type ConflictDecision = {
+  action: "use" | "create";
+  entityId?: number;
+};
+
 function ExportSection() {
-  const token = getAdminToken();
-
-  function download(endpoint: string, filename: string) {
-    const a = document.createElement("a");
-    a.href = `/api/admin/export/${endpoint}?token=${encodeURIComponent(token ?? "")}`;
-    a.download = filename;
-    a.click();
-  }
-
   async function downloadWithAuth(endpoint: string) {
     const r = await adminFetch(`/admin/export/${endpoint}`);
     if (!r.ok) return;
@@ -65,9 +79,23 @@ function ExportSection() {
   );
 }
 
+const MATCHES_TEMPLATE_HEADER =
+  "date,season,opponent,goals_for,goals_against,result,home_away,competition,stadium,manager,scorers,attendance,referee,penalty_shootout,lineup,substitutions,scorer_minutes,own_goal,own_goals_for_count,cards,attendance_paid,phase,round";
+
+const MATCHES_TEMPLATE_EXAMPLE =
+  "1992-03-15,1992,Adversário FC,2,1,win,home,Campeonato Alagoano,Estádio Rei Pelé,Técnico Exemplo,Café;Ivan,8500,Árbitro Exemplo,5x4,Goleiro;Zagueiro A;Zagueiro B;Lateral Dir;Lateral Esq;Volante A;Volante B;Meia A;Meia B;Ponta;Centroavante,Meia A->Reserva (60'2T),37'2T;34'1T,,0,Volante A (amarelo) 20'1T,7200,1º Turno,5ª rodada";
+
+function conflictKey(c: Pick<NameConflict, "rowIndex" | "kind" | "rawName">) {
+  return `${c.rowIndex}|${c.kind}|${c.rawName.trim().toLowerCase()}`;
+}
+
 function ImportSection() {
   const [results, setResults] = useState<Record<string, ImportResult | string>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
+  const [pendingCsv, setPendingCsv] = useState<string | null>(null);
+  const [conflicts, setConflicts] = useState<NameConflict[]>([]);
+  const [decisions, setDecisions] = useState<Record<string, ConflictDecision>>({});
+  const [resolving, setResolving] = useState(false);
 
   const imports = [
     {
@@ -85,10 +113,8 @@ function ImportSection() {
     {
       endpoint: "matches",
       label: "Partidas",
-      desc: "Colunas: date (YYYY-MM-DD), season, opponent, goals_for, goals_against, own_goals_for_count, result (win/draw/loss), home_away (home/away/neutral), competition, phase, round, stadium, manager, referee, scorers, attendance. Escalação, gols individuais, cartões e substituições ficam na Ficha da partida.",
-      template:
-        "date,season,opponent,goals_for,goals_against,own_goals_for_count,result,home_away,competition,phase,round,stadium,manager,referee,scorers,attendance\n" +
-        "2023-05-01,2023,Adversário FC,2,1,0,win,home,Campeonato Exemplo,1º Turno,5ª rodada,Estádio Rei Pelé,,Árbitro Exemplo,Nome Gol,5000",
+      desc: "Colunas base: date, season, opponent, goals_for, goals_against, result, home_away, competition, stadium, manager, scorers, attendance. Opcionais: referee, penalty_shootout (ex: 5x4), lineup (;), substitutions (Out->In (minuto)), scorer_minutes (alinhado a scorers), own_goal, own_goals_for_count, cards (Nome (amarelo|vermelho) minuto), attendance_paid, phase, round. Campos compostos usam ; (sem vírgula). Nomes ambíguos pausam a linha e pedem confirmação.",
+      template: `${MATCHES_TEMPLATE_HEADER}\n${MATCHES_TEMPLATE_EXAMPLE}`,
     },
     {
       endpoint: "opponents",
@@ -97,6 +123,16 @@ function ImportSection() {
       template: "name\nAdversário FC\nOutro Clube SC",
     },
   ];
+
+  const allDecided = useMemo(() => {
+    if (!conflicts.length) return false;
+    return conflicts.every((c) => {
+      const d = decisions[conflictKey(c)];
+      if (!d) return false;
+      if (d.action === "use" && d.entityId == null) return false;
+      return true;
+    });
+  }, [conflicts, decisions]);
 
   function downloadTemplate(template: string, label: string) {
     const blob = new Blob([template], { type: "text/csv;charset=utf-8;" });
@@ -108,6 +144,33 @@ function ImportSection() {
     URL.revokeObjectURL(url);
   }
 
+  function applyImportResponse(endpoint: string, data: ImportResult) {
+    const nextConflicts = data.needsConfirmation ?? [];
+    if (endpoint === "matches" && nextConflicts.length) {
+      setConflicts(nextConflicts);
+      setDecisions({});
+      setResults((prev) => ({
+        ...prev,
+        [endpoint]: {
+          created: data.created,
+          skipped: data.skipped,
+          needsConfirmation: nextConflicts,
+        },
+      }));
+    } else {
+      setConflicts([]);
+      setPendingCsv(null);
+      setDecisions({});
+      setResults((prev) => ({
+        ...prev,
+        [endpoint]: {
+          created: data.created,
+          skipped: data.skipped,
+        },
+      }));
+    }
+  }
+
   async function handleFile(endpoint: string, e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -115,6 +178,7 @@ function ImportSection() {
     setResults((prev) => ({ ...prev, [endpoint]: undefined as any }));
     try {
       const csv = await file.text();
+      if (endpoint === "matches") setPendingCsv(csv);
       const r = await adminFetch(`/admin/import/${endpoint}`, {
         method: "POST",
         body: JSON.stringify({ csv }),
@@ -122,14 +186,58 @@ function ImportSection() {
       const data = await r.json();
       if (!r.ok) {
         setResults((prev) => ({ ...prev, [endpoint]: (data as any).error ?? "Erro" }));
+        setConflicts([]);
       } else {
-        setResults((prev) => ({ ...prev, [endpoint]: data as ImportResult }));
+        applyImportResponse(endpoint, data as ImportResult);
       }
     } catch {
       setResults((prev) => ({ ...prev, [endpoint]: "Erro ao ler arquivo" }));
     }
     setLoading((prev) => ({ ...prev, [endpoint]: false }));
     e.target.value = "";
+  }
+
+  async function continueMatchesImport() {
+    if (!pendingCsv || !allDecided) return;
+    setResolving(true);
+    try {
+      const resolutions = conflicts.map((c) => {
+        const d = decisions[conflictKey(c)];
+        return {
+          rowIndex: c.rowIndex,
+          kind: c.kind,
+          rawName: c.rawName,
+          action: d.action,
+          entityId: d.action === "use" ? d.entityId : undefined,
+        };
+      });
+      const r = await adminFetch(`/admin/import/matches/resolve`, {
+        method: "POST",
+        body: JSON.stringify({ csv: pendingCsv, resolutions }),
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setResults((prev) => ({ ...prev, matches: (data as any).error ?? "Erro" }));
+      } else {
+        applyImportResponse("matches", data as ImportResult);
+      }
+    } catch {
+      setResults((prev) => ({ ...prev, matches: "Erro ao resolver nomes" }));
+    }
+    setResolving(false);
+  }
+
+  function setDecisionForConflict(c: NameConflict, decision: ConflictDecision) {
+    // Apply same choice to every conflict with same kind+rawName in this batch
+    setDecisions((prev) => {
+      const next = { ...prev };
+      for (const other of conflicts) {
+        if (other.kind === c.kind && other.rawName.trim().toLowerCase() === c.rawName.trim().toLowerCase()) {
+          next[conflictKey(other)] = decision;
+        }
+      }
+      return next;
+    });
   }
 
   return (
@@ -160,7 +268,11 @@ function ImportSection() {
                   {result !== undefined && typeof result === "object" && (
                     <div className="flex items-center gap-1.5 mt-2 text-green-700 text-xs">
                       <CheckCircle size={12} />
-                      {(result as ImportResult).created} importados, {(result as ImportResult).skipped} ignorados
+                      {(result as ImportResult).created} importados, {(result as ImportResult).skipped}{" "}
+                      ignorados
+                      {(result as ImportResult).needsConfirmation?.length
+                        ? ` · ${(result as ImportResult).needsConfirmation!.length} nome(s) aguardando confirmação`
+                        : ""}
                     </div>
                   )}
                 </div>
@@ -192,20 +304,66 @@ function ImportSection() {
           );
         })}
       </div>
+
+      {conflicts.length > 0 && (
+        <div className="mt-6 border border-amber-300 bg-amber-50 rounded-lg p-4">
+          <h3 className="font-semibold text-sm text-amber-950 mb-1">Confirmação de nomes</h3>
+          <p className="text-xs text-amber-900 mb-4">
+            Algumas linhas foram pausadas porque o nome bateu exato ou parece prenome de um cadastro
+            composto. Confirme se é a mesma pessoa (o contexto de anos ajuda; a decisão é sua).
+          </p>
+          <div className="space-y-4">
+            {conflicts.map((c) => {
+              const key = conflictKey(c);
+              const d = decisions[key];
+              return (
+                <div key={key} className="bg-white border rounded-md p-3 text-sm">
+                  <p className="text-xs text-gray-500 mb-1">
+                    Linha {c.rowIndex + 1} · {c.date} · {c.opponent} ·{" "}
+                    {c.kind === "player" ? "jogador" : "técnico"} · {c.matchType}
+                  </p>
+                  <pre className="whitespace-pre-wrap text-xs text-gray-800 mb-3 font-sans">
+                    {c.message}
+                  </pre>
+                  <div className="flex flex-wrap gap-2 items-center">
+                    {c.candidates.map((cand) => (
+                      <Button
+                        key={cand.id}
+                        size="sm"
+                        variant={d?.action === "use" && d.entityId === cand.id ? "default" : "outline"}
+                        onClick={() => setDecisionForConflict(c, { action: "use", entityId: cand.id })}
+                      >
+                        Usar #{cand.id} {cand.name}
+                      </Button>
+                    ))}
+                    <Button
+                      size="sm"
+                      variant={d?.action === "create" ? "default" : "outline"}
+                      onClick={() => setDecisionForConflict(c, { action: "create" })}
+                    >
+                      Criar novo &quot;{c.rawName}&quot;
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-4 flex justify-end">
+            <Button onClick={continueMatchesImport} disabled={!allDecided || resolving}>
+              {resolving ? "Continuando..." : "Continuar importação"}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 export default function AdminImportExport() {
   return (
-    <div>
-      <h1 className="text-xl font-bold text-gray-900 mb-1">Importar / Exportar</h1>
-      <p className="text-sm text-gray-500 mb-6">Troque dados com planilhas via CSV</p>
-      <div className="space-y-8">
-        <ExportSection />
-        <hr />
-        <ImportSection />
-      </div>
+    <div className="space-y-10">
+      <ExportSection />
+      <ImportSection />
     </div>
   );
 }

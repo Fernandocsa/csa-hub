@@ -418,6 +418,16 @@ export default function MatchDetail() {
             <ResultBadge result={match.result as "win" | "draw" | "loss"} />
           )}
         </div>
+        {match.penaltiesFor != null && match.penaltiesAgainst != null && (
+          <p className="text-sm font-medium" data-testid="match-penalties">
+            Pênaltis:{" "}
+            <span className="font-mono tabular-nums">
+              {isHome ? match.penaltiesFor : match.penaltiesAgainst}
+              <span className="text-muted-foreground font-normal mx-0.5">×</span>
+              {isHome ? match.penaltiesAgainst : match.penaltiesFor}
+            </span>
+          </p>
+        )}
         <p className="text-sm text-muted-foreground">
           Temporada{" "}
           <Link
