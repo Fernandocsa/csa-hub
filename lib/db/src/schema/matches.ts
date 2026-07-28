@@ -73,6 +73,8 @@ export const matchesTable = pgTable("matches", {
   scorers: text("scorers"), // comma-separated player names
   isWalkover: boolean("is_walkover").notNull().default(false),
   isFriendly: boolean("is_friendly").notNull().default(false),
+  /** played = historical; scheduled = future fixture (excluded from stats). */
+  status: text("status").notNull().default("played"),
   /** CSA goals from opponent own-goals (not in match_goals). Used for sheet completeness gate. */
   ownGoalsForCount: integer("own_goals_for_count").notNull().default(0),
   /** Competition phase label, e.g. "Final", "1º Turno", "Oitavas de Final". */

@@ -5,6 +5,7 @@ import {
   seasonCompetitionStatsTable,
 } from "@workspace/db";
 import { and, eq, sql, inArray, asc } from "drizzle-orm";
+import { officialPlayedMatchConditions } from "./match-filters";
 
 export type SeasonCompetitionComputed = {
   competitionId: number;
@@ -32,7 +33,7 @@ export async function computeSeasonCompetitionStatsFromMatches(
     })
     .from(matchesTable)
     .where(
-      and(eq(matchesTable.season, season), eq(matchesTable.isFriendly, false)),
+      and(eq(matchesTable.season, season), officialPlayedMatchConditions()),
     )
     .groupBy(matchesTable.competitionId);
 

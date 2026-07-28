@@ -8,6 +8,7 @@ import {
   playersTable,
 } from "@workspace/db";
 import { and, asc, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
+import { officialPlayedMatchConditions } from "./match-filters";
 
 export interface OpponentHighlightEntry {
   id: number;
@@ -53,7 +54,7 @@ async function getFichaMatchIds(opponentId: number): Promise<number[]> {
       ),
     )
     .where(
-      and(eq(matchesTable.opponentId, opponentId), eq(matchesTable.isFriendly, false)),
+      and(eq(matchesTable.opponentId, opponentId), officialPlayedMatchConditions()),
     );
   return rows.map((r) => r.id);
 }
@@ -74,7 +75,7 @@ export async function getOpponentCompetitionStats(
     })
     .from(matchesTable)
     .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
-    .where(and(eq(matchesTable.opponentId, opponentId), eq(matchesTable.isFriendly, false)))
+    .where(and(eq(matchesTable.opponentId, opponentId), officialPlayedMatchConditions()))
     .groupBy(competitionsTable.id, competitionsTable.name)
     .orderBy(desc(sql`count(*)`), asc(competitionsTable.name));
 

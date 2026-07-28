@@ -16,7 +16,7 @@ const navItems = [
   { href: "/admin/adversarios", label: "Adversários", icon: Shield },
   { href: "/admin/arbitros", label: "Árbitros", icon: Scale },
   { href: "/admin/estadios", label: "Estádios", icon: Landmark },
-  { href: "/admin/proximo-jogo", label: "Próximo Jogo", icon: CalendarDays },
+  { href: "/admin/jogos-futuros", label: "Jogos futuros", icon: CalendarDays },
   { href: "/admin/comentarios", label: "Comentários", icon: MessageSquare },
   { href: "/admin/sugestoes", label: "Sugestões", icon: Flag },
   { href: "/admin/partidas-duplicadas", label: "Revisão Partidas", icon: ClipboardList },

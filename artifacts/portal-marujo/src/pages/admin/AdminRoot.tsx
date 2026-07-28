@@ -21,7 +21,7 @@ import AdminStadiumDetail from "./AdminStadiumDetail";
 import AdminImportExport from "./AdminImportExport";
 import AdminAiImport from "./AdminAiImport";
 import AdminAccesses from "./AdminAccesses";
-import AdminNextMatch from "./AdminNextMatch";
+import AdminUpcomingMatches from "./AdminUpcomingMatches";
 import AdminMatchSheet from "./AdminMatchSheet";
 import AdminMatchSheetRedirect from "./AdminMatchSheetRedirect";
 import AdminMatchReview from "./AdminMatchReview";
@@ -71,7 +71,8 @@ export default function AdminRoot() {
         <Route path="/admin/estadios/novo" component={AdminStadiumDetail} />
         <Route path="/admin/estadios/:id" component={AdminStadiumDetail} />
         <Route path="/admin/estadios" component={AdminStadiums} />
-        <Route path="/admin/proximo-jogo" component={AdminNextMatch} />
+        <Route path="/admin/proximo-jogo" component={AdminUpcomingMatches} />
+        <Route path="/admin/jogos-futuros" component={AdminUpcomingMatches} />
         <Route path="/admin/comentarios" component={AdminComments} />
         <Route path="/admin/sugestoes" component={AdminSuggestions} />
         <Route path="/admin/partidas-duplicadas" component={AdminMatchReview} />

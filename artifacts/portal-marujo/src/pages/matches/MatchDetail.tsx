@@ -315,6 +315,10 @@ export default function MatchDetail() {
   const leftGoals = isHome ? match.goalsFor : match.goalsAgainst;
   const rightGoals = isHome ? match.goalsAgainst : match.goalsFor;
   const isUnknown = match.isUnknownResult || match.result === "unknown";
+  const isScheduled = match.isScheduled === true || match.status === "scheduled";
+  const scoreLeft = isScheduled ? "–" : isUnknown ? "?" : leftGoals ?? "–";
+  const scoreRight = isScheduled ? "–" : isUnknown ? "?" : rightGoals ?? "–";
+  const scoreSep = isScheduled ? "×" : "–";
 
   const trainerBlock =
     match.manager && match.managerId != null ? (
@@ -396,9 +400,9 @@ export default function MatchDetail() {
               logoUrl={match.opponentLogoUrl}
             />{" "}
             <span className="font-mono tabular-nums mx-1">
-              {isUnknown ? "?" : leftGoals ?? "–"}
-              <span className="text-muted-foreground font-normal mx-0.5">–</span>
-              {isUnknown ? "?" : rightGoals ?? "–"}
+              {scoreLeft}
+              <span className="text-muted-foreground font-normal mx-0.5">{scoreSep}</span>
+              {scoreRight}
             </span>{" "}
             <TeamName
               name={rightName}
@@ -409,14 +413,18 @@ export default function MatchDetail() {
           </h1>
           <ShareButton
             title={
-              isUnknown
+              isScheduled || isUnknown
                 ? `CSA x ${match.opponent}`
                 : `CSA ${match.goalsFor ?? "–"}-${match.goalsAgainst ?? "–"} ${match.opponent}`
             }
           />
-          {!isUnknown && match.result !== "unknown" && (
+          {isScheduled ? (
+            <span className="text-xs uppercase tracking-wider text-muted-foreground border rounded px-2 py-0.5">
+              Ainda não jogado
+            </span>
+          ) : !isUnknown && match.result !== "unknown" ? (
             <ResultBadge result={match.result as "win" | "draw" | "loss"} />
-          )}
+          ) : null}
         </div>
         {match.penaltiesFor != null && match.penaltiesAgainst != null && (
           <p className="text-sm font-medium" data-testid="match-penalties">

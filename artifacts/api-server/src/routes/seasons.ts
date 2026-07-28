@@ -14,6 +14,7 @@ import {
 } from "@workspace/db";
 import { sql, eq, and, desc, asc } from "drizzle-orm";
 import { calcAgeInSeason } from "../lib/season-age";
+import { officialPlayedMatchConditions } from "../lib/match-filters";
 
 const router = Router();
 
@@ -28,7 +29,7 @@ async function getSeasonStats(season: string) {
       totalMatches: sql<number>`cast(count(*) as int)`,
     })
     .from(matchesTable)
-    .where(and(eq(matchesTable.season, season), eq(matchesTable.isFriendly, false)));
+    .where(and(eq(matchesTable.season, season), officialPlayedMatchConditions()));
   return rows[0];
 }
 
@@ -235,7 +236,7 @@ router.get("/seasons/:year", async (req, res) => {
                 eq(matchesTable.competitionId, competitionsTable.id),
               )
               .where(
-                and(eq(matchesTable.season, year), eq(matchesTable.isFriendly, false)),
+                and(eq(matchesTable.season, year), officialPlayedMatchConditions()),
               )
               .groupBy(competitionsTable.name)
           ).map((c) => c.name);

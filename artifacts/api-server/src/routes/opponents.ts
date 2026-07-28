@@ -14,6 +14,7 @@ import {
   getOpponentCompetitionStats,
   getOpponentHighlights,
 } from "../lib/opponent-detail.js";
+import { officialPlayedMatchConditions } from "../lib/match-filters";
 
 const router = Router();
 
@@ -57,7 +58,7 @@ const COUNTRY_NAMES: Record<string, string> = {
 
 function foreignMatchCondition() {
   return and(
-    eq(matchesTable.isFriendly, false),
+    officialPlayedMatchConditions(),
     isNotNull(opponentsTable.country),
     sql`trim(${opponentsTable.country}) <> ''`,
   );
@@ -99,7 +100,7 @@ function noCountrySetCondition() {
 
 function brStateMatchCondition() {
   return and(
-    eq(matchesTable.isFriendly, false),
+    officialPlayedMatchConditions(),
     isNotNull(opponentsTable.state),
     sql`trim(${opponentsTable.state}) <> ''`,
     noCountrySetCondition(),
@@ -139,7 +140,7 @@ router.get("/opponents", async (req, res) => {
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
       .$dynamic();
 
-    const conditions = [eq(matchesTable.isFriendly, false)];
+    const conditions = [officialPlayedMatchConditions()];
     if (search) conditions.push(ilike(opponentsTable.name, `%${search}%`));
     query = query.where(and(...conditions));
 
@@ -207,7 +208,7 @@ router.get("/opponents/by-state", async (req, res) => {
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
       .where(
         and(
-          eq(matchesTable.isFriendly, false),
+          officialPlayedMatchConditions(),
           semStateBrazilOnlyCondition(),
         ),
       );
@@ -271,7 +272,7 @@ router.get("/opponents/by-state/:uf", async (req, res) => {
       })
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
-      .where(and(eq(matchesTable.isFriendly, false), stateCondition));
+      .where(and(officialPlayedMatchConditions(), stateCondition));
 
     const opponents = await db
       .select({
@@ -288,7 +289,7 @@ router.get("/opponents/by-state/:uf", async (req, res) => {
       })
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
-      .where(and(eq(matchesTable.isFriendly, false), stateCondition))
+      .where(and(officialPlayedMatchConditions(), stateCondition))
       .groupBy(
         opponentsTable.id,
         opponentsTable.name,
@@ -580,7 +581,7 @@ router.get("/opponents/:id", async (req, res) => {
         goalsAgainst: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
-      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.isFriendly, false)));
+      .where(and(eq(matchesTable.opponentId, id), officialPlayedMatchConditions()));
 
     const homeRecord = await db
       .select({
@@ -592,7 +593,7 @@ router.get("/opponents/:id", async (req, res) => {
         goalsAgainst: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
-      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.homeAway, "home"), eq(matchesTable.isFriendly, false)));
+      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.homeAway, "home"), officialPlayedMatchConditions()));
 
     const awayRecord = await db
       .select({
@@ -604,7 +605,7 @@ router.get("/opponents/:id", async (req, res) => {
         goalsAgainst: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
-      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.homeAway, "away"), eq(matchesTable.isFriendly, false)));
+      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.homeAway, "away"), officialPlayedMatchConditions()));
 
     const allMatchRows = await db
       .select({
@@ -625,7 +626,7 @@ router.get("/opponents/:id", async (req, res) => {
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
-      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.isFriendly, false)))
+      .where(and(eq(matchesTable.opponentId, id), officialPlayedMatchConditions()))
       .orderBy(desc(matchesTable.matchDate));
 
     const victoryRows = await db
@@ -635,7 +636,7 @@ router.get("/opponents/:id", async (req, res) => {
         matchDate: matchesTable.matchDate,
       })
       .from(matchesTable)
-      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.result, "win")))
+      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.result, "win"), officialPlayedMatchConditions()))
       .orderBy(sql`(${matchesTable.goalsFor} - ${matchesTable.goalsAgainst}) desc`)
       .limit(1);
 
@@ -646,7 +647,7 @@ router.get("/opponents/:id", async (req, res) => {
         matchDate: matchesTable.matchDate,
       })
       .from(matchesTable)
-      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.result, "loss")))
+      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.result, "loss"), officialPlayedMatchConditions()))
       .orderBy(sql`(${matchesTable.goalsAgainst} - ${matchesTable.goalsFor}) desc`)
       .limit(1);
 

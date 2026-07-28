@@ -5,6 +5,7 @@ import {
   managerSeasonStatsTable,
 } from "@workspace/db";
 import { and, eq, sql, inArray } from "drizzle-orm";
+import { officialPlayedMatchConditions } from "./match-filters";
 
 export type ManagerStoredStats = {
   storedGames: number;
@@ -39,7 +40,7 @@ export async function computeManagerStatsFromMatches(
       storedGoalsAgainst: sql<number>`cast(coalesce(sum(${matchesTable.goalsAgainst}), 0) as int)`,
     })
     .from(matchesTable)
-    .where(eq(matchesTable.managerId, managerId));
+    .where(and(eq(matchesTable.managerId, managerId), officialPlayedMatchConditions()));
 
   const matchCount = row?.matchCount ?? 0;
   return {
@@ -67,7 +68,7 @@ export async function computeManagerSeasonStatsFromMatches(
       goalsAgainst: sql<number>`cast(coalesce(sum(${matchesTable.goalsAgainst}), 0) as int)`,
     })
     .from(matchesTable)
-    .where(eq(matchesTable.managerId, managerId))
+    .where(and(eq(matchesTable.managerId, managerId), officialPlayedMatchConditions()))
     .groupBy(matchesTable.season)
     .orderBy(sql`${matchesTable.season} desc`);
 

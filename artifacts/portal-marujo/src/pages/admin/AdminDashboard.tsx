@@ -17,7 +17,7 @@ const sections = [
   { href: "/admin/competicoes", label: "Competições", icon: Medal, desc: "Criar, editar, excluir e mesclar competições" },
   { href: "/admin/adversarios", label: "Adversários", icon: Shield, desc: "Gerenciar adversários cadastrados" },
   { href: "/admin/arbitros", label: "Árbitros", icon: Scale, desc: "Cadastrar árbitros e federação (UF)" },
-  { href: "/admin/proximo-jogo", label: "Próximo Jogo", icon: CalendarDays, desc: "Editar o card Próxima Partida da Home" },
+  { href: "/admin/jogos-futuros", label: "Jogos futuros", icon: CalendarDays, desc: "Agendar partidas futuras; o mais próximo aparece na Home" },
   { href: "/admin/partidas-duplicadas", label: "Revisão Partidas", icon: ClipboardList, desc: "Datas duplicadas e partidas sem resultado" },
   { href: "/admin/importar-exportar", label: "Importar / Exportar", icon: Download, desc: "Importar dados via CSV ou exportar para planilha" },
   { href: "/admin/importar-ia", label: "Importação IA", icon: Sparkles, desc: "Extrair lote de temporada com Claude e confirmar na prévia" },

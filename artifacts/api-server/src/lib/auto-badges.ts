@@ -8,6 +8,7 @@ import {
   competitionsTable,
 } from "@workspace/db";
 import { and, eq, inArray, sql } from "drizzle-orm";
+import { officialPlayedMatchConditions } from "./match-filters";
 
 export type AutoBadgeKind =
   | "top_scorer"
@@ -56,7 +57,6 @@ type MatchGateRow = {
   competitionId: number;
   goalsFor: number | null;
   ownGoalsForCount: number;
-  isFriendly: boolean;
   isWalkover: boolean;
 };
 
@@ -90,7 +90,6 @@ export async function getSeasonCompetitionBadgeStatuses(
       competitionId: matchesTable.competitionId,
       goalsFor: matchesTable.goalsFor,
       ownGoalsForCount: matchesTable.ownGoalsForCount,
-      isFriendly: matchesTable.isFriendly,
       isWalkover: matchesTable.isWalkover,
       competitionName: competitionsTable.name,
     })
@@ -99,9 +98,15 @@ export async function getSeasonCompetitionBadgeStatuses(
       competitionsTable,
       eq(matchesTable.competitionId, competitionsTable.id),
     )
-    .where(eq(matchesTable.season, seasonKey));
+    .where(
+      and(
+        eq(matchesTable.season, seasonKey),
+        officialPlayedMatchConditions(),
+        eq(matchesTable.isWalkover, false),
+      ),
+    );
 
-  const eligibleMatches = matches.filter((m) => !m.isFriendly && !m.isWalkover);
+  const eligibleMatches = matches;
   if (eligibleMatches.length === 0) return [];
 
   const matchIds = eligibleMatches.map((m) => m.id);

@@ -5,9 +5,10 @@ import {
   managersTable,
   managerSeasonStatsTable,
 } from "@workspace/db";
-import { sql, eq, desc, asc } from "drizzle-orm";
+import { sql, eq, desc, asc, and } from "drizzle-orm";
 import { loadEntityBadges } from "../lib/entity-badges";
 import { periodFromSeasons } from "../lib/manager-stats";
+import { officialPlayedMatchConditions } from "../lib/match-filters";
 
 const router = Router();
 
@@ -65,7 +66,10 @@ router.get("/managers", async (req, res) => {
         computedGoalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(managersTable)
-      .leftJoin(matchesTable, eq(matchesTable.managerId, managersTable.id))
+      .leftJoin(
+        matchesTable,
+        and(eq(matchesTable.managerId, managersTable.id), officialPlayedMatchConditions()),
+      )
       .groupBy(
         managersTable.id,
         managersTable.name,
@@ -153,7 +157,7 @@ router.get("/managers/:id", async (req, res) => {
         goalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
-      .where(eq(matchesTable.managerId, id));
+      .where(and(eq(matchesTable.managerId, id), officialPlayedMatchConditions()));
 
     const seasonRows = await db
       .select({

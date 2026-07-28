@@ -10,6 +10,7 @@ import {
   seasonCompetitionStatsTable,
 } from "@workspace/db";
 import { sql, eq, and, desc, asc } from "drizzle-orm";
+import { officialPlayedMatchConditions } from "../lib/match-filters";
 
 const router = Router();
 
@@ -71,7 +72,7 @@ router.get("/stadiums", async (req, res) => {
         lastMatch: sql<string>`cast(max(${matchesTable.matchDate}) as text)`,
       })
       .from(stadiumsTable)
-      .leftJoin(matchesTable, and(eq(matchesTable.stadiumId, stadiumsTable.id), eq(matchesTable.isFriendly, false)))
+      .leftJoin(matchesTable, and(eq(matchesTable.stadiumId, stadiumsTable.id), officialPlayedMatchConditions()))
       .groupBy(
         stadiumsTable.id,
         stadiumsTable.name,
@@ -131,7 +132,7 @@ router.get("/stadiums/:id", async (req, res) => {
       })
       .from(matchesTable)
       .where(
-        and(eq(matchesTable.stadiumId, id), eq(matchesTable.isFriendly, false)),
+        and(eq(matchesTable.stadiumId, id), officialPlayedMatchConditions()),
       );
 
     const matches = stats?.matches ?? 0;
@@ -178,7 +179,7 @@ router.get("/competitions", async (req, res) => {
         lastParticipation: sql<string>`cast(max(${matchesTable.season}) as text)`,
       })
       .from(competitionsTable)
-      .leftJoin(matchesTable, and(eq(matchesTable.competitionId, competitionsTable.id), eq(matchesTable.isFriendly, false)))
+      .leftJoin(matchesTable, and(eq(matchesTable.competitionId, competitionsTable.id), officialPlayedMatchConditions()))
       .groupBy(competitionsTable.id, competitionsTable.name, competitionsTable.type)
       .orderBy(sql`count(${matchesTable.id}) desc`);
 
@@ -207,7 +208,7 @@ router.get("/competitions/:id", async (req, res) => {
         goalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
-      .where(and(eq(matchesTable.competitionId, id), eq(matchesTable.isFriendly, false)));
+      .where(and(eq(matchesTable.competitionId, id), officialPlayedMatchConditions()));
 
     const seasonRows = await db
       .select({
@@ -220,7 +221,7 @@ router.get("/competitions/:id", async (req, res) => {
         goalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
-      .where(and(eq(matchesTable.competitionId, id), eq(matchesTable.isFriendly, false)))
+      .where(and(eq(matchesTable.competitionId, id), officialPlayedMatchConditions()))
       .groupBy(matchesTable.season)
       .orderBy(desc(matchesTable.season));
 
@@ -270,7 +271,7 @@ router.get("/records/by-decade", async (req, res) => {
         goalsAgainst: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
-      .where(eq(matchesTable.isFriendly, false))
+      .where(officialPlayedMatchConditions())
       .groupBy(sql`floor(extract(year from ${matchesTable.matchDate}) / 10) * 10`)
       .orderBy(sql`floor(extract(year from ${matchesTable.matchDate}) / 10) * 10`);
 
@@ -301,7 +302,7 @@ router.get("/records/home-away", async (req, res) => {
           goalsAgainst: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
         })
         .from(matchesTable)
-        .where(and(eq(matchesTable.homeAway, homeAway), eq(matchesTable.isFriendly, false)))
+        .where(and(eq(matchesTable.homeAway, homeAway), officialPlayedMatchConditions()))
         .$dynamic();
       const rows = await q;
       return rows[0] || { matches: 0, wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 };
@@ -348,8 +349,8 @@ function findBestStreakRange(
   const continues = (result: string) => {
     if (type === "winning") return result === "win";
     if (type === "losing") return result === "loss";
-    // unbeaten: anything that is not a loss (draws + unknown included)
-    return result !== "loss";
+    // unbeaten: only known non-losses (win/draw). Unknown breaks the streak.
+    return result === "win" || result === "draw";
   };
 
   for (let i = 0; i < matches.length; i++) {
@@ -405,7 +406,7 @@ async function loadOfficialMatchesForStreaks(): Promise<StreakMatchRow[]> {
     .from(matchesTable)
     .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
     .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
-    .where(eq(matchesTable.isFriendly, false))
+    .where(officialPlayedMatchConditions())
     .orderBy(matchesTable.matchDate);
 }
 

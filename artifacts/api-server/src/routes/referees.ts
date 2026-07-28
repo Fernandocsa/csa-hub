@@ -8,6 +8,7 @@ import {
   refereesTable,
 } from "@workspace/db";
 import { sql, eq, and, or, desc, asc, ilike, isNull } from "drizzle-orm";
+import { officialPlayedMatchConditions } from "../lib/match-filters";
 
 const router = Router();
 
@@ -31,10 +32,10 @@ function semRefereeStateCondition() {
   );
 }
 
-/** Only non-friendly matches that have a linked referee (omit unassigned). */
+/** Only official played matches that have a linked referee (omit unassigned). */
 function linkedNonFriendlyMatch() {
   return and(
-    eq(matchesTable.isFriendly, false),
+    officialPlayedMatchConditions(),
     sql`${matchesTable.refereeId} is not null`,
   );
 }
@@ -81,7 +82,7 @@ router.get("/referees", async (req, res) => {
       .from(refereesTable)
       .leftJoin(
         matchesTable,
-        and(eq(matchesTable.refereeId, refereesTable.id), eq(matchesTable.isFriendly, false)),
+        and(eq(matchesTable.refereeId, refereesTable.id), officialPlayedMatchConditions()),
       )
       .$dynamic();
 
@@ -276,7 +277,7 @@ router.get("/referees/:id", async (req, res) => {
       .limit(1);
     if (!referee) return res.status(404).json({ error: "Árbitro não encontrado" });
 
-    const baseWhere = and(eq(matchesTable.refereeId, id), eq(matchesTable.isFriendly, false));
+    const baseWhere = and(eq(matchesTable.refereeId, id), officialPlayedMatchConditions());
 
     const overall = await db
       .select({

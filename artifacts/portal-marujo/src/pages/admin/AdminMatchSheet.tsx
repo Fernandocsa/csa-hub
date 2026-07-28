@@ -80,6 +80,7 @@ type MatchMeta = {
   round?: string | null;
   isWalkover?: boolean;
   isFriendly?: boolean;
+  status?: string;
 };
 
 type TabId = "general" | "manager" | "lineup" | "goals" | "cards" | "subs";
@@ -253,6 +254,7 @@ export default function AdminMatchSheet() {
       body: JSON.stringify({
         ...data,
         managerId: match.managerId,
+        ...(match.status === "scheduled" ? { status: "scheduled" } : {}),
       }),
     });
     if (!r.ok) {

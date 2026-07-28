@@ -34,6 +34,7 @@ import {
   setSeasonStatsVerification,
   getSeasonCompetitionBadgeStatuses,
 } from "../lib/auto-badges";
+import { unknownResultMatchConditions } from "../lib/match-filters";
 import {
   buildManualBadgeLabel,
   deriveBadgeYearFromMatch,
@@ -791,12 +792,15 @@ router.post("/admin/fix/2015-alagoano", requireAdmin, async (req, res) => {
 
 router.get("/admin/matches", requireAdmin, async (req, res) => {
   try {
-    const { limit = "100", offset = "0", season } = req.query as Record<string, string>;
+    const { limit = "100", offset = "0", season, status } = req.query as Record<string, string>;
     const lim = Math.min(parseInt(limit) || 100, 500);
     const off = parseInt(offset) || 0;
     const conditions = [];
     if (season && /^\d{4}$/.test(season)) {
       conditions.push(eq(matchesTable.season, season));
+    }
+    if (status === "scheduled" || status === "played") {
+      conditions.push(eq(matchesTable.status, status));
     }
     const rows = await db
       .select({
@@ -807,6 +811,7 @@ router.get("/admin/matches", requireAdmin, async (req, res) => {
         goalsAgainst: matchesTable.goalsAgainst,
         result: matchesTable.result,
         homeAway: matchesTable.homeAway,
+        status: matchesTable.status,
         attendance: matchesTable.attendance,
         scorers: matchesTable.scorers,
         opponentId: matchesTable.opponentId,
@@ -827,7 +832,9 @@ router.get("/admin/matches", requireAdmin, async (req, res) => {
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
       .leftJoin(managersTable, eq(matchesTable.managerId, managersTable.id))
       .where(conditions.length ? and(...conditions) : undefined)
-      .orderBy(desc(matchesTable.matchDate));
+      .orderBy(
+        status === "scheduled" ? asc(matchesTable.matchDate) : desc(matchesTable.matchDate),
+      );
     const total = rows.length;
     res.json({ data: rows.slice(off, off + lim), total });
   } catch (err) {
@@ -957,13 +964,7 @@ router.get("/admin/matches/unknown-results", requireAdmin, async (req, res) => {
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
-      .where(
-        and(
-          eq(matchesTable.result, "unknown"),
-          eq(matchesTable.isWalkover, false),
-          eq(matchesTable.isFriendly, false),
-        ),
-      )
+      .where(unknownResultMatchConditions())
       .orderBy(desc(matchesTable.matchDate), asc(matchesTable.id));
 
     res.json({ data: rows, total: rows.length });
@@ -1001,6 +1002,7 @@ router.get("/admin/matches/:id", requireAdmin, async (req, res) => {
         ownGoalsForCount: matchesTable.ownGoalsForCount,
         isWalkover: matchesTable.isWalkover,
         isFriendly: matchesTable.isFriendly,
+        status: matchesTable.status,
         phase: matchesTable.phase,
         round: matchesTable.round,
       })
@@ -1041,6 +1043,7 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
       round?: string | null;
       isWalkover?: boolean;
       isFriendly?: boolean;
+      status?: "played" | "scheduled";
     };
     const ownGoals = Math.max(0, body.ownGoalsForCount ?? 0);
     const phase =
@@ -1051,15 +1054,17 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
       body.round == null || String(body.round).trim() === ""
         ? null
         : String(body.round).trim();
+    const status = body.status === "scheduled" ? "scheduled" : "played";
+    const isScheduled = status === "scheduled";
     const [match] = await db
       .insert(matchesTable)
       .values({
         matchDate: body.matchDate,
         season: body.season,
         opponentId: body.opponentId,
-        goalsFor: body.goalsFor,
-        goalsAgainst: body.goalsAgainst,
-        result: body.result,
+        goalsFor: isScheduled ? null : body.goalsFor,
+        goalsAgainst: isScheduled ? null : body.goalsAgainst,
+        result: isScheduled ? "unknown" : body.result,
         homeAway: body.homeAway,
         competitionId: body.competitionId,
         stadiumId: body.stadiumId ?? null,
@@ -1072,6 +1077,7 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
         round,
         isWalkover: body.isWalkover === true,
         isFriendly: body.isFriendly === true,
+        status,
       })
       .returning();
     res.status(201).json(match);
@@ -1101,6 +1107,7 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
       scorers?: string | null;
       isWalkover?: boolean;
       isFriendly?: boolean;
+      status?: "played" | "scheduled";
       grossRevenue?: number | null;
       grossRevenueText?: string | null;
       ownGoalsForCount?: number | null;
@@ -1136,6 +1143,14 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
       phase,
       round,
     };
+    if (body.status === "scheduled" || body.status === "played") {
+      patch.status = body.status;
+      if (body.status === "scheduled") {
+        patch.goalsFor = null;
+        patch.goalsAgainst = null;
+        patch.result = "unknown";
+      }
+    }
     // Only update flags when explicitly sent — never default missing to false
     // (would wipe W.O./amistoso on unrelated edits, e.g. manager-only save).
     if (typeof body.isWalkover === "boolean") patch.isWalkover = body.isWalkover;
