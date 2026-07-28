@@ -6,22 +6,29 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { Match } from './match';
+import type { OpponentCompetitionStat } from './opponentCompetitionStat';
+import type { OpponentHighlights } from './opponentHighlights';
+import type { OpponentMarginMatch } from './opponentMarginMatch';
+import type { OpponentRepeatedScoreline } from './opponentRepeatedScoreline';
 import type { RecordLine } from './recordLine';
 
 export interface OpponentDetail {
   id: number;
   name: string;
+  /** @nullable */
+  logoUrl?: string | null;
   matches: number;
   wins: number;
   draws: number;
   losses: number;
   goalsFor: number;
   goalsAgainst: number;
+  competitionStats: OpponentCompetitionStat[];
+  highlights?: OpponentHighlights | null;
   homeRecord?: RecordLine;
   awayRecord?: RecordLine;
   allMatches: Match[];
-  /** @nullable */
-  biggestVictory?: string | null;
-  /** @nullable */
-  biggestDefeat?: string | null;
+  biggestVictory?: OpponentMarginMatch | null;
+  biggestDefeat?: OpponentMarginMatch | null;
+  mostRepeatedScorelines: OpponentRepeatedScoreline[];
 }

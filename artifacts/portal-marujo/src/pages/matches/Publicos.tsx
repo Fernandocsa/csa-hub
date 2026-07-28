@@ -5,6 +5,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { MatchSidesLabel } from "@/components/MatchSidesLabel";
+import { ListPagination } from "@/components/ListPagination";
+import { useClientPage } from "@/hooks/useClientPage";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 function fmtNumber(n: number) {
@@ -47,7 +49,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
 }
 
 function AttendanceTable({ sortBy }: { sortBy: Tab }) {
-  const { data: matches, isLoading } = useGetBiggestAttendance(100, sortBy as AttendanceSortBy);
+  const { data: matches, isLoading } = useGetBiggestAttendance(200, sortBy as AttendanceSortBy);
   const rows = matches ?? [];
   const ranks = assignCompetitionRanks(rows, (m) =>
     sortBy === "attendance_paid"
@@ -56,10 +58,12 @@ function AttendanceTable({ sortBy }: { sortBy: Tab }) {
         ? (m.grossRevenueText ?? m.grossRevenue)
         : m.attendance,
   );
+  const { page, setPage, pageSize, total, slice, needsPagination, rankOffset } = useClientPage(rows);
 
-  const colSpan = sortBy === "attendance" ? 5 : sortBy === "attendance_paid" ? 5 : 5;
+  const colSpan = 5;
 
   return (
+    <div className="space-y-3">
     <div className="border rounded">
       <Table>
         <TableHeader>
@@ -86,7 +90,7 @@ function AttendanceTable({ sortBy }: { sortBy: Tab }) {
                   <TableCell colSpan={colSpan}><Skeleton className="h-4" /></TableCell>
                 </TableRow>
               ))
-            : rows.length === 0
+            : slice.length === 0
               ? (
                 <TableRow>
                   <TableCell colSpan={colSpan} className="h-20 text-center text-muted-foreground">
@@ -94,10 +98,10 @@ function AttendanceTable({ sortBy }: { sortBy: Tab }) {
                   </TableCell>
                 </TableRow>
               )
-              : rows.map((m, i) => {
+              : slice.map((m, i) => {
                   return (
                     <TableRow key={m.id} className="text-sm">
-                      <TableCell className="py-2 text-muted-foreground font-mono text-xs">{formatCompetitionRank(ranks[i])}</TableCell>
+                      <TableCell className="py-2 text-muted-foreground font-mono text-xs">{formatCompetitionRank(ranks[rankOffset + i])}</TableCell>
                       <TableCell className="py-2 font-medium">
                         <Link
                           href={`/partidas/${m.id}`}
@@ -134,6 +138,10 @@ function AttendanceTable({ sortBy }: { sortBy: Tab }) {
                 })}
         </TableBody>
       </Table>
+    </div>
+    {needsPagination && (
+      <ListPagination page={page} pageSize={pageSize} total={total} onPageChange={setPage} />
+    )}
     </div>
   );
 }

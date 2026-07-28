@@ -13,8 +13,11 @@ import {
 import {
   getOpponentCompetitionStats,
   getOpponentHighlights,
+  getOpponentBiggestVictory,
+  getOpponentBiggestDefeat,
+  getOpponentMostRepeatedScorelines,
 } from "../lib/opponent-detail.js";
-import { officialPlayedMatchConditions, scoredFieldMatchConditions } from "../lib/match-filters";
+import { officialPlayedMatchConditions } from "../lib/match-filters";
 
 const router = Router();
 
@@ -629,32 +632,14 @@ router.get("/opponents/:id", async (req, res) => {
       .where(and(eq(matchesTable.opponentId, id), officialPlayedMatchConditions()))
       .orderBy(desc(matchesTable.matchDate));
 
-    const victoryRows = await db
-      .select({
-        goalsFor: matchesTable.goalsFor,
-        goalsAgainst: matchesTable.goalsAgainst,
-        matchDate: matchesTable.matchDate,
-      })
-      .from(matchesTable)
-      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.result, "win"), scoredFieldMatchConditions()))
-      .orderBy(sql`${matchesTable.goalsFor} desc, (${matchesTable.goalsFor} - ${matchesTable.goalsAgainst}) desc`)
-      .limit(1);
-
-    const defeatRows = await db
-      .select({
-        goalsFor: matchesTable.goalsFor,
-        goalsAgainst: matchesTable.goalsAgainst,
-        matchDate: matchesTable.matchDate,
-      })
-      .from(matchesTable)
-      .where(and(eq(matchesTable.opponentId, id), eq(matchesTable.result, "loss"), scoredFieldMatchConditions()))
-      .orderBy(sql`${matchesTable.goalsAgainst} desc, (${matchesTable.goalsAgainst} - ${matchesTable.goalsFor}) desc`)
-      .limit(1);
-
-    const [competitionStats, highlights] = await Promise.all([
-      getOpponentCompetitionStats(id),
-      getOpponentHighlights(id),
-    ]);
+    const [competitionStats, highlights, biggestVictory, biggestDefeat, mostRepeatedScorelines] =
+      await Promise.all([
+        getOpponentCompetitionStats(id),
+        getOpponentHighlights(id),
+        getOpponentBiggestVictory(id),
+        getOpponentBiggestDefeat(id),
+        getOpponentMostRepeatedScorelines(id),
+      ]);
 
     const stats = overall[0];
     res.json({
@@ -688,8 +673,9 @@ router.get("/opponents/:id", async (req, res) => {
         phase: r.phase ?? null,
         round: r.round ?? null,
       })),
-      biggestVictory: victoryRows[0] ? `${victoryRows[0].goalsFor}-${victoryRows[0].goalsAgainst}` : null,
-      biggestDefeat: defeatRows[0] ? `${defeatRows[0].goalsFor}-${defeatRows[0].goalsAgainst}` : null,
+      biggestVictory,
+      biggestDefeat,
+      mostRepeatedScorelines,
     });
   } catch (err) {
     req.log.error(err);

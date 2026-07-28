@@ -21,7 +21,7 @@ export interface ManagerDetail {
   /** @nullable */
   verificationStatus?: string | null;
   /** @nullable */
-  verifiedAt?: string | null;
+  verifiedAt?: Date | null;
   /** @nullable */
   verifiedBy?: string | null;
   matches: number;

@@ -1018,7 +1018,7 @@ components:
 
     OpponentDetail:
       type: object
-      required: [id, name, matches, wins, draws, losses, goalsFor, goalsAgainst, competitionStats, allMatches]
+      required: [id, name, matches, wins, draws, losses, goalsFor, goalsAgainst, competitionStats, allMatches, mostRepeatedScorelines]
       properties:
         id:
           type: integer
@@ -1055,9 +1055,48 @@ components:
           items:
             $ref: "#/components/schemas/Match"
         biggestVictory:
-          type: ["string", "null"]
+          oneOf:
+            - $ref: "#/components/schemas/OpponentMarginMatch"
+            - type: "null"
         biggestDefeat:
-          type: ["string", "null"]
+          oneOf:
+            - $ref: "#/components/schemas/OpponentMarginMatch"
+            - type: "null"
+        mostRepeatedScorelines:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpponentRepeatedScoreline"
+
+    OpponentMarginMatch:
+      type: object
+      required: [matchId, date, goalsFor, goalsAgainst, competition, season, tiedCount]
+      properties:
+        matchId:
+          type: integer
+        date:
+          type: string
+        goalsFor:
+          type: integer
+        goalsAgainst:
+          type: integer
+        competition:
+          type: string
+        season:
+          type: string
+        tiedCount:
+          type: integer
+          description: Number of matches tied on ranking criteria (includes the shown match)
+
+    OpponentRepeatedScoreline:
+      type: object
+      required: [goalsFor, goalsAgainst, count]
+      properties:
+        goalsFor:
+          type: integer
+        goalsAgainst:
+          type: integer
+        count:
+          type: integer
 
     OpponentCompetitionStat:
       type: object

@@ -36,7 +36,11 @@ export const GetSummaryResponse = zod.object({
   "goals": zod.number(),
   "assists": zod.number().nullish(),
   "seasons": zod.number().nullish(),
-  "season": zod.string().nullish()
+  "season": zod.string().nullish(),
+  "birthYear": zod.number().nullish(),
+  "birthDate": zod.string().nullish(),
+  "seasonAge": zod.number().nullish().describe('Age during this season year (not current age)'),
+  "shirtNumber": zod.number().nullish().describe('Squad shirt number for this season (from player_season_stats)')
 }),
   "topScorer": zod.object({
   "id": zod.number(),
@@ -47,11 +51,16 @@ export const GetSummaryResponse = zod.object({
   "goals": zod.number(),
   "assists": zod.number().nullish(),
   "seasons": zod.number().nullish(),
-  "season": zod.string().nullish()
+  "season": zod.string().nullish(),
+  "birthYear": zod.number().nullish(),
+  "birthDate": zod.string().nullish(),
+  "seasonAge": zod.number().nullish().describe('Age during this season year (not current age)'),
+  "shirtNumber": zod.number().nullish().describe('Squad shirt number for this season (from player_season_stats)')
 }),
   "mostCommonOpponents": zod.array(zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "logoUrl": zod.string().nullish(),
   "matches": zod.number(),
   "wins": zod.number(),
   "draws": zod.number(),
@@ -84,7 +93,11 @@ export const ListPlayersResponse = zod.object({
   "goals": zod.number(),
   "assists": zod.number().nullish(),
   "seasons": zod.number().nullish(),
-  "season": zod.string().nullish()
+  "season": zod.string().nullish(),
+  "birthYear": zod.number().nullish(),
+  "birthDate": zod.string().nullish(),
+  "seasonAge": zod.number().nullish().describe('Age during this season year (not current age)'),
+  "shirtNumber": zod.number().nullish().describe('Squad shirt number for this season (from player_season_stats)')
 })),
   "total": zod.number(),
   "limit": zod.number(),
@@ -117,7 +130,11 @@ export const GetPlayerResponse = zod.object({
   "goals": zod.number(),
   "assists": zod.number().nullish(),
   "seasons": zod.number().nullish(),
-  "season": zod.string().nullish()
+  "season": zod.string().nullish(),
+  "birthYear": zod.number().nullish(),
+  "birthDate": zod.string().nullish(),
+  "seasonAge": zod.number().nullish().describe('Age during this season year (not current age)'),
+  "shirtNumber": zod.number().nullish().describe('Squad shirt number for this season (from player_season_stats)')
 }))
 })
 
@@ -140,7 +157,11 @@ export const GetTopScorersResponseItem = zod.object({
   "goals": zod.number(),
   "assists": zod.number().nullish(),
   "seasons": zod.number().nullish(),
-  "season": zod.string().nullish()
+  "season": zod.string().nullish(),
+  "birthYear": zod.number().nullish(),
+  "birthDate": zod.string().nullish(),
+  "seasonAge": zod.number().nullish().describe('Age during this season year (not current age)'),
+  "shirtNumber": zod.number().nullish().describe('Squad shirt number for this season (from player_season_stats)')
 })
 export const GetTopScorersResponse = zod.array(GetTopScorersResponseItem)
 
@@ -162,9 +183,39 @@ export const GetTopAppearancesResponseItem = zod.object({
   "goals": zod.number(),
   "assists": zod.number().nullish(),
   "seasons": zod.number().nullish(),
-  "season": zod.string().nullish()
+  "season": zod.string().nullish(),
+  "birthYear": zod.number().nullish(),
+  "birthDate": zod.string().nullish(),
+  "seasonAge": zod.number().nullish().describe('Age during this season year (not current age)'),
+  "shirtNumber": zod.number().nullish().describe('Squad shirt number for this season (from player_season_stats)')
 })
 export const GetTopAppearancesResponse = zod.array(GetTopAppearancesResponseItem)
+
+
+/**
+ * @summary Top assists leaders
+ */
+export const GetTopAssistsQueryParams = zod.object({
+  "season": zod.coerce.string().optional(),
+  "limit": zod.coerce.number().optional()
+})
+
+export const GetTopAssistsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "position": zod.string().nullish(),
+  "nationality": zod.string().nullish(),
+  "appearances": zod.number(),
+  "goals": zod.number(),
+  "assists": zod.number().nullish(),
+  "seasons": zod.number().nullish(),
+  "season": zod.string().nullish(),
+  "birthYear": zod.number().nullish(),
+  "birthDate": zod.string().nullish(),
+  "seasonAge": zod.number().nullish().describe('Age during this season year (not current age)'),
+  "shirtNumber": zod.number().nullish().describe('Squad shirt number for this season (from player_season_stats)')
+})
+export const GetTopAssistsResponse = zod.array(GetTopAssistsResponseItem)
 
 
 /**
@@ -185,6 +236,7 @@ export const ListMatchesResponse = zod.object({
   "id": zod.number(),
   "date": zod.string(),
   "opponent": zod.string(),
+  "opponentLogoUrl": zod.string().nullish(),
   "goalsFor": zod.number(),
   "goalsAgainst": zod.number(),
   "result": zod.enum(['win', 'draw', 'loss']),
@@ -210,6 +262,7 @@ export const GetMatchResponse = zod.object({
   "id": zod.number(),
   "date": zod.string(),
   "opponent": zod.string(),
+  "opponentLogoUrl": zod.string().nullish(),
   "goalsFor": zod.number(),
   "goalsAgainst": zod.number(),
   "result": zod.enum(['win', 'draw', 'loss']),
@@ -234,6 +287,7 @@ export const GetBiggestVictoriesResponseItem = zod.object({
   "id": zod.number(),
   "date": zod.string(),
   "opponent": zod.string(),
+  "opponentLogoUrl": zod.string().nullish(),
   "goalsFor": zod.number(),
   "goalsAgainst": zod.number(),
   "result": zod.enum(['win', 'draw', 'loss']),
@@ -256,6 +310,7 @@ export const GetBiggestDefeatsResponseItem = zod.object({
   "id": zod.number(),
   "date": zod.string(),
   "opponent": zod.string(),
+  "opponentLogoUrl": zod.string().nullish(),
   "goalsFor": zod.number(),
   "goalsAgainst": zod.number(),
   "result": zod.enum(['win', 'draw', 'loss']),
@@ -310,9 +365,57 @@ export const GetSeasonResponse = zod.object({
   "goals": zod.number(),
   "assists": zod.number().nullish(),
   "seasons": zod.number().nullish(),
-  "season": zod.string().nullish()
+  "season": zod.string().nullish(),
+  "birthYear": zod.number().nullish(),
+  "birthDate": zod.string().nullish(),
+  "seasonAge": zod.number().nullish().describe('Age during this season year (not current age)'),
+  "shirtNumber": zod.number().nullish().describe('Squad shirt number for this season (from player_season_stats)')
 })),
   "competitions": zod.array(zod.string()),
+  "competitionStats": zod.array(zod.object({
+  "competitionId": zod.number(),
+  "competitionName": zod.string(),
+  "games": zod.number(),
+  "wins": zod.number(),
+  "draws": zod.number(),
+  "losses": zod.number(),
+  "goalsFor": zod.number(),
+  "goalsAgainst": zod.number(),
+  "goalDifference": zod.number(),
+  "classification": zod.string().nullish(),
+  "statsSource": zod.string().nullish()
+})).optional(),
+  "managers": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "games": zod.number(),
+  "wins": zod.number(),
+  "draws": zod.number(),
+  "losses": zod.number(),
+  "goalsFor": zod.number().optional(),
+  "goalsAgainst": zod.number().optional(),
+  "statsSource": zod.string().nullish(),
+  "birthDate": zod.string().nullish(),
+  "seasonAge": zod.number().nullish().describe('Age during this season year (not current age)')
+})).optional(),
+  "topAppearances": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "value": zod.number(),
+  "seasonAge": zod.number().nullish()
+})).optional(),
+  "topGoals": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "value": zod.number(),
+  "seasonAge": zod.number().nullish()
+})).optional(),
+  "topAssists": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "value": zod.number(),
+  "seasonAge": zod.number().nullish()
+})).optional(),
   "leaguePosition": zod.number().nullish(),
   "leagueName": zod.string().nullish(),
   "topScorers": zod.array(zod.object({
@@ -353,6 +456,7 @@ export const ListOpponentsResponse = zod.object({
   "data": zod.array(zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "logoUrl": zod.string().nullish(),
   "matches": zod.number(),
   "wins": zod.number(),
   "draws": zod.number(),
@@ -376,12 +480,50 @@ export const GetOpponentParams = zod.object({
 export const GetOpponentResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "logoUrl": zod.string().nullish(),
   "matches": zod.number(),
   "wins": zod.number(),
   "draws": zod.number(),
   "losses": zod.number(),
   "goalsFor": zod.number(),
   "goalsAgainst": zod.number(),
+  "competitionStats": zod.array(zod.object({
+  "competitionId": zod.number(),
+  "competitionName": zod.string(),
+  "matches": zod.number(),
+  "wins": zod.number(),
+  "draws": zod.number(),
+  "losses": zod.number(),
+  "goalsFor": zod.number(),
+  "goalsAgainst": zod.number()
+})),
+  "highlights": zod.union([zod.object({
+  "topScorer": zod.union([zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "value": zod.number()
+}),zod.null()]),
+  "mostAppearances": zod.union([zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "value": zod.number()
+}),zod.null()]),
+  "topAssists": zod.union([zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "value": zod.number()
+}),zod.null()]),
+  "managerMostMatches": zod.union([zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "value": zod.number()
+}),zod.null()]),
+  "managerMostWins": zod.union([zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "value": zod.number()
+}),zod.null()])
+}),zod.null()]).optional(),
   "homeRecord": zod.object({
   "matches": zod.number(),
   "wins": zod.number(),
@@ -402,6 +544,7 @@ export const GetOpponentResponse = zod.object({
   "id": zod.number(),
   "date": zod.string(),
   "opponent": zod.string(),
+  "opponentLogoUrl": zod.string().nullish(),
   "goalsFor": zod.number(),
   "goalsAgainst": zod.number(),
   "result": zod.enum(['win', 'draw', 'loss']),
@@ -410,8 +553,29 @@ export const GetOpponentResponse = zod.object({
   "season": zod.string(),
   "stadium": zod.string().nullish()
 })),
-  "biggestVictory": zod.string().nullish(),
-  "biggestDefeat": zod.string().nullish()
+  "biggestVictory": zod.union([zod.object({
+  "matchId": zod.number(),
+  "date": zod.string(),
+  "goalsFor": zod.number(),
+  "goalsAgainst": zod.number(),
+  "competition": zod.string(),
+  "season": zod.string(),
+  "tiedCount": zod.number().describe('Number of matches tied on ranking criteria (includes the shown match)')
+}),zod.null()]).optional(),
+  "biggestDefeat": zod.union([zod.object({
+  "matchId": zod.number(),
+  "date": zod.string(),
+  "goalsFor": zod.number(),
+  "goalsAgainst": zod.number(),
+  "competition": zod.string(),
+  "season": zod.string(),
+  "tiedCount": zod.number().describe('Number of matches tied on ranking criteria (includes the shown match)')
+}),zod.null()]).optional(),
+  "mostRepeatedScorelines": zod.array(zod.object({
+  "goalsFor": zod.number(),
+  "goalsAgainst": zod.number(),
+  "count": zod.number()
+}))
 })
 
 
@@ -445,11 +609,12 @@ export const GetManagerParams = zod.object({
 export const GetManagerResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "photoUrl": zod.string().nullish(),
   "nationality": zod.string().nullish(),
   "startYear": zod.number().nullish(),
   "endYear": zod.number().nullish(),
   "verificationStatus": zod.string().nullish(),
-  "verifiedAt": zod.string().nullish(),
+  "verifiedAt": zod.coerce.date().nullish(),
   "verifiedBy": zod.string().nullish(),
   "matches": zod.number(),
   "wins": zod.number(),
@@ -632,7 +797,11 @@ export const GetSquadBySeasonResponseItem = zod.object({
   "goals": zod.number(),
   "assists": zod.number().nullish(),
   "seasons": zod.number().nullish(),
-  "season": zod.string().nullish()
+  "season": zod.string().nullish(),
+  "birthYear": zod.number().nullish(),
+  "birthDate": zod.string().nullish(),
+  "seasonAge": zod.number().nullish().describe('Age during this season year (not current age)'),
+  "shirtNumber": zod.number().nullish().describe('Squad shirt number for this season (from player_season_stats)')
 })
 export const GetSquadBySeasonResponse = zod.array(GetSquadBySeasonResponseItem)
 

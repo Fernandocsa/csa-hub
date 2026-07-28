@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
 import { OpponentCrest } from "@/components/OpponentCrest";
+import { ListPagination } from "@/components/ListPagination";
+import { LIST_PAGE_SIZE } from "@/lib/list-page";
 
 function fmtDate(d: string) {
   return new Date(d).toLocaleDateString("pt-BR");
@@ -32,7 +34,7 @@ export default function MatchesList() {
   const [homeAway, setHomeAway] = useState("all");
   const [opponent, setOpponent] = useState("");
   const [page, setPage] = useState(1);
-  const limit = 30;
+  const limit = LIST_PAGE_SIZE;
 
   const { data: seasons } = useListSeasons();
 
@@ -232,32 +234,13 @@ export default function MatchesList() {
         </Table>
       </div>
 
-      {data && data.total > limit && (
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">
-            {(page - 1) * limit + 1}–{Math.min(page * limit, data.total)} de {data.total}
-          </span>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page === 1}
-              onClick={() => setPage((p) => p - 1)}
-              data-testid="button-prev"
-            >
-              Anterior
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page * limit >= data.total}
-              onClick={() => setPage((p) => p + 1)}
-              data-testid="button-next"
-            >
-              Próxima
-            </Button>
-          </div>
-        </div>
+      {data && (
+        <ListPagination
+          page={page}
+          pageSize={limit}
+          total={data.total}
+          onPageChange={setPage}
+        />
       )}
     </div>
   );

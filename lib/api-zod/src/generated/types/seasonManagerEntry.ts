@@ -19,6 +19,9 @@ export interface SeasonManagerEntry {
   statsSource?: string | null;
   /** @nullable */
   birthDate?: string | null;
-  /** Age during this season year (not current age). @nullable */
+  /**
+     * Age during this season year (not current age)
+     * @nullable
+     */
   seasonAge?: number | null;
 }

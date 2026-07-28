@@ -6,6 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OpponentCrest } from "@/components/OpponentCrest";
+import { ListPagination } from "@/components/ListPagination";
+import { LIST_PAGE_SIZE } from "@/lib/list-page";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 function pct(wins: number, total: number) {
@@ -18,18 +20,21 @@ type SortKey = "matches" | "wins" | "goals";
 export default function OpponentsList() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortKey>("matches");
+  const [page, setPage] = useState(1);
+  const limit = LIST_PAGE_SIZE;
 
   const { data, isLoading } = useListOpponents({
     search: search.length > 1 ? search : undefined,
     sort,
-    limit: 100,
-    offset: 0,
+    limit,
+    offset: (page - 1) * limit,
   });
 
   const rows = data?.data ?? [];
   const ranks = assignCompetitionRanks(
     rows,
     (opp) => (sort === "wins" ? opp.wins : sort === "goals" ? opp.goalsFor : opp.matches),
+    { startAt: (page - 1) * limit + 1 },
   );
 
   return (
@@ -43,13 +48,22 @@ export default function OpponentsList() {
         <Input
           placeholder="Buscar adversário..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
           className="h-8 w-full sm:w-64 text-sm"
           data-testid="input-search-opponent"
         />
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground whitespace-nowrap">Ordenar por:</span>
-          <Select value={sort} onValueChange={(v: SortKey) => setSort(v)}>
+          <Select
+            value={sort}
+            onValueChange={(v: SortKey) => {
+              setSort(v);
+              setPage(1);
+            }}
+          >
             <SelectTrigger className="h-8 w-32 text-sm" data-testid="select-sort">
               <SelectValue />
             </SelectTrigger>
@@ -121,7 +135,13 @@ export default function OpponentsList() {
       </div>
 
       {data && (
-        <p className="text-xs text-muted-foreground">{data.total} adversários no total</p>
+        <ListPagination
+          page={page}
+          pageSize={limit}
+          total={data.total}
+          onPageChange={setPage}
+          label=" adversários"
+        />
       )}
     </div>
   );

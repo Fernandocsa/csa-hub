@@ -1,8 +1,10 @@
 import { Link } from "wouter";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useListSeasons } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ListPagination } from "@/components/ListPagination";
+import { useClientPage } from "@/hooks/useClientPage";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -70,7 +72,7 @@ export default function SeasonsList() {
   }
 
   const sorted = useMemo(() => {
-    if (!seasons) return seasons;
+    if (!seasons) return [];
     if (!sortKey || !sortDir) return seasons;
     return [...seasons].sort((a, b) => {
       const va = getSortValue(a, sortKey);
@@ -80,6 +82,12 @@ export default function SeasonsList() {
       return ((va as number) - (vb as number)) * dir;
     });
   }, [seasons, sortKey, sortDir]);
+
+  const { page, setPage, pageSize, total, slice, needsPagination } = useClientPage(sorted);
+
+  useEffect(() => {
+    setPage(1);
+  }, [sortKey, sortDir, setPage]);
 
   const totals = seasons?.reduce(
     (acc, s) => ({
@@ -149,12 +157,12 @@ export default function SeasonsList() {
                     <TableCell colSpan={10}><Skeleton className="h-4" /></TableCell>
                   </TableRow>
                 ))
-              : sorted?.length === 0 ? (
+              : slice.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={10} className="h-20 text-center text-muted-foreground">Sem temporadas.</TableCell>
                   </TableRow>
                 )
-              : sorted?.map((s) => {
+              : slice.map((s) => {
                   const gd = s.goalsScored - s.goalsConceded;
                   return (
                     <TableRow key={s.year} className="text-sm" data-testid={`row-season-${s.year}`}>
@@ -199,6 +207,10 @@ export default function SeasonsList() {
           </TableBody>
         </Table>
       </div>
+
+      {needsPagination && (
+        <ListPagination page={page} pageSize={pageSize} total={total} onPageChange={setPage} label=" temporadas" />
+      )}
     </div>
   );
 }

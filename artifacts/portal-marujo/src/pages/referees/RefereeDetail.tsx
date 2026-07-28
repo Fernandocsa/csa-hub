@@ -11,7 +11,9 @@ import { ufDisplayName } from "@/lib/br-locations";
 import { ShareButton } from "@/components/ShareButton";
 import { EntityPhoto } from "@/components/EntityPhoto";
 
-const PAGE_SIZE = 25;
+import { LIST_PAGE_SIZE } from "@/lib/list-page";
+
+const PAGE_SIZE = LIST_PAGE_SIZE;
 
 function pct(wins: number, total: number) {
   if (!total) return "–";

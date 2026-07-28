@@ -32,9 +32,15 @@ export interface PlayerStat {
   birthYear?: number | null;
   /** @nullable */
   birthDate?: string | null;
-  /** Age during this season year (not current age). @nullable */
+  /**
+     * Age during this season year (not current age)
+     * @nullable
+     */
   seasonAge?: number | null;
-  /** Squad shirt number for this season (from player_season_stats). @nullable */
+  /**
+     * Squad shirt number for this season (from player_season_stats)
+     * @nullable
+     */
   shirtNumber?: number | null;
 }
 
@@ -63,6 +69,50 @@ export interface SummaryStats {
   topScorer: PlayerStat;
   mostCommonOpponents: OpponentSummary[];
   foundedYear: number;
+}
+
+export interface SeasonCompetitionStat {
+  competitionId: number;
+  competitionName: string;
+  games: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  /** @nullable */
+  classification?: string | null;
+  /** @nullable */
+  statsSource?: string | null;
+}
+
+export interface SeasonManagerEntry {
+  id: number;
+  name: string;
+  games: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor?: number;
+  goalsAgainst?: number;
+  /** @nullable */
+  statsSource?: string | null;
+  /** @nullable */
+  birthDate?: string | null;
+  /**
+     * Age during this season year (not current age)
+     * @nullable
+     */
+  seasonAge?: number | null;
+}
+
+export interface SeasonTopEntry {
+  id: number;
+  name: string;
+  value: number;
+  /** @nullable */
+  seasonAge?: number | null;
 }
 
 export interface Player {
@@ -131,10 +181,6 @@ export interface Match {
   season: string;
   /** @nullable */
   stadium?: string | null;
-  /** @nullable */
-  phase?: string | null;
-  /** @nullable */
-  round?: string | null;
 }
 
 export type MatchDetailResult = typeof MatchDetailResult[keyof typeof MatchDetailResult];
@@ -229,47 +275,6 @@ export interface SeasonDetail {
   topScorers?: TopScorerEntry[];
 }
 
-export interface SeasonCompetitionStat {
-  competitionId: number;
-  competitionName: string;
-  games: number;
-  wins: number;
-  draws: number;
-  losses: number;
-  goalsFor: number;
-  goalsAgainst: number;
-  goalDifference: number;
-  /** @nullable */
-  classification?: string | null;
-  /** @nullable */
-  statsSource?: string | null;
-}
-
-export interface SeasonManagerEntry {
-  id: number;
-  name: string;
-  games: number;
-  wins: number;
-  draws: number;
-  losses: number;
-  goalsFor?: number;
-  goalsAgainst?: number;
-  /** @nullable */
-  statsSource?: string | null;
-  /** @nullable */
-  birthDate?: string | null;
-  /** Age during this season year (not current age). @nullable */
-  seasonAge?: number | null;
-}
-
-export interface SeasonTopEntry {
-  id: number;
-  name: string;
-  value: number;
-  /** @nullable */
-  seasonAge?: number | null;
-}
-
 export interface LeaguePosition {
   year: string;
   /** @nullable */
@@ -280,38 +285,6 @@ export interface LeaguePosition {
   draws: number;
   losses: number;
   points: number;
-}
-
-export interface RecordLine {
-  matches: number;
-  wins: number;
-  draws: number;
-  losses: number;
-  goalsFor: number;
-  goalsAgainst: number;
-}
-
-export interface OpponentDetail {
-  id: number;
-  name: string;
-  /** @nullable */
-  logoUrl?: string | null;
-  matches: number;
-  wins: number;
-  draws: number;
-  losses: number;
-  goalsFor: number;
-  goalsAgainst: number;
-  competitionStats: OpponentCompetitionStat[];
-  /** @nullable */
-  highlights?: OpponentHighlights | null;
-  homeRecord?: RecordLine;
-  awayRecord?: RecordLine;
-  allMatches: Match[];
-  /** @nullable */
-  biggestVictory?: string | null;
-  /** @nullable */
-  biggestDefeat?: string | null;
 }
 
 export interface OpponentCompetitionStat {
@@ -332,16 +305,58 @@ export interface OpponentHighlightEntry {
 }
 
 export interface OpponentHighlights {
+  topScorer: OpponentHighlightEntry | null;
+  mostAppearances: OpponentHighlightEntry | null;
+  topAssists: OpponentHighlightEntry | null;
+  managerMostMatches: OpponentHighlightEntry | null;
+  managerMostWins: OpponentHighlightEntry | null;
+}
+
+export interface RecordLine {
+  matches: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+}
+
+export interface OpponentMarginMatch {
+  matchId: number;
+  date: string;
+  goalsFor: number;
+  goalsAgainst: number;
+  competition: string;
+  season: string;
+  /** Number of matches tied on ranking criteria (includes the shown match) */
+  tiedCount: number;
+}
+
+export interface OpponentRepeatedScoreline {
+  goalsFor: number;
+  goalsAgainst: number;
+  count: number;
+}
+
+export interface OpponentDetail {
+  id: number;
+  name: string;
   /** @nullable */
-  topScorer?: OpponentHighlightEntry | null;
-  /** @nullable */
-  mostAppearances?: OpponentHighlightEntry | null;
-  /** @nullable */
-  topAssists?: OpponentHighlightEntry | null;
-  /** @nullable */
-  managerMostMatches?: OpponentHighlightEntry | null;
-  /** @nullable */
-  managerMostWins?: OpponentHighlightEntry | null;
+  logoUrl?: string | null;
+  matches: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  competitionStats: OpponentCompetitionStat[];
+  highlights?: OpponentHighlights | null;
+  homeRecord?: RecordLine;
+  awayRecord?: RecordLine;
+  allMatches: Match[];
+  biggestVictory?: OpponentMarginMatch | null;
+  biggestDefeat?: OpponentMarginMatch | null;
+  mostRepeatedScorelines: OpponentRepeatedScoreline[];
 }
 
 export interface PaginatedOpponents {
@@ -508,6 +523,11 @@ limit?: number;
 };
 
 export type GetTopAppearancesParams = {
+season?: string;
+limit?: number;
+};
+
+export type GetTopAssistsParams = {
 season?: string;
 limit?: number;
 };

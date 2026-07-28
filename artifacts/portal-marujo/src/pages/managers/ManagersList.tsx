@@ -2,17 +2,15 @@ import { Link } from "wouter";
 import { useListManagers } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ListPagination } from "@/components/ListPagination";
+import { useClientPage } from "@/hooks/useClientPage";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
-
-function pct(wins: number, total: number) {
-  if (!total) return "–";
-  return ((wins / total) * 100).toFixed(1) + "%";
-}
 
 export default function ManagersList() {
   const { data: managers, isLoading } = useListManagers();
   const rows = managers ?? [];
   const ranks = assignCompetitionRanks(rows, (m) => m.matches);
+  const { page, setPage, pageSize, total, slice, needsPagination, rankOffset } = useClientPage(rows);
 
   return (
     <div className="space-y-5">
@@ -42,14 +40,14 @@ export default function ManagersList() {
               ? Array.from({ length: 10 }).map((_, i) => (
                   <TableRow key={i}><TableCell colSpan={10}><Skeleton className="h-4" /></TableCell></TableRow>
                 ))
-              : rows.length === 0 ? (
+              : slice.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={10} className="h-20 text-center text-muted-foreground">Nenhum técnico encontrado.</TableCell>
                   </TableRow>
                 )
-              : rows.map((m, i) => (
+              : slice.map((m, i) => (
                   <TableRow key={m.id} className="text-sm" data-testid={`row-manager-${m.id}`}>
-                    <TableCell className="py-2 text-muted-foreground text-xs">{formatCompetitionRank(ranks[i])}</TableCell>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{formatCompetitionRank(ranks[rankOffset + i])}</TableCell>
                     <TableCell className="py-2 font-medium">
                       <Link href={`/tecnicos/${m.id}`} className="hover:text-primary hover:underline" data-testid={`link-manager-${m.id}`}>
                         {m.name}
@@ -82,6 +80,10 @@ export default function ManagersList() {
           </TableBody>
         </Table>
       </div>
+
+      {needsPagination && (
+        <ListPagination page={page} pageSize={pageSize} total={total} onPageChange={setPage} label=" técnicos" />
+      )}
     </div>
   );
 }

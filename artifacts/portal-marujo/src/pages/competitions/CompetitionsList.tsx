@@ -3,6 +3,8 @@ import { useListCompetitions } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BrazilFlag } from "@/components/BrazilFlag";
+import { ListPagination } from "@/components/ListPagination";
+import { useClientPage } from "@/hooks/useClientPage";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 function pct(wins: number, total: number) {
@@ -25,6 +27,7 @@ export default function CompetitionsList() {
   const { data: competitions, isLoading } = useListCompetitions();
   const rows = competitions ?? [];
   const ranks = assignCompetitionRanks(rows, (c) => c.matches);
+  const { page, setPage, pageSize, total, slice, needsPagination, rankOffset } = useClientPage(rows);
 
   return (
     <div className="space-y-5">
@@ -55,14 +58,14 @@ export default function CompetitionsList() {
               ? Array.from({ length: 8 }).map((_, i) => (
                   <TableRow key={i}><TableCell colSpan={11}><Skeleton className="h-4" /></TableCell></TableRow>
                 ))
-              : rows.length === 0 ? (
+              : slice.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={11} className="h-20 text-center text-muted-foreground">Nenhuma competição encontrada.</TableCell>
                   </TableRow>
                 )
-              : rows.map((c, i) => (
+              : slice.map((c, i) => (
                   <TableRow key={c.id} className="text-sm" data-testid={`row-competition-${c.id}`}>
-                    <TableCell className="py-2 text-muted-foreground text-xs">{formatCompetitionRank(ranks[i])}</TableCell>
+                    <TableCell className="py-2 text-muted-foreground text-xs">{formatCompetitionRank(ranks[rankOffset + i])}</TableCell>
                     <TableCell className="py-2 font-medium">
                       <Link href={`/competicoes/${c.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1.5" data-testid={`link-competition-${c.id}`}>
                         <BrazilFlag size="sm" title="Brasil" />
@@ -88,6 +91,10 @@ export default function CompetitionsList() {
           </TableBody>
         </Table>
       </div>
+
+      {needsPagination && (
+        <ListPagination page={page} pageSize={pageSize} total={total} onPageChange={setPage} label=" competições" />
+      )}
     </div>
   );
 }

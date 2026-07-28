@@ -11,6 +11,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 import { ufDisplayName } from "@/lib/br-locations";
+import { ListPagination } from "@/components/ListPagination";
+import { useClientPage } from "@/hooks/useClientPage";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 function formatPeriod(first: string | null, last: string | null): string {
@@ -30,6 +32,10 @@ export default function PlayersByStateDetail() {
     : data?.state
       ? `Nascidos em ${ufDisplayName(data.state)}`
       : `Nascidos em ${uf.toUpperCase()}`;
+
+  const players = data?.players ?? [];
+  const ranks = assignCompetitionRanks(players, (p) => p.appearances);
+  const { page, setPage, pageSize, total, slice, needsPagination, rankOffset } = useClientPage(players);
 
   if (isLoading) {
     return (
@@ -102,23 +108,21 @@ export default function PlayersByStateDetail() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.players.length === 0 ? (
+            {slice.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="h-20 text-center text-muted-foreground">
                   Nenhum jogador neste filtro.
                 </TableCell>
               </TableRow>
             ) : (
-              (() => {
-                const ranks = assignCompetitionRanks(data.players, (p) => p.appearances);
-                return data.players.map((player, i) => (
+              slice.map((player, i) => (
                 <TableRow
                   key={player.id}
                   className="text-sm"
                   data-testid={`row-birth-state-${player.id}`}
                 >
                   <TableCell className="py-2 text-muted-foreground text-xs">
-                    {formatCompetitionRank(ranks[i])}
+                    {formatCompetitionRank(ranks[rankOffset + i])}
                   </TableCell>
                   <TableCell className="py-2 font-medium">
                     <Link
@@ -144,12 +148,15 @@ export default function PlayersByStateDetail() {
                     {formatPeriod(player.firstSeason, player.lastSeason)}
                   </TableCell>
                 </TableRow>
-              ));
-              })()
+              ))
             )}
           </TableBody>
         </Table>
       </div>
+
+      {needsPagination && (
+        <ListPagination page={page} pageSize={pageSize} total={total} onPageChange={setPage} label=" jogadores" />
+      )}
     </div>
   );
 }

@@ -24,6 +24,7 @@ import type {
   GetHomeAwayRecordsParams,
   GetSquadBySeasonParams,
   GetTopAppearancesParams,
+  GetTopAssistsParams,
   GetTopScorersParams,
   GoalkeeperStat,
   HealthStatus,
@@ -533,6 +534,90 @@ export function useGetTopAppearances<TData = Awaited<ReturnType<typeof getTopApp
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetTopAppearancesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetTopAssistsUrl = (params?: GetTopAssistsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/players/top-assists?${stringifiedParams}` : `/api/players/top-assists`
+}
+
+/**
+ * @summary Top assists leaders
+ */
+export const getTopAssists = async (params?: GetTopAssistsParams, options?: RequestInit): Promise<PlayerStat[]> => {
+
+  return customFetch<PlayerStat[]>(getGetTopAssistsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTopAssistsQueryKey = (params?: GetTopAssistsParams,) => {
+    return [
+    `/api/players/top-assists`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetTopAssistsQueryOptions = <TData = Awaited<ReturnType<typeof getTopAssists>>, TError = ErrorType<unknown>>(params?: GetTopAssistsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTopAssists>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTopAssistsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTopAssists>>> = ({ signal }) => getTopAssists(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTopAssists>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTopAssistsQueryResult = NonNullable<Awaited<ReturnType<typeof getTopAssists>>>
+export type GetTopAssistsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Top assists leaders
+ */
+
+export function useGetTopAssists<TData = Awaited<ReturnType<typeof getTopAssists>>, TError = ErrorType<unknown>>(
+ params?: GetTopAssistsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTopAssists>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetTopAssistsQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

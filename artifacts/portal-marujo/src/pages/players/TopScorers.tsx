@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { useGetTopScorers, useListSeasons } from "@workspace/api-client-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
@@ -6,6 +7,8 @@ import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ListPagination } from "@/components/ListPagination";
+import { useClientPage } from "@/hooks/useClientPage";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 export default function TopScorers() {
@@ -13,10 +16,15 @@ export default function TopScorers() {
   const { data: seasons } = useListSeasons();
   const { data: scorers, isLoading } = useGetTopScorers({
     season: season === "all" ? undefined : season,
-    limit: 50,
+    limit: 100,
   });
   const rows = scorers ?? [];
   const ranks = assignCompetitionRanks(rows, (p) => p.goals);
+  const { page, setPage, pageSize, total, slice, needsPagination, rankOffset } = useClientPage(rows);
+
+  useEffect(() => {
+    setPage(1);
+  }, [season, setPage]);
 
   return (
     <div className="space-y-5">
@@ -64,14 +72,14 @@ export default function TopScorers() {
                     <TableCell colSpan={6}><Skeleton className="h-4" /></TableCell>
                   </TableRow>
                 ))
-              : rows.length === 0 ? (
+              : slice.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="h-20 text-center text-muted-foreground">Nenhum dado disponível.</TableCell>
                   </TableRow>
                 )
-              : rows.map((p, i) => (
+              : slice.map((p, i) => (
                     <TableRow key={p.id} className="text-sm" data-testid={`row-scorer-${p.id}`}>
-                      <TableCell className="py-2 text-muted-foreground font-mono text-xs">{formatCompetitionRank(ranks[i])}</TableCell>
+                      <TableCell className="py-2 text-muted-foreground font-mono text-xs">{formatCompetitionRank(ranks[rankOffset + i])}</TableCell>
                       <TableCell className="py-2 font-medium">
                         <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
                           <PlayerFlag
@@ -93,6 +101,10 @@ export default function TopScorers() {
           </TableBody>
         </Table>
       </div>
+
+      {needsPagination && (
+        <ListPagination page={page} pageSize={pageSize} total={total} onPageChange={setPage} />
+      )}
     </div>
   );
 }

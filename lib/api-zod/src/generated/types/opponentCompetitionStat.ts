@@ -6,15 +6,13 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface OpponentSummary {
-  id: number;
-  name: string;
-  /** @nullable */
-  logoUrl?: string | null;
+export interface OpponentCompetitionStat {
+  competitionId: number;
+  competitionName: string;
   matches: number;
   wins: number;
   draws: number;
   losses: number;
-  goalsFor?: number;
-  goalsAgainst?: number;
+  goalsFor: number;
+  goalsAgainst: number;
 }

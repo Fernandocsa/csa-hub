@@ -6,6 +6,8 @@ import {
   type OpponentCompetitionStat,
   type OpponentHighlightEntry,
   type OpponentHighlights,
+  type OpponentMarginMatch,
+  type OpponentRepeatedScoreline,
 } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,7 +18,9 @@ import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
 import { ShareButton } from "@/components/ShareButton";
 
-const PAGE_SIZE = 25;
+import { LIST_PAGE_SIZE } from "@/lib/list-page";
+
+const PAGE_SIZE = LIST_PAGE_SIZE;
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -114,6 +118,60 @@ function HighlightCard({
         <span className="text-sm font-normal text-muted-foreground">{valueSuffix}</span>
       </p>
     </Link>
+  );
+}
+
+function formatScore(gf: number, ga: number) {
+  return `${gf}–${ga}`;
+}
+
+function MarginCard({
+  label,
+  entry,
+  colorClass,
+  testId,
+}: {
+  label: string;
+  entry: OpponentMarginMatch | null | undefined;
+  colorClass: string;
+  testId: string;
+}) {
+  if (!entry) return null;
+  const otherTies = entry.tiedCount > 1 ? entry.tiedCount - 1 : 0;
+  return (
+    <Link
+      href={`/partidas/${entry.matchId}`}
+      className="border rounded p-4 space-y-1 block hover:bg-muted/40 transition-colors"
+      data-testid={testId}
+    >
+      <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className={`text-2xl font-black ${colorClass}`}>
+        {formatScore(entry.goalsFor, entry.goalsAgainst)}
+      </p>
+      <p className="text-sm text-muted-foreground">
+        {fmtDate(entry.date)} · {entry.competition}
+      </p>
+      {otherTies > 0 && (
+        <p className="text-xs text-muted-foreground">
+          empatado com {otherTies} {otherTies === 1 ? "outro" : "outros"}
+        </p>
+      )}
+    </Link>
+  );
+}
+
+function RepeatedScorelinesCard({ items }: { items: OpponentRepeatedScoreline[] }) {
+  if (items.length === 0) return null;
+  const count = items[0].count;
+  const scores = items.map((i) => formatScore(i.goalsFor, i.goalsAgainst)).join(" e ");
+  const timesLabel = count === 1 ? "1×" : `${count}×`;
+  const suffix = items.length > 1 ? `${timesLabel} cada` : timesLabel;
+  return (
+    <div className="border rounded p-4 space-y-1" data-testid="milestone-repeated-score">
+      <p className="text-xs text-muted-foreground uppercase tracking-wider">Placar Mais Repetido</p>
+      <p className="text-2xl font-black text-primary">{scores}</p>
+      <p className="text-sm text-muted-foreground">{suffix}</p>
+    </div>
   );
 }
 
@@ -294,6 +352,32 @@ export default function OpponentDetail() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Marcos do confronto (jogos de campo) */}
+      {(opponent.biggestVictory ||
+        opponent.biggestDefeat ||
+        (opponent.mostRepeatedScorelines?.length ?? 0) > 0) && (
+        <section>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+            Marcos do Confronto
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <MarginCard
+              label="Maior Vitória"
+              entry={opponent.biggestVictory}
+              colorClass="text-green-600"
+              testId="milestone-biggest-victory"
+            />
+            <MarginCard
+              label="Maior Derrota"
+              entry={opponent.biggestDefeat}
+              colorClass="text-red-600"
+              testId="milestone-biggest-defeat"
+            />
+            <RepeatedScorelinesCard items={opponent.mostRepeatedScorelines ?? []} />
+          </div>
+        </section>
       )}
 
       {/* Destaques (somente com ficha) */}

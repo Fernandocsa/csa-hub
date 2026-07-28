@@ -8,12 +8,30 @@ import {
   playersTable,
 } from "@workspace/db";
 import { and, asc, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
-import { officialPlayedMatchConditions } from "./match-filters";
+import { officialPlayedMatchConditions, scoredFieldMatchConditions } from "./match-filters";
 
 export interface OpponentHighlightEntry {
   id: number;
   name: string;
   value: number;
+}
+
+/** Biggest win/defeat vs an opponent (field matches only). */
+export interface OpponentMarginMatch {
+  matchId: number;
+  date: string;
+  goalsFor: number;
+  goalsAgainst: number;
+  competition: string;
+  season: string;
+  /** How many matches tie on primary+secondary criteria (includes the one shown). */
+  tiedCount: number;
+}
+
+export interface OpponentRepeatedScoreline {
+  goalsFor: number;
+  goalsAgainst: number;
+  count: number;
 }
 
 export interface OpponentHighlights {
@@ -203,4 +221,112 @@ export async function getOpponentHighlights(
     managerMostMatches: mapHighlight(managerMostMatchesRows[0]),
     managerMostWins: mapHighlight(managerMostWinsRows[0]),
   };
+}
+
+async function getOpponentMarginMatch(
+  opponentId: number,
+  kind: "victory" | "defeat",
+): Promise<OpponentMarginMatch | null> {
+  const isVictory = kind === "victory";
+  const result = isVictory ? "win" : "loss";
+  const orderBy = isVictory
+    ? sql`${matchesTable.goalsFor} desc, (${matchesTable.goalsFor} - ${matchesTable.goalsAgainst}) desc, ${matchesTable.matchDate} desc`
+    : sql`${matchesTable.goalsAgainst} desc, (${matchesTable.goalsAgainst} - ${matchesTable.goalsFor}) desc, ${matchesTable.matchDate} desc`;
+
+  const rows = await db
+    .select({
+      matchId: matchesTable.id,
+      date: matchesTable.matchDate,
+      goalsFor: matchesTable.goalsFor,
+      goalsAgainst: matchesTable.goalsAgainst,
+      competition: competitionsTable.name,
+      season: matchesTable.season,
+    })
+    .from(matchesTable)
+    .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+    .where(
+      and(
+        eq(matchesTable.opponentId, opponentId),
+        eq(matchesTable.result, result),
+        scoredFieldMatchConditions(),
+      ),
+    )
+    .orderBy(orderBy)
+    .limit(1);
+
+  const top = rows[0];
+  if (!top || top.goalsFor == null || top.goalsAgainst == null) return null;
+
+  const tieKey = isVictory
+    ? and(
+        eq(matchesTable.goalsFor, top.goalsFor),
+        sql`(${matchesTable.goalsFor} - ${matchesTable.goalsAgainst}) = ${top.goalsFor - top.goalsAgainst}`,
+      )
+    : and(
+        eq(matchesTable.goalsAgainst, top.goalsAgainst),
+        sql`(${matchesTable.goalsAgainst} - ${matchesTable.goalsFor}) = ${top.goalsAgainst - top.goalsFor}`,
+      );
+
+  const tiedRows = await db
+    .select({ n: sql<number>`cast(count(*) as int)` })
+    .from(matchesTable)
+    .where(
+      and(
+        eq(matchesTable.opponentId, opponentId),
+        eq(matchesTable.result, result),
+        scoredFieldMatchConditions(),
+        tieKey,
+      ),
+    );
+
+  return {
+    matchId: top.matchId,
+    date: top.date,
+    goalsFor: top.goalsFor,
+    goalsAgainst: top.goalsAgainst,
+    competition: top.competition,
+    season: top.season,
+    tiedCount: tiedRows[0]?.n ?? 1,
+  };
+}
+
+export function getOpponentBiggestVictory(
+  opponentId: number,
+): Promise<OpponentMarginMatch | null> {
+  return getOpponentMarginMatch(opponentId, "victory");
+}
+
+export function getOpponentBiggestDefeat(
+  opponentId: number,
+): Promise<OpponentMarginMatch | null> {
+  return getOpponentMarginMatch(opponentId, "defeat");
+}
+
+export async function getOpponentMostRepeatedScorelines(
+  opponentId: number,
+): Promise<OpponentRepeatedScoreline[]> {
+  const rows = await db
+    .select({
+      goalsFor: matchesTable.goalsFor,
+      goalsAgainst: matchesTable.goalsAgainst,
+      count: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchesTable)
+    .where(and(eq(matchesTable.opponentId, opponentId), scoredFieldMatchConditions()))
+    .groupBy(matchesTable.goalsFor, matchesTable.goalsAgainst)
+    .orderBy(
+      desc(sql`count(*)`),
+      desc(matchesTable.goalsFor),
+      asc(matchesTable.goalsAgainst),
+    );
+
+  if (rows.length === 0 || rows[0].count == null) return [];
+  const max = rows[0].count;
+  return rows
+    .filter((r) => r.count === max && r.goalsFor != null && r.goalsAgainst != null)
+    .map((r) => ({
+      goalsFor: r.goalsFor!,
+      goalsAgainst: r.goalsAgainst!,
+      count: r.count!,
+    }));
 }
