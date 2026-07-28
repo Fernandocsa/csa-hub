@@ -8,6 +8,8 @@ export const refereesTable = pgTable("referees", {
   name: text("name").notNull(),
   /** Federation UF (AL, SP…); null when unknown — fill gradually. */
   state: text("state"),
+  /** Profile photo: absolute HTTPS URL or site path. */
+  photoUrl: text("photo_url"),
 });
 
 export const insertRefereeSchema = createInsertSchema(refereesTable).omit({ id: true });

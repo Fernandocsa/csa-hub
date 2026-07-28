@@ -10,6 +10,7 @@ import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { VerificationCard } from "@/components/VerificationCard";
 import { BrazilFlag, isBrazilianNationality } from "@/components/BrazilFlag";
 import { ShareButton } from "@/components/ShareButton";
+import { EntityPhoto } from "@/components/EntityPhoto";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -47,35 +48,46 @@ export default function ManagerDetail() {
       </Link>
 
       <div className="border-b pb-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl font-bold" data-testid="heading-manager">{manager.name}</h1>
-          <ShareButton title={manager.name} />
-          <VerificationCard
-            status={manager.verificationStatus}
-            verifiedBy={manager.verifiedBy}
-            verifiedAt={manager.verifiedAt}
+        <div className="flex items-start gap-3">
+          <EntityPhoto
+            url={manager.photoUrl}
+            name={manager.name}
+            size="lg"
+            className="mt-0.5"
+            label="Foto do técnico"
           />
-        </div>
-        {(manager.nationality || manager.startYear != null) && (
-          <p className="text-sm text-muted-foreground mt-1 inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
-            {manager.nationality && (
-              <span className="inline-flex items-center gap-1">
-                {isBrazilianNationality(manager.nationality) && (
-                  <BrazilFlag size="sm" title={manager.nationality} />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-bold" data-testid="heading-manager">{manager.name}</h1>
+              <ShareButton title={manager.name} />
+              <VerificationCard
+                status={manager.verificationStatus}
+                verifiedBy={manager.verifiedBy}
+                verifiedAt={manager.verifiedAt}
+              />
+            </div>
+            {(manager.nationality || manager.startYear != null) && (
+              <p className="text-sm text-muted-foreground mt-1 inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
+                {manager.nationality && (
+                  <span className="inline-flex items-center gap-1">
+                    {isBrazilianNationality(manager.nationality) && (
+                      <BrazilFlag size="sm" title={manager.nationality} />
+                    )}
+                    <span>{manager.nationality}</span>
+                  </span>
                 )}
-                <span>{manager.nationality}</span>
-              </span>
+                {manager.nationality && manager.startYear != null && <span aria-hidden>·</span>}
+                {manager.startYear != null && (
+                  <span>
+                    {manager.endYear != null && manager.endYear !== manager.startYear
+                      ? `${manager.startYear}–${manager.endYear}`
+                      : String(manager.startYear)}
+                  </span>
+                )}
+              </p>
             )}
-            {manager.nationality && manager.startYear != null && <span aria-hidden>·</span>}
-            {manager.startYear != null && (
-              <span>
-                {manager.endYear != null && manager.endYear !== manager.startYear
-                  ? `${manager.startYear}–${manager.endYear}`
-                  : String(manager.startYear)}
-              </span>
-            )}
-          </p>
-        )}
+          </div>
+        </div>
         <EntityBadges
           badges={
             (manager as { badges?: { id: number; label: string; source?: string }[] })

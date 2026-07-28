@@ -3,6 +3,7 @@ import { useGetStadiumDetail } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 import { ShareButton } from "@/components/ShareButton";
+import { EntityPhoto } from "@/components/EntityPhoto";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -53,23 +54,35 @@ export default function StadiumDetail() {
       </Link>
 
       <div className="border-b pb-4">
-        <div className="inline-flex items-center gap-2">
-          <h1 className="text-2xl font-bold" data-testid="heading-stadium">
-            {stadium.name}
-          </h1>
-          <ShareButton title={stadium.name} />
+        <div className="flex items-start gap-3">
+          <EntityPhoto
+            url={stadium.photoUrl}
+            name={stadium.name}
+            size="lg"
+            shape="rounded"
+            className="mt-0.5"
+            label="Foto do estádio"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="inline-flex items-center gap-2">
+              <h1 className="text-2xl font-bold" data-testid="heading-stadium">
+                {stadium.name}
+              </h1>
+              <ShareButton title={stadium.name} />
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">
+              {[
+                stadium.city,
+                stadium.state,
+                stadium.capacity != null
+                  ? `Capacidade ${stadium.capacity.toLocaleString("pt-BR")}`
+                  : null,
+              ]
+                .filter(Boolean)
+                .join(" · ") || "Desempenho histórico do CSA neste estádio"}
+            </p>
+          </div>
         </div>
-        <p className="text-sm text-muted-foreground mt-1">
-          {[
-            stadium.city,
-            stadium.state,
-            stadium.capacity != null
-              ? `Capacidade ${stadium.capacity.toLocaleString("pt-BR")}`
-              : null,
-          ]
-            .filter(Boolean)
-            .join(" · ") || "Desempenho histórico do CSA neste estádio"}
-        </p>
         {stadium.homeClubs && stadium.homeClubs.length > 0 && (
           <p className="text-sm mt-2">
             <span className="text-muted-foreground">Sede de: </span>

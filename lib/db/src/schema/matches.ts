@@ -10,6 +10,8 @@ export const stadiumsTable = pgTable("stadiums", {
   state: text("state"),
   country: text("country"),
   capacity: integer("capacity"),
+  /** Stadium photo (facade/pitch): absolute HTTPS URL or site path. */
+  photoUrl: text("photo_url"),
 });
 
 export const opponentsTable = pgTable("opponents", {
@@ -38,6 +40,8 @@ export const managersTable = pgTable("managers", {
   birthState: text("birth_state"),
   birthCountry: text("birth_country"),
   isDeceased: boolean("is_deceased").notNull().default(false),
+  /** Profile photo: absolute HTTPS URL or site path. */
+  photoUrl: text("photo_url"),
   verificationStatus: text("verification_status").notNull().default("unverified"),
   verifiedAt: timestamp("verified_at", { withTimezone: true }),
   verifiedBy: text("verified_by"),

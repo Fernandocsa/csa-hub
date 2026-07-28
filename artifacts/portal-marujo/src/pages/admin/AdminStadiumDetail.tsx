@@ -23,6 +23,7 @@ import {
   type Country,
 } from "@/lib/countries";
 import { ChevronLeft, X } from "lucide-react";
+import { EntityPhoto } from "@/components/EntityPhoto";
 
 export type Stadium = {
   id: number;
@@ -31,6 +32,7 @@ export type Stadium = {
   state: string | null;
   country: string | null;
   capacity: number | null;
+  photoUrl: string | null;
 };
 
 type HomeClub = {
@@ -59,6 +61,7 @@ type StadiumPayload = {
   state: string | null;
   country: string | null;
   capacity: number | null;
+  photoUrl: string | null;
 };
 
 function locationLabel(o: {
@@ -96,6 +99,7 @@ function StadiumProfileForm({
   const [capacity, setCapacity] = useState(
     initial?.capacity != null ? String(initial.capacity) : "",
   );
+  const [photoUrl, setPhotoUrl] = useState(initial?.photoUrl ?? "");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -108,6 +112,7 @@ function StadiumProfileForm({
     setCountryCode(initial?.country ?? null);
     setCountryQuery(initial?.country ? countryDisplayName(initial.country) : "");
     setCapacity(initial?.capacity != null ? String(initial.capacity) : "");
+    setPhotoUrl(initial?.photoUrl ?? "");
     setCitySuggestions([]);
     setCityAmbiguity([]);
     setCountrySuggestions([]);
@@ -166,6 +171,7 @@ function StadiumProfileForm({
         state: isForeign ? null : state.trim() ? state.trim().toUpperCase() : null,
         country: isForeign ? countryCode : null,
         capacity: cap,
+        photoUrl: photoUrl.trim() || null,
       });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro ao salvar");
@@ -175,6 +181,31 @@ function StadiumProfileForm({
 
   return (
     <form onSubmit={submit} className="space-y-4 max-w-xl">
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+          Foto
+        </label>
+        <div className="flex items-start gap-3">
+          <EntityPhoto
+            url={photoUrl.trim() || null}
+            name={name || "Estádio"}
+            size="md"
+            shape="rounded"
+            label="Foto do estádio"
+          />
+          <div className="flex-1 min-w-0">
+            <Input
+              value={photoUrl}
+              onChange={(e) => setPhotoUrl(e.target.value)}
+              placeholder="https://… ou /stadiums/id.jpg"
+              className="h-9"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              URL HTTPS ou caminho local em public. Sem upload nesta tela.
+            </p>
+          </div>
+        </div>
+      </div>
       <div>
         <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
           Nome *

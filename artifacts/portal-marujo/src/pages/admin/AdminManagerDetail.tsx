@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { AdminEntityBadges } from "@/components/AdminEntityBadges";
+import { EntityPhoto } from "@/components/EntityPhoto";
 
 export interface Manager {
   id: number;
@@ -23,6 +24,7 @@ export interface Manager {
   birthState: string | null;
   birthCountry: string | null;
   isDeceased: boolean;
+  photoUrl: string | null;
   verificationStatus: "verified" | "unverified";
   verifiedAt: string | null;
   verifiedBy: string | null;
@@ -47,6 +49,7 @@ type ManagerPayload = {
   birthState: string | null;
   birthCountry: string | null;
   isDeceased: boolean;
+  photoUrl: string | null;
   verificationStatus: "verified" | "unverified";
   verifiedBy: string | null;
 };
@@ -112,6 +115,7 @@ function ManagerProfileForm({
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [fullName, setFullName] = useState(initial?.fullName ?? "");
+  const [photoUrl, setPhotoUrl] = useState(initial?.photoUrl ?? "");
   const [nationality, setNationality] = useState(initial?.nationality ?? "Brasil");
   const [birthDate, setBirthDate] = useState(initial?.birthDate ?? "");
   const [birthCity, setBirthCity] = useState(initial?.birthCity ?? "");
@@ -126,6 +130,7 @@ function ManagerProfileForm({
   useEffect(() => {
     setName(initial?.name ?? "");
     setFullName(initial?.fullName ?? "");
+    setPhotoUrl(initial?.photoUrl ?? "");
     setNationality(initial?.nationality ?? "Brasil");
     setBirthDate(initial?.birthDate ?? "");
     setBirthCity(initial?.birthCity ?? "");
@@ -154,6 +159,7 @@ function ManagerProfileForm({
         birthState: isBrazil ? birthState.trim().toUpperCase() || null : null,
         birthCountry: birthCountry.trim() || null,
         isDeceased,
+        photoUrl: photoUrl.trim() || null,
         verificationStatus: isVerified ? "verified" : "unverified",
         verifiedBy: isVerified ? verifiedBy.trim() || null : null,
       });
@@ -165,6 +171,29 @@ function ManagerProfileForm({
 
   return (
     <form onSubmit={submit} className="space-y-3 max-w-2xl">
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+          Foto de perfil
+        </label>
+        <div className="flex items-start gap-3">
+          <EntityPhoto
+            url={photoUrl.trim() || null}
+            name={name || "Técnico"}
+            size="md"
+            label="Foto do técnico"
+          />
+          <div className="flex-1 min-w-0">
+            <Input
+              value={photoUrl}
+              onChange={(e) => setPhotoUrl(e.target.value)}
+              placeholder="https://… ou /managers/id.jpg"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              URL HTTPS ou caminho local em public. Sem upload nesta tela.
+            </p>
+          </div>
+        </div>
+      </div>
       <div>
         <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
           Nome *

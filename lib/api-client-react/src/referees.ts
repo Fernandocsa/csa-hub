@@ -42,6 +42,7 @@ export type RefereeDetail = {
   id: number;
   name: string;
   state: string | null;
+  photoUrl?: string | null;
   matches: number;
   wins: number;
   draws: number;

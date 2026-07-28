@@ -1339,12 +1339,19 @@ function parseLocationProfile(body: {
   return { ok: true, city, state, country };
 }
 
+function parseOptionalUrl(raw: unknown): string | null {
+  if (raw == null) return null;
+  const s = String(raw).trim();
+  return s || null;
+}
+
 function parseStadiumBody(body: {
   name?: string;
   city?: string | null;
   state?: string | null;
   country?: string | null;
   capacity?: number | string | null;
+  photoUrl?: string | null;
 }):
   | {
       ok: true;
@@ -1353,6 +1360,7 @@ function parseStadiumBody(body: {
       state: string | null;
       country: string | null;
       capacity: number | null;
+      photoUrl: string | null;
     }
   | { ok: false; error: string } {
   if (!body.name?.trim()) return { ok: false, error: "Nome obrigatório" };
@@ -1376,6 +1384,7 @@ function parseStadiumBody(body: {
     state: location.state,
     country: location.country,
     capacity,
+    photoUrl: parseOptionalUrl(body.photoUrl),
   };
 }
 
@@ -1429,6 +1438,7 @@ router.post("/admin/stadiums", requireAdmin, async (req, res) => {
       state?: string | null;
       country?: string | null;
       capacity?: number | string | null;
+      photoUrl?: string | null;
     });
     if (!parsed.ok) return res.status(400).json({ error: parsed.error });
     const [stadium] = await db
@@ -1439,6 +1449,7 @@ router.post("/admin/stadiums", requireAdmin, async (req, res) => {
         state: parsed.state,
         country: parsed.country,
         capacity: parsed.capacity,
+        photoUrl: parsed.photoUrl,
       })
       .returning();
     res.status(201).json(stadium);
@@ -1557,6 +1568,7 @@ router.put("/admin/stadiums/:id", requireAdmin, async (req, res) => {
       state?: string | null;
       country?: string | null;
       capacity?: number | string | null;
+      photoUrl?: string | null;
     });
     if (!parsed.ok) return res.status(400).json({ error: parsed.error });
     const [updated] = await db
@@ -1567,6 +1579,7 @@ router.put("/admin/stadiums/:id", requireAdmin, async (req, res) => {
         state: parsed.state,
         country: parsed.country,
         capacity: parsed.capacity,
+        photoUrl: parsed.photoUrl,
       })
       .where(eq(stadiumsTable.id, id))
       .returning();
@@ -1780,6 +1793,7 @@ router.post("/admin/opponents", requireAdmin, async (req, res) => {
       city?: string | null;
       state?: string | null;
       country?: string | null;
+      logoUrl?: string | null;
       homeStadiumId?: number | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
@@ -1809,6 +1823,7 @@ router.post("/admin/opponents", requireAdmin, async (req, res) => {
         city: profile.city,
         state: profile.state,
         country: profile.country,
+        logoUrl: parseOptionalUrl(body.logoUrl),
         homeStadiumId: homeParsed.set ? homeStadiumId : null,
       })
       .returning();
@@ -1828,6 +1843,7 @@ router.put("/admin/opponents/:id", requireAdmin, async (req, res) => {
       city?: string | null;
       state?: string | null;
       country?: string | null;
+      logoUrl?: string | null;
       homeStadiumId?: number | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
@@ -1839,6 +1855,7 @@ router.put("/admin/opponents/:id", requireAdmin, async (req, res) => {
       city: string | null;
       state: string | null;
       country: string | null;
+      logoUrl?: string | null;
       homeStadiumId?: number | null;
     } = {
       name: body.name.trim(),
@@ -1846,6 +1863,10 @@ router.put("/admin/opponents/:id", requireAdmin, async (req, res) => {
       state: profile.state,
       country: profile.country,
     };
+
+    if (Object.prototype.hasOwnProperty.call(body, "logoUrl")) {
+      values.logoUrl = parseOptionalUrl(body.logoUrl);
+    }
 
     if (Object.prototype.hasOwnProperty.call(body, "homeStadiumId")) {
       const homeParsed = parseHomeStadiumId(body.homeStadiumId, true);
@@ -1938,13 +1959,17 @@ router.get("/admin/referees/:id", requireAdmin, async (req, res) => {
 
 router.post("/admin/referees", requireAdmin, async (req, res) => {
   try {
-    const body = req.body as { name?: string; state?: string | null };
+    const body = req.body as { name?: string; state?: string | null; photoUrl?: string | null };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
     const uf = normalizeOptionalUf(body.state);
     if (!uf.ok) return res.status(400).json({ error: uf.error });
     const [referee] = await db
       .insert(refereesTable)
-      .values({ name: body.name.trim(), state: uf.value })
+      .values({
+        name: body.name.trim(),
+        state: uf.value,
+        photoUrl: parseOptionalUrl(body.photoUrl),
+      })
       .returning();
     res.status(201).json(referee);
   } catch (err) {
@@ -1960,8 +1985,8 @@ router.put("/admin/referees/:id", requireAdmin, async (req, res) => {
     const [current] = await db.select().from(refereesTable).where(eq(refereesTable.id, id));
     if (!current) return res.status(404).json({ error: "Árbitro não encontrado" });
 
-    const body = req.body as { name?: string; state?: string | null };
-    const values: { name?: string; state?: string | null } = {};
+    const body = req.body as { name?: string; state?: string | null; photoUrl?: string | null };
+    const values: { name?: string; state?: string | null; photoUrl?: string | null } = {};
     if (body.name !== undefined) {
       if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
       values.name = body.name.trim();
@@ -1970,6 +1995,9 @@ router.put("/admin/referees/:id", requireAdmin, async (req, res) => {
       const uf = normalizeOptionalUf(body.state);
       if (!uf.ok) return res.status(400).json({ error: uf.error });
       values.state = uf.value;
+    }
+    if (body.photoUrl !== undefined) {
+      values.photoUrl = parseOptionalUrl(body.photoUrl);
     }
 
     const [updated] = await db
@@ -2105,6 +2133,7 @@ router.post("/admin/managers", requireAdmin, async (req, res) => {
       birthState?: string | null;
       birthCountry?: string | null;
       isDeceased?: boolean;
+      photoUrl?: string | null;
       verificationStatus?: string | null;
       verifiedBy?: string | null;
     };
@@ -2129,6 +2158,7 @@ router.post("/admin/managers", requireAdmin, async (req, res) => {
         birthState: body.birthState?.trim() || null,
         birthCountry: body.birthCountry?.trim() || null,
         isDeceased: body.isDeceased ?? false,
+        photoUrl: parseOptionalUrl(body.photoUrl),
         verificationStatus,
         verifiedBy,
         verifiedAt,
@@ -2159,6 +2189,7 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
       birthState?: string | null;
       birthCountry?: string | null;
       isDeceased?: boolean;
+      photoUrl?: string | null;
       verificationStatus?: string | null;
       verifiedBy?: string | null;
       // career totals: prefer season-stats endpoints; still accepted for rare overrides
@@ -2218,6 +2249,7 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
           birthCountry: body.birthCountry?.trim() || null,
         }),
         ...(body.isDeceased !== undefined && { isDeceased: !!body.isDeceased }),
+        ...(body.photoUrl !== undefined && { photoUrl: parseOptionalUrl(body.photoUrl) }),
         ...(verificationStatus !== undefined && {
           verificationStatus,
           verifiedBy,

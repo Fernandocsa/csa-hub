@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft } from "lucide-react";
 import { BRAZIL_UFS, BRAZIL_UF_NAMES, type BrazilUf } from "@/lib/br-locations";
+import { EntityPhoto } from "@/components/EntityPhoto";
 
 export type Referee = {
   id: number;
   name: string;
   state: string | null;
+  photoUrl: string | null;
 };
 
 type RefereeMatch = {
@@ -39,6 +41,7 @@ export default function AdminRefereeDetail() {
 
   const [name, setName] = useState("");
   const [state, setState] = useState("");
+  const [photoUrl, setPhotoUrl] = useState("");
   const [matches, setMatches] = useState<RefereeMatch[]>([]);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
@@ -57,6 +60,7 @@ export default function AdminRefereeDetail() {
     const data = (await r.json()) as Referee & { matches?: RefereeMatch[] };
     setName(data.name);
     setState(data.state ?? "");
+    setPhotoUrl(data.photoUrl ?? "");
     setMatches(Array.isArray(data.matches) ? data.matches : []);
     setLoading(false);
   }, [isNew, refereeId]);
@@ -73,6 +77,7 @@ export default function AdminRefereeDetail() {
       const body = {
         name: name.trim(),
         state: state.trim() || null,
+        photoUrl: photoUrl.trim() || null,
       };
       const r = await adminFetch(
         isNew ? "/admin/referees" : `/admin/referees/${refereeId}`,
@@ -90,6 +95,7 @@ export default function AdminRefereeDetail() {
       else {
         setName(saved.name);
         setState(saved.state ?? "");
+        setPhotoUrl(saved.photoUrl ?? "");
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro ao salvar");
@@ -144,6 +150,29 @@ export default function AdminRefereeDetail() {
       </h1>
 
       <form onSubmit={submit} className="space-y-3 max-w-xl">
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Foto de perfil
+          </label>
+          <div className="flex items-start gap-3">
+            <EntityPhoto
+              url={photoUrl.trim() || null}
+              name={name || "Árbitro"}
+              size="md"
+              label="Foto do árbitro"
+            />
+            <div className="flex-1 min-w-0">
+              <Input
+                value={photoUrl}
+                onChange={(e) => setPhotoUrl(e.target.value)}
+                placeholder="https://… ou /referees/id.jpg"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                URL HTTPS ou caminho local em public. Sem upload nesta tela.
+              </p>
+            </div>
+          </div>
+        </div>
         <div>
           <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
             Nome *

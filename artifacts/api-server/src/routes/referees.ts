@@ -342,6 +342,7 @@ router.get("/referees/:id", async (req, res) => {
       id: referee.id,
       name: referee.name,
       state: referee.state,
+      photoUrl: referee.photoUrl ?? null,
       ...stats,
       winPercentage: winPercentage(stats.wins, stats.matches),
       homeRecord: mapRecord(homeRecord[0]),
