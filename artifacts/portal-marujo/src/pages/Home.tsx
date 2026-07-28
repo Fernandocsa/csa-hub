@@ -158,7 +158,7 @@ export default function Home() {
   const { data: titles } = useGetTitles();
   const { data: milestones, isLoading: loadMil } = useGetMatchMilestones();
   const { data: biggestAttendance, isLoading: loadAtt } = useGetBiggestAttendance(10);
-  const { data: topAssists, isLoading: loadAsst } = useGetTopAssists(10);
+  const { data: topAssists, isLoading: loadAsst } = useGetTopAssists({ limit: 10 });
 
   const victoryList = Array.isArray(victories) ? victories : [];
   const streakList = Array.isArray(streaks) ? streaks : [];
