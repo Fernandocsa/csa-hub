@@ -185,7 +185,8 @@ export default function PlayerDetail() {
       </span>,
     );
   }
-  if (age != null) metaParts.push(<span key="age">{age} anos</span>);
+  if (player.isDeceased) metaParts.push(<span key="deceased">Falecido</span>);
+  else if (age != null) metaParts.push(<span key="age">{age} anos</span>);
   if (player.position) metaParts.push(<span key="pos">{player.position}</span>);
 
   return (
@@ -214,6 +215,16 @@ export default function PlayerDetail() {
                 <h1 className="text-2xl font-bold" data-testid="heading-player-name">
                   {player.name}
                 </h1>
+                {player.isDeceased && (
+                  <span
+                    className="text-muted-foreground text-lg leading-none"
+                    title="Falecido"
+                    aria-label="Falecido"
+                    data-testid="badge-deceased"
+                  >
+                    †
+                  </span>
+                )}
                 <ShareButton title={player.name} />
                 <VerificationCard
                   status={player.verificationStatus}
