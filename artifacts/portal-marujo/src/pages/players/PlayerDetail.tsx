@@ -11,6 +11,7 @@ import { EntityComments } from "@/components/EntityComments";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { EntityBadges } from "@/components/EntityBadges";
 import { PlayerFlag } from "@/components/PlayerFlag";
+import { ShareButton } from "@/components/ShareButton";
 import type { ReactNode } from "react";
 
 type PlayerProfile = {
@@ -204,6 +205,7 @@ export default function PlayerDetail() {
             <h1 className="text-2xl font-bold" data-testid="heading-player-name">
               {player.name}
             </h1>
+            <ShareButton title={player.name} />
             <VerificationCard
               status={player.verificationStatus}
               verifiedBy={player.verifiedBy}

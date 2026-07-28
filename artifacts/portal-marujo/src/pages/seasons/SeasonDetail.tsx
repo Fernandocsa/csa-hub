@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
 import { ChevronLeft } from "lucide-react";
+import { ShareButton } from "@/components/ShareButton";
 import { groupPlayersByPosition } from "@/lib/position-groups";
 import { cn } from "@/lib/utils";
 
@@ -352,9 +353,12 @@ export default function SeasonDetail() {
       </Link>
 
       <div className="border-b pb-4">
-        <h1 className="text-2xl font-bold" data-testid="heading-season">
-          Temporada {season.year}
-        </h1>
+        <div className="inline-flex items-center gap-2">
+          <h1 className="text-2xl font-bold" data-testid="heading-season">
+            Temporada {season.year}
+          </h1>
+          <ShareButton title={`Temporada ${season.year}`} />
+        </div>
       </div>
 
       {/* Totals from dual competition rows */}

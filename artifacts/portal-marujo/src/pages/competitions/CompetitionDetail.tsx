@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 import { BrazilFlag } from "@/components/BrazilFlag";
+import { ShareButton } from "@/components/ShareButton";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -56,6 +57,7 @@ export default function CompetitionDetail() {
           <h1 className="text-2xl font-bold inline-flex items-center gap-2" data-testid="heading-competition">
             <BrazilFlag size="md" title="Brasil" />
             {comp.name}
+            <ShareButton title={comp.name} />
           </h1>
           {nivel(comp.type) && <p className="text-sm text-muted-foreground mt-1">{nivel(comp.type)}</p>}
         </div>

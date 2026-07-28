@@ -15,6 +15,7 @@ import { EntityComments } from "@/components/EntityComments";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
+import { ShareButton } from "@/components/ShareButton";
 
 function fmtDate(d: string) {
   return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
@@ -406,6 +407,13 @@ export default function MatchDetail() {
               logoUrl={match.opponentLogoUrl}
             />
           </h1>
+          <ShareButton
+            title={
+              isUnknown
+                ? `CSA x ${match.opponent}`
+                : `CSA ${match.goalsFor ?? "–"}-${match.goalsAgainst ?? "–"} ${match.opponent}`
+            }
+          />
           {!isUnknown && match.result !== "unknown" && (
             <ResultBadge result={match.result as "win" | "draw" | "loss"} />
           )}

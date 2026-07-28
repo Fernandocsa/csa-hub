@@ -2,6 +2,7 @@ import { Link, useParams } from "wouter";
 import { useGetStadiumDetail } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
+import { ShareButton } from "@/components/ShareButton";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -52,9 +53,12 @@ export default function StadiumDetail() {
       </Link>
 
       <div className="border-b pb-4">
-        <h1 className="text-2xl font-bold" data-testid="heading-stadium">
-          {stadium.name}
-        </h1>
+        <div className="inline-flex items-center gap-2">
+          <h1 className="text-2xl font-bold" data-testid="heading-stadium">
+            {stadium.name}
+          </h1>
+          <ShareButton title={stadium.name} />
+        </div>
         <p className="text-sm text-muted-foreground mt-1">
           {[
             stadium.city,

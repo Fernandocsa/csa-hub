@@ -26,6 +26,7 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { OpponentCrest } from "@/components/OpponentCrest";
 import { MatchSidesLabel } from "@/components/MatchSidesLabel";
 import { PlayerFlag } from "@/components/PlayerFlag";
+import { ShareButton } from "@/components/ShareButton";
 
 function pct(wins: number, total: number) {
   if (!total) return "0.0%";
@@ -176,7 +177,10 @@ export default function Home() {
   return (
     <div className="space-y-6">
       <div className="border-b pb-3">
-        <h1 className="text-xl font-bold text-foreground" data-testid="heading-visao-geral">Portal Marujo — Base de dados do CSA</h1>
+        <div className="inline-flex items-center gap-2">
+          <h1 className="text-xl font-bold text-foreground" data-testid="heading-visao-geral">Portal Marujo — Base de dados do CSA</h1>
+          <ShareButton title="Portal Marujo — Base de dados do CSA" />
+        </div>
         <p className="text-sm text-muted-foreground">O Portal Marujo está em constante atualização. O principal objetivo do projeto é catalogar todos os jogos oficiais da história do CSA. Após a conclusão dessa etapa, o foco passa a ser a validação completa das estatísticas individuais dos jogadores e, posteriormente, a inclusão dos públicos e rendas das partidas.</p>
         <p className="text-sm text-muted-foreground mt-1">Os jogadores identificados com o selo de verificação (✓) possuem suas estatísticas totalmente conferidas e validadas. Já os demais atletas podem ter seus números ampliados à medida que novas temporadas forem pesquisadas e adicionadas ao acervo.</p>
         <p className="text-sm text-muted-foreground mt-1">Os rankings históricos exibem os valores mínimos comprovados até o momento e serão atualizados continuamente conforme novas informações forem verificadas.</p>

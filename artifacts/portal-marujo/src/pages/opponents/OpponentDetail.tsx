@@ -14,6 +14,7 @@ import { ResultBadge } from "@/components/ui/result-badge";
 import { Button } from "@/components/ui/button";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
+import { ShareButton } from "@/components/ShareButton";
 
 const PAGE_SIZE = 25;
 
@@ -232,17 +233,20 @@ export default function OpponentDetail() {
       </Link>
 
       <div className="border-b pb-4">
-        <h1 className="text-2xl font-bold inline-flex items-center gap-3 flex-wrap" data-testid="heading-opponent">
-          <span className="inline-flex items-center gap-2">
-            <CsaCrest size="lg" />
-            <span>CSA</span>
-          </span>
-          <span className="text-muted-foreground font-normal">x</span>
-          <span className="inline-flex items-center gap-2">
-            <span>{opponent.name}</span>
-            <OpponentCrest url={opponent.logoUrl} name={opponent.name} size="lg" />
-          </span>
-        </h1>
+        <div className="inline-flex items-center gap-2 flex-wrap">
+          <h1 className="text-2xl font-bold inline-flex items-center gap-3 flex-wrap" data-testid="heading-opponent">
+            <span className="inline-flex items-center gap-2">
+              <CsaCrest size="lg" />
+              <span>CSA</span>
+            </span>
+            <span className="text-muted-foreground font-normal">x</span>
+            <span className="inline-flex items-center gap-2">
+              <span>{opponent.name}</span>
+              <OpponentCrest url={opponent.logoUrl} name={opponent.name} size="lg" />
+            </span>
+          </h1>
+          <ShareButton title={`CSA x ${opponent.name}`} />
+        </div>
       </div>
 
       {/* Por competição */}
