@@ -28,6 +28,7 @@ import {
   resolveNamesForRow,
   type NameResolution,
 } from "../lib/csv-match-import";
+import { runPlayersCsvImport } from "../lib/csv-match-import/players-import";
 import {
   recalculateSeasonAutoBadges,
   setSeasonStatsVerification,
@@ -3750,25 +3751,41 @@ router.get("/admin/export/opponents", requireAdmin, async (req, res) => {
 
 router.post("/admin/import/players", requireAdmin, async (req, res) => {
   try {
-    const { csv } = req.body as { csv: string };
+    const { csv, resolutions } = req.body as {
+      csv: string;
+      resolutions?: NameResolution[];
+    };
     if (!csv) return res.status(400).json({ error: "CSV obrigatório" });
-    const rows = parseCSV(csv);
-    let created = 0;
-    let skipped = 0;
-    for (const row of rows) {
-      if (!row.name?.trim()) { skipped++; continue; }
-      await db.insert(playersTable).values({
-        name: row.name.trim(),
-        position: row.position || null,
-        nationality: row.nationality || null,
-        birthYear: row.birth_year ? parseInt(row.birth_year) : null,
-      });
-      created++;
-    }
-    res.json({ created, skipped });
+    const result = await runPlayersCsvImport(csv, parseCSV, resolutions ?? []);
+    res.json(result);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Erro interno" });
+    res.status(500).json({
+      error: err instanceof Error ? err.message : "Erro interno",
+    });
+  }
+});
+
+router.post("/admin/import/players/resolve", requireAdmin, async (req, res) => {
+  try {
+    const { csv, resolutions } = req.body as {
+      csv: string;
+      resolutions?: NameResolution[];
+    };
+    if (!csv) return res.status(400).json({ error: "CSV obrigatório" });
+    if (!resolutions?.length) {
+      return res.status(400).json({ error: "resolutions obrigatório" });
+    }
+    const onlyRowIndexes = new Set(resolutions.map((r) => r.rowIndex));
+    const result = await runPlayersCsvImport(csv, parseCSV, resolutions, {
+      onlyRowIndexes,
+    });
+    res.json(result);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({
+      error: err instanceof Error ? err.message : "Erro interno",
+    });
   }
 });
 

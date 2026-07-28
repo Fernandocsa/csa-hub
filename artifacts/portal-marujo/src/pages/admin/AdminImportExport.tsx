@@ -93,6 +93,7 @@ function ImportSection() {
   const [results, setResults] = useState<Record<string, ImportResult | string>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [pendingCsv, setPendingCsv] = useState<string | null>(null);
+  const [pendingEndpoint, setPendingEndpoint] = useState<"matches" | "players" | null>(null);
   const [conflicts, setConflicts] = useState<NameConflict[]>([]);
   const [decisions, setDecisions] = useState<Record<string, ConflictDecision>>({});
   const [resolving, setResolving] = useState(false);
@@ -101,7 +102,7 @@ function ImportSection() {
     {
       endpoint: "players",
       label: "Jogadores",
-      desc: "Colunas: name, position, nationality, birth_year",
+      desc: "Colunas: name, position, nationality, birth_year. Nomes exact/similar pedem confirmação (Usar existente sobrescreve campos preenchidos do CSV).",
       template: "name,position,nationality,birth_year\nJogador Exemplo,Atacante,Brasileiro,1995",
     },
     {
@@ -146,9 +147,11 @@ function ImportSection() {
 
   function applyImportResponse(endpoint: string, data: ImportResult) {
     const nextConflicts = data.needsConfirmation ?? [];
-    if (endpoint === "matches" && nextConflicts.length) {
+    const confirmable = endpoint === "matches" || endpoint === "players";
+    if (confirmable && nextConflicts.length) {
       setConflicts(nextConflicts);
       setDecisions({});
+      setPendingEndpoint(endpoint);
       setResults((prev) => ({
         ...prev,
         [endpoint]: {
@@ -160,6 +163,7 @@ function ImportSection() {
     } else {
       setConflicts([]);
       setPendingCsv(null);
+      setPendingEndpoint(null);
       setDecisions({});
       setResults((prev) => ({
         ...prev,
@@ -178,7 +182,10 @@ function ImportSection() {
     setResults((prev) => ({ ...prev, [endpoint]: undefined as any }));
     try {
       const csv = await file.text();
-      if (endpoint === "matches") setPendingCsv(csv);
+      if (endpoint === "matches" || endpoint === "players") {
+        setPendingCsv(csv);
+        setPendingEndpoint(endpoint);
+      }
       const r = await adminFetch(`/admin/import/${endpoint}`, {
         method: "POST",
         body: JSON.stringify({ csv }),
@@ -197,8 +204,8 @@ function ImportSection() {
     e.target.value = "";
   }
 
-  async function continueMatchesImport() {
-    if (!pendingCsv || !allDecided) return;
+  async function continueNameConfirmation() {
+    if (!pendingCsv || !pendingEndpoint || !allDecided) return;
     setResolving(true);
     try {
       const resolutions = conflicts.map((c) => {
@@ -211,28 +218,36 @@ function ImportSection() {
           entityId: d.action === "use" ? d.entityId : undefined,
         };
       });
-      const r = await adminFetch(`/admin/import/matches/resolve`, {
+      const r = await adminFetch(`/admin/import/${pendingEndpoint}/resolve`, {
         method: "POST",
         body: JSON.stringify({ csv: pendingCsv, resolutions }),
       });
       const data = await r.json();
       if (!r.ok) {
-        setResults((prev) => ({ ...prev, matches: (data as any).error ?? "Erro" }));
+        setResults((prev) => ({
+          ...prev,
+          [pendingEndpoint]: (data as any).error ?? "Erro",
+        }));
       } else {
-        applyImportResponse("matches", data as ImportResult);
+        applyImportResponse(pendingEndpoint, data as ImportResult);
       }
     } catch {
-      setResults((prev) => ({ ...prev, matches: "Erro ao resolver nomes" }));
+      setResults((prev) => ({
+        ...prev,
+        [pendingEndpoint]: "Erro ao resolver nomes",
+      }));
     }
     setResolving(false);
   }
 
   function setDecisionForConflict(c: NameConflict, decision: ConflictDecision) {
-    // Apply same choice to every conflict with same kind+rawName in this batch
     setDecisions((prev) => {
       const next = { ...prev };
       for (const other of conflicts) {
-        if (other.kind === c.kind && other.rawName.trim().toLowerCase() === c.rawName.trim().toLowerCase()) {
+        if (
+          other.kind === c.kind &&
+          other.rawName.trim().toLowerCase() === c.rawName.trim().toLowerCase()
+        ) {
           next[conflictKey(other)] = decision;
         }
       }
@@ -319,8 +334,14 @@ function ImportSection() {
               return (
                 <div key={key} className="bg-white border rounded-md p-3 text-sm">
                   <p className="text-xs text-gray-500 mb-1">
-                    Linha {c.rowIndex + 1} · {c.date} · {c.opponent} ·{" "}
+                    Linha {c.rowIndex + 1}
+                    {c.date ? ` · ${c.date}` : ""}
+                    {c.opponent ? ` · ${c.opponent}` : ""}
+                    {" · "}
                     {c.kind === "player" ? "jogador" : "técnico"} · {c.matchType}
+                    {pendingEndpoint === "players"
+                      ? " · Usar existente sobrescreve position/nationality/birth_year preenchidos"
+                      : ""}
                   </p>
                   <pre className="whitespace-pre-wrap text-xs text-gray-800 mb-3 font-sans">
                     {c.message}
@@ -349,7 +370,7 @@ function ImportSection() {
             })}
           </div>
           <div className="mt-4 flex justify-end">
-            <Button onClick={continueMatchesImport} disabled={!allDecided || resolving}>
+            <Button onClick={continueNameConfirmation} disabled={!allDecided || resolving}>
               {resolving ? "Continuando..." : "Continuar importação"}
             </Button>
           </div>
