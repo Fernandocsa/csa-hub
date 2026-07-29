@@ -37,6 +37,11 @@ import {
 } from "../lib/auto-badges";
 import { unknownResultMatchConditions } from "../lib/match-filters";
 import {
+  loadBirthdays,
+  parseYmd,
+  saoPauloYmd,
+} from "../lib/birthdays";
+import {
   buildManualBadgeLabel,
   deriveBadgeYearFromMatch,
   duplicateManualBadgeMessage,
@@ -141,6 +146,18 @@ router.post("/admin/login", (req, res) => {
 
 router.get("/admin/session", requireAdmin, (_req, res) => {
   res.json({ ok: true });
+});
+
+router.get("/admin/birthdays", requireAdmin, async (req, res) => {
+  try {
+    const raw = typeof req.query.date === "string" ? req.query.date : null;
+    const ymd = parseYmd(raw) ?? saoPauloYmd();
+    const data = await loadBirthdays(ymd, true);
+    res.json(data);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
 });
 
 // ── Next match (Home card singleton) ──────────────────────────────────────────

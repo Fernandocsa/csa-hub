@@ -27,6 +27,7 @@ import AdminMatchSheetRedirect from "./AdminMatchSheetRedirect";
 import AdminMatchReview from "./AdminMatchReview";
 import AdminComments from "./AdminComments";
 import AdminSuggestions from "./AdminSuggestions";
+import AdminBirthdays from "./AdminBirthdays";
 
 export default function AdminRoot() {
   const { checked, authenticated, login, logout } = useAdminAuth();
@@ -71,6 +72,7 @@ export default function AdminRoot() {
         <Route path="/admin/estadios/novo" component={AdminStadiumDetail} />
         <Route path="/admin/estadios/:id" component={AdminStadiumDetail} />
         <Route path="/admin/estadios" component={AdminStadiums} />
+        <Route path="/admin/aniversariantes" component={AdminBirthdays} />
         <Route path="/admin/proximo-jogo" component={AdminUpcomingMatches} />
         <Route path="/admin/jogos-futuros" component={AdminUpcomingMatches} />
         <Route path="/admin/comentarios" component={AdminComments} />

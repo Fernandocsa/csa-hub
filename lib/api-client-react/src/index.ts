@@ -19,3 +19,4 @@ export * from "./player-matches";
 export * from "./referees";
 export * from "./streak-detail";
 export * from "./titles";
+export * from "./birthdays";

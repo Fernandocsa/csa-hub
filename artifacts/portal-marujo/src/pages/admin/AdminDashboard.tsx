@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
-import { Users, Trophy, Shield, Download, CalendarDays, CalendarRange, UserCog, Scale, ClipboardList, BarChart3, Sparkles, Medal } from "lucide-react";
+import { Users, Trophy, Shield, Download, CalendarDays, CalendarRange, UserCog, Scale, ClipboardList, BarChart3, Sparkles, Medal, Cake } from "lucide-react";
 
 interface Summary {
   totalMatches: number;
@@ -12,6 +12,7 @@ interface Summary {
 const sections = [
   { href: "/admin/jogadores", label: "Jogadores", icon: Users, desc: "Cadastrar e editar jogadores e estatísticas por temporada" },
   { href: "/admin/tecnicos", label: "Técnicos", icon: UserCog, desc: "Badges manuais dos técnicos" },
+  { href: "/admin/aniversariantes", label: "Aniversariantes", icon: Cake, desc: "Jogadores e técnicos que fazem aniversário no dia" },
   { href: "/admin/temporadas", label: "Temporadas", icon: CalendarRange, desc: "Verificação de stats e badges Artilheiro/Garçom" },
   { href: "/admin/partidas", label: "Partidas", icon: Trophy, desc: "Adicionar e editar partidas do histórico" },
   { href: "/admin/competicoes", label: "Competições", icon: Medal, desc: "Criar, editar, excluir e mesclar competições" },

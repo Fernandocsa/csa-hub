@@ -11,7 +11,9 @@ import {
   useGetBiggestAttendance,
   useGetTopAssists,
   useGetNextMatch,
+  useGetBirthdaysToday,
   type MilestoneMatch,
+  type BirthdayPerson,
 } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -26,6 +28,8 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { OpponentCrest } from "@/components/OpponentCrest";
 import { MatchSidesLabel } from "@/components/MatchSidesLabel";
 import { PlayerFlag } from "@/components/PlayerFlag";
+import { PlayerPhoto } from "@/components/PlayerPhoto";
+import { EntityPhoto } from "@/components/EntityPhoto";
 import { ShareButton } from "@/components/ShareButton";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
@@ -146,6 +150,79 @@ function NextMatchCard() {
   }
 
   return <div className="border rounded p-4 space-y-2">{body}</div>;
+}
+
+function BirthdayPersonLink({ person }: { person: BirthdayPerson }) {
+  const href =
+    person.kind === "manager" ? `/tecnicos/${person.id}` : `/jogadores/${person.id}`;
+  const role =
+    person.kind === "manager" ? "Técnico" : person.position ?? "Jogador";
+
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-3 rounded-md px-1 py-1.5 -mx-1 hover:bg-muted/50 group"
+      data-testid={`birthday-${person.kind}-${person.id}`}
+    >
+      {person.kind === "player" ? (
+        <PlayerPhoto url={person.photoUrl} name={person.name} size="sm" />
+      ) : (
+        <EntityPhoto url={person.photoUrl} name={person.name} size="sm" shape="circle" />
+      )}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <PlayerFlag
+            flag={person.nationalityFlag}
+            nationality={person.nationality}
+            size="sm"
+          />
+          <span className="font-medium text-sm truncate group-hover:text-primary">
+            {person.name}
+          </span>
+        </div>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          {role}
+          {person.age != null ? ` · ${person.age} anos` : ""}
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+function BirthdaysTodaySection() {
+  const { data, isLoading } = useGetBirthdaysToday();
+  const people = [...(data?.players ?? []), ...(data?.managers ?? [])];
+
+  if (!isLoading && people.length === 0) return null;
+
+  return (
+    <section className="space-y-3" data-testid="section-birthdays-today">
+      <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        Aniversariantes do dia
+      </h2>
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 border rounded p-3">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <Skeleton className="h-8 w-8 rounded-full shrink-0" />
+              <div className="flex-1 space-y-1.5">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 border rounded p-3">
+          {people.map((p) => (
+            <li key={`${p.kind}-${p.id}`}>
+              <BirthdayPersonLink person={p} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
 }
 
 export default function Home() {
@@ -459,6 +536,8 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      <BirthdaysTodaySection />
 
       {/* Resultados por Temporada */}
       <div className="space-y-2">
