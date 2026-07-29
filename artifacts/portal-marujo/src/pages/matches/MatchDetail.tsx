@@ -15,6 +15,8 @@ import { EntityComments } from "@/components/EntityComments";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
+import { PlayerFlag } from "@/components/PlayerFlag";
+import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { ShareButton } from "@/components/ShareButton";
 import {
   isUnknownEventMinute,
@@ -231,13 +233,16 @@ function LineupList({
           return (
             <li
               key={p.id}
-              className="flex items-center gap-2 px-3 py-2 text-sm"
+              className="flex items-center gap-3 px-3 py-2 text-sm"
             >
-              <span className="w-7 text-center text-xs tabular-nums text-muted-foreground shrink-0">
-                {p.shirtNumber != null ? p.shirtNumber : "—"}
-              </span>
+              <PlayerPhoto url={p.photoUrl} name={p.playerName} size="sm" />
               <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline gap-x-1">
+                <div className="flex flex-wrap items-center gap-x-1">
+                  <PlayerFlag
+                    flag={p.nationalityFlag}
+                    nationality={p.nationality}
+                    size="sm"
+                  />
                   {nameEl}
                   <EventIcons events={events} />
                 </div>
@@ -245,6 +250,9 @@ function LineupList({
                   <span className="text-xs text-muted-foreground">{p.position}</span>
                 )}
               </div>
+              <span className="shrink-0 w-7 text-right text-xs tabular-nums text-muted-foreground">
+                {p.shirtNumber != null ? p.shirtNumber : "—"}
+              </span>
             </li>
           );
         })}

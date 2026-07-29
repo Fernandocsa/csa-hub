@@ -73,7 +73,14 @@ export type SubstitutionInput = {
   side?: MatchSheetSide;
 };
 
-export function serializeLineup(row: typeof matchLineupsTable.$inferSelect) {
+export function serializeLineup(
+  row: typeof matchLineupsTable.$inferSelect,
+  player?: {
+    photoUrl?: string | null;
+    nationality?: string | null;
+    nationalityFlag?: string | null;
+  } | null,
+) {
   return {
     id: row.id,
     matchId: row.matchId,
@@ -84,6 +91,9 @@ export function serializeLineup(row: typeof matchLineupsTable.$inferSelect) {
     shirtNumber: row.shirtNumber,
     position: row.position,
     sortOrder: row.sortOrder,
+    photoUrl: player?.photoUrl ?? null,
+    nationality: player?.nationality ?? null,
+    nationalityFlag: player?.nationalityFlag ?? null,
   };
 }
 
@@ -201,11 +211,17 @@ export async function syncOwnGoalsForCount(matchId: number) {
 }
 
 export async function loadMatchSheet(matchId: number) {
-  const [lineups, goals, cards, substitutions, managerCards, matchRow] =
+  const [lineupRows, goals, cards, substitutions, managerCards, matchRow] =
     await Promise.all([
       db
-        .select()
+        .select({
+          lineup: matchLineupsTable,
+          photoUrl: playersTable.photoUrl,
+          nationality: playersTable.nationality,
+          nationalityFlag: playersTable.nationalityFlag,
+        })
         .from(matchLineupsTable)
+        .leftJoin(playersTable, eq(matchLineupsTable.playerId, playersTable.id))
         .where(eq(matchLineupsTable.matchId, matchId))
         .orderBy(asc(matchLineupsTable.sortOrder), asc(matchLineupsTable.id)),
       db
@@ -246,7 +262,13 @@ export async function loadMatchSheet(matchId: number) {
     ]);
 
   return {
-    lineups: lineups.map(serializeLineup),
+    lineups: lineupRows.map((r) =>
+      serializeLineup(r.lineup, {
+        photoUrl: r.photoUrl,
+        nationality: r.nationality,
+        nationalityFlag: r.nationalityFlag,
+      }),
+    ),
     goals: goals.map(serializeGoal),
     cards: cards.map(serializeCard),
     substitutions: substitutions.map(serializeSubstitution),

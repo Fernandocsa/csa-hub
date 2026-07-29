@@ -11,6 +11,12 @@ export interface MatchLineupRow {
   shirtNumber: number | null;
   position: string | null;
   sortOrder: number;
+  /** @nullable */
+  photoUrl?: string | null;
+  /** @nullable */
+  nationality?: string | null;
+  /** @nullable */
+  nationalityFlag?: string | null;
 }
 
 export interface MatchGoalRow {
