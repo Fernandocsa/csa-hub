@@ -36,6 +36,7 @@ import {
   getSeasonCompetitionBadgeStatuses,
 } from "../lib/auto-badges";
 import { unknownResultMatchConditions } from "../lib/match-filters";
+import { loadAdminDataDivergences } from "../lib/admin-data-divergences";
 import {
   loadBirthdays,
   parseYmd,
@@ -996,6 +997,17 @@ router.get("/admin/matches/unknown-results", requireAdmin, async (req, res) => {
       .orderBy(desc(matchesTable.matchDate), asc(matchesTable.id));
 
     res.json({ data: rows, total: rows.length });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+/** Auto-detected player/manager data divergences for admin home review. */
+router.get("/admin/data-divergences", requireAdmin, async (req, res) => {
+  try {
+    const payload = await loadAdminDataDivergences();
+    res.json(payload);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
