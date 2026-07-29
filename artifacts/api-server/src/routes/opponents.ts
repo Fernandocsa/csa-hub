@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { matchesTable, opponentsTable, competitionsTable, stadiumsTable } from "@workspace/db";
-import { sql, eq, and, or, ilike, desc, isNull, isNotNull, asc, inArray } from "drizzle-orm";
+import { sql, eq, and, or, ilike, desc, isNull, isNotNull, asc } from "drizzle-orm";
 import {
   BRAZIL_REGIONS,
   regionFromUf,
@@ -59,11 +59,41 @@ const COUNTRY_NAMES: Record<string, string> = {
   VEN: "Venezuela",
 };
 
+/** Country values that mean Brazil (not foreign). */
+const BRAZIL_COUNTRY_SQL = sql`upper(trim(${opponentsTable.country})) IN ('BRA', 'BR', 'BRASIL', 'BRAZIL')`;
+
+const BRAZIL_UF_SQL_LIST = [...BRAZIL_UFS].map((uf) => `'${uf}'`).join(", ");
+
+/**
+ * Effective UF for Brazilian grouping: prefer trailing "-AL"/"-PE" name suffix
+ * when it is a valid UF; otherwise fall back to the state column.
+ */
+function opponentEffectiveUfSql() {
+  return sql`CASE
+    WHEN ${opponentsTable.name} ~* '-[A-Za-z]{2}$'
+      AND upper(substring(${opponentsTable.name} from '-([A-Za-z]{2})$')) IN (${sql.raw(BRAZIL_UF_SQL_LIST)})
+    THEN upper(substring(${opponentsTable.name} from '-([A-Za-z]{2})$'))
+    WHEN ${opponentsTable.state} IS NOT NULL AND trim(${opponentsTable.state}) <> ''
+    THEN upper(trim(${opponentsTable.state}))
+    ELSE NULL
+  END`;
+}
+
+/** Brazilian clubs: no country, empty country, or explicit Brasil/BRA/etc. */
+function brazilianOpponentCondition() {
+  return or(
+    isNull(opponentsTable.country),
+    sql`trim(${opponentsTable.country}) = ''`,
+    BRAZIL_COUNTRY_SQL,
+  );
+}
+
 function foreignMatchCondition() {
   return and(
     officialPlayedMatchConditions(),
     isNotNull(opponentsTable.country),
     sql`trim(${opponentsTable.country}) <> ''`,
+    sql`NOT (${BRAZIL_COUNTRY_SQL})`,
   );
 }
 
@@ -93,31 +123,26 @@ function emptyAggregate() {
   return mapAggregate({});
 }
 
-/** Opponents without a foreign country code (Brazilian state-based grouping). */
-function noCountrySetCondition() {
-  return or(
-    isNull(opponentsTable.country),
-    sql`trim(${opponentsTable.country}) = ''`,
-  );
-}
-
 function brStateMatchCondition() {
   return and(
     officialPlayedMatchConditions(),
-    isNotNull(opponentsTable.state),
-    sql`trim(${opponentsTable.state}) <> ''`,
-    noCountrySetCondition(),
+    brazilianOpponentCondition(),
+    sql`${opponentEffectiveUfSql()} IS NOT NULL`,
   );
 }
 
-/** Brazilian opponents missing state only — excludes foreign clubs (country set). */
+/** Brazilian opponents with no usable UF (column or name suffix). */
 function semStateBrazilOnlyCondition() {
   return and(
-    or(
-      isNull(opponentsTable.state),
-      sql`trim(${opponentsTable.state}) = ''`,
-    ),
-    noCountrySetCondition(),
+    brazilianOpponentCondition(),
+    sql`${opponentEffectiveUfSql()} IS NULL`,
+  );
+}
+
+function opponentUfEqualsCondition(uf: string) {
+  return and(
+    brazilianOpponentCondition(),
+    sql`${opponentEffectiveUfSql()} = ${uf}`,
   );
 }
 
@@ -180,9 +205,10 @@ router.get("/opponents", async (req, res) => {
 
 router.get("/opponents/by-state", async (req, res) => {
   try {
+    const effectiveUf = opponentEffectiveUfSql();
     const rows = await db
       .select({
-        state: opponentsTable.state,
+        state: sql<string>`${effectiveUf}`.as("effective_uf"),
         opponentCount: sql<number>`cast(count(distinct ${opponentsTable.id}) as int)`,
         matches: sql<number>`cast(count(*) as int)`,
         wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
@@ -194,7 +220,7 @@ router.get("/opponents/by-state", async (req, res) => {
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
       .where(brStateMatchCondition())
-      .groupBy(opponentsTable.state)
+      .groupBy(effectiveUf)
       .orderBy(desc(sql`count(*)`));
 
     const unknown = await db
@@ -261,7 +287,9 @@ router.get("/opponents/by-state/:uf", async (req, res) => {
 
     const stateCondition = isUnknown
       ? semStateBrazilOnlyCondition()
-      : and(eq(opponentsTable.state, uf), noCountrySetCondition());
+      : opponentUfEqualsCondition(uf);
+
+    const effectiveUf = opponentEffectiveUfSql();
 
     const [overall] = await db
       .select({
@@ -282,7 +310,7 @@ router.get("/opponents/by-state/:uf", async (req, res) => {
         id: opponentsTable.id,
         name: opponentsTable.name,
         city: opponentsTable.city,
-        state: opponentsTable.state,
+        state: sql<string | null>`${effectiveUf}`.as("effective_uf"),
         logoUrl: opponentsTable.logoUrl,
         matches: sql<number>`cast(count(*) as int)`,
         wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
@@ -298,8 +326,8 @@ router.get("/opponents/by-state/:uf", async (req, res) => {
         opponentsTable.id,
         opponentsTable.name,
         opponentsTable.city,
-        opponentsTable.state,
         opponentsTable.logoUrl,
+        effectiveUf,
       )
       .orderBy(desc(sql`count(*)`), asc(opponentsTable.name));
 
@@ -312,7 +340,10 @@ router.get("/opponents/by-state/:uf", async (req, res) => {
       goalsFor: overall?.goalsFor ?? 0,
       goalsAgainst: overall?.goalsAgainst ?? 0,
       opponentCount: overall?.opponentCount ?? 0,
-      opponents,
+      opponents: opponents.map((o) => ({
+        ...o,
+        state: o.state ? String(o.state).toUpperCase() : null,
+      })),
     });
   } catch (err) {
     req.log.error(err);
@@ -413,9 +444,10 @@ router.get("/opponents/by-foreign", async (req, res) => {
 
 router.get("/opponents/by-region", async (req, res) => {
   try {
+    const effectiveUf = opponentEffectiveUfSql();
     const stateRows = await db
       .select({
-        state: opponentsTable.state,
+        state: sql<string>`${effectiveUf}`.as("effective_uf"),
         opponentCount: sql<number>`cast(count(distinct ${opponentsTable.id}) as int)`,
         matches: sql<number>`cast(count(*) as int)`,
         wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
@@ -427,7 +459,7 @@ router.get("/opponents/by-region", async (req, res) => {
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
       .where(brStateMatchCondition())
-      .groupBy(opponentsTable.state);
+      .groupBy(effectiveUf);
 
     const regionBuckets = new Map<
       BrazilRegion,
@@ -484,9 +516,13 @@ router.get("/opponents/by-region/:slug", async (req, res) => {
     }
 
     const ufs = [...REGION_UFS[region]];
+    const effectiveUf = opponentEffectiveUfSql();
     const regionCondition = and(
       brStateMatchCondition(),
-      inArray(opponentsTable.state, ufs),
+      sql`${effectiveUf} IN (${sql.join(
+        ufs.map((uf) => sql`${uf}`),
+        sql`, `,
+      )})`,
     );
 
     const [overall] = await db
@@ -505,7 +541,7 @@ router.get("/opponents/by-region/:slug", async (req, res) => {
 
     const statesBreakdown = await db
       .select({
-        state: opponentsTable.state,
+        state: sql<string>`${effectiveUf}`.as("effective_uf"),
         opponentCount: sql<number>`cast(count(distinct ${opponentsTable.id}) as int)`,
         matches: sql<number>`cast(count(*) as int)`,
         wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
@@ -517,7 +553,7 @@ router.get("/opponents/by-region/:slug", async (req, res) => {
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
       .where(regionCondition)
-      .groupBy(opponentsTable.state)
+      .groupBy(effectiveUf)
       .orderBy(desc(sql`count(*)`));
 
     const opponents = await db
@@ -525,7 +561,7 @@ router.get("/opponents/by-region/:slug", async (req, res) => {
         id: opponentsTable.id,
         name: opponentsTable.name,
         city: opponentsTable.city,
-        state: opponentsTable.state,
+        state: sql<string | null>`${effectiveUf}`.as("effective_uf"),
         logoUrl: opponentsTable.logoUrl,
         matches: sql<number>`cast(count(*) as int)`,
         wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
@@ -541,8 +577,8 @@ router.get("/opponents/by-region/:slug", async (req, res) => {
         opponentsTable.id,
         opponentsTable.name,
         opponentsTable.city,
-        opponentsTable.state,
         opponentsTable.logoUrl,
+        effectiveUf,
       )
       .orderBy(desc(sql`count(*)`), asc(opponentsTable.name));
 

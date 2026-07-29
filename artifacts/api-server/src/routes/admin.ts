@@ -1579,7 +1579,9 @@ function parseLocationProfile(body: {
       ? null
       : String(body.country).trim().toUpperCase();
 
-  if (country === "BRA") country = null;
+  if (country === "BRA" || country === "BR" || country === "BRASIL" || country === "BRAZIL") {
+    country = null;
+  }
 
   if (country != null && !VALID_COUNTRY_CODES.has(country)) {
     return { ok: false, error: "País inválido" };

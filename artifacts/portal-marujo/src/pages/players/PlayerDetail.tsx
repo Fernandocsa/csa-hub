@@ -136,8 +136,6 @@ export default function PlayerDetail() {
       ? (player.totalGoals / player.totalAppearances).toFixed(2)
       : "–";
 
-  const flag = player.nationalityFlag;
-  const isForeign = !!player.nationality && player.nationality !== "Brasil";
   const age = player.isDeceased ? null : calcAge(player.birthDate, player.birthYear);
   const showFullName =
     !!player.fullName?.trim() &&
@@ -200,24 +198,6 @@ export default function PlayerDetail() {
   if (foot) personalRows.push({ label: "Pé preferencial", value: foot });
   if (heightWeight) personalRows.push({ label: "Altura / Peso", value: heightWeight });
 
-  const metaParts: ReactNode[] = [];
-  if (player.nationality) {
-    metaParts.push(
-      <span key="nat" className="inline-flex items-center gap-1">
-        <PlayerFlag flag={flag} nationality={player.nationality} />
-        {isForeign ? (
-          <Link
-            href={`/jogadores/estrangeiros/${encodeURIComponent(player.nationality)}`}
-            className="hover:text-primary hover:underline"
-          >
-            {player.nationality}
-          </Link>
-        ) : (
-          <span>{player.nationality}</span>
-        )}
-      </span>,
-    );
-  }
   return (
     <div className="space-y-5 max-w-3xl">
       <Link href="/jogadores">
@@ -262,16 +242,6 @@ export default function PlayerDetail() {
                 />
               </div>
               <EntityBadges badges={player.badges} />
-              {metaParts.length > 0 && (
-                <p className="mt-1.5 text-sm text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1">
-                  {metaParts.map((part, i) => (
-                    <span key={i} className="inline-flex items-center gap-2">
-                      {i > 0 && <span aria-hidden className="text-muted-foreground/50">·</span>}
-                      {part}
-                    </span>
-                  ))}
-                </p>
-              )}
             </div>
           </div>
         </div>
