@@ -270,9 +270,10 @@ export function hasAnyStoredStat(
 }
 
 /**
- * Manual stored career totals act as a floor.
- * When linked match count exceeds the manual floor, use linked (computed) stats.
- * Otherwise keep the manual block (W/D/L stay consistent with the floor).
+ * Resolve public career totals.
+ * Manual curated totals (`stats_source = 'manual'`) always win — linked matches can be
+ * incomplete or incorrectly attributed (e.g. wrong manager_id on many rows).
+ * Otherwise stored acts as a floor until linked count exceeds it.
  */
 export function resolveManagerCareerStats(
   computed: {
@@ -290,12 +291,13 @@ export function resolveManagerCareerStats(
     storedLosses: number | null;
     storedGoalsFor: number | null;
     storedGoalsAgainst: number | null;
+    statsSource?: string | null;
   },
 ) {
   const floor = stored.storedGames;
   if (floor == null) return computed;
-  if (computed.matches > floor) return computed;
-  return {
+
+  const fromStored = {
     matches: floor,
     wins: stored.storedWins ?? 0,
     draws: stored.storedDraws ?? 0,
@@ -303,6 +305,10 @@ export function resolveManagerCareerStats(
     goalsScored: stored.storedGoalsFor ?? 0,
     goalsConceded: stored.storedGoalsAgainst ?? 0,
   };
+
+  if (stored.statsSource === "manual") return fromStored;
+  if (computed.matches > floor) return computed;
+  return fromStored;
 }
 
 /** Per-season: if linked games exceed manual season row, show linked; else keep manual. */
@@ -343,6 +349,88 @@ export function floorManagerSeasonRow(
   if (l.matches > m.matches) return l;
   if (m.matches > 0 || !linked) return m;
   return l;
+}
+
+function mapManagerSeasonPublicRow(row: {
+  season: string;
+  matches: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsScored: number;
+  goalsConceded: number;
+}) {
+  return {
+    year: row.season,
+    matches: row.matches,
+    wins: row.wins,
+    draws: row.draws,
+    losses: row.losses,
+    goalsScored: row.goalsScored,
+    goalsConceded: row.goalsConceded,
+    topScorer: null as string | null,
+    topScorerGoals: null as number | null,
+    topAppearances: null as string | null,
+    topAppearancesCount: null as number | null,
+  };
+}
+
+/** Build public season table: curated rows only when career is manual. */
+export function resolveManagerSeasonStatsPublic(args: {
+  statsSource: string | null | undefined;
+  seasonRows: Array<{
+    season: string;
+    matches: number;
+    wins: number;
+    draws: number;
+    losses: number;
+    goalsScored: number;
+    goalsConceded: number;
+  }>;
+  linkedSeasons: ManagerSeasonComputed[];
+}) {
+  const { statsSource, seasonRows, linkedSeasons } = args;
+  if (statsSource === "manual" && seasonRows.length > 0) {
+    return seasonRows
+      .slice()
+      .sort((a, b) => b.season.localeCompare(a.season))
+      .map(mapManagerSeasonPublicRow);
+  }
+
+  const linkedBySeason = new Map(linkedSeasons.map((r) => [r.season, r]));
+  const seasonKeys = new Set([
+    ...seasonRows.map((r) => r.season),
+    ...linkedSeasons.map((r) => r.season),
+  ]);
+  return [...seasonKeys]
+    .sort((a, b) => b.localeCompare(a))
+    .map((season) => {
+      const manualRow = seasonRows.find((r) => r.season === season);
+      const linked = linkedBySeason.get(season);
+      const floored = floorManagerSeasonRow(
+        manualRow
+          ? {
+              matches: manualRow.matches,
+              wins: manualRow.wins,
+              draws: manualRow.draws,
+              losses: manualRow.losses,
+              goalsScored: manualRow.goalsScored,
+              goalsConceded: manualRow.goalsConceded,
+            }
+          : null,
+        linked
+          ? {
+              matches: linked.games,
+              wins: linked.wins,
+              draws: linked.draws,
+              losses: linked.losses,
+              goalsScored: linked.goalsFor,
+              goalsConceded: linked.goalsAgainst,
+            }
+          : null,
+      );
+      return mapManagerSeasonPublicRow({ season, ...floored });
+    });
 }
 
 /** Derive tenure from season labels (YYYY-friendly text min/max). */

@@ -4,18 +4,52 @@ import {
   matchesTable,
   managersTable,
   managerSeasonStatsTable,
+  opponentsTable,
 } from "@workspace/db";
 import { sql, eq, desc, asc, and } from "drizzle-orm";
 import { loadEntityBadges } from "../lib/entity-badges";
 import {
   computeManagerSeasonStatsFromMatches,
-  floorManagerSeasonRow,
   periodFromSeasons,
   resolveManagerCareerStats,
+  resolveManagerSeasonStatsPublic,
 } from "../lib/manager-stats";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
 
 const router = Router();
+
+async function loadManagerMatches(managerId: number, limit?: number) {
+  let q = db
+    .select({
+      matchId: matchesTable.id,
+      date: matchesTable.matchDate,
+      season: matchesTable.season,
+      opponent: opponentsTable.name,
+      goalsFor: matchesTable.goalsFor,
+      goalsAgainst: matchesTable.goalsAgainst,
+      result: matchesTable.result,
+      homeAway: matchesTable.homeAway,
+    })
+    .from(matchesTable)
+    .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+    .where(eq(matchesTable.managerId, managerId))
+    .orderBy(desc(matchesTable.matchDate), desc(matchesTable.id))
+    .$dynamic();
+
+  if (limit != null) q = q.limit(limit);
+
+  const rows = await q;
+  return rows.map((r) => ({
+    matchId: r.matchId,
+    date: r.date,
+    season: r.season,
+    opponent: r.opponent,
+    goalsFor: r.goalsFor ?? null,
+    goalsAgainst: r.goalsAgainst ?? null,
+    result: r.result,
+    homeAway: r.homeAway,
+  }));
+}
 
 router.get("/managers", async (req, res) => {
   try {
@@ -31,6 +65,7 @@ router.get("/managers", async (req, res) => {
         storedLosses: managersTable.storedLosses,
         storedGoalsFor: managersTable.storedGoalsFor,
         storedGoalsAgainst: managersTable.storedGoalsAgainst,
+        statsSource: managersTable.statsSource,
         computedMatches: sql<number>`cast(count(${matchesTable.id}) as int)`,
         computedWins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
         computedDraws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
@@ -54,9 +89,7 @@ router.get("/managers", async (req, res) => {
         managersTable.storedLosses,
         managersTable.storedGoalsFor,
         managersTable.storedGoalsAgainst,
-      )
-      .orderBy(
-        sql`GREATEST(COALESCE(${managersTable.storedGames}, 0), cast(count(${matchesTable.id}) as int)) desc`,
+        managersTable.statsSource,
       );
 
     const periodRows = await db
@@ -74,36 +107,39 @@ router.get("/managers", async (req, res) => {
       seasonsByManager.set(p.managerId, list);
     }
 
-    res.json(
-      rows.map((r) => {
-        const computed = {
-          matches: r.computedMatches,
-          wins: r.computedWins,
-          draws: r.computedDraws,
-          losses: r.computedLosses,
-          goalsScored: r.computedGoalsScored,
-          goalsConceded: r.computedGoalsConceded,
-        };
-        const stats = resolveManagerCareerStats(computed, r);
-        const period = periodFromSeasons(seasonsByManager.get(r.id) ?? []);
-        return {
-          id: r.id,
-          name: r.name,
-          fullName: r.fullName,
-          nationality: r.nationality,
-          // Derived tenure (replaces legacy start_year/end_year for public display)
-          startYear: period.startYear,
-          endYear: period.endYear,
-          ...stats,
-          goalsFor: stats.goalsScored,
-          goalsAgainst: stats.goalsConceded,
-          winPercentage:
-            stats.matches > 0
-              ? Math.round((stats.wins / stats.matches) * 100 * 10) / 10
-              : 0,
-        };
-      }),
+    const mapped = rows.map((r) => {
+      const computed = {
+        matches: r.computedMatches,
+        wins: r.computedWins,
+        draws: r.computedDraws,
+        losses: r.computedLosses,
+        goalsScored: r.computedGoalsScored,
+        goalsConceded: r.computedGoalsConceded,
+      };
+      const stats = resolveManagerCareerStats(computed, r);
+      const period = periodFromSeasons(seasonsByManager.get(r.id) ?? []);
+      return {
+        id: r.id,
+        name: r.name,
+        fullName: r.fullName,
+        nationality: r.nationality,
+        // Derived tenure (replaces legacy start_year/end_year for public display)
+        startYear: period.startYear,
+        endYear: period.endYear,
+        ...stats,
+        goalsFor: stats.goalsScored,
+        goalsAgainst: stats.goalsConceded,
+        winPercentage:
+          stats.matches > 0
+            ? Math.round((stats.wins / stats.matches) * 100 * 10) / 10
+            : 0,
+      };
+    });
+    mapped.sort(
+      (a, b) =>
+        b.matches - a.matches || a.name.localeCompare(b.name, "pt-BR"),
     );
+    res.json(mapped);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno do servidor" });
@@ -156,54 +192,22 @@ router.get("/managers/:id", async (req, res) => {
     };
     const stats = resolveManagerCareerStats(computed, manager);
     const badges = await loadEntityBadges("manager", id);
-    const linkedSeasons = await computeManagerSeasonStatsFromMatches(id);
-    const linkedBySeason = new Map(linkedSeasons.map((r) => [r.season, r]));
-    const seasonKeys = new Set([
-      ...seasonRows.map((r) => r.season),
-      ...linkedSeasons.map((r) => r.season),
-    ]);
-    const flooredSeasons = [...seasonKeys]
-      .sort((a, b) => b.localeCompare(a))
-      .map((season) => {
-        const manualRow = seasonRows.find((r) => r.season === season);
-        const linked = linkedBySeason.get(season);
-        const floored = floorManagerSeasonRow(
-          manualRow
-            ? {
-                matches: manualRow.matches,
-                wins: manualRow.wins,
-                draws: manualRow.draws,
-                losses: manualRow.losses,
-                goalsScored: manualRow.goalsScored,
-                goalsConceded: manualRow.goalsConceded,
-              }
-            : null,
-          linked
-            ? {
-                matches: linked.games,
-                wins: linked.wins,
-                draws: linked.draws,
-                losses: linked.losses,
-                goalsScored: linked.goalsFor,
-                goalsConceded: linked.goalsAgainst,
-              }
-            : null,
-        );
-        return {
-          year: season,
-          matches: floored.matches,
-          wins: floored.wins,
-          draws: floored.draws,
-          losses: floored.losses,
-          goalsScored: floored.goalsScored,
-          goalsConceded: floored.goalsConceded,
-          topScorer: null,
-          topScorerGoals: null,
-          topAppearances: null,
-          topAppearancesCount: null,
-        };
-      });
+    const preferManual =
+      manager.statsSource === "manual" && seasonRows.length > 0;
+    const linkedSeasons = preferManual
+      ? []
+      : await computeManagerSeasonStatsFromMatches(id);
+    const flooredSeasons = resolveManagerSeasonStatsPublic({
+      statsSource: manager.statsSource,
+      seasonRows,
+      linkedSeasons,
+    });
     const period = periodFromSeasons(flooredSeasons.map((r) => r.year));
+    // Hide recent linked matches when curated totals disagree with polluted links
+    const recentMatches =
+      preferManual && computed.matches > (manager.storedGames ?? 0)
+        ? []
+        : await loadManagerMatches(id, 5);
 
     res.json({
       id: manager.id,
@@ -233,6 +237,52 @@ router.get("/managers/:id", async (req, res) => {
           : 0,
       badges,
       seasonStats: flooredSeasons,
+      recentMatches,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+router.get("/managers/:id/matches", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+
+    const manager = await db.query.managersTable.findFirst({
+      where: eq(managersTable.id, id),
+    });
+    if (!manager) return res.status(404).json({ error: "Técnico não encontrado" });
+
+    const [linked] = await db
+      .select({
+        matches: sql<number>`cast(count(*) as int)`,
+      })
+      .from(matchesTable)
+      .where(and(eq(matchesTable.managerId, id), officialPlayedMatchConditions()));
+
+    const linkedCount = linked?.matches ?? 0;
+    // Curated career with noisy/incorrect links: don't expose the polluted match list
+    if (
+      manager.statsSource === "manual" &&
+      manager.storedGames != null &&
+      linkedCount > manager.storedGames
+    ) {
+      return res.json({
+        managerId: manager.id,
+        managerName: manager.name,
+        total: 0,
+        matches: [],
+      });
+    }
+
+    const matches = await loadManagerMatches(id);
+    res.json({
+      managerId: manager.id,
+      managerName: manager.name,
+      total: matches.length,
+      matches,
     });
   } catch (err) {
     req.log.error(err);
