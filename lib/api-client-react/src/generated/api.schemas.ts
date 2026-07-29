@@ -541,6 +541,8 @@ limit?: number;
 export type ListMatchesParams = {
 season?: string;
 competition?: string;
+/** Filter by competitions.id (preferred over name search). */
+competitionId?: number | string;
 opponent?: string;
 home_away?: ListMatchesHomeAway;
 result?: ListMatchesResult;

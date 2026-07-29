@@ -41,6 +41,11 @@ type CompetitionMatch = {
   round: string | null;
 };
 
+type CompetitionSeason = {
+  season: string;
+  matchCount: number;
+};
+
 type CompetitionListItem = Competition & { matchCount: number };
 
 function fmtDate(d: string) {
@@ -56,7 +61,10 @@ export default function AdminCompetitionDetail() {
   const [name, setName] = useState("");
   const [type, setType] = useState("");
   const [matchCount, setMatchCount] = useState(0);
-  const [matches, setMatches] = useState<CompetitionMatch[]>([]);
+  const [seasons, setSeasons] = useState<CompetitionSeason[]>([]);
+  const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
+  const [seasonMatches, setSeasonMatches] = useState<CompetitionMatch[]>([]);
+  const [loadingSeasonMatches, setLoadingSeasonMatches] = useState(false);
   const [allCompetitions, setAllCompetitions] = useState<CompetitionListItem[]>([]);
   const [mergeRemoveId, setMergeRemoveId] = useState("");
   const [loading, setLoading] = useState(!isNew);
@@ -68,6 +76,8 @@ export default function AdminCompetitionDetail() {
     if (isNew || Number.isNaN(competitionId)) return;
     setLoading(true);
     setError("");
+    setSelectedSeason(null);
+    setSeasonMatches([]);
     const [detailRes, listRes] = await Promise.all([
       adminFetch(`/admin/competitions/${competitionId}`),
       adminFetch("/admin/competitions"),
@@ -79,12 +89,12 @@ export default function AdminCompetitionDetail() {
     }
     const data = (await detailRes.json()) as Competition & {
       matchCount?: number;
-      matches?: CompetitionMatch[];
+      seasons?: CompetitionSeason[];
     };
     setName(data.name);
     setType(data.type ?? "");
     setMatchCount(data.matchCount ?? 0);
-    setMatches(Array.isArray(data.matches) ? data.matches : []);
+    setSeasons(Array.isArray(data.seasons) ? data.seasons : []);
     if (listRes.ok) {
       setAllCompetitions((await listRes.json()) as CompetitionListItem[]);
     }
@@ -94,6 +104,24 @@ export default function AdminCompetitionDetail() {
   useEffect(() => {
     load();
   }, [load]);
+
+  async function openSeason(season: string) {
+    if (Number.isNaN(competitionId)) return;
+    setSelectedSeason(season);
+    setLoadingSeasonMatches(true);
+    setError("");
+    const r = await adminFetch(
+      `/admin/competitions/${competitionId}/matches?season=${encodeURIComponent(season)}`,
+    );
+    if (!r.ok) {
+      setError("Erro ao carregar partidas da temporada");
+      setSeasonMatches([]);
+    } else {
+      const data = (await r.json()) as { matches?: CompetitionMatch[] };
+      setSeasonMatches(Array.isArray(data.matches) ? data.matches : []);
+    }
+    setLoadingSeasonMatches(false);
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -303,14 +331,79 @@ export default function AdminCompetitionDetail() {
 
       {!isNew && (
         <section className="space-y-2">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-            Partidas recentes ({matchCount})
-          </h2>
-          {matches.length === 0 ? (
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+              {selectedSeason
+                ? `Partidas · ${selectedSeason}`
+                : `Temporadas (${seasons.length})`}
+            </h2>
+            {selectedSeason && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedSeason(null);
+                  setSeasonMatches([]);
+                }}
+                className="text-xs text-[#1B3A6B] hover:underline"
+              >
+                ← Todas as temporadas
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-gray-400">
+            {matchCount} partida{matchCount === 1 ? "" : "s"} no total
+          </p>
+
+          {!selectedSeason && seasons.length === 0 && (
             <p className="text-sm text-gray-400">
               Nenhuma partida vinculada a esta competição.
             </p>
-          ) : (
+          )}
+
+          {!selectedSeason && seasons.length > 0 && (
+            <div className="bg-white border rounded-lg overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                      Temporada
+                    </th>
+                    <th className="text-right px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                      Partidas
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {seasons.map((s) => (
+                    <tr
+                      key={s.season}
+                      className="border-b hover:bg-gray-50 cursor-pointer"
+                      onClick={() => void openSeason(s.season)}
+                    >
+                      <td className="px-3 py-2 font-medium text-[#1B3A6B]">
+                        {s.season}
+                      </td>
+                      <td className="px-3 py-2 text-right text-gray-600 tabular-nums">
+                        {s.matchCount}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {selectedSeason && loadingSeasonMatches && (
+            <p className="text-sm text-gray-400">Carregando partidas...</p>
+          )}
+
+          {selectedSeason && !loadingSeasonMatches && seasonMatches.length === 0 && (
+            <p className="text-sm text-gray-400">
+              Nenhuma partida nesta temporada.
+            </p>
+          )}
+
+          {selectedSeason && !loadingSeasonMatches && seasonMatches.length > 0 && (
             <div className="bg-white border rounded-lg overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b">
@@ -330,7 +423,7 @@ export default function AdminCompetitionDetail() {
                   </tr>
                 </thead>
                 <tbody>
-                  {matches.map((m) => (
+                  {seasonMatches.map((m) => (
                     <tr key={m.id} className="border-b hover:bg-gray-50">
                       <td className="px-3 py-2 whitespace-nowrap">
                         <Link
@@ -339,12 +432,11 @@ export default function AdminCompetitionDetail() {
                         >
                           {fmtDate(m.matchDate)}
                         </Link>
-                        <span className="block text-[10px] text-gray-400">
-                          {m.season}
-                          {m.phase || m.round
-                            ? ` · ${[m.phase, m.round].filter(Boolean).join(" · ")}`
-                            : ""}
-                        </span>
+                        {(m.phase || m.round) && (
+                          <span className="block text-[10px] text-gray-400">
+                            {[m.phase, m.round].filter(Boolean).join(" · ")}
+                          </span>
+                        )}
                       </td>
                       <td className="px-3 py-2">
                         <Link
@@ -371,11 +463,6 @@ export default function AdminCompetitionDetail() {
                   ))}
                 </tbody>
               </table>
-              {matchCount > matches.length && (
-                <p className="text-xs text-gray-400 px-3 py-2 border-t">
-                  Mostrando as {matches.length} mais recentes de {matchCount}.
-                </p>
-              )}
             </div>
           )}
         </section>

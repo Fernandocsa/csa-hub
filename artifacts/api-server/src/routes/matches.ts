@@ -63,7 +63,7 @@ const matchSelectFields = {
 
 router.get("/matches", async (req, res) => {
   try {
-    const { season, competition, opponent, home_away, result, walkover, friendly, unknown, limit = "50", offset = "0" } = req.query as Record<string, string>;
+    const { season, competition, competitionId, opponent, home_away, result, walkover, friendly, unknown, limit = "50", offset = "0" } = req.query as Record<string, string>;
     const lim = Math.min(parseInt(limit) || 50, 200);
     const off = parseInt(offset) || 0;
 
@@ -90,7 +90,12 @@ router.get("/matches", async (req, res) => {
       conditions.push(eq(matchesTable.isWalkover, false));
     }
     if (season) conditions.push(eq(matchesTable.season, season));
-    if (competition) conditions.push(ilike(competitionsTable.name, `%${competition}%`));
+    if (competitionId) {
+      const cid = parseInt(competitionId, 10);
+      if (!isNaN(cid)) conditions.push(eq(matchesTable.competitionId, cid));
+    } else if (competition) {
+      conditions.push(ilike(competitionsTable.name, `%${competition}%`));
+    }
     if (opponent) conditions.push(ilike(opponentsTable.name, `%${opponent}%`));
     if (home_away) conditions.push(eq(matchesTable.homeAway, home_away));
     if (result && result !== "unknown") conditions.push(eq(matchesTable.result, result));

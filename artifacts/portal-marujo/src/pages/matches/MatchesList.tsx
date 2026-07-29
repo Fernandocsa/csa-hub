@@ -21,7 +21,18 @@ function fmtDate(d: string) {
 export default function MatchesList() {
   const search = useSearch();
   const [, setLocation] = useLocation();
-  const { season, setSeason } = useSeasonQueryParam("/partidas");
+  const { season } = useSeasonQueryParam("/partidas");
+
+  const searchParams = new URLSearchParams(search);
+  const competitionIdParam = searchParams.get("competitionId");
+  const competitionId =
+    competitionIdParam && /^\d+$/.test(competitionIdParam)
+      ? competitionIdParam
+      : undefined;
+
+  useEffect(() => {
+    setPage(1);
+  }, [competitionId, season]);
 
   // Legacy deep-links from Home / bookmarks
   useEffect(() => {
@@ -40,6 +51,7 @@ export default function MatchesList() {
 
   const { data, isLoading } = useListMatches({
     season: season === "all" ? undefined : season,
+    competitionId,
     opponent: opponent.length > 1 ? opponent : undefined,
     result: result === "all" ? undefined : result,
     home_away: homeAway === "all" ? undefined : homeAway,
@@ -47,12 +59,26 @@ export default function MatchesList() {
     offset: (page - 1) * limit,
   });
 
+  function buildPartidasUrl(next: {
+    season?: string;
+    competitionId?: string | null;
+  }) {
+    const params = new URLSearchParams();
+    const nextSeason = next.season ?? season;
+    if (nextSeason && nextSeason !== "all") params.set("season", nextSeason);
+    const nextComp =
+      next.competitionId === undefined ? competitionId : next.competitionId;
+    if (nextComp) params.set("competitionId", nextComp);
+    const qs = params.toString();
+    return qs ? `/partidas?${qs}` : "/partidas";
+  }
+
   function resetFilters() {
-    setSeason("all");
     setResult("all");
     setHomeAway("all");
     setOpponent("");
     setPage(1);
+    setLocation("/partidas");
   }
 
   return (
@@ -70,8 +96,13 @@ export default function MatchesList() {
         <Select
           value={season}
           onValueChange={(v) => {
-            setSeason(v);
             setPage(1);
+            setLocation(
+              buildPartidasUrl({
+                season: v,
+                competitionId: competitionId ?? null,
+              }),
+            );
           }}
         >
           <SelectTrigger className="h-8 w-28 text-xs" data-testid="select-season">
@@ -132,6 +163,23 @@ export default function MatchesList() {
           className="h-8 w-36 text-xs"
           data-testid="input-opponent"
         />
+
+        {competitionId && (
+          <button
+            type="button"
+            onClick={() => {
+              setPage(1);
+              setLocation(buildPartidasUrl({ competitionId: null }));
+            }}
+            className="h-8 inline-flex items-center gap-1 rounded border px-2 text-xs text-muted-foreground hover:text-foreground"
+            title="Remover filtro de competição"
+          >
+            {data?.data?.[0]?.competition
+              ? data.data[0].competition
+              : `Competição #${competitionId}`}
+            <span aria-hidden>×</span>
+          </button>
+        )}
 
         <Button
           variant="ghost"

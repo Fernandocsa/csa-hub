@@ -4433,6 +4433,38 @@ router.get("/admin/competitions/:id", requireAdmin, async (req, res) => {
       .from(matchesTable)
       .where(eq(matchesTable.competitionId, id));
 
+    const seasons = await db
+      .select({
+        season: matchesTable.season,
+        matchCount: sql<number>`cast(count(*) as int)`,
+      })
+      .from(matchesTable)
+      .where(eq(matchesTable.competitionId, id))
+      .groupBy(matchesTable.season)
+      .orderBy(desc(matchesTable.season));
+
+    res.json({ ...competition, matchCount, seasons });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.get("/admin/competitions/:id/matches", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const season =
+      typeof req.query.season === "string" ? req.query.season.trim() : "";
+    if (!season) return res.status(400).json({ error: "season obrigatório" });
+
+    const [competition] = await db
+      .select({ id: competitionsTable.id })
+      .from(competitionsTable)
+      .where(eq(competitionsTable.id, id))
+      .limit(1);
+    if (!competition) return res.status(404).json({ error: "Competição não encontrada" });
+
     const matches = await db
       .select({
         id: matchesTable.id,
@@ -4448,11 +4480,12 @@ router.get("/admin/competitions/:id", requireAdmin, async (req, res) => {
       })
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
-      .where(eq(matchesTable.competitionId, id))
-      .orderBy(desc(matchesTable.matchDate))
-      .limit(50);
+      .where(
+        and(eq(matchesTable.competitionId, id), eq(matchesTable.season, season)),
+      )
+      .orderBy(desc(matchesTable.matchDate), desc(matchesTable.id));
 
-    res.json({ ...competition, matchCount, matches });
+    res.json({ season, matches });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });

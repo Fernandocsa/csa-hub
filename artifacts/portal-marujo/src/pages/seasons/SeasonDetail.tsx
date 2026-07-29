@@ -92,7 +92,13 @@ function TopBlock({
   );
 }
 
-function CompetitionSummary({ rows }: { rows: SeasonCompetitionStat[] }) {
+function CompetitionSummary({
+  rows,
+  year,
+}: {
+  rows: SeasonCompetitionStat[];
+  year: string;
+}) {
   const totals = rows.reduce(
     (acc, r) => ({
       games: acc.games + r.games,
@@ -128,7 +134,12 @@ function CompetitionSummary({ rows }: { rows: SeasonCompetitionStat[] }) {
           {rows.map((r) => (
             <TableRow key={r.competitionId} className="text-sm">
               <TableCell className="py-2 font-medium">
-                <span>{r.competitionName}</span>
+                <Link
+                  href={`/partidas?season=${encodeURIComponent(year)}&competitionId=${r.competitionId}`}
+                  className="hover:text-primary hover:underline"
+                >
+                  {r.competitionName}
+                </Link>
                 {r.classification ? (
                   <span className="ml-2 text-xs font-normal text-muted-foreground">
                     {r.classification}
@@ -419,7 +430,7 @@ export default function SeasonDetail() {
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
           Resumo da Temporada
         </h2>
-        <CompetitionSummary rows={competitionStats} />
+        <CompetitionSummary rows={competitionStats} year={season.year} />
       </section>
 
       {/* Recent matches */}
