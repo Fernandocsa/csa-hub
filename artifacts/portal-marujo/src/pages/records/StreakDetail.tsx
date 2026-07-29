@@ -3,6 +3,7 @@ import { useGetStreakDetail, type StreakDetailType } from "@workspace/api-client
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
+import { OpponentNameWithCrest } from "@/components/OpponentCrest";
 import { RecordsLayout } from "./RecordsLayout";
 import { cn } from "@/lib/utils";
 
@@ -99,21 +100,26 @@ export default function StreakDetailPage({ type }: { type: StreakDetailType }) {
                         {fmtDate(m.date)}
                       </TableCell>
                       <TableCell className="py-2">
-                        <Link
-                          href={`/partidas/${m.id}`}
-                          className="font-medium hover:text-primary hover:underline"
-                        >
-                          {m.opponent}
-                        </Link>
-                        <span
-                          className={cn(
-                            "ml-2 text-xs px-1 py-0.5 rounded",
-                            m.homeAway === "home"
-                              ? "bg-primary/10 text-primary"
-                              : "bg-muted text-muted-foreground",
-                          )}
-                        >
-                          {m.homeAway === "home" ? "Casa" : "Fora"}
+                        <span className="inline-flex flex-wrap items-center gap-2">
+                          <Link
+                            href={`/partidas/${m.id}`}
+                            className="font-medium hover:text-primary hover:underline"
+                          >
+                            <OpponentNameWithCrest
+                              name={m.opponent}
+                              logoUrl={m.opponentLogoUrl}
+                            />
+                          </Link>
+                          <span
+                            className={cn(
+                              "text-xs px-1 py-0.5 rounded",
+                              m.homeAway === "home"
+                                ? "bg-primary/10 text-primary"
+                                : "bg-muted text-muted-foreground",
+                            )}
+                          >
+                            {m.homeAway === "home" ? "Casa" : "Fora"}
+                          </span>
                         </span>
                       </TableCell>
                       <TableCell className="py-2 text-center">

@@ -92,3 +92,23 @@ export function CsaCrest({
 }) {
   return <OpponentCrest url={CSA_CREST_URL} name="CSA" size={size} className={className} />;
 }
+
+/** Crest + opponent name for record/match table rows. */
+export function OpponentNameWithCrest({
+  name,
+  logoUrl,
+  size = "sm",
+  className,
+}: {
+  name: string;
+  logoUrl?: string | null;
+  size?: CrestSize;
+  className?: string;
+}) {
+  return (
+    <span className={cn("inline-flex items-center gap-2 min-w-0", className)}>
+      <OpponentCrest url={logoUrl} name={name} size={size} />
+      <span className="truncate">{name}</span>
+    </span>
+  );
+}

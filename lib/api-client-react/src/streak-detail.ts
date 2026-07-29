@@ -7,6 +7,7 @@ export interface StreakDetailMatch {
   id: number;
   date: string;
   opponent: string;
+  opponentLogoUrl?: string | null;
   goalsFor: number | null;
   goalsAgainst: number | null;
   result: string;
