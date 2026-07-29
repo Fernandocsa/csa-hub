@@ -14,6 +14,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
 import { ChevronLeft } from "lucide-react";
 import { ShareButton } from "@/components/ShareButton";
+import { PlayerFlag } from "@/components/PlayerFlag";
+import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { groupPlayersByPosition } from "@/lib/position-groups";
 import { cn } from "@/lib/utils";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
@@ -178,31 +180,37 @@ function RosterByPosition({ players }: { players: PlayerStat[] }) {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {groups.map(({ group, players: list }) => (
         <section key={group}>
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
             {group}
           </h3>
-          <ul className="border rounded divide-y overflow-hidden">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
             {list.map((player) => (
               <li key={player.id} data-testid={`row-squad-${player.id}`}>
                 <Link
                   href={`/jogadores/${player.id}`}
-                  className="flex items-start gap-2 px-3 py-2 text-sm hover:bg-muted/50 hover:text-primary"
+                  className="flex items-center gap-3 rounded-md px-1 py-1 -mx-1 hover:bg-muted/50 group"
                 >
-                  {player.shirtNumber != null ? (
-                    <span className="w-7 text-center text-xs tabular-nums text-muted-foreground shrink-0 pt-0.5">
-                      {player.shirtNumber}
-                    </span>
-                  ) : null}
-                  <span className="min-w-0">
-                    <span className="font-medium">{player.name}</span>
-                    {player.seasonAge != null ? (
-                      <span className="block text-xs text-muted-foreground font-normal mt-0.5">
-                        {player.seasonAge} anos
+                  <PlayerPhoto url={player.photoUrl} name={player.name} size="md" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <PlayerFlag
+                        flag={player.nationalityFlag}
+                        nationality={player.nationality}
+                        size="sm"
+                      />
+                      <span className="font-medium text-sm truncate group-hover:text-primary">
+                        {player.name}
                       </span>
+                    </div>
+                    {player.seasonAge != null ? (
+                      <p className="mt-0.5 text-xs text-muted-foreground">{player.seasonAge} anos</p>
                     ) : null}
+                  </div>
+                  <span className="shrink-0 w-8 text-right text-sm tabular-nums font-semibold text-muted-foreground">
+                    {player.shirtNumber != null ? player.shirtNumber : "—"}
                   </span>
                 </Link>
               </li>

@@ -20,6 +20,10 @@ export interface PlayerStat {
   position?: string | null;
   /** @nullable */
   nationality?: string | null;
+  /** @nullable */
+  nationalityFlag?: string | null;
+  /** @nullable */
+  photoUrl?: string | null;
   appearances: number;
   goals: number;
   /** @nullable */

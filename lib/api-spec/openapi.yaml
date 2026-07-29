@@ -654,6 +654,12 @@ components:
           type: ["string", "null"]
         nationality:
           type: ["string", "null"]
+        nationalityFlag:
+          type: ["string", "null"]
+          description: Legacy emoji or code for nationality flag display
+        photoUrl:
+          type: ["string", "null"]
+          description: Player profile photo URL
         appearances:
           type: integer
         goals:
