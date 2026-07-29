@@ -2,6 +2,7 @@ import { pgTable, text, serial, integer, date, boolean, timestamp } from "drizzl
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { refereesTable } from "./referees";
+import { playersTable } from "./players";
 
 export const stadiumsTable = pgTable("stadiums", {
   id: serial("id").primaryKey(),
@@ -69,6 +70,8 @@ export const matchesTable = pgTable("matches", {
   competitionId: integer("competition_id").notNull().references(() => competitionsTable.id),
   stadiumId: integer("stadium_id").references(() => stadiumsTable.id),
   managerId: integer("manager_id").references(() => managersTable.id),
+  /** CSA captain for this match (must be on the CSA lineup when set). */
+  captainPlayerId: integer("captain_player_id").references(() => playersTable.id),
   refereeId: integer("referee_id").references(() => refereesTable.id),
   attendance: integer("attendance"),
   attendancePaid: integer("attendance_paid"),

@@ -262,6 +262,16 @@ export function positionGroup(position: string | null | undefined): PositionGrou
   }
 }
 
+/** Short codes for Ogol-style lineup table (GOL / DEF / MEI / ATA). */
+export function shortPositionCode(position: string | null | undefined): string {
+  const g = positionGroup(position);
+  if (g === "Goleiros") return "GOL";
+  if (g === "Defensores") return "DEF";
+  if (g === "Meias") return "MEI";
+  if (g === "Atacantes") return "ATA";
+  return "—";
+}
+
 function shirtNum(v: string | number | null | undefined): number | null {
   if (v == null || v === "") return null;
   const n = typeof v === "number" ? v : Number(v);

@@ -3,6 +3,7 @@ import {
   text,
   serial,
   integer,
+  boolean,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
@@ -59,6 +60,10 @@ export const matchGoalsTable = pgTable("match_goals", {
   ),
   assistPlayerId: integer("assist_player_id").references(() => playersTable.id),
   assistName: text("assist_name"),
+  isPenalty: boolean("is_penalty").notNull().default(false),
+  isOwnGoal: boolean("is_own_goal").notNull().default(false),
+  /** 'for' = GPF / g.c. a favor do CSA; 'against' = GPD sofrido */
+  ownGoalDirection: text("own_goal_direction"),
 });
 
 export const matchCardsTable = pgTable("match_cards", {
@@ -99,6 +104,17 @@ export const matchSubstitutionsTable = pgTable("match_substitutions", {
   injuryTimeMinute: integer("injury_time_minute"),
 });
 
+/** Yellow/red cards shown to the CSA manager for a match. */
+export const matchManagerCardsTable = pgTable("match_manager_cards", {
+  id: serial("id").primaryKey(),
+  matchId: integer("match_id")
+    .notNull()
+    .references(() => matchesTable.id, { onDelete: "cascade" }),
+  cardType: text("card_type").notNull(), // yellow | red
+  minute: integer("minute").notNull(),
+  injuryTimeMinute: integer("injury_time_minute"),
+});
+
 export const insertMatchLineupSchema = createInsertSchema(matchLineupsTable).omit({
   id: true,
 });
@@ -122,3 +138,9 @@ export const insertMatchSubstitutionSchema = createInsertSchema(
 ).omit({ id: true });
 export type InsertMatchSubstitution = z.infer<typeof insertMatchSubstitutionSchema>;
 export type MatchSubstitution = typeof matchSubstitutionsTable.$inferSelect;
+
+export const insertMatchManagerCardSchema = createInsertSchema(
+  matchManagerCardsTable,
+).omit({ id: true });
+export type InsertMatchManagerCard = z.infer<typeof insertMatchManagerCardSchema>;
+export type MatchManagerCard = typeof matchManagerCardsTable.$inferSelect;

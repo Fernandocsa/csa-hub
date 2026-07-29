@@ -113,8 +113,8 @@ export async function getSeasonCompetitionBadgeStatuses(
   const goalAgg = await db
     .select({
       matchId: matchGoalsTable.matchId,
-      goalCount: sql<number>`cast(count(*) as int)`,
-      missingPlayerId: sql<number>`cast(sum(case when ${matchGoalsTable.scorerPlayerId} is null then 1 else 0 end) as int)`,
+      goalCount: sql<number>`cast(sum(case when coalesce(${matchGoalsTable.isOwnGoal}, false) = false then 1 else 0 end) as int)`,
+      missingPlayerId: sql<number>`cast(sum(case when coalesce(${matchGoalsTable.isOwnGoal}, false) = false and ${matchGoalsTable.scorerPlayerId} is null then 1 else 0 end) as int)`,
     })
     .from(matchGoalsTable)
     .where(
@@ -184,6 +184,7 @@ export async function getSeasonCompetitionBadgeStatuses(
             inArray(matchGoalsTable.matchId, completeIds),
             eq(matchGoalsTable.side, "csa"),
             sql`${matchGoalsTable.scorerPlayerId} is not null`,
+            sql`coalesce(${matchGoalsTable.isOwnGoal}, false) = false`,
           ),
         )
         .groupBy(matchGoalsTable.scorerPlayerId);

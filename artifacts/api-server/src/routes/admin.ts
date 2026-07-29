@@ -19,7 +19,7 @@ import {
   seasonCompetitionStatsTable,
 } from "@workspace/db";
 import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray } from "drizzle-orm";
-import { loadMatchSheet, replaceCsaMatchSheet } from "../lib/match-sheet";
+import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard } from "../lib/match-sheet";
 import {
   buildAndWriteCsaSheet,
   computeOwnGoalsForCount,
@@ -997,6 +997,7 @@ router.get("/admin/matches/:id", requireAdmin, async (req, res) => {
         stadiumName: stadiumsTable.name,
         managerId: matchesTable.managerId,
         managerName: managersTable.name,
+        captainPlayerId: matchesTable.captainPlayerId,
         refereeId: matchesTable.refereeId,
         refereeName: refereesTable.name,
         ownGoalsForCount: matchesTable.ownGoalsForCount,
@@ -1200,6 +1201,7 @@ router.get("/admin/matches/:id/sheet", requireAdmin, async (req, res) => {
   }
 });
 
+/** Legacy full replace (CSV/AI). Prefer lineup / events / subs endpoints for the admin UI. */
 router.put("/admin/matches/:id/sheet", requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
@@ -1229,12 +1231,118 @@ router.put("/admin/matches/:id/sheet", requireAdmin, async (req, res) => {
   }
 });
 
-/** CSA roster for a match season (+ optional name search fallback). */
+/** Replace CSA lineup (+ optional manager) without wiping events/subs. */
+router.put("/admin/matches/:id/sheet/lineup", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [match] = await db
+      .select({ id: matchesTable.id })
+      .from(matchesTable)
+      .where(eq(matchesTable.id, id))
+      .limit(1);
+    if (!match) return res.status(404).json({ error: "Partida não encontrada" });
+
+    const body = req.body as {
+      lineups?: Parameters<typeof replaceCsaLineup>[1]["lineups"];
+      managerId?: number | null;
+    };
+    res.json(await replaceCsaLineup(id, body));
+  } catch (err: any) {
+    if (err?.status === 400) return res.status(400).json({ error: err.message });
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+/** Append CSA events (goals/cards/assists/manager cards/captain). */
+router.post("/admin/matches/:id/sheet/events", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [match] = await db
+      .select({ id: matchesTable.id })
+      .from(matchesTable)
+      .where(eq(matchesTable.id, id))
+      .limit(1);
+    if (!match) return res.status(404).json({ error: "Partida não encontrada" });
+
+    const body = req.body as Parameters<typeof appendCsaEvents>[1];
+    res.json(await appendCsaEvents(id, body));
+  } catch (err: any) {
+    if (err?.status === 400) return res.status(400).json({ error: err.message });
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.delete("/admin/matches/:id/sheet/goals/:goalId", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const goalId = parseInt(req.params.goalId);
+    if (isNaN(id) || isNaN(goalId)) return res.status(400).json({ error: "ID inválido" });
+    res.json(await deleteMatchGoal(id, goalId));
+  } catch (err: any) {
+    if (err?.status === 404) return res.status(404).json({ error: err.message });
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.delete("/admin/matches/:id/sheet/cards/:cardId", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const cardId = parseInt(req.params.cardId);
+    if (isNaN(id) || isNaN(cardId)) return res.status(400).json({ error: "ID inválido" });
+    res.json(await deleteMatchCard(id, cardId));
+  } catch (err: any) {
+    if (err?.status === 404) return res.status(404).json({ error: err.message });
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.delete("/admin/matches/:id/sheet/manager-cards/:cardId", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const cardId = parseInt(req.params.cardId);
+    if (isNaN(id) || isNaN(cardId)) return res.status(400).json({ error: "ID inválido" });
+    res.json(await deleteMatchManagerCard(id, cardId));
+  } catch (err: any) {
+    if (err?.status === 404) return res.status(404).json({ error: err.message });
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+/** Replace CSA substitutions only. */
+router.put("/admin/matches/:id/sheet/substitutions", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [match] = await db
+      .select({ id: matchesTable.id })
+      .from(matchesTable)
+      .where(eq(matchesTable.id, id))
+      .limit(1);
+    if (!match) return res.status(404).json({ error: "Partida não encontrada" });
+
+    const body = req.body as { substitutions?: Parameters<typeof replaceCsaSubstitutions>[1] };
+    res.json(await replaceCsaSubstitutions(id, body.substitutions ?? []));
+  } catch (err: any) {
+    if (err?.status === 400) return res.status(400).json({ error: err.message });
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+/** CSA roster for a season (+ optional name search fallback). */
 router.get("/admin/matches/:id/roster", requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
     const q = String((req.query as { q?: string }).q ?? "").trim();
+    const seasonOverride = String((req.query as { season?: string }).season ?? "").trim();
 
     const [match] = await db
       .select({ id: matchesTable.id, season: matchesTable.season })
@@ -1243,27 +1351,45 @@ router.get("/admin/matches/:id/roster", requireAdmin, async (req, res) => {
       .limit(1);
     if (!match) return res.status(404).json({ error: "Partida não encontrada" });
 
+    const season = seasonOverride || match.season;
+
     const seasonRows = await db
       .select({
         id: playersTable.id,
         name: playersTable.name,
         position: playersTable.position,
+        nationality: playersTable.nationality,
+        nationalityFlag: playersTable.nationalityFlag,
+        shirtNumber: playerSeasonStatsTable.shirtNumber,
         appearances: playerSeasonStatsTable.appearances,
         goals: playerSeasonStatsTable.goals,
         assists: playerSeasonStatsTable.assists,
       })
       .from(playerSeasonStatsTable)
       .innerJoin(playersTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
-      .where(eq(playerSeasonStatsTable.season, match.season))
+      .where(eq(playerSeasonStatsTable.season, season))
       .orderBy(desc(playerSeasonStatsTable.appearances), asc(playersTable.name));
 
-    let searchRows: typeof seasonRows = [];
+    let searchRows: Array<{
+      id: number;
+      name: string;
+      position: string | null;
+      nationality: string | null;
+      nationalityFlag: string | null;
+      shirtNumber: number | null;
+      appearances: number;
+      goals: number;
+      assists: number;
+    }> = [];
     if (q.length >= 2) {
       searchRows = await db
         .select({
           id: playersTable.id,
           name: playersTable.name,
           position: playersTable.position,
+          nationality: playersTable.nationality,
+          nationalityFlag: playersTable.nationalityFlag,
+          shirtNumber: sql<number | null>`null`.as("shirt_number"),
           appearances: sql<number>`0`.as("appearances"),
           goals: sql<number>`0`.as("goals"),
           assists: sql<number>`0`.as("assists"),
@@ -1285,7 +1411,8 @@ router.get("/admin/matches/:id/roster", requireAdmin, async (req, res) => {
     }
 
     res.json({
-      season: match.season,
+      season,
+      matchSeason: match.season,
       players: Array.from(byId.values()),
     });
   } catch (err) {

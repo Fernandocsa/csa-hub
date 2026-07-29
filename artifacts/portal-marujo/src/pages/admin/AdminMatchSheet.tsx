@@ -1,59 +1,106 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronLeft, Plus, Trash2 } from "lucide-react";
-import { groupPlayersByPosition, sortLineupByPosition } from "@/lib/position-groups";
+import { ChevronLeft, Trash2 } from "lucide-react";
+import { PlayerFlag } from "@/components/PlayerFlag";
+import { shortPositionCode, sortLineupByPosition } from "@/lib/position-groups";
 import MatchGeneralForm, {
   type MatchGeneralFormData,
   type MatchLookupData,
 } from "./MatchGeneralForm";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 
+// ── Types ─────────────────────────────────────────────────────────────────
+
 type RosterPlayer = {
   id: number;
   name: string;
   position: string | null;
+  nationality: string | null;
+  nationalityFlag: string | null;
+  shirtNumber: number | null;
   appearances: number;
   goals: number;
   assists: number;
   inSeason: boolean;
 };
 
-type LineupRole = "starter" | "bench" | "out";
+type PlayerInfo = {
+  name: string;
+  position: string | null;
+  nationality: string | null;
+  nationalityFlag: string | null;
+};
 
-type LineupDraft = {
+type EscalacaoRow = {
   playerId: number;
   playerName: string;
-  role: "starter" | "bench";
-  shirtNumber: string;
-  position: string;
+  position: string | null;
+  nationality: string | null;
+  nationalityFlag: string | null;
+};
+
+type SheetLineup = {
+  id: number;
+  side: string;
+  playerId: number | null;
+  playerName: string;
+  role: string;
+  shirtNumber: number | null;
+  position: string | null;
   sortOrder: number;
 };
 
-type GoalDraft = {
-  key: string;
-  scorerPlayerId: string;
-  minute: string;
-  injuryTimeMinute: string;
-  assistPlayerId: string;
+type SheetGoal = {
+  id: number;
+  scorerPlayerId: number | null;
+  scorerName: string | null;
+  minute: number;
+  injuryTimeMinute: number | null;
+  assistPlayerId: number | null;
+  assistName: string | null;
+  isPenalty: boolean;
+  isOwnGoal: boolean;
+  ownGoalDirection: "for" | "against" | null;
 };
 
-type CardDraft = {
-  key: string;
-  cardType: "yellow" | "red";
-  playerId: string;
-  minute: string;
-  injuryTimeMinute: string;
+type SheetCard = {
+  id: number;
+  cardType: string;
+  playerId: number | null;
+  playerName: string | null;
+  minute: number;
+  injuryTimeMinute: number | null;
 };
 
-type SubDraft = {
-  key: string;
-  playerOutId: string;
-  playerInId: string;
-  minute: string;
-  injuryTimeMinute: string;
+type SheetManagerCard = {
+  id: number;
+  cardType: string;
+  minute: number;
+  injuryTimeMinute: number | null;
+};
+
+type SheetSubstitution = {
+  id: number;
+  playerOutId: number | null;
+  playerOutName: string | null;
+  playerInId: number | null;
+  playerInName: string | null;
+  minute: number;
+  injuryTimeMinute: number | null;
+};
+
+type SheetResponse = {
+  lineups: SheetLineup[];
+  goals: SheetGoal[];
+  cards: SheetCard[];
+  substitutions: SheetSubstitution[];
+  managerCards: SheetManagerCard[];
+  captainPlayerId: number | null;
+  managerId: number | null;
+  ownGoalsForCount: number;
 };
 
 type MatchMeta = {
@@ -62,8 +109,8 @@ type MatchMeta = {
   season: string;
   opponentName: string;
   opponentId: number;
-  goalsFor: number;
-  goalsAgainst: number;
+  goalsFor: number | null;
+  goalsAgainst: number | null;
   result: string;
   homeAway: string;
   competitionId: number;
@@ -73,6 +120,7 @@ type MatchMeta = {
   scorers: string | null;
   managerId: number | null;
   managerName: string | null;
+  captainPlayerId?: number | null;
   refereeId: number | null;
   refereeName: string | null;
   ownGoalsForCount?: number | null;
@@ -83,11 +131,68 @@ type MatchMeta = {
   status?: string;
 };
 
-type TabId = "general" | "manager" | "lineup" | "goals" | "cards" | "subs";
+type TabId = "general" | "lineup" | "events" | "subs";
 
-function uid() {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+type EventRow = {
+  playerId: string;
+  minute: string;
+  injuryTimeMinute: string;
+  isOwnGoal: boolean;
+  isPenalty: boolean;
+};
+
+function emptyEventRow(): EventRow {
+  return { playerId: "", minute: "", injuryTimeMinute: "", isOwnGoal: false, isPenalty: false };
 }
+
+type ManagerCardRow = {
+  cardType: "yellow" | "red";
+  minute: string;
+  injuryTimeMinute: string;
+};
+
+function defaultManagerCardRows(): ManagerCardRow[] {
+  return [
+    { cardType: "yellow", minute: "", injuryTimeMinute: "" },
+    { cardType: "red", minute: "", injuryTimeMinute: "" },
+    { cardType: "yellow", minute: "", injuryTimeMinute: "" },
+    { cardType: "red", minute: "", injuryTimeMinute: "" },
+  ];
+}
+
+type SubRow = {
+  playerOutId: string;
+  playerInId: string;
+  minute: string;
+  injuryTimeMinute: string;
+};
+
+function emptySubRow(): SubRow {
+  return { playerOutId: "", playerInId: "", minute: "", injuryTimeMinute: "" };
+}
+
+function buildSubRows(subs: SheetSubstitution[]): SubRow[] {
+  const rows: SubRow[] = subs.slice(0, SUB_ROWS_COUNT).map((s) => ({
+    playerOutId: s.playerOutId != null ? String(s.playerOutId) : "",
+    playerInId: s.playerInId != null ? String(s.playerInId) : "",
+    minute: String(s.minute ?? ""),
+    injuryTimeMinute: s.injuryTimeMinute != null ? String(s.injuryTimeMinute) : "",
+  }));
+  while (rows.length < SUB_ROWS_COUNT) rows.push(emptySubRow());
+  return rows;
+}
+
+function patchAt<T>(list: T[], index: number, patch: Partial<T>): T[] {
+  return list.map((item, i) => (i === index ? { ...item, ...patch } : item));
+}
+
+const GOAL_ROWS_COUNT = 5;
+const RED_ROWS_COUNT = 2;
+const YELLOW_ROWS_COUNT = 5;
+const ASSIST_ROWS_COUNT = 5;
+const SUB_ROWS_COUNT = 10;
+
+const selectCls = "w-full border rounded px-2 py-1.5 text-sm bg-white";
 
 export default function AdminMatchSheet() {
   const params = useParams<{ id?: string }>();
@@ -98,140 +203,247 @@ export default function AdminMatchSheet() {
   const [match, setMatch] = useState<MatchMeta | null>(null);
   const [lookup, setLookup] = useState<MatchLookupData | null>(null);
   const [managers, setManagers] = useState<{ id: number; name: string }[]>([]);
-  const [managerIdDraft, setManagerIdDraft] = useState("");
-  const [savingManager, setSavingManager] = useState(false);
-  const [roster, setRoster] = useState<RosterPlayer[]>([]);
-  const [search, setSearch] = useState("");
-  const [lineups, setLineups] = useState<LineupDraft[]>([]);
-  const [goals, setGoals] = useState<GoalDraft[]>([]);
-  const [cards, setCards] = useState<CardDraft[]>([]);
-  const [subs, setSubs] = useState<SubDraft[]>([]);
+  const [seasons, setSeasons] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [savedMsg, setSavedMsg] = useState("");
   const [tab, setTab] = useState<TabId>("general");
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const lookupRes = await adminFetch("/admin/lookup");
-      if (lookupRes.ok) {
-        const lookupJson = await lookupRes.json();
-        setLookup({
-          opponents: lookupJson.opponents ?? [],
-          competitions: lookupJson.competitions ?? [],
-          stadiums: lookupJson.stadiums ?? [],
-          referees: lookupJson.referees ?? [],
-        });
-        setManagers(
-          [...(lookupJson.managers ?? [])].sort(
-            (a: { name: string }, b: { name: string }) =>
-              a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
-          ),
-        );
+  // Escalação state
+  const [roster, setRoster] = useState<RosterPlayer[]>([]);
+  const [rosterSeason, setRosterSeason] = useState("");
+  const [playerInfo, setPlayerInfo] = useState<Map<number, PlayerInfo>>(new Map());
+  const [starterIds, setStarterIds] = useState<Set<number>>(new Set());
+  const [benchIds, setBenchIds] = useState<Set<number>>(new Set());
+  const [shirtNumbers, setShirtNumbers] = useState<Record<number, string>>({});
+  const [managerIdDraft, setManagerIdDraft] = useState("");
+  const [savingLineup, setSavingLineup] = useState(false);
+
+  // Eventos - CSA form state (fixed rows, reset after successful save)
+  const [goalRows, setGoalRows] = useState<EventRow[]>(() =>
+    Array.from({ length: GOAL_ROWS_COUNT }, emptyEventRow),
+  );
+  const [redRows, setRedRows] = useState<EventRow[]>(() =>
+    Array.from({ length: RED_ROWS_COUNT }, emptyEventRow),
+  );
+  const [yellowRows, setYellowRows] = useState<EventRow[]>(() =>
+    Array.from({ length: YELLOW_ROWS_COUNT }, emptyEventRow),
+  );
+  const [assistRows, setAssistRows] = useState<EventRow[]>(() =>
+    Array.from({ length: ASSIST_ROWS_COUNT }, emptyEventRow),
+  );
+  const [gpdRow, setGpdRow] = useState<EventRow>(emptyEventRow);
+  const [gpfRow, setGpfRow] = useState<EventRow>(emptyEventRow);
+  const [captainDraft, setCaptainDraft] = useState("");
+  const [managerCardRows, setManagerCardRows] = useState<ManagerCardRow[]>(defaultManagerCardRows);
+  const [savingEvents, setSavingEvents] = useState(false);
+
+  // Saved events (read-only list, 3C)
+  const [sheetGoals, setSheetGoals] = useState<SheetGoal[]>([]);
+  const [sheetCards, setSheetCards] = useState<SheetCard[]>([]);
+  const [sheetManagerCards, setSheetManagerCards] = useState<SheetManagerCard[]>([]);
+  const [captainPlayerId, setCaptainPlayerId] = useState<number | null>(null);
+
+  // Substituições
+  const [subRows, setSubRows] = useState<SubRow[]>(() =>
+    Array.from({ length: SUB_ROWS_COUNT }, emptySubRow),
+  );
+  const [savingSubs, setSavingSubs] = useState(false);
+
+  function resetEventForms() {
+    setGoalRows(Array.from({ length: GOAL_ROWS_COUNT }, emptyEventRow));
+    setRedRows(Array.from({ length: RED_ROWS_COUNT }, emptyEventRow));
+    setYellowRows(Array.from({ length: YELLOW_ROWS_COUNT }, emptyEventRow));
+    setAssistRows(Array.from({ length: ASSIST_ROWS_COUNT }, emptyEventRow));
+    setGpdRow(emptyEventRow());
+    setGpfRow(emptyEventRow());
+    setCaptainDraft("");
+    setManagerCardRows(defaultManagerCardRows());
+  }
+
+  function applySheetLineups(sheet: SheetResponse, fallbackManagerId?: number | null) {
+    const csaLineups = (sheet.lineups ?? []).filter((l) => !l.side || l.side === "csa");
+    const nextStarters = new Set<number>();
+    const nextBench = new Set<number>();
+    const nextShirt: Record<number, string> = {};
+    setPlayerInfo((prev) => {
+      const next = new Map(prev);
+      for (const l of csaLineups) {
+        if (l.playerId == null) continue;
+        if (l.role === "starter") nextStarters.add(l.playerId);
+        else if (l.role === "bench") nextBench.add(l.playerId);
+        if (l.shirtNumber != null) nextShirt[l.playerId] = String(l.shirtNumber);
+        if (!next.has(l.playerId)) {
+          next.set(l.playerId, {
+            name: l.playerName,
+            position: l.position ?? null,
+            nationality: null,
+            nationalityFlag: null,
+          });
+        }
       }
+      return next;
+    });
+    setStarterIds(nextStarters);
+    setBenchIds(nextBench);
+    setShirtNumbers(nextShirt);
+    setManagerIdDraft(
+      sheet.managerId != null
+        ? String(sheet.managerId)
+        : fallbackManagerId != null
+          ? String(fallbackManagerId)
+          : "",
+    );
+  }
 
-      if (isNew || matchId == null || Number.isNaN(matchId)) {
-        setMatch(null);
-        setLoading(false);
-        return;
-      }
-
-      const [matchRes, sheetRes, rosterRes] = await Promise.all([
-        adminFetch(`/admin/matches/${matchId}`),
-        adminFetch(`/admin/matches/${matchId}/sheet`),
-        adminFetch(`/admin/matches/${matchId}/roster`),
-      ]);
-
-      if (!matchRes.ok || !sheetRes.ok || !rosterRes.ok) {
-        throw new Error("Erro ao carregar partida");
-      }
-
-      const found = (await matchRes.json()) as MatchMeta;
-      setMatch(found);
-      setManagerIdDraft(found.managerId != null ? String(found.managerId) : "");
-
-      const sheet = await sheetRes.json();
-      setLineups(
-        (sheet.lineups ?? [])
-          .filter((l: { side?: string }) => !l.side || l.side === "csa")
-          .map((l: any, i: number) => ({
-            playerId: l.playerId,
-            playerName: l.playerName,
-            role: l.role === "bench" ? "bench" : "starter",
-            shirtNumber: l.shirtNumber != null ? String(l.shirtNumber) : "",
-            position: l.position ?? "",
-            sortOrder: l.sortOrder ?? i,
-          })),
-      );
-      setGoals(
-        (sheet.goals ?? []).map((g: any) => ({
-          key: uid(),
-          scorerPlayerId: String(g.scorerPlayerId ?? ""),
-          minute: String(g.minute ?? ""),
-          injuryTimeMinute: g.injuryTimeMinute != null ? String(g.injuryTimeMinute) : "",
-          assistPlayerId: g.assistPlayerId != null ? String(g.assistPlayerId) : "",
-        })),
-      );
-      setCards(
-        (sheet.cards ?? []).map((c: any) => ({
-          key: uid(),
-          cardType: c.cardType === "red" ? "red" : "yellow",
-          playerId: String(c.playerId ?? ""),
-          minute: String(c.minute ?? ""),
-          injuryTimeMinute: c.injuryTimeMinute != null ? String(c.injuryTimeMinute) : "",
-        })),
-      );
-      setSubs(
-        (sheet.substitutions ?? [])
-          .filter((s: { side?: string }) => !s.side || s.side === "csa")
-          .map((s: any) => ({
-            key: uid(),
-            playerOutId: String(s.playerOutId ?? ""),
-            playerInId: String(s.playerInId ?? ""),
-            minute: String(s.minute ?? ""),
-            injuryTimeMinute:
-              s.injuryTimeMinute != null ? String(s.injuryTimeMinute) : "",
-          })),
-      );
-
-      const rosterJson = await rosterRes.json();
-      setRoster(rosterJson.players ?? []);
-    } catch (e: any) {
-      setError(e.message ?? "Erro ao carregar");
-      setMatch(null);
-    }
-    setLoading(false);
-  }, [isNew, matchId]);
+  function applySheetEvents(sheet: SheetResponse) {
+    setSheetGoals(sheet.goals ?? []);
+    setSheetCards(sheet.cards ?? []);
+    setSheetManagerCards(sheet.managerCards ?? []);
+    setCaptainPlayerId(sheet.captainPlayerId ?? null);
+  }
 
   useEffect(() => {
     if (isNew) setTab("general");
-    load();
-  }, [isNew, load]);
+    let cancelled = false;
 
-  async function searchRoster(q: string) {
-    setSearch(q);
-    if (!matchId) return;
-    const r = await adminFetch(
-      `/admin/matches/${matchId}/roster${q.trim().length >= 2 ? `?q=${encodeURIComponent(q.trim())}` : ""}`,
-    );
-    if (r.ok) {
-      const data = await r.json();
-      setRoster(data.players ?? []);
+    async function load() {
+      setLoading(true);
+      setError("");
+      try {
+        const [lookupRes, seasonsRes] = await Promise.all([
+          adminFetch("/admin/lookup"),
+          adminFetch("/admin/seasons"),
+        ]);
+        if (cancelled) return;
+
+        if (lookupRes.ok) {
+          const lookupJson = (await lookupRes.json()) as any;
+          setLookup({
+            opponents: lookupJson.opponents ?? [],
+            competitions: lookupJson.competitions ?? [],
+            stadiums: lookupJson.stadiums ?? [],
+            referees: lookupJson.referees ?? [],
+          });
+          setManagers(
+            [...(lookupJson.managers ?? [])].sort((a: { name: string }, b: { name: string }) =>
+              a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
+            ),
+          );
+        }
+        if (seasonsRes.ok) {
+          const seasonsJson = (await seasonsRes.json()) as Array<{ year: string | number }>;
+          setSeasons(seasonsJson.map((s) => String(s.year)));
+        }
+
+        if (isNew || matchId == null || Number.isNaN(matchId)) {
+          setMatch(null);
+          setLoading(false);
+          return;
+        }
+
+        const matchRes = await adminFetch(`/admin/matches/${matchId}`);
+        if (!matchRes.ok) throw new Error("Erro ao carregar partida");
+        const found = (await matchRes.json()) as MatchMeta;
+        if (cancelled) return;
+        setMatch(found);
+        setRosterSeason(found.season);
+
+        const [sheetRes, rosterRes] = await Promise.all([
+          adminFetch(`/admin/matches/${matchId}/sheet`),
+          adminFetch(`/admin/matches/${matchId}/roster?season=${encodeURIComponent(found.season)}`),
+        ]);
+        if (!sheetRes.ok || !rosterRes.ok) throw new Error("Erro ao carregar ficha");
+        if (cancelled) return;
+
+        const rosterJson = (await rosterRes.json()) as { players?: RosterPlayer[] };
+        const rosterPlayers = rosterJson.players ?? [];
+        setRoster(rosterPlayers);
+        setPlayerInfo((prev) => {
+          const next = new Map(prev);
+          for (const p of rosterPlayers) {
+            next.set(p.id, {
+              name: p.name,
+              position: p.position,
+              nationality: p.nationality,
+              nationalityFlag: p.nationalityFlag,
+            });
+          }
+          return next;
+        });
+
+        const sheet = (await sheetRes.json()) as SheetResponse;
+        applySheetLineups(sheet, found.managerId);
+        applySheetEvents(sheet);
+        setSubRows(buildSubRows(sheet.substitutions ?? []));
+        resetEventForms();
+      } catch (e: any) {
+        if (!cancelled) {
+          setError(e.message ?? "Erro ao carregar");
+          setMatch(null);
+        }
+      }
+      if (!cancelled) setLoading(false);
     }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isNew, matchId]);
+
+  const rosterShirtById = useMemo(() => {
+    const m = new Map<number, string>();
+    for (const p of roster) if (p.shirtNumber != null) m.set(p.id, String(p.shirtNumber));
+    return m;
+  }, [roster]);
+
+  function shirtValueFor(playerId: number): string {
+    if (shirtNumbers[playerId] !== undefined) return shirtNumbers[playerId];
+    return rosterShirtById.get(playerId) ?? "";
   }
 
-  const lineupByPlayer = useMemo(() => {
-    const m = new Map<number, LineupDraft>();
-    for (const l of lineups) m.set(l.playerId, l);
-    return m;
-  }, [lineups]);
+  const escalacaoRows: EscalacaoRow[] = useMemo(() => {
+    const rows: EscalacaoRow[] = [];
+    const seen = new Set<number>();
+    for (const p of roster) {
+      rows.push({
+        playerId: p.id,
+        playerName: p.name,
+        position: p.position,
+        nationality: p.nationality,
+        nationalityFlag: p.nationalityFlag,
+      });
+      seen.add(p.id);
+    }
+    const extraIds = [...starterIds, ...benchIds].filter((id) => !seen.has(id));
+    for (const id of extraIds) {
+      const info = playerInfo.get(id);
+      rows.push({
+        playerId: id,
+        playerName: info?.name ?? `Jogador #${id}`,
+        position: info?.position ?? null,
+        nationality: info?.nationality ?? null,
+        nationalityFlag: info?.nationalityFlag ?? null,
+      });
+      seen.add(id);
+    }
+    return rows;
+  }, [roster, starterIds, benchIds, playerInfo]);
 
-  const starters = sortLineupByPosition(lineups.filter((l) => l.role === "starter"));
-  const bench = sortLineupByPosition(lineups.filter((l) => l.role === "bench"));
-  const rosterByGroup = useMemo(() => groupPlayersByPosition(roster), [roster]);
+  const lineupOptions = useMemo(
+    () =>
+      escalacaoRows
+        .filter((r) => starterIds.has(r.playerId) || benchIds.has(r.playerId))
+        .sort((a, b) => a.playerName.localeCompare(b.playerName, "pt-BR", { sensitivity: "base" })),
+    [escalacaoRows, starterIds, benchIds],
+  );
+
+  function playerNameById(id: number | null): string {
+    if (id == null) return "—";
+    return playerInfo.get(id)?.name ?? `Jogador #${id}`;
+  }
 
   async function saveGeneral(data: MatchGeneralFormData) {
     setSavedMsg("");
@@ -262,7 +474,7 @@ export default function AdminMatchSheet() {
       throw new Error((err as { error?: string }).error ?? "Erro ao salvar");
     }
     setSavedMsg("Dados gerais salvos.");
-    await load();
+    setLocation(`/admin/partidas/${match.id}`);
   }
 
   async function deleteMatch() {
@@ -275,151 +487,309 @@ export default function AdminMatchSheet() {
     setLocation("/admin/partidas");
   }
 
-  async function saveManager() {
-    if (!match) return;
-    setSavingManager(true);
-    setError("");
-    setSavedMsg("");
-    try {
-      const r = await adminFetch(`/admin/matches/${match.id}`, {
-        method: "PUT",
-        body: JSON.stringify({
-          matchDate: match.matchDate,
-          season: match.season,
-          opponentId: match.opponentId,
-          goalsFor: match.goalsFor,
-          goalsAgainst: match.goalsAgainst,
-          result: match.result,
-          homeAway: match.homeAway,
-          competitionId: match.competitionId,
-          stadiumId: match.stadiumId,
-          managerId: managerIdDraft === "" ? null : Number(managerIdDraft),
-          refereeId: match.refereeId ?? null,
-          attendance: match.attendance,
-          scorers: match.scorers,
-          ownGoalsForCount: match.ownGoalsForCount ?? 0,
-          phase: match.phase ?? null,
-          round: match.round ?? null,
-          isWalkover: match.isWalkover === true,
-          isFriendly: match.isFriendly === true,
-        }),
-      });
-      if (!r.ok) {
-        const err = await r.json().catch(() => ({}));
-        throw new Error((err as any).error ?? "Erro ao salvar técnico");
-      }
-      setSavedMsg("Técnico atualizado.");
-      await load();
-    } catch (e: any) {
-      setError(e.message ?? "Erro ao salvar técnico");
-    }
-    setSavingManager(false);
-  }
-
-  const softSubWarnings = useMemo(() => {
-    const warnings: string[] = [];
-    for (const s of subs) {
-      const outId = Number(s.playerOutId);
-      const inId = Number(s.playerInId);
-      const out = lineupByPlayer.get(outId);
-      const inn = lineupByPlayer.get(inId);
-      const outName = out?.playerName ?? `#${s.playerOutId || "?"}`;
-      const inName = inn?.playerName ?? `#${s.playerInId || "?"}`;
-      if (s.playerOutId && (!out || out.role !== "starter")) {
-        warnings.push(
-          `Quem saiu (${outName}) não está marcado como titular.`,
-        );
-      }
-      if (s.playerInId && (!inn || inn.role !== "bench")) {
-        warnings.push(
-          `Quem entrou (${inName}) não está marcado como reserva.`,
-        );
-      }
-    }
-    return warnings;
-  }, [subs, lineupByPlayer]);
-
-  function setPlayerRole(player: RosterPlayer, role: LineupRole) {
-    setSavedMsg("");
-    setLineups((prev) => {
-      const without = prev.filter((l) => l.playerId !== player.id);
-      if (role === "out") return without;
-      const existing = prev.find((l) => l.playerId === player.id);
-      return [
-        ...without,
-        {
-          playerId: player.id,
-          playerName: player.name,
-          role,
-          shirtNumber: existing?.shirtNumber ?? "",
-          position: existing?.position || player.position || "",
-          sortOrder: existing?.sortOrder ?? without.length,
-        },
-      ];
-    });
-  }
-
-  function updateLineup(playerId: number, patch: Partial<LineupDraft>) {
-    setSavedMsg("");
-    setLineups((prev) =>
-      prev.map((l) => (l.playerId === playerId ? { ...l, ...patch } : l)),
-    );
-  }
-
-  async function save() {
+  async function changeRosterSeason(season: string) {
+    setRosterSeason(season);
     if (matchId == null) return;
-    setSaving(true);
+    setError("");
+    try {
+      const r = await adminFetch(`/admin/matches/${matchId}/roster?season=${encodeURIComponent(season)}`);
+      if (!r.ok) throw new Error("Erro ao carregar elenco da temporada");
+      const data = (await r.json()) as { players?: RosterPlayer[] };
+      const players = data.players ?? [];
+      setRoster(players);
+      setPlayerInfo((prev) => {
+        const next = new Map(prev);
+        for (const p of players) {
+          next.set(p.id, {
+            name: p.name,
+            position: p.position,
+            nationality: p.nationality,
+            nationalityFlag: p.nationalityFlag,
+          });
+        }
+        return next;
+      });
+    } catch (e: any) {
+      setError(e.message ?? "Erro ao carregar elenco da temporada");
+    }
+  }
+
+  function handleTitChange(playerId: number, checked: boolean) {
+    setSavedMsg("");
+    if (checked) {
+      if (starterIds.size >= 11 && !starterIds.has(playerId)) {
+        setError("Máximo de 11 titulares. Desmarque outro jogador antes de adicionar este.");
+        return;
+      }
+      setError("");
+      setStarterIds((prev) => new Set(prev).add(playerId));
+      setBenchIds((prev) => {
+        if (!prev.has(playerId)) return prev;
+        const next = new Set(prev);
+        next.delete(playerId);
+        return next;
+      });
+    } else {
+      setStarterIds((prev) => {
+        const next = new Set(prev);
+        next.delete(playerId);
+        return next;
+      });
+    }
+  }
+
+  function handleResChange(playerId: number, checked: boolean) {
+    setSavedMsg("");
+    if (checked) {
+      setBenchIds((prev) => new Set(prev).add(playerId));
+      setStarterIds((prev) => {
+        if (!prev.has(playerId)) return prev;
+        const next = new Set(prev);
+        next.delete(playerId);
+        return next;
+      });
+    } else {
+      setBenchIds((prev) => {
+        const next = new Set(prev);
+        next.delete(playerId);
+        return next;
+      });
+    }
+  }
+
+  async function saveEscalacao() {
+    if (matchId == null) return;
+    setSavingLineup(true);
     setError("");
     setSavedMsg("");
     try {
+      const selected = escalacaoRows.filter(
+        (r) => starterIds.has(r.playerId) || benchIds.has(r.playerId),
+      );
+      const lineupsPayload = selected.map((r) => ({
+        playerId: r.playerId,
+        playerName: r.playerName,
+        role: starterIds.has(r.playerId) ? ("starter" as const) : ("bench" as const),
+        shirtNumber: shirtValueFor(r.playerId) === "" ? null : Number(shirtValueFor(r.playerId)),
+        position: r.position,
+      }));
+      const sorted = sortLineupByPosition(lineupsPayload).map((l, i) => ({
+        ...l,
+        sortOrder: i,
+        side: "csa" as const,
+      }));
       const body = {
-        lineups: sortLineupByPosition(lineups).map((l, i) => ({
-          playerId: l.playerId,
-          playerName: l.playerName,
-          role: l.role,
-          shirtNumber: l.shirtNumber === "" ? null : Number(l.shirtNumber),
-          position: l.position || null,
-          sortOrder: i,
-          side: "csa" as const,
-        })),
-        goals: goals.map((g) => ({
-          scorerPlayerId: Number(g.scorerPlayerId),
-          minute: Number(g.minute),
-          injuryTimeMinute: g.injuryTimeMinute === "" ? null : Number(g.injuryTimeMinute),
-          assistPlayerId: g.assistPlayerId === "" ? null : Number(g.assistPlayerId),
-          side: "csa" as const,
-        })),
-        cards: cards.map((c) => ({
-          cardType: c.cardType,
-          playerId: Number(c.playerId),
-          minute: Number(c.minute),
-          injuryTimeMinute: c.injuryTimeMinute === "" ? null : Number(c.injuryTimeMinute),
-          side: "csa" as const,
-        })),
-        substitutions: subs.map((s) => ({
-          playerOutId: Number(s.playerOutId),
-          playerInId: Number(s.playerInId),
-          minute: Number(s.minute),
-          injuryTimeMinute:
-            s.injuryTimeMinute === "" ? null : Number(s.injuryTimeMinute),
-          side: "csa" as const,
-        })),
+        lineups: sorted,
+        managerId: managerIdDraft === "" ? null : Number(managerIdDraft),
       };
-
-      const r = await adminFetch(`/admin/matches/${matchId}/sheet`, {
+      const r = await adminFetch(`/admin/matches/${matchId}/sheet/lineup`, {
         method: "PUT",
         body: JSON.stringify(body),
       });
       if (!r.ok) {
         const err = await r.json().catch(() => ({}));
-        throw new Error((err as any).error ?? "Erro ao salvar");
+        throw new Error((err as { error?: string }).error ?? "Erro ao salvar escalação");
       }
-      setSavedMsg("Ficha CSA salva.");
-      await load();
+      const sheet = (await r.json()) as SheetResponse;
+      applySheetLineups(sheet, sheet.managerId);
+      if (match) setMatch({ ...match, managerId: sheet.managerId });
+      setSavedMsg("Escalação salva.");
     } catch (e: any) {
-      setError(e.message ?? "Erro ao salvar");
+      setError(e.message ?? "Erro ao salvar escalação");
     }
-    setSaving(false);
+    setSavingLineup(false);
+  }
+
+  async function saveEvents() {
+    if (matchId == null) return;
+    setSavingEvents(true);
+    setError("");
+    setSavedMsg("");
+    try {
+      const goals: Record<string, unknown>[] = [];
+      const assists: Record<string, unknown>[] = [];
+      const cards: Record<string, unknown>[] = [];
+      const managerCardsPayload: Record<string, unknown>[] = [];
+
+      for (const row of goalRows) {
+        if (!row.playerId && !row.minute) continue;
+        if (!row.minute) throw new Error("Informe o minuto de todos os gols preenchidos.");
+        if (!row.isOwnGoal && !row.playerId) {
+          throw new Error("Selecione o autor do gol ou marque g.c.");
+        }
+        goals.push({
+          scorerPlayerId: row.playerId ? Number(row.playerId) : null,
+          minute: Number(row.minute),
+          injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
+          isPenalty: row.isPenalty && !row.isOwnGoal,
+          isOwnGoal: row.isOwnGoal,
+          ownGoalDirection: row.isOwnGoal ? "for" : null,
+        });
+      }
+
+      for (const row of redRows) {
+        if (!row.playerId && !row.minute) continue;
+        if (!row.playerId || !row.minute) throw new Error("Cartão vermelho precisa de jogador e minuto.");
+        cards.push({
+          cardType: "red",
+          playerId: Number(row.playerId),
+          minute: Number(row.minute),
+          injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
+        });
+      }
+      for (const row of yellowRows) {
+        if (!row.playerId && !row.minute) continue;
+        if (!row.playerId || !row.minute) throw new Error("Cartão amarelo precisa de jogador e minuto.");
+        cards.push({
+          cardType: "yellow",
+          playerId: Number(row.playerId),
+          minute: Number(row.minute),
+          injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
+        });
+      }
+      for (const row of assistRows) {
+        if (!row.playerId && !row.minute) continue;
+        if (!row.playerId || !row.minute) throw new Error("Assistência precisa de jogador e minuto.");
+        assists.push({
+          assistPlayerId: Number(row.playerId),
+          minute: Number(row.minute),
+          injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
+        });
+      }
+      if (gpdRow.minute || gpdRow.playerId) {
+        if (!gpdRow.minute || !gpdRow.playerId) {
+          throw new Error("GPD (gol contra desfavorável) precisa de jogador e minuto.");
+        }
+        goals.push({
+          scorerPlayerId: Number(gpdRow.playerId),
+          minute: Number(gpdRow.minute),
+          injuryTimeMinute: gpdRow.injuryTimeMinute ? Number(gpdRow.injuryTimeMinute) : null,
+          isOwnGoal: true,
+          ownGoalDirection: "against",
+        });
+      }
+      if (gpfRow.minute || gpfRow.playerId) {
+        if (!gpfRow.minute) throw new Error("GPF (gol contra a favor) precisa de minuto.");
+        goals.push({
+          scorerPlayerId: gpfRow.playerId ? Number(gpfRow.playerId) : null,
+          minute: Number(gpfRow.minute),
+          injuryTimeMinute: gpfRow.injuryTimeMinute ? Number(gpfRow.injuryTimeMinute) : null,
+          isOwnGoal: true,
+          ownGoalDirection: "for",
+        });
+      }
+      for (const row of managerCardRows) {
+        if (!row.minute) continue;
+        managerCardsPayload.push({
+          cardType: row.cardType,
+          minute: Number(row.minute),
+          injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
+        });
+      }
+
+      const body: Record<string, unknown> = {
+        goals,
+        assists,
+        cards,
+        managerCards: managerCardsPayload,
+      };
+      // Only send captainPlayerId when the C field was actually filled in this
+      // batch — the field always starts blank, so leaving it blank must never
+      // wipe out a captain saved previously.
+      if (captainDraft) body.captainPlayerId = Number(captainDraft);
+
+      const r = await adminFetch(`/admin/matches/${matchId}/sheet/events`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error((err as { error?: string }).error ?? "Erro ao gravar eventos");
+      }
+      const sheet = (await r.json()) as SheetResponse;
+      applySheetEvents(sheet);
+      resetEventForms();
+      setSavedMsg("Eventos gravados.");
+    } catch (e: any) {
+      setError(e.message ?? "Erro ao gravar eventos");
+    }
+    setSavingEvents(false);
+  }
+
+  async function deleteGoal(id: number) {
+    if (matchId == null) return;
+    setError("");
+    const r = await adminFetch(`/admin/matches/${matchId}/sheet/goals/${id}`, { method: "DELETE" });
+    if (r.ok) {
+      applySheetEvents((await r.json()) as SheetResponse);
+    } else {
+      const err = await r.json().catch(() => ({}));
+      setError((err as { error?: string }).error ?? "Erro ao excluir gol");
+    }
+  }
+
+  async function deleteCard(id: number) {
+    if (matchId == null) return;
+    setError("");
+    const r = await adminFetch(`/admin/matches/${matchId}/sheet/cards/${id}`, { method: "DELETE" });
+    if (r.ok) {
+      applySheetEvents((await r.json()) as SheetResponse);
+    } else {
+      const err = await r.json().catch(() => ({}));
+      setError((err as { error?: string }).error ?? "Erro ao excluir cartão");
+    }
+  }
+
+  async function deleteManagerCard(id: number) {
+    if (matchId == null) return;
+    setError("");
+    const r = await adminFetch(`/admin/matches/${matchId}/sheet/manager-cards/${id}`, {
+      method: "DELETE",
+    });
+    if (r.ok) {
+      applySheetEvents((await r.json()) as SheetResponse);
+    } else {
+      const err = await r.json().catch(() => ({}));
+      setError((err as { error?: string }).error ?? "Erro ao excluir cartão do técnico");
+    }
+  }
+
+  async function saveSubs() {
+    if (matchId == null) return;
+    setSavingSubs(true);
+    setError("");
+    setSavedMsg("");
+    try {
+      const substitutions = subRows
+        .filter((s) => s.playerOutId || s.playerInId || s.minute)
+        .map((s) => {
+          if (!s.playerOutId || !s.playerInId || !s.minute) {
+            throw new Error(
+              "Cada substituição preenchida precisa de quem saiu, quem entrou e o minuto.",
+            );
+          }
+          return {
+            playerOutId: Number(s.playerOutId),
+            playerInId: Number(s.playerInId),
+            minute: Number(s.minute),
+            injuryTimeMinute: s.injuryTimeMinute ? Number(s.injuryTimeMinute) : null,
+          };
+        });
+      const r = await adminFetch(`/admin/matches/${matchId}/sheet/substitutions`, {
+        method: "PUT",
+        body: JSON.stringify({ substitutions }),
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error((err as { error?: string }).error ?? "Erro ao salvar substituições");
+      }
+      const sheet = (await r.json()) as SheetResponse;
+      setSubRows(buildSubRows(sheet.substitutions ?? []));
+      setSavedMsg("Substituições salvas.");
+    } catch (e: any) {
+      setError(e.message ?? "Erro ao salvar substituições");
+    }
+    setSavingSubs(false);
   }
 
   if (loading) {
@@ -452,32 +822,17 @@ export default function AdminMatchSheet() {
     return <p className="text-sm text-red-600">Erro ao carregar lookups</p>;
   }
 
-  const selectCls = "w-full border rounded px-2 py-1.5 text-sm bg-white";
-  const sheetGoalCount = goals.length;
-  const goalsMismatch =
-    match != null && match.goalsFor != null && sheetGoalCount !== Number(match.goalsFor);
-
-  const tabs: { id: TabId; label: string; count?: number }[] = isNew
+  const tabs: { id: TabId; label: string }[] = isNew
     ? [{ id: "general", label: "Dados Gerais" }]
     : [
         { id: "general", label: "Dados Gerais" },
-        { id: "manager", label: "Técnico" },
-        { id: "lineup", label: "Escalação", count: lineups.length },
-        { id: "goals", label: "Gols", count: goals.length },
-        { id: "cards", label: "Cartões", count: cards.length },
-        { id: "subs", label: "Substituições", count: subs.length },
+        { id: "lineup", label: "Escalação" },
+        { id: "events", label: "Eventos" },
+        { id: "subs", label: "Substituições" },
       ];
 
-  const sheetTabs: TabId[] = ["lineup", "goals", "cards", "subs"];
-  const showSheetFooter = !isNew && sheetTabs.includes(tab);
-
-  const showSoftBanner =
-    !isNew &&
-    match != null &&
-    (starters.length !== 11 || goalsMismatch || softSubWarnings.length > 0);
-
   return (
-    <div className={`space-y-4 ${showSheetFooter ? "pb-20" : "pb-6"}`}>
+    <div className="space-y-4 pb-10">
       <div>
         <Link
           href="/admin/partidas"
@@ -488,7 +843,7 @@ export default function AdminMatchSheet() {
         <h1 className="text-xl font-bold text-gray-900">
           {isNew
             ? "Nova partida"
-            : `CSA ${match!.goalsFor}–${match!.goalsAgainst} ${match!.opponentName}`}
+            : `CSA ${match!.goalsFor ?? "-"}–${match!.goalsAgainst ?? "-"} ${match!.opponentName}`}
         </h1>
         {!isNew && match && (
           <p className="text-sm text-gray-500 mt-1">
@@ -502,29 +857,9 @@ export default function AdminMatchSheet() {
         <p className="text-xs text-gray-400 mt-1">
           {isNew
             ? "Preencha os dados gerais e salve para liberar a ficha CSA."
-            : "Dados gerais e técnico salvam separados. Escalação, gols, cartões e substituições salvam juntos na ficha CSA."}
+            : "Dados gerais salvam separados. Escalação (com técnico) salva junto. Eventos são adicionados aos já salvos, um lote por vez. Substituições salvam à parte."}
         </p>
       </div>
-
-      {showSoftBanner && (
-        <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 space-y-1">
-          {starters.length !== 11 && (
-            <p>
-              Aviso: {starters.length} titulares (o usual é 11). Pode salvar mesmo assim.
-            </p>
-          )}
-          {goalsMismatch && match && (
-            <p>
-              Aviso: {sheetGoalCount} gol(s) na ficha ≠ placar da partida ({match.goalsFor}{" "}
-              gol(s) do CSA). Pode salvar mesmo assim — o placar oficial continua sendo o da
-              partida.
-            </p>
-          )}
-          {softSubWarnings.map((w, i) => (
-            <p key={`sub-warn-${i}`}>Aviso: {w} Pode salvar mesmo assim.</p>
-          ))}
-        </div>
-      )}
 
       <div className="flex gap-1 border-b">
         {tabs.map((t) => (
@@ -539,9 +874,6 @@ export default function AdminMatchSheet() {
             }`}
           >
             {t.label}
-            {typeof t.count === "number" && (
-              <span className="ml-1.5 text-xs text-gray-400">({t.count})</span>
-            )}
           </button>
         ))}
       </div>
@@ -557,14 +889,103 @@ export default function AdminMatchSheet() {
         />
       )}
 
-      {tab === "manager" && match && (
-        <div className="space-y-4 max-w-md">
-          <div>
+      {tab === "lineup" && match && (
+        <section className="bg-white border rounded-lg p-4 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">CSA</h2>
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-semibold text-gray-500 uppercase">
+                Temporada do elenco
+              </label>
+              <select
+                className="border rounded px-2 py-1.5 text-sm bg-white"
+                value={rosterSeason}
+                onChange={(e) => changeRosterSeason(e.target.value)}
+              >
+                {rosterSeason && !seasons.includes(rosterSeason) && (
+                  <option value={rosterSeason}>{rosterSeason}</option>
+                )}
+                {seasons.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <p className="text-xs text-gray-400">
+            {starterIds.size} titulares · {benchIds.size} reservas
+            {starterIds.size !== 11 && (
+              <span className="text-amber-600"> — aviso: o usual são 11 titulares</span>
+            )}
+          </p>
+
+          <div className="border rounded overflow-hidden overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-100 text-left text-[11px] uppercase text-gray-500">
+                  <th className="px-2 py-2 w-14">N.</th>
+                  <th className="px-2 py-2">Jogador</th>
+                  <th className="px-2 py-2 w-16">Pos</th>
+                  <th className="px-2 py-2 w-14 text-center">Tit.</th>
+                  <th className="px-2 py-2 w-14 text-center">Res.</th>
+                </tr>
+              </thead>
+              <tbody>
+                {escalacaoRows.map((row, i) => (
+                  <tr key={row.playerId} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                    <td className="px-2 py-1.5">
+                      <Input
+                        className="w-14 h-8 text-center"
+                        value={shirtValueFor(row.playerId)}
+                        onChange={(e) =>
+                          setShirtNumbers((prev) => ({ ...prev, [row.playerId]: e.target.value }))
+                        }
+                      />
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <PlayerFlag nationality={row.nationality} flag={row.nationalityFlag} />
+                      <span className="font-medium">{row.playerName}</span>
+                    </td>
+                    <td className="px-2 py-1.5 text-xs text-gray-500">
+                      {shortPositionCode(row.position)}
+                    </td>
+                    <td className="px-2 py-1.5 text-center">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 accent-[#1B3A6B]"
+                        checked={starterIds.has(row.playerId)}
+                        onChange={(e) => handleTitChange(row.playerId, e.target.checked)}
+                      />
+                    </td>
+                    <td className="px-2 py-1.5 text-center">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 accent-[#1B3A6B]"
+                        checked={benchIds.has(row.playerId)}
+                        onChange={(e) => handleResChange(row.playerId, e.target.checked)}
+                      />
+                    </td>
+                  </tr>
+                ))}
+                {escalacaoRows.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-2 py-4 text-center text-xs text-gray-400">
+                      Nenhum jogador na temporada selecionada.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="max-w-xs">
             <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
               Técnico
             </label>
             <select
-              className="w-full border rounded px-3 py-2 text-sm bg-white"
+              className={selectCls}
               value={managerIdDraft}
               onChange={(e) => {
                 setManagerIdDraft(e.target.value);
@@ -579,604 +1000,635 @@ export default function AdminMatchSheet() {
               ))}
             </select>
           </div>
-          <Button
-            type="button"
-            className="bg-[#1B3A6B]"
-            disabled={
-              savingManager ||
-              (managerIdDraft === ""
-                ? match.managerId == null
-                : Number(managerIdDraft) === match.managerId)
-            }
-            onClick={saveManager}
-          >
-            {savingManager ? "Salvando…" : "Salvar técnico"}
+
+          <Button type="button" className="bg-[#1B3A6B]" onClick={saveEscalacao} disabled={savingLineup}>
+            {savingLineup ? "Salvando…" : "Salvar Escalação"}
           </Button>
-        </div>
+        </section>
       )}
 
-      {tab === "lineup" && match && (
-      <section className="bg-white border rounded-lg p-4 space-y-4">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
+      {tab === "events" && match && (
+        <div className="space-y-6">
+          <section className="bg-white border rounded-lg p-4 space-y-3">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-              Escalação CSA
+              Eventos - CSA
             </h2>
-            <p className="text-xs text-gray-400 mt-0.5">
-              {starters.length} titulares · {bench.length} reservas
-            </p>
-          </div>
-          <Input
-            placeholder="Buscar jogador por nome (fallback)..."
-            value={search}
-            onChange={(e) => searchRoster(e.target.value)}
-            className="max-w-xs"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div>
-            <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">Titulares</h3>
-            <div className="border rounded divide-y max-h-72 overflow-auto">
-              {starters.length === 0 && (
-                <p className="text-xs text-gray-400 p-3">Nenhum titular selecionado</p>
-              )}
-              {starters.map((l) => (
-                <div key={l.playerId} className="p-2 flex flex-wrap items-center gap-2 text-sm">
-                  <span className="font-medium min-w-[8rem] flex-1">{l.playerName}</span>
-                  <Input
-                    className="w-14 h-8"
-                    placeholder="#"
-                    value={l.shirtNumber}
-                    onChange={(e) => updateLineup(l.playerId, { shirtNumber: e.target.value })}
-                  />
-                  <Input
-                    className="w-20 h-8"
-                    placeholder="Pos"
-                    value={l.position}
-                    onChange={(e) => updateLineup(l.playerId, { position: e.target.value })}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setPlayerRole(
-                        { id: l.playerId, name: l.playerName, position: l.position, appearances: 0, goals: 0, assists: 0, inSeason: true },
-                        "bench",
-                      )
-                    }
-                  >
-                    → Reserva
-                  </Button>
-                  <button
-                    type="button"
-                    className="p-1 text-gray-400 hover:text-red-600"
-                    onClick={() =>
-                      setPlayerRole(
-                        { id: l.playerId, name: l.playerName, position: l.position, appearances: 0, goals: 0, assists: 0, inSeason: true },
-                        "out",
-                      )
-                    }
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">Reservas</h3>
-            <div className="border rounded divide-y max-h-72 overflow-auto">
-              {bench.length === 0 && (
-                <p className="text-xs text-gray-400 p-3">Nenhuma reserva selecionada</p>
-              )}
-              {bench.map((l) => (
-                <div key={l.playerId} className="p-2 flex flex-wrap items-center gap-2 text-sm">
-                  <span className="font-medium min-w-[8rem] flex-1">{l.playerName}</span>
-                  <Input
-                    className="w-14 h-8"
-                    placeholder="#"
-                    value={l.shirtNumber}
-                    onChange={(e) => updateLineup(l.playerId, { shirtNumber: e.target.value })}
-                  />
-                  <Input
-                    className="w-20 h-8"
-                    placeholder="Pos"
-                    value={l.position}
-                    onChange={(e) => updateLineup(l.playerId, { position: e.target.value })}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setPlayerRole(
-                        { id: l.playerId, name: l.playerName, position: l.position, appearances: 0, goals: 0, assists: 0, inSeason: true },
-                        "starter",
-                      )
-                    }
-                  >
-                    → Titular
-                  </Button>
-                  <button
-                    type="button"
-                    className="p-1 text-gray-400 hover:text-red-600"
-                    onClick={() =>
-                      setPlayerRole(
-                        { id: l.playerId, name: l.playerName, position: l.position, appearances: 0, goals: 0, assists: 0, inSeason: true },
-                        "out",
-                      )
-                    }
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">
-            Elenco da temporada {match.season}
-          </h3>
-          <div className="border rounded max-h-72 overflow-auto">
-            {rosterByGroup.map(({ group, players }) => (
-              <div key={group}>
-                <div className="sticky top-0 z-[1] bg-gray-100 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 border-b border-t first:border-t-0">
-                  {group}
-                </div>
-                <div className="divide-y">
-                  {players.map((p) => {
-                    const current = lineupByPlayer.get(p.id);
-                    const role: LineupRole = current ? current.role : "out";
-                    return (
-                      <div
-                        key={p.id}
-                        className="px-3 py-2 flex flex-wrap items-center gap-2 text-sm hover:bg-gray-50"
-                      >
-                        <div className="min-w-[10rem] flex-1">
-                          <span className="font-medium">{p.name}</span>
-                          <span className="text-xs text-gray-400 ml-2">
-                            {p.position || "—"}
-                            {p.inSeason ? ` · ${p.appearances} j` : " · busca"}
-                          </span>
-                        </div>
-                        <div className="flex gap-1">
-                          {(["starter", "bench", "out"] as LineupRole[]).map((r) => (
-                            <button
-                              key={r}
-                              type="button"
-                              onClick={() => setPlayerRole(p, r)}
-                              className={`px-2 py-1 rounded text-xs border ${
-                                role === r
-                                  ? "bg-[#1B3A6B] text-white border-[#1B3A6B]"
-                                  : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
-                              }`}
-                            >
-                              {r === "starter" ? "Titular" : r === "bench" ? "Reserva" : "Fora"}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-            {roster.length === 0 && (
-              <p className="text-xs text-gray-400 p-3">
-                Nenhum jogador na temporada. Use a busca por nome.
+            {lineupOptions.length === 0 && (
+              <p className="text-xs text-gray-400">
+                Escale jogadores (Tit. ou Res.) na aba Escalação antes de cadastrar eventos.
               </p>
             )}
-          </div>
-        </div>
-      </section>
-      )}
+            <div className="border rounded overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-100 text-left text-[11px] uppercase text-gray-500">
+                    <th className="px-2 py-2 w-10"></th>
+                    <th className="px-2 py-2 min-w-[10rem]">Jogador</th>
+                    <th className="px-2 py-2 w-20">Min</th>
+                    <th className="px-2 py-2 w-28">Min Acrésc.</th>
+                    <th className="px-2 py-2 w-14 text-center">g.c.</th>
+                    <th className="px-2 py-2 w-14 text-center">Pen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {goalRows.map((row, i) => (
+                    <tr key={`goal-${i}`} className="border-t">
+                      <td className="px-2 py-1.5 text-center">⚽</td>
+                      <td className="px-2 py-1.5">
+                        <select
+                          className={selectCls}
+                          value={row.playerId}
+                          onChange={(e) =>
+                            setGoalRows((rows) => patchAt(rows, i, { playerId: e.target.value }))
+                          }
+                        >
+                          <option value="">(Nenhum)</option>
+                          {lineupOptions.map((p) => (
+                            <option key={p.playerId} value={p.playerId}>
+                              {p.playerName}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.minute}
+                          onChange={(e) =>
+                            setGoalRows((rows) => patchAt(rows, i, { minute: e.target.value }))
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.injuryTimeMinute}
+                          onChange={(e) =>
+                            setGoalRows((rows) =>
+                              patchAt(rows, i, { injuryTimeMinute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5 text-center">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4"
+                          checked={row.isOwnGoal}
+                          onChange={(e) =>
+                            setGoalRows((rows) =>
+                              patchAt(rows, i, {
+                                isOwnGoal: e.target.checked,
+                                isPenalty: e.target.checked ? false : row.isPenalty,
+                              }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5 text-center">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4"
+                          checked={row.isPenalty}
+                          disabled={row.isOwnGoal}
+                          onChange={(e) =>
+                            setGoalRows((rows) => patchAt(rows, i, { isPenalty: e.target.checked }))
+                          }
+                        />
+                      </td>
+                    </tr>
+                  ))}
 
-      {tab === "goals" && match && (
-      <section className="bg-white border rounded-lg p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">Gols CSA</h2>
-            <p className="text-xs text-gray-400 mt-0.5">
-              {sheetGoalCount} na ficha · placar CSA: {match.goalsFor}
+                  {redRows.map((row, i) => (
+                    <tr key={`red-${i}`} className="border-t bg-red-50">
+                      <td className="px-2 py-1.5 text-center">
+                        <span className="inline-block w-3 h-4 rounded-sm bg-red-600" />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <select
+                          className={selectCls}
+                          value={row.playerId}
+                          onChange={(e) =>
+                            setRedRows((rows) => patchAt(rows, i, { playerId: e.target.value }))
+                          }
+                        >
+                          <option value="">(Nenhum)</option>
+                          {lineupOptions.map((p) => (
+                            <option key={p.playerId} value={p.playerId}>
+                              {p.playerName}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.minute}
+                          onChange={(e) =>
+                            setRedRows((rows) => patchAt(rows, i, { minute: e.target.value }))
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.injuryTimeMinute}
+                          onChange={(e) =>
+                            setRedRows((rows) =>
+                              patchAt(rows, i, { injuryTimeMinute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5"></td>
+                      <td className="px-2 py-1.5"></td>
+                    </tr>
+                  ))}
+
+                  {yellowRows.map((row, i) => (
+                    <tr key={`yellow-${i}`} className="border-t bg-yellow-50">
+                      <td className="px-2 py-1.5 text-center">
+                        <span className="inline-block w-3 h-4 rounded-sm bg-yellow-400" />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <select
+                          className={selectCls}
+                          value={row.playerId}
+                          onChange={(e) =>
+                            setYellowRows((rows) => patchAt(rows, i, { playerId: e.target.value }))
+                          }
+                        >
+                          <option value="">(Nenhum)</option>
+                          {lineupOptions.map((p) => (
+                            <option key={p.playerId} value={p.playerId}>
+                              {p.playerName}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.minute}
+                          onChange={(e) =>
+                            setYellowRows((rows) => patchAt(rows, i, { minute: e.target.value }))
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.injuryTimeMinute}
+                          onChange={(e) =>
+                            setYellowRows((rows) =>
+                              patchAt(rows, i, { injuryTimeMinute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5"></td>
+                      <td className="px-2 py-1.5"></td>
+                    </tr>
+                  ))}
+
+                  {assistRows.map((row, i) => (
+                    <tr key={`assist-${i}`} className="border-t">
+                      <td className="px-2 py-1.5 text-center text-[10px] font-semibold text-gray-500">
+                        ASS:
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <select
+                          className={selectCls}
+                          value={row.playerId}
+                          onChange={(e) =>
+                            setAssistRows((rows) => patchAt(rows, i, { playerId: e.target.value }))
+                          }
+                        >
+                          <option value="">(Nenhum)</option>
+                          {lineupOptions.map((p) => (
+                            <option key={p.playerId} value={p.playerId}>
+                              {p.playerName}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.minute}
+                          onChange={(e) =>
+                            setAssistRows((rows) => patchAt(rows, i, { minute: e.target.value }))
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.injuryTimeMinute}
+                          onChange={(e) =>
+                            setAssistRows((rows) =>
+                              patchAt(rows, i, { injuryTimeMinute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5"></td>
+                      <td className="px-2 py-1.5"></td>
+                    </tr>
+                  ))}
+
+                  <tr className="border-t">
+                    <td className="px-2 py-1.5 text-center text-[10px] font-semibold text-gray-500">
+                      GPD:
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <select
+                        className={selectCls}
+                        value={gpdRow.playerId}
+                        onChange={(e) => setGpdRow((r) => ({ ...r, playerId: e.target.value }))}
+                      >
+                        <option value="">(Nenhum)</option>
+                        {lineupOptions.map((p) => (
+                          <option key={p.playerId} value={p.playerId}>
+                            {p.playerName}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <Input
+                        className="h-8"
+                        value={gpdRow.minute}
+                        onChange={(e) => setGpdRow((r) => ({ ...r, minute: e.target.value }))}
+                      />
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <Input
+                        className="h-8"
+                        value={gpdRow.injuryTimeMinute}
+                        onChange={(e) =>
+                          setGpdRow((r) => ({ ...r, injuryTimeMinute: e.target.value }))
+                        }
+                      />
+                    </td>
+                    <td className="px-2 py-1.5"></td>
+                    <td className="px-2 py-1.5"></td>
+                  </tr>
+
+                  <tr className="border-t">
+                    <td className="px-2 py-1.5 text-center text-[10px] font-semibold text-gray-500">
+                      GPF:
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <select
+                        className={selectCls}
+                        value={gpfRow.playerId}
+                        onChange={(e) => setGpfRow((r) => ({ ...r, playerId: e.target.value }))}
+                      >
+                        <option value="">(Nenhum)</option>
+                        {lineupOptions.map((p) => (
+                          <option key={p.playerId} value={p.playerId}>
+                            {p.playerName}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <Input
+                        className="h-8"
+                        value={gpfRow.minute}
+                        onChange={(e) => setGpfRow((r) => ({ ...r, minute: e.target.value }))}
+                      />
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <Input
+                        className="h-8"
+                        value={gpfRow.injuryTimeMinute}
+                        onChange={(e) =>
+                          setGpfRow((r) => ({ ...r, injuryTimeMinute: e.target.value }))
+                        }
+                      />
+                    </td>
+                    <td className="px-2 py-1.5"></td>
+                    <td className="px-2 py-1.5"></td>
+                  </tr>
+
+                  <tr className="border-t">
+                    <td className="px-2 py-1.5 text-center text-[10px] font-semibold text-gray-500">
+                      C:
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <select
+                        className={selectCls}
+                        value={captainDraft}
+                        onChange={(e) => setCaptainDraft(e.target.value)}
+                      >
+                        <option value="">(Nenhum)</option>
+                        {lineupOptions.map((p) => (
+                          <option key={p.playerId} value={p.playerId}>
+                            {p.playerName}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-2 py-1.5"></td>
+                    <td className="px-2 py-1.5"></td>
+                    <td className="px-2 py-1.5"></td>
+                    <td className="px-2 py-1.5"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section className="bg-white border rounded-lg p-4 space-y-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+              Eventos - Treinador
+            </h2>
+            <div className="border rounded overflow-x-auto max-w-md">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-100 text-left text-[11px] uppercase text-gray-500">
+                    <th className="px-2 py-2 w-14">Tipo</th>
+                    <th className="px-2 py-2">Min</th>
+                    <th className="px-2 py-2">Min Acrésc.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {managerCardRows.map((row, i) => (
+                    <tr
+                      key={i}
+                      className={`border-t ${row.cardType === "yellow" ? "bg-yellow-50" : "bg-red-50"}`}
+                    >
+                      <td className="px-2 py-1.5 text-center">
+                        <span
+                          className={`inline-block w-3 h-4 rounded-sm ${
+                            row.cardType === "yellow" ? "bg-yellow-400" : "bg-red-600"
+                          }`}
+                        />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.minute}
+                          onChange={(e) =>
+                            setManagerCardRows((rows) =>
+                              patchAt(rows, i, { minute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.injuryTimeMinute}
+                          onChange={(e) =>
+                            setManagerCardRows((rows) =>
+                              patchAt(rows, i, { injuryTimeMinute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <Button type="button" className="bg-[#1B3A6B]" onClick={saveEvents} disabled={savingEvents}>
+            {savingEvents ? "Gravando…" : "Grava Eventos"}
+          </Button>
+
+          <section className="bg-white border rounded-lg p-4 space-y-4">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+              Eventos registrados
+            </h2>
+            <p className="text-xs text-gray-600 flex items-center gap-2 flex-wrap">
+              <span>
+                Capitão: <span className="font-medium">{playerNameById(captainPlayerId)}</span>
+              </span>
+              {captainPlayerId != null && (
+                <button
+                  type="button"
+                  className="text-[11px] text-red-600 hover:underline"
+                  onClick={async () => {
+                    if (matchId == null) return;
+                    const r = await adminFetch(`/admin/matches/${matchId}/sheet/events`, {
+                      method: "POST",
+                      body: JSON.stringify({
+                        goals: [],
+                        assists: [],
+                        cards: [],
+                        managerCards: [],
+                        captainPlayerId: null,
+                      }),
+                    });
+                    if (r.ok) applySheetEvents((await r.json()) as SheetResponse);
+                    else {
+                      const err = await r.json().catch(() => ({}));
+                      setError((err as { error?: string }).error ?? "Erro ao limpar capitão");
+                    }
+                  }}
+                >
+                  Limpar
+                </button>
+              )}
             </p>
-          </div>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            disabled={lineups.length === 0}
-            onClick={() =>
-              setGoals((g) => [
-                ...g,
-                {
-                  key: uid(),
-                  scorerPlayerId: lineups[0] ? String(lineups[0].playerId) : "",
-                  minute: "",
-                  injuryTimeMinute: "",
-                  assistPlayerId: "",
-                },
-              ])
-            }
-          >
-            <Plus size={14} className="mr-1" /> Gol
-          </Button>
-        </div>
-        {lineups.length === 0 && (
-          <p className="text-xs text-gray-400">
-            Escale jogadores na aba Escalação antes de cadastrar gols.
-          </p>
-        )}
-        <div className="space-y-2">
-          {goals.map((g) => (
-            <div key={g.key} className="grid grid-cols-1 md:grid-cols-5 gap-2 items-end border rounded p-2">
-              <div>
-                <label className="text-[10px] uppercase text-gray-400">Autor</label>
-                <select
-                  className={selectCls}
-                  value={g.scorerPlayerId}
-                  onChange={(e) => {
-                    setSavedMsg("");
-                    setGoals((all) =>
-                      all.map((x) =>
-                        x.key === g.key ? { ...x, scorerPlayerId: e.target.value } : x,
-                      ),
-                    );
-                  }}
-                >
-                  <option value="">—</option>
-                  {lineups.map((l) => (
-                    <option key={l.playerId} value={l.playerId}>
-                      {l.playerName}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-[10px] uppercase text-gray-400">Minuto</label>
-                <Input
-                  value={g.minute}
-                  onChange={(e) => {
-                    setSavedMsg("");
-                    setGoals((all) =>
-                      all.map((x) => (x.key === g.key ? { ...x, minute: e.target.value } : x)),
-                    );
-                  }}
-                  placeholder="23"
-                />
-              </div>
-              <div>
-                <label className="text-[10px] uppercase text-gray-400">Acréscimo</label>
-                <Input
-                  value={g.injuryTimeMinute}
-                  onChange={(e) => {
-                    setSavedMsg("");
-                    setGoals((all) =>
-                      all.map((x) =>
-                        x.key === g.key ? { ...x, injuryTimeMinute: e.target.value } : x,
-                      ),
-                    );
-                  }}
-                  placeholder="ex: 2 → 45+2"
-                />
-              </div>
-              <div>
-                <label className="text-[10px] uppercase text-gray-400">Assistência</label>
-                <select
-                  className={selectCls}
-                  value={g.assistPlayerId}
-                  onChange={(e) => {
-                    setSavedMsg("");
-                    setGoals((all) =>
-                      all.map((x) =>
-                        x.key === g.key ? { ...x, assistPlayerId: e.target.value } : x,
-                      ),
-                    );
-                  }}
-                >
-                  <option value="">Sem assistência</option>
-                  {lineups
-                    .filter((l) => String(l.playerId) !== g.scorerPlayerId)
-                    .map((l) => (
-                      <option key={l.playerId} value={l.playerId}>
-                        {l.playerName}
-                      </option>
-                    ))}
-                </select>
-              </div>
-              <button
-                type="button"
-                className="justify-self-end p-2 text-gray-400 hover:text-red-600"
-                onClick={() => setGoals((all) => all.filter((x) => x.key !== g.key))}
-              >
-                <Trash2 size={14} />
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
-      )}
 
-      {tab === "cards" && match && (
-      <section className="bg-white border rounded-lg p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-            Cartões CSA
-          </h2>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            disabled={lineups.length === 0}
-            onClick={() =>
-              setCards((c) => [
-                ...c,
-                {
-                  key: uid(),
-                  cardType: "yellow",
-                  playerId: lineups[0] ? String(lineups[0].playerId) : "",
-                  minute: "",
-                  injuryTimeMinute: "",
-                },
-              ])
-            }
-          >
-            <Plus size={14} className="mr-1" /> Cartão
-          </Button>
-        </div>
-        {lineups.length === 0 && (
-          <p className="text-xs text-gray-400">
-            Escale jogadores na aba Escalação antes de cadastrar cartões.
-          </p>
-        )}
-        <div className="space-y-2">
-          {cards.map((c) => (
-            <div key={c.key} className="grid grid-cols-1 md:grid-cols-5 gap-2 items-end border rounded p-2">
-              <div>
-                <label className="text-[10px] uppercase text-gray-400">Tipo</label>
-                <select
-                  className={selectCls}
-                  value={c.cardType}
-                  onChange={(e) => {
-                    setSavedMsg("");
-                    setCards((all) =>
-                      all.map((x) =>
-                        x.key === c.key
-                          ? { ...x, cardType: e.target.value as "yellow" | "red" }
-                          : x,
-                      ),
-                    );
-                  }}
-                >
-                  <option value="yellow">Amarelo</option>
-                  <option value="red">Vermelho</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-[10px] uppercase text-gray-400">Jogador</label>
-                <select
-                  className={selectCls}
-                  value={c.playerId}
-                  onChange={(e) => {
-                    setSavedMsg("");
-                    setCards((all) =>
-                      all.map((x) => (x.key === c.key ? { ...x, playerId: e.target.value } : x)),
-                    );
-                  }}
-                >
-                  <option value="">—</option>
-                  {lineups.map((l) => (
-                    <option key={l.playerId} value={l.playerId}>
-                      {l.playerName}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-[10px] uppercase text-gray-400">Minuto</label>
-                <Input
-                  value={c.minute}
-                  onChange={(e) => {
-                    setSavedMsg("");
-                    setCards((all) =>
-                      all.map((x) => (x.key === c.key ? { ...x, minute: e.target.value } : x)),
-                    );
-                  }}
-                />
-              </div>
-              <div>
-                <label className="text-[10px] uppercase text-gray-400">Acréscimo</label>
-                <Input
-                  value={c.injuryTimeMinute}
-                  onChange={(e) => {
-                    setSavedMsg("");
-                    setCards((all) =>
-                      all.map((x) =>
-                        x.key === c.key ? { ...x, injuryTimeMinute: e.target.value } : x,
-                      ),
-                    );
-                  }}
-                />
-              </div>
-              <button
-                type="button"
-                className="justify-self-end p-2 text-gray-400 hover:text-red-600"
-                onClick={() => setCards((all) => all.filter((x) => x.key !== c.key))}
-              >
-                <Trash2 size={14} />
-              </button>
+            <div>
+              <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">
+                Gols ({sheetGoals.length})
+              </h3>
+              <ul className="divide-y border rounded">
+                {sheetGoals.map((g) => (
+                  <li key={g.id} className="flex items-center justify-between gap-2 px-3 py-2 text-sm">
+                    <span>
+                      {g.minute}
+                      {g.injuryTimeMinute ? `+${g.injuryTimeMinute}` : ""}&apos;{" "}
+                      {g.isOwnGoal ? "Gol contra" : (g.scorerName ?? "—")}
+                      {g.isPenalty && (
+                        <span className="ml-1 text-[10px] uppercase text-gray-400">(Pênalti)</span>
+                      )}
+                      {g.isOwnGoal && (
+                        <span className="ml-1 text-[10px] uppercase text-gray-400">
+                          ({g.ownGoalDirection === "for" ? "a favor" : "contra"})
+                        </span>
+                      )}
+                      {g.assistName && (
+                        <span className="ml-1 text-xs text-gray-400">assist.: {g.assistName}</span>
+                      )}
+                    </span>
+                    <button
+                      type="button"
+                      className="p-1 text-gray-400 hover:text-red-600 shrink-0"
+                      onClick={() => deleteGoal(g.id)}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </li>
+                ))}
+                {sheetGoals.length === 0 && (
+                  <li className="px-3 py-2 text-xs text-gray-400">Nenhum gol registrado</li>
+                )}
+              </ul>
             </div>
-          ))}
+
+            <div>
+              <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">
+                Cartões ({sheetCards.length})
+              </h3>
+              <ul className="divide-y border rounded">
+                {sheetCards.map((c) => (
+                  <li key={c.id} className="flex items-center justify-between gap-2 px-3 py-2 text-sm">
+                    <span>
+                      {c.minute}
+                      {c.injuryTimeMinute ? `+${c.injuryTimeMinute}` : ""}&apos;{" "}
+                      <span
+                        className={`inline-block w-2.5 h-3.5 rounded-sm align-middle mr-1 ${
+                          c.cardType === "red" ? "bg-red-600" : "bg-yellow-400"
+                        }`}
+                      />
+                      {c.playerName ?? "—"}
+                    </span>
+                    <button
+                      type="button"
+                      className="p-1 text-gray-400 hover:text-red-600 shrink-0"
+                      onClick={() => deleteCard(c.id)}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </li>
+                ))}
+                {sheetCards.length === 0 && (
+                  <li className="px-3 py-2 text-xs text-gray-400">Nenhum cartão registrado</li>
+                )}
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">
+                Cartões do técnico ({sheetManagerCards.length})
+              </h3>
+              <ul className="divide-y border rounded">
+                {sheetManagerCards.map((c) => (
+                  <li key={c.id} className="flex items-center justify-between gap-2 px-3 py-2 text-sm">
+                    <span>
+                      {c.minute}
+                      {c.injuryTimeMinute ? `+${c.injuryTimeMinute}` : ""}&apos;{" "}
+                      <span
+                        className={`inline-block w-2.5 h-3.5 rounded-sm align-middle mr-1 ${
+                          c.cardType === "red" ? "bg-red-600" : "bg-yellow-400"
+                        }`}
+                      />
+                      Técnico
+                    </span>
+                    <button
+                      type="button"
+                      className="p-1 text-gray-400 hover:text-red-600 shrink-0"
+                      onClick={() => deleteManagerCard(c.id)}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </li>
+                ))}
+                {sheetManagerCards.length === 0 && (
+                  <li className="px-3 py-2 text-xs text-gray-400">Nenhum cartão do técnico registrado</li>
+                )}
+              </ul>
+            </div>
+          </section>
         </div>
-      </section>
       )}
 
       {tab === "subs" && match && (
-      <section className="bg-white border rounded-lg p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-              Substituições CSA
-            </h2>
-            <p className="text-xs text-gray-400 mt-0.5">
-              {subs.length} substituição(ões) · o usual é titular sair e reserva entrar
+        <section className="bg-white border rounded-lg p-4 space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+            Substituições CSA
+          </h2>
+          {lineupOptions.length === 0 && (
+            <p className="text-xs text-gray-400">
+              Escale jogadores (Tit. ou Res.) na aba Escalação antes de cadastrar substituições.
             </p>
+          )}
+          <div className="border rounded overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-100 text-left text-[11px] uppercase text-gray-500">
+                  <th className="px-2 py-2 min-w-[9rem]">Saiu</th>
+                  <th className="px-2 py-2 min-w-[9rem]">Entrou</th>
+                  <th className="px-2 py-2 w-20">Min</th>
+                  <th className="px-2 py-2 w-28">Min Acrésc.</th>
+                </tr>
+              </thead>
+              <tbody>
+                {subRows.map((row, i) => (
+                  <tr key={i} className={i % 2 === 0 ? "bg-white border-t" : "bg-gray-50 border-t"}>
+                    <td className="px-2 py-1.5">
+                      <select
+                        className={selectCls}
+                        value={row.playerOutId}
+                        onChange={(e) =>
+                          setSubRows((rows) => patchAt(rows, i, { playerOutId: e.target.value }))
+                        }
+                      >
+                        <option value="">(Nenhum)</option>
+                        {lineupOptions.map((p) => (
+                          <option key={p.playerId} value={p.playerId}>
+                            {p.playerName}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <select
+                        className={selectCls}
+                        value={row.playerInId}
+                        onChange={(e) =>
+                          setSubRows((rows) => patchAt(rows, i, { playerInId: e.target.value }))
+                        }
+                      >
+                        <option value="">(Nenhum)</option>
+                        {lineupOptions.map((p) => (
+                          <option key={p.playerId} value={p.playerId}>
+                            {p.playerName}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <Input
+                        className="h-8"
+                        value={row.minute}
+                        onChange={(e) =>
+                          setSubRows((rows) => patchAt(rows, i, { minute: e.target.value }))
+                        }
+                      />
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <Input
+                        className="h-8"
+                        value={row.injuryTimeMinute}
+                        onChange={(e) =>
+                          setSubRows((rows) =>
+                            patchAt(rows, i, { injuryTimeMinute: e.target.value }),
+                          )
+                        }
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            disabled={lineups.length < 2}
-            onClick={() =>
-              setSubs((s) => [
-                ...s,
-                {
-                  key: uid(),
-                  playerOutId: starters[0]
-                    ? String(starters[0].playerId)
-                    : lineups[0]
-                      ? String(lineups[0].playerId)
-                      : "",
-                  playerInId: bench[0]
-                    ? String(bench[0].playerId)
-                    : lineups[1]
-                      ? String(lineups[1].playerId)
-                      : "",
-                  minute: "",
-                  injuryTimeMinute: "",
-                },
-              ])
-            }
-          >
-            <Plus size={14} className="mr-1" /> Substituição
+          <Button type="button" className="bg-[#1B3A6B]" onClick={saveSubs} disabled={savingSubs}>
+            {savingSubs ? "Salvando…" : "Salvar Substituições"}
           </Button>
-        </div>
-        {lineups.length === 0 && (
-          <p className="text-xs text-gray-400">
-            Escale jogadores na aba Escalação antes de cadastrar substituições.
-          </p>
-        )}
-        <div className="space-y-2">
-          {subs.map((s) => (
-            <div
-              key={s.key}
-              className="grid grid-cols-1 md:grid-cols-5 gap-2 items-end border rounded p-2"
-            >
-              <div>
-                <label className="text-[10px] uppercase text-gray-400">Saiu ↓</label>
-                <select
-                  className={selectCls}
-                  value={s.playerOutId}
-                  onChange={(e) => {
-                    setSavedMsg("");
-                    setSubs((all) =>
-                      all.map((x) =>
-                        x.key === s.key ? { ...x, playerOutId: e.target.value } : x,
-                      ),
-                    );
-                  }}
-                >
-                  <option value="">—</option>
-                  {lineups.map((l) => (
-                    <option key={l.playerId} value={l.playerId}>
-                      {l.playerName}
-                      {l.role === "starter" ? " (T)" : " (R)"}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-[10px] uppercase text-gray-400">Entrou ↑</label>
-                <select
-                  className={selectCls}
-                  value={s.playerInId}
-                  onChange={(e) => {
-                    setSavedMsg("");
-                    setSubs((all) =>
-                      all.map((x) =>
-                        x.key === s.key ? { ...x, playerInId: e.target.value } : x,
-                      ),
-                    );
-                  }}
-                >
-                  <option value="">—</option>
-                  {lineups
-                    .filter((l) => String(l.playerId) !== s.playerOutId)
-                    .map((l) => (
-                      <option key={l.playerId} value={l.playerId}>
-                        {l.playerName}
-                        {l.role === "starter" ? " (T)" : " (R)"}
-                      </option>
-                    ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-[10px] uppercase text-gray-400">Minuto</label>
-                <Input
-                  value={s.minute}
-                  onChange={(e) => {
-                    setSavedMsg("");
-                    setSubs((all) =>
-                      all.map((x) =>
-                        x.key === s.key ? { ...x, minute: e.target.value } : x,
-                      ),
-                    );
-                  }}
-                  placeholder="67"
-                />
-              </div>
-              <div>
-                <label className="text-[10px] uppercase text-gray-400">Acréscimo</label>
-                <Input
-                  value={s.injuryTimeMinute}
-                  onChange={(e) => {
-                    setSavedMsg("");
-                    setSubs((all) =>
-                      all.map((x) =>
-                        x.key === s.key
-                          ? { ...x, injuryTimeMinute: e.target.value }
-                          : x,
-                      ),
-                    );
-                  }}
-                  placeholder="ex: 3 → 90+3"
-                />
-              </div>
-              <button
-                type="button"
-                className="justify-self-end p-2 text-gray-400 hover:text-red-600"
-                onClick={() => setSubs((all) => all.filter((x) => x.key !== s.key))}
-              >
-                <Trash2 size={14} />
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
+        </section>
       )}
 
       {error && <p className="text-sm text-red-600">{error}</p>}
       {savedMsg && <p className="text-sm text-green-700">{savedMsg}</p>}
-
-      {showSheetFooter && (
-        <div className="flex gap-2 fixed bottom-0 left-52 right-0 max-w-5xl mx-auto px-6 py-3 bg-gray-50/95 border-t z-10">
-          <Button className="bg-[#1B3A6B]" onClick={save} disabled={saving}>
-            {saving ? "Salvando..." : "Salvar ficha CSA"}
-          </Button>
-          <Link href="/admin/partidas">
-            <Button type="button" variant="outline">
-              Voltar
-            </Button>
-          </Link>
-          <span className="text-xs text-gray-400 self-center ml-2">
-            Salva Escalação + Gols + Cartões + Substituições juntos
-          </span>
-        </div>
-      )}
     </div>
   );
 }
