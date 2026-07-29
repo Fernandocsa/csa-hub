@@ -735,6 +735,9 @@ components:
         seasonAge:
           type: ["integer", "null"]
           description: Age during this season year (not current age)
+        photoUrl:
+          type: ["string", "null"]
+          description: Manager profile photo URL
 
     SeasonTopEntry:
       type: object

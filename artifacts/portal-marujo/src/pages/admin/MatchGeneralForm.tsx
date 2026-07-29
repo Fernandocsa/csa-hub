@@ -26,6 +26,9 @@ export interface MatchGeneralInitial {
   ownGoalsForCount?: number | null;
   phase?: string | null;
   round?: string | null;
+  relatedMatchId?: number | null;
+  penaltiesFor?: number | null;
+  penaltiesAgainst?: number | null;
   isWalkover?: boolean;
   isFriendly?: boolean;
 }
@@ -47,20 +50,39 @@ export interface MatchGeneralFormData {
   ownGoalsForCount: number;
   phase: string | null;
   round: string | null;
+  relatedMatchId: number | null;
+  penaltiesFor: number | null;
+  penaltiesAgainst: number | null;
   isWalkover: boolean;
   isFriendly: boolean;
 }
+
+export type RelatedMatchOption = {
+  id: number;
+  matchDate: string;
+  opponentName: string;
+  goalsFor: number | null;
+  goalsAgainst: number | null;
+  round?: string | null;
+  phase?: string | null;
+  competitionName?: string;
+};
 
 export default function MatchGeneralForm({
   initial,
   lookup,
   isNew,
+  matchId,
+  relatedMatchOptions = [],
   onSave,
   onDelete,
 }: {
   initial?: MatchGeneralInitial;
   lookup: MatchLookupData;
   isNew: boolean;
+  /** Current match id (edit) — excluded from related-match picker. */
+  matchId?: number | null;
+  relatedMatchOptions?: RelatedMatchOption[];
   onSave: (data: MatchGeneralFormData) => Promise<void>;
   onDelete?: () => Promise<void>;
 }) {
@@ -82,6 +104,18 @@ export default function MatchGeneralForm({
   );
   const [phase, setPhase] = useState(initial?.phase ?? "");
   const [round, setRound] = useState(initial?.round ?? "");
+  const [relatedMatchId, setRelatedMatchId] = useState(
+    initial?.relatedMatchId != null ? String(initial.relatedMatchId) : "",
+  );
+  const [hasPenalties, setHasPenalties] = useState(
+    initial?.penaltiesFor != null && initial?.penaltiesAgainst != null,
+  );
+  const [penaltiesFor, setPenaltiesFor] = useState(
+    initial?.penaltiesFor != null ? String(initial.penaltiesFor) : "",
+  );
+  const [penaltiesAgainst, setPenaltiesAgainst] = useState(
+    initial?.penaltiesAgainst != null ? String(initial.penaltiesAgainst) : "",
+  );
   const [isWalkover, setIsWalkover] = useState(initial?.isWalkover === true);
   const [isFriendly, setIsFriendly] = useState(initial?.isFriendly === true);
   const [refereeId, setRefereeId] = useState(
@@ -107,6 +141,14 @@ export default function MatchGeneralForm({
     setOwnGoalsForCount(String(initial?.ownGoalsForCount ?? "0"));
     setPhase(initial?.phase ?? "");
     setRound(initial?.round ?? "");
+    setRelatedMatchId(initial?.relatedMatchId != null ? String(initial.relatedMatchId) : "");
+    const pens =
+      initial?.penaltiesFor != null && initial?.penaltiesAgainst != null;
+    setHasPenalties(pens);
+    setPenaltiesFor(initial?.penaltiesFor != null ? String(initial.penaltiesFor) : "");
+    setPenaltiesAgainst(
+      initial?.penaltiesAgainst != null ? String(initial.penaltiesAgainst) : "",
+    );
     setIsWalkover(initial?.isWalkover === true);
     setIsFriendly(initial?.isFriendly === true);
     setRefereeId(initial?.refereeId != null ? String(initial.refereeId) : "");
@@ -134,6 +176,15 @@ export default function MatchGeneralForm({
     setSaving(true);
     setError("");
     try {
+      let pf: number | null = null;
+      let pa: number | null = null;
+      if (hasPenalties) {
+        pf = parseInt(penaltiesFor, 10);
+        pa = parseInt(penaltiesAgainst, 10);
+        if (!Number.isInteger(pf) || pf < 0 || !Number.isInteger(pa) || pa < 0) {
+          throw new Error("Informe os dois placares de pênaltis (números ≥ 0).");
+        }
+      }
       await onSave({
         matchDate,
         season,
@@ -151,6 +202,9 @@ export default function MatchGeneralForm({
         ownGoalsForCount: Math.max(0, parseInt(ownGoalsForCount, 10) || 0),
         phase: phase.trim() || null,
         round: round.trim() || null,
+        relatedMatchId: relatedMatchId ? parseInt(relatedMatchId, 10) : null,
+        penaltiesFor: pf,
+        penaltiesAgainst: pa,
         isWalkover,
         isFriendly,
       });
@@ -385,7 +439,7 @@ export default function MatchGeneralForm({
           ))}
         </select>
         <p className="text-[10px] text-gray-400 mt-1">
-          Técnico é editado na aba Técnico desta página.
+          Técnico é editado na aba Escalação desta página.
         </p>
       </div>
 
@@ -437,6 +491,86 @@ export default function MatchGeneralForm({
             className="h-9"
           />
         </div>
+      </div>
+
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+          Partida vinculada (ida/volta)
+        </label>
+        <select
+          className={sel}
+          value={relatedMatchId}
+          onChange={(e) => setRelatedMatchId(e.target.value)}
+        >
+          <option value="">– sem vínculo –</option>
+          {relatedMatchOptions
+            .filter((m) => m.id !== matchId)
+            .map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.matchDate} · {m.opponentName}
+                {m.goalsFor != null && m.goalsAgainst != null
+                  ? ` ${m.goalsFor}–${m.goalsAgainst}`
+                  : ""}
+                {m.round ? ` · ${m.round}` : m.phase ? ` · ${m.phase}` : ""}
+              </option>
+            ))}
+        </select>
+        <p className="text-[10px] text-gray-400 mt-1">
+          Liga este jogo ao outro jogo do mata-mata (ida ↔ volta). Lista da mesma temporada.
+        </p>
+      </div>
+
+      <div className="border rounded-lg p-3 space-y-2 bg-gray-50/50">
+        <label className="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={hasPenalties}
+            onChange={(e) => {
+              const on = e.target.checked;
+              setHasPenalties(on);
+              if (!on) {
+                setPenaltiesFor("");
+                setPenaltiesAgainst("");
+              }
+            }}
+            className="rounded border-gray-300"
+          />
+          Houve disputa de pênaltis
+        </label>
+        {hasPenalties && (
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+                Pênaltis CSA
+              </label>
+              <Input
+                type="number"
+                min={0}
+                value={penaltiesFor}
+                onChange={(e) => setPenaltiesFor(e.target.value)}
+                className="h-9"
+                required={hasPenalties}
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+                Pênaltis adversário
+              </label>
+              <Input
+                type="number"
+                min={0}
+                value={penaltiesAgainst}
+                onChange={(e) => setPenaltiesAgainst(e.target.value)}
+                className="h-9"
+                required={hasPenalties}
+              />
+            </div>
+          </div>
+        )}
+        <p className="text-[10px] text-gray-400">
+          Não altera o resultado oficial (V/E/D) nem estatísticas de jogador/time — vale o placar
+          dos 90/120 minutos.
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">

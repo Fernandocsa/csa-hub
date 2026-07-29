@@ -4,9 +4,8 @@ import { adminFetch } from "@/hooks/useAdminAuth";
 import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Plus } from "lucide-react";
+import { ChevronLeft, Trash2, Plus } from "lucide-react";
 import { ResultBadge } from "@/components/ui/result-badge";
-import { cn } from "@/lib/utils";
 
 interface MatchRow {
   id: number;
@@ -27,31 +26,27 @@ export default function AdminMatches() {
   const [matches, setMatches] = useState<MatchRow[]>([]);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
+  const [yearSearch, setYearSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 50;
+
+  const seasonSelected = season !== "all";
 
   useEffect(() => {
     (async () => {
       const r = await adminFetch("/admin/seasons");
       if (!r.ok) return;
       const rows = (await r.json()) as { year: number }[];
-      const ys = rows.map((s) => s.year).sort((a, b) => b - a);
-      setYears(ys);
+      setYears(rows.map((s) => s.year).sort((a, b) => b - a));
+      setLoading(false);
     })();
   }, []);
 
-  // Default to most recent season when URL has no ?season=
-  useEffect(() => {
-    if (season !== "all" || years.length === 0) return;
-    setSeason(String(years[0]));
-  }, [season, years, setSeason]);
-
   const load = useCallback(async () => {
-    if (season === "all") {
+    if (!seasonSelected) {
       setMatches([]);
       setTotal(0);
-      setLoading(false);
       return;
     }
     setLoading(true);
@@ -67,7 +62,7 @@ export default function AdminMatches() {
       setTotal(data.total);
     }
     setLoading(false);
-  }, [season]);
+  }, [season, seasonSelected]);
 
   useEffect(() => {
     load();
@@ -75,6 +70,7 @@ export default function AdminMatches() {
 
   useEffect(() => {
     setPage(0);
+    setSearch("");
   }, [season]);
 
   async function deleteMatch(id: number, e: React.MouseEvent) {
@@ -96,6 +92,11 @@ export default function AdminMatches() {
   const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
 
+  const filteredYears = years.filter((y) => {
+    if (!yearSearch.trim()) return true;
+    return String(y).includes(yearSearch.trim());
+  });
+
   function homeAwayLabel(v: string) {
     return v === "home" ? "Casa" : v === "away" ? "Fora" : "Neutro";
   }
@@ -106,9 +107,7 @@ export default function AdminMatches() {
         <div>
           <h1 className="text-xl font-bold text-gray-900">Partidas</h1>
           <p className="text-sm text-gray-500">
-            {season === "all"
-              ? `${total} registradas`
-              : `${total} em ${season}`}
+            {seasonSelected ? `${total} em ${season}` : `${years.length} temporadas`}
           </p>
         </div>
         <Button className="bg-[#1B3A6B]" asChild>
@@ -118,138 +117,153 @@ export default function AdminMatches() {
         </Button>
       </div>
 
-      {years.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-4" data-testid="season-year-links">
-          {years.map((y) => {
-            const value = String(y);
-            const active = season === value;
-            return (
-              <button
-                key={y}
-                type="button"
-                onClick={() => {
-                  setSeason(value);
-                  setPage(0);
-                }}
-                className={cn(
-                  "px-2.5 py-1 text-sm font-medium rounded border transition-colors",
-                  active
-                    ? "bg-[#1B3A6B] text-white border-[#1B3A6B]"
-                    : "bg-white text-gray-700 border-gray-200 hover:border-[#1B3A6B] hover:text-[#1B3A6B]",
-                )}
-                data-testid={`link-admin-season-${y}`}
-              >
-                {y}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      <Input
-        placeholder="Buscar adversário ou competição..."
-        value={search}
-        onChange={(e) => {
-          setSearch(e.target.value);
-          setPage(0);
-        }}
-        className="mb-4 max-w-sm"
-      />
-
-      {loading || season === "all" ? (
-        <p className="text-sm text-gray-400">Carregando...</p>
-      ) : (
-        <div className="bg-white border rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
-                  Data
-                </th>
-                <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
-                  Adversário
-                </th>
-                <th className="text-center px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
-                  Res.
-                </th>
-                <th className="text-center px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
-                  Placar
-                </th>
-                <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
-                  Temp.
-                </th>
-                <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
-                  Mando
-                </th>
-                <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
-                  Competição
-                </th>
-                <th className="px-3 py-2" />
-              </tr>
-            </thead>
-            <tbody>
-              {paginated.map((m) => (
-                <tr
-                  key={m.id}
-                  className="border-b hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setLocation(`/admin/partidas/${m.id}`)}
-                >
-                  <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{m.matchDate}</td>
-                  <td className="px-3 py-2 font-medium text-[#1B3A6B]">{m.opponentName}</td>
-                  <td className="px-3 py-2 text-center">
-                    <ResultBadge result={m.result as "win" | "draw" | "loss"} />
-                  </td>
-                  <td className="px-3 py-2 text-center font-mono">
-                    {m.goalsFor}–{m.goalsAgainst}
-                  </td>
-                  <td className="px-3 py-2 text-gray-600">{m.season}</td>
-                  <td className="px-3 py-2 text-gray-600">{homeAwayLabel(m.homeAway)}</td>
-                  <td className="px-3 py-2 text-gray-600 max-w-[160px] truncate">
-                    {m.competitionName}
-                  </td>
-                  <td className="px-3 py-2">
-                    <div className="flex items-center justify-end">
-                      <button
-                        type="button"
-                        onClick={(e) => deleteMatch(m.id, e)}
-                        className="p-1 text-gray-400 hover:text-red-600 rounded"
-                        title="Excluir"
-                      >
-                        <Trash2 size={13} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {paginated.length === 0 && (
-            <p className="text-sm text-gray-400 text-center py-8">Nenhuma partida encontrada</p>
+      {!seasonSelected ? (
+        <div>
+          <Input
+            placeholder="Buscar temporada (ano)..."
+            value={yearSearch}
+            onChange={(e) => setYearSearch(e.target.value)}
+            className="mb-4 max-w-sm"
+          />
+          {loading && years.length === 0 ? (
+            <p className="text-sm text-gray-400">Carregando...</p>
+          ) : (
+            <div className="bg-white border rounded-lg overflow-hidden" data-testid="admin-season-list">
+              <ul className="divide-y">
+                {filteredYears.map((y) => (
+                  <li key={y}>
+                    <button
+                      type="button"
+                      onClick={() => setSeason(String(y))}
+                      className="w-full text-left px-4 py-3 text-sm font-medium text-[#1B3A6B] hover:bg-gray-50 transition-colors"
+                      data-testid={`link-admin-season-${y}`}
+                    >
+                      Temporada {y}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              {filteredYears.length === 0 && (
+                <p className="text-sm text-gray-400 text-center py-8">Nenhuma temporada encontrada</p>
+              )}
+            </div>
           )}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between px-4 py-2 border-t text-sm text-gray-500">
-              <span>{filtered.length} resultados</span>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage((p) => Math.max(0, p - 1))}
-                  disabled={page === 0}
-                >
-                  Anterior
-                </Button>
-                <span>
-                  Pág. {page + 1} de {totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                  disabled={page >= totalPages - 1}
-                >
-                  Próxima
-                </Button>
-              </div>
+        </div>
+      ) : (
+        <div>
+          <button
+            type="button"
+            onClick={() => setSeason("all")}
+            className="inline-flex items-center text-sm text-gray-500 hover:text-[#1B3A6B] mb-4"
+          >
+            <ChevronLeft size={16} className="mr-0.5" /> Temporadas
+          </button>
+
+          <h2 className="text-base font-semibold text-gray-800 mb-3">Temporada {season}</h2>
+
+          <Input
+            placeholder="Buscar adversário ou competição..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(0);
+            }}
+            className="mb-4 max-w-sm"
+          />
+
+          {loading ? (
+            <p className="text-sm text-gray-400">Carregando...</p>
+          ) : (
+            <div className="bg-white border rounded-lg overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                      Data
+                    </th>
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                      Adversário
+                    </th>
+                    <th className="text-center px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                      Res.
+                    </th>
+                    <th className="text-center px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                      Placar
+                    </th>
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                      Mando
+                    </th>
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                      Competição
+                    </th>
+                    <th className="px-3 py-2" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginated.map((m) => (
+                    <tr
+                      key={m.id}
+                      className="border-b hover:bg-gray-50 cursor-pointer"
+                      onClick={() => setLocation(`/admin/partidas/${m.id}`)}
+                      data-testid={`row-admin-match-${m.id}`}
+                    >
+                      <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{m.matchDate}</td>
+                      <td className="px-3 py-2 font-medium text-[#1B3A6B]">{m.opponentName}</td>
+                      <td className="px-3 py-2 text-center">
+                        <ResultBadge result={m.result as "win" | "draw" | "loss"} />
+                      </td>
+                      <td className="px-3 py-2 text-center font-mono">
+                        {m.goalsFor}–{m.goalsAgainst}
+                      </td>
+                      <td className="px-3 py-2 text-gray-600">{homeAwayLabel(m.homeAway)}</td>
+                      <td className="px-3 py-2 text-gray-600 max-w-[160px] truncate">
+                        {m.competitionName}
+                      </td>
+                      <td className="px-3 py-2">
+                        <div className="flex items-center justify-end">
+                          <button
+                            type="button"
+                            onClick={(e) => deleteMatch(m.id, e)}
+                            className="p-1 text-gray-400 hover:text-red-600 rounded"
+                            title="Excluir"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {paginated.length === 0 && (
+                <p className="text-sm text-gray-400 text-center py-8">Nenhuma partida encontrada</p>
+              )}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between px-4 py-2 border-t text-sm text-gray-500">
+                  <span>{filtered.length} resultados</span>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.max(0, p - 1))}
+                      disabled={page === 0}
+                    >
+                      Anterior
+                    </Button>
+                    <span>
+                      Pág. {page + 1} de {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                      disabled={page >= totalPages - 1}
+                    >
+                      Próxima
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

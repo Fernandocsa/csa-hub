@@ -81,12 +81,24 @@ export interface MatchDetailSheet {
   isWalkover: boolean;
   isFriendly?: boolean;
   isUnknownResult: boolean;
+  isScheduled?: boolean;
+  status?: string;
   phase?: string | null;
   round?: string | null;
   /** CSA penalties in shootout; null when there was no shootout. */
   penaltiesFor?: number | null;
   /** Opponent penalties in shootout. */
   penaltiesAgainst?: number | null;
+  relatedMatchId?: number | null;
+  relatedMatch?: {
+    id: number;
+    date: string;
+    opponent: string;
+    goalsFor: number | null;
+    goalsAgainst: number | null;
+    round: string | null;
+    phase: string | null;
+  } | null;
   lineups: MatchLineupRow[];
   goals: MatchGoalRow[];
   cards: MatchCardRow[];

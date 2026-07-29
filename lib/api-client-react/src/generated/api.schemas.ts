@@ -109,6 +109,8 @@ export interface SeasonManagerEntry {
      * @nullable
      */
   seasonAge?: number | null;
+  /** @nullable */
+  photoUrl?: string | null;
 }
 
 export interface SeasonTopEntry {

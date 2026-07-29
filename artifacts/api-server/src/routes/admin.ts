@@ -20,6 +20,7 @@ import {
 } from "@workspace/db";
 import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard } from "../lib/match-sheet";
+import { syncRelatedMatchLink, parsePenaltyShootoutFields } from "../lib/match-links";
 import {
   buildAndWriteCsaSheet,
   computeOwnGoalsForCount,
@@ -1006,6 +1007,9 @@ router.get("/admin/matches/:id", requireAdmin, async (req, res) => {
         status: matchesTable.status,
         phase: matchesTable.phase,
         round: matchesTable.round,
+        relatedMatchId: matchesTable.relatedMatchId,
+        penaltiesFor: matchesTable.penaltiesFor,
+        penaltiesAgainst: matchesTable.penaltiesAgainst,
       })
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
@@ -1016,7 +1020,35 @@ router.get("/admin/matches/:id", requireAdmin, async (req, res) => {
       .where(eq(matchesTable.id, id))
       .limit(1);
     if (!row) return res.status(404).json({ error: "Partida não encontrada" });
-    res.json(row);
+
+    let relatedMatch: {
+      id: number;
+      matchDate: string;
+      opponentName: string;
+      goalsFor: number | null;
+      goalsAgainst: number | null;
+      round: string | null;
+      phase: string | null;
+    } | null = null;
+    if (row.relatedMatchId != null) {
+      const [rel] = await db
+        .select({
+          id: matchesTable.id,
+          matchDate: matchesTable.matchDate,
+          opponentName: opponentsTable.name,
+          goalsFor: matchesTable.goalsFor,
+          goalsAgainst: matchesTable.goalsAgainst,
+          round: matchesTable.round,
+          phase: matchesTable.phase,
+        })
+        .from(matchesTable)
+        .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+        .where(eq(matchesTable.id, row.relatedMatchId))
+        .limit(1);
+      relatedMatch = rel ?? null;
+    }
+
+    res.json({ ...row, relatedMatch });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -1042,6 +1074,9 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
       ownGoalsForCount?: number | null;
       phase?: string | null;
       round?: string | null;
+      relatedMatchId?: number | null;
+      penaltiesFor?: number | null;
+      penaltiesAgainst?: number | null;
       isWalkover?: boolean;
       isFriendly?: boolean;
       status?: "played" | "scheduled";
@@ -1057,6 +1092,22 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
         : String(body.round).trim();
     const status = body.status === "scheduled" ? "scheduled" : "played";
     const isScheduled = status === "scheduled";
+    let penalties: { penaltiesFor: number | null; penaltiesAgainst: number | null };
+    try {
+      penalties = parsePenaltyShootoutFields(body) ?? {
+        penaltiesFor: null,
+        penaltiesAgainst: null,
+      };
+    } catch (e: any) {
+      return res.status(e.status ?? 400).json({ error: e.message ?? "Pênaltis inválidos" });
+    }
+    const relatedMatchId =
+      body.relatedMatchId == null
+        ? null
+        : parseInt(String(body.relatedMatchId), 10);
+    if (relatedMatchId != null && (!Number.isInteger(relatedMatchId) || relatedMatchId < 1)) {
+      return res.status(400).json({ error: "Partida relacionada inválida" });
+    }
     const [match] = await db
       .insert(matchesTable)
       .values({
@@ -1076,11 +1127,26 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
         ownGoalsForCount: ownGoals,
         phase,
         round,
+        penaltiesFor: isScheduled ? null : penalties.penaltiesFor,
+        penaltiesAgainst: isScheduled ? null : penalties.penaltiesAgainst,
         isWalkover: body.isWalkover === true,
         isFriendly: body.isFriendly === true,
         status,
       })
       .returning();
+    if (relatedMatchId != null) {
+      try {
+        await syncRelatedMatchLink(match.id, relatedMatchId);
+      } catch (e: any) {
+        return res.status(e.status ?? 400).json({ error: e.message ?? "Erro ao vincular partida" });
+      }
+      const [updated] = await db
+        .select()
+        .from(matchesTable)
+        .where(eq(matchesTable.id, match.id))
+        .limit(1);
+      return res.status(201).json(updated ?? match);
+    }
     res.status(201).json(match);
   } catch (err) {
     req.log.error(err);
@@ -1114,6 +1180,9 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
       ownGoalsForCount?: number | null;
       phase?: string | null;
       round?: string | null;
+      relatedMatchId?: number | null;
+      penaltiesFor?: number | null;
+      penaltiesAgainst?: number | null;
     };
     const ownGoals = Math.max(0, body.ownGoalsForCount ?? 0);
     const phase =
@@ -1124,6 +1193,12 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
       body.round == null || String(body.round).trim() === ""
         ? null
         : String(body.round).trim();
+    let penaltiesPatch: { penaltiesFor: number | null; penaltiesAgainst: number | null } | undefined;
+    try {
+      penaltiesPatch = parsePenaltyShootoutFields(body);
+    } catch (e: any) {
+      return res.status(e.status ?? 400).json({ error: e.message ?? "Pênaltis inválidos" });
+    }
     const patch: Record<string, unknown> = {
       matchDate: body.matchDate,
       season: body.season,
@@ -1144,12 +1219,18 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
       phase,
       round,
     };
+    if (penaltiesPatch) {
+      patch.penaltiesFor = penaltiesPatch.penaltiesFor;
+      patch.penaltiesAgainst = penaltiesPatch.penaltiesAgainst;
+    }
     if (body.status === "scheduled" || body.status === "played") {
       patch.status = body.status;
       if (body.status === "scheduled") {
         patch.goalsFor = null;
         patch.goalsAgainst = null;
         patch.result = "unknown";
+        patch.penaltiesFor = null;
+        patch.penaltiesAgainst = null;
       }
     }
     // Only update flags when explicitly sent — never default missing to false
@@ -1163,6 +1244,28 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
       .where(eq(matchesTable.id, id))
       .returning();
     if (!updated) return res.status(404).json({ error: "Partida não encontrada" });
+
+    if (body.relatedMatchId !== undefined) {
+      const relatedMatchId =
+        body.relatedMatchId == null
+          ? null
+          : parseInt(String(body.relatedMatchId), 10);
+      if (relatedMatchId != null && (!Number.isInteger(relatedMatchId) || relatedMatchId < 1)) {
+        return res.status(400).json({ error: "Partida relacionada inválida" });
+      }
+      try {
+        await syncRelatedMatchLink(id, relatedMatchId);
+      } catch (e: any) {
+        return res.status(e.status ?? 400).json({ error: e.message ?? "Erro ao vincular partida" });
+      }
+      const [fresh] = await db
+        .select()
+        .from(matchesTable)
+        .where(eq(matchesTable.id, id))
+        .limit(1);
+      return res.json(fresh ?? updated);
+    }
+
     res.json(updated);
   } catch (err) {
     req.log.error(err);

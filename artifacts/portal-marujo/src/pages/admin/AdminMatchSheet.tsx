@@ -13,6 +13,7 @@ import {
 import MatchGeneralForm, {
   type MatchGeneralFormData,
   type MatchLookupData,
+  type RelatedMatchOption,
 } from "./MatchGeneralForm";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 
@@ -130,6 +131,10 @@ type MatchMeta = {
   ownGoalsForCount?: number | null;
   phase?: string | null;
   round?: string | null;
+  relatedMatchId?: number | null;
+  relatedMatch?: RelatedMatchOption | null;
+  penaltiesFor?: number | null;
+  penaltiesAgainst?: number | null;
   isWalkover?: boolean;
   isFriendly?: boolean;
   status?: string;
@@ -256,6 +261,7 @@ export default function AdminMatchSheet() {
     Array.from({ length: SUB_ROWS_COUNT }, emptySubRow),
   );
   const [savingSubs, setSavingSubs] = useState(false);
+  const [relatedMatchOptions, setRelatedMatchOptions] = useState<RelatedMatchOption[]>([]);
 
   function resetEventForms() {
     setGoalRows(Array.from({ length: GOAL_ROWS_COUNT }, emptyEventRow));
@@ -356,10 +362,13 @@ export default function AdminMatchSheet() {
         setMatch(found);
         setRosterSeason(found.season);
 
-        const [sheetRes, rosterRes, managersRes] = await Promise.all([
+        const [sheetRes, rosterRes, managersRes, seasonMatchesRes] = await Promise.all([
           adminFetch(`/admin/matches/${matchId}/sheet`),
           adminFetch(`/admin/matches/${matchId}/roster?season=${encodeURIComponent(found.season)}`),
           adminFetch(`/admin/seasons/${encodeURIComponent(found.season)}/managers`),
+          adminFetch(
+            `/admin/matches?season=${encodeURIComponent(found.season)}&limit=500&offset=0`,
+          ),
         ]);
         if (!sheetRes.ok || !rosterRes.ok) throw new Error("Erro ao carregar ficha");
         if (cancelled) return;
@@ -375,6 +384,37 @@ export default function AdminMatchSheet() {
           );
         } else {
           setSeasonManagers([]);
+        }
+
+        if (seasonMatchesRes.ok) {
+          const sm = (await seasonMatchesRes.json()) as {
+            data?: Array<{
+              id: number;
+              matchDate: string;
+              opponentName: string;
+              goalsFor: number | null;
+              goalsAgainst: number | null;
+              competitionName?: string;
+              phase?: string | null;
+              round?: string | null;
+            }>;
+          };
+          setRelatedMatchOptions(
+            (sm.data ?? [])
+              .filter((m) => m.id !== matchId)
+              .map((m) => ({
+                id: m.id,
+                matchDate: m.matchDate,
+                opponentName: m.opponentName,
+                goalsFor: m.goalsFor,
+                goalsAgainst: m.goalsAgainst,
+                competitionName: m.competitionName,
+                phase: m.phase ?? null,
+                round: m.round ?? null,
+              })),
+          );
+        } else {
+          setRelatedMatchOptions([]);
         }
 
         const rosterJson = (await rosterRes.json()) as { players?: RosterPlayer[] };
@@ -925,6 +965,24 @@ export default function AdminMatchSheet() {
           initial={isNew ? undefined : match!}
           lookup={lookup}
           isNew={isNew}
+          matchId={matchId}
+          relatedMatchOptions={
+            match?.relatedMatch &&
+            !relatedMatchOptions.some((m) => m.id === match.relatedMatch!.id)
+              ? [
+                  {
+                    id: match.relatedMatch.id,
+                    matchDate: match.relatedMatch.matchDate,
+                    opponentName: match.relatedMatch.opponentName,
+                    goalsFor: match.relatedMatch.goalsFor,
+                    goalsAgainst: match.relatedMatch.goalsAgainst,
+                    phase: match.relatedMatch.phase,
+                    round: match.relatedMatch.round,
+                  },
+                  ...relatedMatchOptions,
+                ]
+              : relatedMatchOptions
+          }
           onSave={saveGeneral}
           onDelete={isNew ? undefined : deleteMatch}
         />

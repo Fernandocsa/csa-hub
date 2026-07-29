@@ -16,6 +16,7 @@ import { ChevronLeft } from "lucide-react";
 import { ShareButton } from "@/components/ShareButton";
 import { PlayerFlag } from "@/components/PlayerFlag";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
+import { EntityPhoto } from "@/components/EntityPhoto";
 import { groupPlayersByPosition } from "@/lib/position-groups";
 import { cn } from "@/lib/utils";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
@@ -436,20 +437,29 @@ export default function SeasonDetail() {
             {managers.map((m) => (
               <div
                 key={m.id}
-                className="px-3 py-2.5 flex flex-wrap items-start justify-between gap-2 text-sm"
+                className="px-3 py-2.5 flex flex-wrap items-center justify-between gap-3 text-sm"
               >
                 <Link
                   href={`/tecnicos/${m.id}`}
-                  className="hover:text-primary hover:underline block min-w-0"
+                  className="hover:text-primary hover:underline flex items-center gap-3 min-w-0"
                 >
-                  <span className="font-medium">{m.name}</span>
-                  {m.seasonAge != null ? (
-                    <span className="block text-xs text-muted-foreground font-normal mt-0.5">
-                      {m.seasonAge} anos
-                    </span>
-                  ) : null}
+                  <EntityPhoto
+                    url={m.photoUrl}
+                    name={m.name}
+                    size="md"
+                    shape="circle"
+                    label="Foto do técnico"
+                  />
+                  <span className="min-w-0">
+                    <span className="font-medium">{m.name}</span>
+                    {m.seasonAge != null ? (
+                      <span className="block text-xs text-muted-foreground font-normal mt-0.5">
+                        {m.seasonAge} anos
+                      </span>
+                    ) : null}
+                  </span>
                 </Link>
-                <span className="text-xs text-muted-foreground tabular-nums shrink-0 pt-0.5">
+                <span className="text-xs text-muted-foreground tabular-nums shrink-0">
                   {m.games}J · {m.wins}V · {m.draws}E · {m.losses}D
                 </span>
               </div>

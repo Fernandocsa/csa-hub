@@ -436,6 +436,25 @@ export default function MatchDetail() {
             </span>
           </p>
         )}
+        {match.relatedMatch && (
+          <p className="text-sm text-muted-foreground" data-testid="match-related">
+            {match.relatedMatch.round?.toLowerCase().includes("ida")
+              ? "Jogo de ida"
+              : match.relatedMatch.round?.toLowerCase().includes("volta")
+                ? "Jogo de volta"
+                : "Jogo vinculado"}
+            :{" "}
+            <Link
+              href={`/partidas/${match.relatedMatch.id}`}
+              className="text-foreground hover:underline font-medium"
+            >
+              {match.relatedMatch.date} · {match.relatedMatch.opponent}
+              {match.relatedMatch.goalsFor != null && match.relatedMatch.goalsAgainst != null
+                ? ` ${match.relatedMatch.goalsFor}–${match.relatedMatch.goalsAgainst}`
+                : ""}
+            </Link>
+          </p>
+        )}
         <p className="text-sm text-muted-foreground">
           Temporada{" "}
           <Link

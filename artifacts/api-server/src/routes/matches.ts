@@ -235,6 +235,7 @@ router.get("/matches/:id", async (req, res) => {
         round: matchesTable.round,
         penaltiesFor: matchesTable.penaltiesFor,
         penaltiesAgainst: matchesTable.penaltiesAgainst,
+        relatedMatchId: matchesTable.relatedMatchId,
         opponentId: matchesTable.opponentId,
         opponentName: opponentsTable.name,
         opponentLogoUrl: opponentsTable.logoUrl,
@@ -264,6 +265,33 @@ router.get("/matches/:id", async (req, res) => {
 
     const row = rows[0];
     const sheet = await loadMatchSheet(id);
+
+    let relatedMatch: {
+      id: number;
+      date: string;
+      opponent: string;
+      goalsFor: number | null;
+      goalsAgainst: number | null;
+      round: string | null;
+      phase: string | null;
+    } | null = null;
+    if (row.relatedMatchId != null) {
+      const [rel] = await db
+        .select({
+          id: matchesTable.id,
+          date: matchesTable.matchDate,
+          opponent: opponentsTable.name,
+          goalsFor: matchesTable.goalsFor,
+          goalsAgainst: matchesTable.goalsAgainst,
+          round: matchesTable.round,
+          phase: matchesTable.phase,
+        })
+        .from(matchesTable)
+        .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+        .where(eq(matchesTable.id, row.relatedMatchId))
+        .limit(1);
+      relatedMatch = rel ?? null;
+    }
 
     res.json({
       id: row.id,
@@ -299,6 +327,8 @@ router.get("/matches/:id", async (req, res) => {
       round: row.round ?? null,
       penaltiesFor: row.penaltiesFor ?? null,
       penaltiesAgainst: row.penaltiesAgainst ?? null,
+      relatedMatchId: row.relatedMatchId ?? null,
+      relatedMatch,
       lineups: sheet.lineups,
       goals: sheet.goals,
       cards: sheet.cards,

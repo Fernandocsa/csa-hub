@@ -249,6 +249,7 @@ router.get("/seasons/:year", async (req, res) => {
       .select({
         id: managersTable.id,
         name: managersTable.name,
+        photoUrl: managersTable.photoUrl,
         birthDate: managersTable.birthDate,
         games: managerSeasonStatsTable.games,
         wins: managerSeasonStatsTable.wins,
@@ -266,6 +267,7 @@ router.get("/seasons/:year", async (req, res) => {
     const managers = managerRows.map((m) => ({
       id: m.id,
       name: m.name,
+      photoUrl: m.photoUrl ?? null,
       birthDate: m.birthDate,
       games: m.games,
       wins: m.wins,
