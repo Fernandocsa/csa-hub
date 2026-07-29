@@ -22,6 +22,8 @@ export type OpponentStateTeam = {
   name: string;
   city: string | null;
   state: string | null;
+  /** @nullable */
+  logoUrl?: string | null;
   matches: number;
   wins: number;
   draws: number;

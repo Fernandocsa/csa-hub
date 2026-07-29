@@ -11,6 +11,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 import { ufDisplayName } from "@/lib/br-locations";
+import { OpponentCrest } from "@/components/OpponentCrest";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -139,8 +140,9 @@ export default function MatchesByStateDetail() {
                   <TableCell className="py-2 font-medium">
                     <Link
                       href={`/adversarios/${opp.id}`}
-                      className="hover:text-primary hover:underline"
+                      className="inline-flex items-center gap-2 hover:text-primary hover:underline"
                     >
+                      <OpponentCrest url={opp.logoUrl} name={opp.name} size="sm" />
                       {opp.name}
                     </Link>
                     {opp.city && (

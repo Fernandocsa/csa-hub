@@ -22,6 +22,8 @@ export type ForeignOpponentTeam = ForeignAggregate & {
   city: string | null;
   country: string | null;
   countryName: string | null;
+  /** @nullable */
+  logoUrl?: string | null;
 };
 
 export type OpponentsByForeign = {

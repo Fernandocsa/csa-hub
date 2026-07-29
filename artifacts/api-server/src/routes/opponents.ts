@@ -283,6 +283,7 @@ router.get("/opponents/by-state/:uf", async (req, res) => {
         name: opponentsTable.name,
         city: opponentsTable.city,
         state: opponentsTable.state,
+        logoUrl: opponentsTable.logoUrl,
         matches: sql<number>`cast(count(*) as int)`,
         wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
         draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
@@ -298,6 +299,7 @@ router.get("/opponents/by-state/:uf", async (req, res) => {
         opponentsTable.name,
         opponentsTable.city,
         opponentsTable.state,
+        opponentsTable.logoUrl,
       )
       .orderBy(desc(sql`count(*)`), asc(opponentsTable.name));
 
@@ -359,6 +361,7 @@ router.get("/opponents/by-foreign", async (req, res) => {
         name: opponentsTable.name,
         city: opponentsTable.city,
         country: opponentsTable.country,
+        logoUrl: opponentsTable.logoUrl,
         matches: sql<number>`cast(count(*) as int)`,
         wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
         draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
@@ -374,6 +377,7 @@ router.get("/opponents/by-foreign", async (req, res) => {
         opponentsTable.name,
         opponentsTable.city,
         opponentsTable.country,
+        opponentsTable.logoUrl,
       )
       .orderBy(desc(sql`count(*)`), asc(opponentsTable.name));
 
@@ -397,6 +401,7 @@ router.get("/opponents/by-foreign", async (req, res) => {
         countryName: o.country
           ? COUNTRY_NAMES[String(o.country).toUpperCase()] ?? String(o.country).toUpperCase()
           : null,
+        logoUrl: o.logoUrl ?? null,
         ...mapAggregate(o),
       })),
     });
@@ -521,6 +526,7 @@ router.get("/opponents/by-region/:slug", async (req, res) => {
         name: opponentsTable.name,
         city: opponentsTable.city,
         state: opponentsTable.state,
+        logoUrl: opponentsTable.logoUrl,
         matches: sql<number>`cast(count(*) as int)`,
         wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
         draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
@@ -536,6 +542,7 @@ router.get("/opponents/by-region/:slug", async (req, res) => {
         opponentsTable.name,
         opponentsTable.city,
         opponentsTable.state,
+        opponentsTable.logoUrl,
       )
       .orderBy(desc(sql`count(*)`), asc(opponentsTable.name));
 
@@ -555,6 +562,7 @@ router.get("/opponents/by-region/:slug", async (req, res) => {
         name: o.name,
         city: o.city ?? null,
         state: o.state ? String(o.state).toUpperCase() : null,
+        logoUrl: o.logoUrl ?? null,
         ...mapAggregate(o),
       })),
     });
