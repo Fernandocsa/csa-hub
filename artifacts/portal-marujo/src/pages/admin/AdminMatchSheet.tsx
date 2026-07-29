@@ -16,6 +16,12 @@ import MatchGeneralForm, {
   type RelatedMatchOption,
 } from "./MatchGeneralForm";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
+import {
+  eventMinuteToFormValue,
+  isUnknownEventMinute,
+  normalizeEventMinute,
+  UNKNOWN_EVENT_MINUTE_TITLE,
+} from "@/lib/event-minute";
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -184,11 +190,27 @@ function buildSubRows(subs: SheetSubstitution[]): SubRow[] {
   const rows: SubRow[] = subs.slice(0, SUB_ROWS_COUNT).map((s) => ({
     playerOutId: s.playerOutId != null ? String(s.playerOutId) : "",
     playerInId: s.playerInId != null ? String(s.playerInId) : "",
-    minute: String(s.minute ?? ""),
+    minute: eventMinuteToFormValue(s.minute),
     injuryTimeMinute: s.injuryTimeMinute != null ? String(s.injuryTimeMinute) : "",
   }));
   while (rows.length < SUB_ROWS_COUNT) rows.push(emptySubRow());
   return rows;
+}
+
+function formatSavedMinute(minute: number, injury: number | null | undefined) {
+  if (isUnknownEventMinute(minute)) {
+    return (
+      <span title={UNKNOWN_EVENT_MINUTE_TITLE} className="cursor-help underline decoration-dotted">
+        N/D
+      </span>
+    );
+  }
+  return (
+    <>
+      {minute}
+      {injury ? `+${injury}` : ""}&apos;
+    </>
+  );
 }
 
 function patchAt<T>(list: T[], index: number, patch: Partial<T>): T[] {
@@ -693,14 +715,13 @@ export default function AdminMatchSheet() {
       const managerCardsPayload: Record<string, unknown>[] = [];
 
       for (const row of goalRows) {
-        if (!row.playerId && !row.minute) continue;
-        if (!row.minute) throw new Error("Informe o minuto de todos os gols preenchidos.");
+        if (!row.playerId && !row.minute && !row.isOwnGoal) continue;
         if (!row.isOwnGoal && !row.playerId) {
           throw new Error("Selecione o autor do gol ou marque g.c.");
         }
         goals.push({
           scorerPlayerId: row.playerId ? Number(row.playerId) : null,
-          minute: Number(row.minute),
+          minute: normalizeEventMinute(row.minute),
           injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
           isPenalty: row.isPenalty && !row.isOwnGoal,
           isOwnGoal: row.isOwnGoal,
@@ -709,61 +730,60 @@ export default function AdminMatchSheet() {
       }
 
       for (const row of redRows) {
-        if (!row.playerId && !row.minute) continue;
-        if (!row.playerId || !row.minute) throw new Error("Cartão vermelho precisa de jogador e minuto.");
+        if (!row.playerId) continue;
         cards.push({
           cardType: "red",
           playerId: Number(row.playerId),
-          minute: Number(row.minute),
+          minute: normalizeEventMinute(row.minute),
           injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
         });
       }
       for (const row of yellowRows) {
-        if (!row.playerId && !row.minute) continue;
-        if (!row.playerId || !row.minute) throw new Error("Cartão amarelo precisa de jogador e minuto.");
+        if (!row.playerId) continue;
         cards.push({
           cardType: "yellow",
           playerId: Number(row.playerId),
-          minute: Number(row.minute),
+          minute: normalizeEventMinute(row.minute),
           injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
         });
       }
       for (const row of assistRows) {
-        if (!row.playerId && !row.minute) continue;
-        if (!row.playerId || !row.minute) throw new Error("Assistência precisa de jogador e minuto.");
+        if (!row.playerId) continue;
+        const minute = normalizeEventMinute(row.minute);
+        if (isUnknownEventMinute(minute)) {
+          throw new Error(
+            "Assistência precisa do minuto conhecido do gol (não use vazio/200).",
+          );
+        }
         assists.push({
           assistPlayerId: Number(row.playerId),
-          minute: Number(row.minute),
+          minute,
           injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
         });
       }
-      if (gpdRow.minute || gpdRow.playerId) {
-        if (!gpdRow.minute || !gpdRow.playerId) {
-          throw new Error("GPD (gol contra desfavorável) precisa de jogador e minuto.");
-        }
+      if (gpdRow.playerId) {
         goals.push({
           scorerPlayerId: Number(gpdRow.playerId),
-          minute: Number(gpdRow.minute),
+          minute: normalizeEventMinute(gpdRow.minute),
           injuryTimeMinute: gpdRow.injuryTimeMinute ? Number(gpdRow.injuryTimeMinute) : null,
           isOwnGoal: true,
           ownGoalDirection: "against",
         });
       }
       if (gpfRow.minute || gpfRow.playerId) {
-        if (!gpfRow.minute) throw new Error("GPF (gol contra a favor) precisa de minuto.");
         goals.push({
           scorerPlayerId: gpfRow.playerId ? Number(gpfRow.playerId) : null,
-          minute: Number(gpfRow.minute),
+          minute: normalizeEventMinute(gpfRow.minute),
           injuryTimeMinute: gpfRow.injuryTimeMinute ? Number(gpfRow.injuryTimeMinute) : null,
           isOwnGoal: true,
           ownGoalDirection: "for",
         });
       }
       for (const row of managerCardRows) {
-        if (!row.minute) continue;
+        if (String(row.minute).trim() === "") continue;
         managerCardsPayload.push({
           cardType: row.cardType,
-          minute: Number(row.minute),
+          minute: normalizeEventMinute(row.minute),
           injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
         });
       }
@@ -844,15 +864,15 @@ export default function AdminMatchSheet() {
       const substitutions = subRows
         .filter((s) => s.playerOutId || s.playerInId || s.minute)
         .map((s) => {
-          if (!s.playerOutId || !s.playerInId || !s.minute) {
+          if (!s.playerOutId || !s.playerInId) {
             throw new Error(
-              "Cada substituição preenchida precisa de quem saiu, quem entrou e o minuto.",
+              "Cada substituição preenchida precisa de quem saiu e quem entrou.",
             );
           }
           return {
             playerOutId: Number(s.playerOutId),
             playerInId: Number(s.playerInId),
-            minute: Number(s.minute),
+            minute: normalizeEventMinute(s.minute),
             injuryTimeMinute: s.injuryTimeMinute ? Number(s.injuryTimeMinute) : null,
           };
         });
@@ -1136,6 +1156,10 @@ export default function AdminMatchSheet() {
             <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
               Eventos - CSA
             </h2>
+            <p className="text-xs text-gray-400">
+              Minuto é opcional: deixe em branco ou use 200 para “não disponível” (aparece como N/D).
+              Assistências ainda precisam do minuto do gol para vincular.
+            </p>
             {lineupOptions.length === 0 && (
               <p className="text-xs text-gray-400">
                 Escale jogadores (Tit. ou Res.) na aba Escalação antes de cadastrar eventos.
@@ -1567,8 +1591,7 @@ export default function AdminMatchSheet() {
                 {sheetGoals.map((g) => (
                   <li key={g.id} className="flex items-center justify-between gap-2 px-3 py-2 text-sm">
                     <span>
-                      {g.minute}
-                      {g.injuryTimeMinute ? `+${g.injuryTimeMinute}` : ""}&apos;{" "}
+                      {formatSavedMinute(g.minute, g.injuryTimeMinute)}{" "}
                       {g.isOwnGoal ? "Gol contra" : (g.scorerName ?? "—")}
                       {g.isPenalty && (
                         <span className="ml-1 text-[10px] uppercase text-gray-400">(Pênalti)</span>
@@ -1605,8 +1628,7 @@ export default function AdminMatchSheet() {
                 {sheetCards.map((c) => (
                   <li key={c.id} className="flex items-center justify-between gap-2 px-3 py-2 text-sm">
                     <span>
-                      {c.minute}
-                      {c.injuryTimeMinute ? `+${c.injuryTimeMinute}` : ""}&apos;{" "}
+                      {formatSavedMinute(c.minute, c.injuryTimeMinute)}{" "}
                       <span
                         className={`inline-block w-2.5 h-3.5 rounded-sm align-middle mr-1 ${
                           c.cardType === "red" ? "bg-red-600" : "bg-yellow-400"
@@ -1637,8 +1659,7 @@ export default function AdminMatchSheet() {
                 {sheetManagerCards.map((c) => (
                   <li key={c.id} className="flex items-center justify-between gap-2 px-3 py-2 text-sm">
                     <span>
-                      {c.minute}
-                      {c.injuryTimeMinute ? `+${c.injuryTimeMinute}` : ""}&apos;{" "}
+                      {formatSavedMinute(c.minute, c.injuryTimeMinute)}{" "}
                       <span
                         className={`inline-block w-2.5 h-3.5 rounded-sm align-middle mr-1 ${
                           c.cardType === "red" ? "bg-red-600" : "bg-yellow-400"
@@ -1669,6 +1690,9 @@ export default function AdminMatchSheet() {
           <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
             Substituições CSA
           </h2>
+          <p className="text-xs text-gray-400">
+            Minuto opcional (vazio ou 200 = N/D).
+          </p>
           {lineupOptions.length === 0 && (
             <p className="text-xs text-gray-400">
               Escale jogadores (Tit. ou Res.) na aba Escalação antes de cadastrar substituições.

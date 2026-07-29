@@ -9,6 +9,10 @@ import {
   playersTable,
 } from "@workspace/db";
 import { eq, asc, and, sql } from "drizzle-orm";
+import {
+  isUnknownEventMinute,
+  normalizeEventMinute,
+} from "./event-minute";
 
 export type MatchSheetSide = "csa" | "opponent";
 
@@ -25,7 +29,8 @@ export type LineupInput = {
 export type GoalInput = {
   scorerPlayerId?: number | null;
   scorerName?: string | null;
-  minute: number;
+  /** Exact minute, or empty/200 for unavailable. */
+  minute?: number | null | string;
   injuryTimeMinute?: number | null;
   assistPlayerId?: number | null;
   assistName?: string | null;
@@ -38,7 +43,8 @@ export type GoalInput = {
 
 export type AssistInput = {
   assistPlayerId: number;
-  minute: number;
+  /** Must be a known minute to pair with a goal (not empty/200). */
+  minute?: number | null | string;
   injuryTimeMinute?: number | null;
 };
 
@@ -46,14 +52,14 @@ export type CardInput = {
   cardType: "yellow" | "red" | string;
   playerId?: number | null;
   playerName?: string | null;
-  minute: number;
+  minute?: number | null | string;
   injuryTimeMinute?: number | null;
   side?: MatchSheetSide;
 };
 
 export type ManagerCardInput = {
   cardType: "yellow" | "red" | string;
-  minute: number;
+  minute?: number | null | string;
   injuryTimeMinute?: number | null;
 };
 
@@ -62,7 +68,7 @@ export type SubstitutionInput = {
   playerOutName?: string | null;
   playerInId?: number | null;
   playerInName?: string | null;
-  minute: number;
+  minute?: number | null | string;
   injuryTimeMinute?: number | null;
   side?: MatchSheetSide;
 };
@@ -353,11 +359,6 @@ export async function replaceCsaSubstitutions(
     );
 
   for (const s of subsIn) {
-    if (s.minute == null || Number.isNaN(Number(s.minute))) {
-      throw Object.assign(new Error("Substituição precisa de minuto"), {
-        status: 400,
-      });
-    }
     const outId = s.playerOutId ?? null;
     const inId = s.playerInId ?? null;
     if (!outId || !lineupIdByPlayer.has(outId)) {
@@ -393,9 +394,11 @@ export async function replaceCsaSubstitutions(
       playerInLineupId: lineupIdByPlayer.get(inId) ?? null,
       playerInId: inId,
       playerInName,
-      minute: Number(s.minute),
+      minute: normalizeEventMinute(s.minute),
       injuryTimeMinute:
-        s.injuryTimeMinute == null ? null : Number(s.injuryTimeMinute),
+        s.injuryTimeMinute == null || String(s.injuryTimeMinute).trim() === ""
+          ? null
+          : Number(s.injuryTimeMinute),
     });
   }
 
@@ -407,9 +410,7 @@ async function insertGoalRow(
   g: GoalInput,
   lineupIdByPlayer: Map<number, number>,
 ) {
-  if (g.minute == null || Number.isNaN(Number(g.minute))) {
-    throw Object.assign(new Error("Gol precisa de minuto"), { status: 400 });
-  }
+  const minute = normalizeEventMinute(g.minute);
 
   const isOwnGoal = Boolean(g.isOwnGoal);
   const ownGoalDirection = isOwnGoal
@@ -470,9 +471,11 @@ async function insertGoalRow(
         : null,
       scorerPlayerId,
       scorerName,
-      minute: Number(g.minute),
+      minute,
       injuryTimeMinute:
-        g.injuryTimeMinute == null ? null : Number(g.injuryTimeMinute),
+        g.injuryTimeMinute == null || String(g.injuryTimeMinute).trim() === ""
+          ? null
+          : Number(g.injuryTimeMinute),
       assistLineupId,
       assistPlayerId,
       assistName,
@@ -498,10 +501,14 @@ async function attachAssistsByMinute(
         { status: 400 },
       );
     }
-    if (a.minute == null || Number.isNaN(Number(a.minute))) {
-      throw Object.assign(new Error("Assistência precisa de minuto"), {
-        status: 400,
-      });
+    const minute = normalizeEventMinute(a.minute);
+    if (isUnknownEventMinute(minute)) {
+      throw Object.assign(
+        new Error(
+          "Assistência precisa do minuto conhecido do gol para vincular (não use vazio/200)",
+        ),
+        { status: 400 },
+      );
     }
 
     const candidates = await db
@@ -511,7 +518,7 @@ async function attachAssistsByMinute(
         and(
           eq(matchGoalsTable.matchId, matchId),
           eq(matchGoalsTable.side, "csa"),
-          eq(matchGoalsTable.minute, Number(a.minute)),
+          eq(matchGoalsTable.minute, minute),
           eq(matchGoalsTable.isOwnGoal, false),
           sql`${matchGoalsTable.assistPlayerId} is null`,
         ),
@@ -523,7 +530,7 @@ async function attachAssistsByMinute(
     if (!goal) {
       throw Object.assign(
         new Error(
-          `Nenhum gol no minuto ${a.minute} disponível para receber a assistência`,
+          `Nenhum gol no minuto ${minute} disponível para receber a assistência`,
         ),
         { status: 400 },
       );
@@ -580,9 +587,6 @@ export async function appendCsaEvents(
         status: 400,
       });
     }
-    if (c.minute == null || Number.isNaN(Number(c.minute))) {
-      throw Object.assign(new Error("Cartão precisa de minuto"), { status: 400 });
-    }
     const playerId = c.playerId ?? null;
     if (!playerId || !lineupIdByPlayer.has(playerId)) {
       throw Object.assign(
@@ -600,9 +604,11 @@ export async function appendCsaEvents(
       lineupId: lineupIdByPlayer.get(playerId) ?? null,
       playerId,
       playerName,
-      minute: Number(c.minute),
+      minute: normalizeEventMinute(c.minute),
       injuryTimeMinute:
-        c.injuryTimeMinute == null ? null : Number(c.injuryTimeMinute),
+        c.injuryTimeMinute == null || String(c.injuryTimeMinute).trim() === ""
+          ? null
+          : Number(c.injuryTimeMinute),
     });
   }
 
@@ -612,17 +618,16 @@ export async function appendCsaEvents(
         status: 400,
       });
     }
-    if (mc.minute == null || Number.isNaN(Number(mc.minute))) {
-      throw Object.assign(new Error("Cartão do técnico precisa de minuto"), {
-        status: 400,
-      });
-    }
+    // Manager card rows are minute-driven in the form; empty = skip at client.
+    // Still accept 200 / empty as unavailable when sent.
     await db.insert(matchManagerCardsTable).values({
       matchId,
       cardType: mc.cardType,
-      minute: Number(mc.minute),
+      minute: normalizeEventMinute(mc.minute),
       injuryTimeMinute:
-        mc.injuryTimeMinute == null ? null : Number(mc.injuryTimeMinute),
+        mc.injuryTimeMinute == null || String(mc.injuryTimeMinute).trim() === ""
+          ? null
+          : Number(mc.injuryTimeMinute),
     });
   }
 
@@ -733,9 +738,11 @@ export async function replaceCsaMatchSheet(
       lineupId: lineupIdByPlayer.get(playerId) ?? null,
       playerId,
       playerName,
-      minute: Number(c.minute),
+      minute: normalizeEventMinute(c.minute),
       injuryTimeMinute:
-        c.injuryTimeMinute == null ? null : Number(c.injuryTimeMinute),
+        c.injuryTimeMinute == null || String(c.injuryTimeMinute).trim() === ""
+          ? null
+          : Number(c.injuryTimeMinute),
     });
   }
 

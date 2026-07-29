@@ -16,14 +16,35 @@ import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
 import { ShareButton } from "@/components/ShareButton";
+import {
+  isUnknownEventMinute,
+  UNKNOWN_EVENT_MINUTE_TITLE,
+} from "@/lib/event-minute";
 
 function fmtDate(d: string) {
   return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
 }
 
-function fmtMinute(minute: number, injury: number | null | undefined) {
-  if (injury != null && injury > 0) return `${minute}+${injury}'`;
-  return `${minute}'`;
+function EventMinute({
+  minute,
+  injury,
+}: {
+  minute: number;
+  injury: number | null | undefined;
+}) {
+  if (isUnknownEventMinute(minute)) {
+    return (
+      <span
+        title={UNKNOWN_EVENT_MINUTE_TITLE}
+        className="tabular-nums cursor-help underline decoration-dotted"
+      >
+        N/D
+      </span>
+    );
+  }
+  const label =
+    injury != null && injury > 0 ? `${minute}+${injury}'` : `${minute}'`;
+  return <span className="tabular-nums">{label}</span>;
 }
 
 type PlayerEvent = {
@@ -98,6 +119,9 @@ function eventsForPlayer(
     }
   }
   return events.sort((a, b) => {
+    const aUnk = isUnknownEventMinute(a.minute);
+    const bUnk = isUnknownEventMinute(b.minute);
+    if (aUnk !== bUnk) return aUnk ? 1 : -1;
     if (a.minute !== b.minute) return a.minute - b.minute;
     return (a.injuryTimeMinute ?? 0) - (b.injuryTimeMinute ?? 0);
   });
@@ -158,7 +182,7 @@ function EventIcons({ events }: { events: PlayerEvent[] }) {
               ↑
             </span>
           )}
-          <span className="tabular-nums">{fmtMinute(e.minute, e.injuryTimeMinute)}</span>
+          <EventMinute minute={e.minute} injury={e.injuryTimeMinute} />
         </span>
       ))}
     </span>
