@@ -347,6 +347,11 @@ router.post("/admin/players", requireAdmin, async (req, res) => {
         ]
       : [];
 
+    const birthCountry = body.birthCountry?.trim() || null;
+    const nationality =
+      birthCountry ||
+      (typeof body.nationality === "string" ? body.nationality.trim() || null : null);
+
     const [player] = await db
       .insert(playersTable)
       .values({
@@ -354,13 +359,13 @@ router.post("/admin/players", requireAdmin, async (req, res) => {
         fullName: body.fullName?.trim() || null,
         position: primaryPosition,
         secondaryPositions,
-        nationality: body.nationality || null,
+        nationality,
         photoUrl: body.photoUrl?.trim() || null,
         birthYear,
         birthDate,
         birthCity: body.birthCity?.trim() || null,
         birthState: body.birthState?.trim() || null,
-        birthCountry: body.birthCountry?.trim() || null,
+        birthCountry,
         preferredFoot: foot,
         heightCm: body.heightCm ?? null,
         weightKg: body.weightKg ?? null,
@@ -425,6 +430,11 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
         ]
       : [];
 
+    const birthCountry = body.birthCountry?.trim() || null;
+    const nationality =
+      birthCountry ||
+      (typeof body.nationality === "string" ? body.nationality.trim() || null : null);
+
     const [updated] = await db
       .update(playersTable)
       .set({
@@ -432,13 +442,13 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
         fullName: body.fullName?.trim() || null,
         position: primaryPosition,
         secondaryPositions,
-        nationality: body.nationality || null,
+        nationality,
         photoUrl: body.photoUrl?.trim() || null,
         birthYear,
         birthDate,
         birthCity: body.birthCity?.trim() || null,
         birthState: body.birthState?.trim() || null,
-        birthCountry: body.birthCountry?.trim() || null,
+        birthCountry,
         preferredFoot: foot,
         heightCm: body.heightCm ?? null,
         weightKg: body.weightKg ?? null,
@@ -1713,7 +1723,26 @@ router.get("/admin/stadiums/:id", requireAdmin, async (req, res) => {
       .where(eq(opponentsTable.homeStadiumId, id))
       .orderBy(asc(opponentsTable.name));
 
-    res.json({ ...stadium, homeClubs });
+    const matches = await db
+      .select({
+        id: matchesTable.id,
+        matchDate: matchesTable.matchDate,
+        season: matchesTable.season,
+        goalsFor: matchesTable.goalsFor,
+        goalsAgainst: matchesTable.goalsAgainst,
+        result: matchesTable.result,
+        homeAway: matchesTable.homeAway,
+        competitionName: competitionsTable.name,
+        opponentName: opponentsTable.name,
+        isFriendly: matchesTable.isFriendly,
+      })
+      .from(matchesTable)
+      .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .where(eq(matchesTable.stadiumId, id))
+      .orderBy(desc(matchesTable.matchDate));
+
+    res.json({ ...stadium, homeClubs, matches });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -1872,6 +1901,10 @@ router.post("/admin/stadiums/merge", requireAdmin, async (req, res) => {
         [keepId, oldId]
       );
       matchesMoved += r.rowCount ?? 0;
+      await pgPool.query(
+        `UPDATE opponents SET home_stadium_id=$1 WHERE home_stadium_id=$2`,
+        [keepId, oldId],
+      );
     }
     // Rename if requested
     if (newName?.trim()) {
@@ -4470,10 +4503,249 @@ router.post("/admin/opponents/merge", requireAdmin, async (req, res) => {
   try {
     const { keepId, removeId } = req.body as { keepId: number; removeId: number };
     if (!keepId || !removeId) return res.status(400).json({ error: "keepId e removeId obrigatórios" });
+    if (keepId === removeId) return res.status(400).json({ error: "IDs devem ser diferentes" });
+    const [keep] = await db.select({ id: opponentsTable.id, name: opponentsTable.name }).from(opponentsTable).where(eq(opponentsTable.id, keepId));
+    const [remove] = await db.select({ id: opponentsTable.id }).from(opponentsTable).where(eq(opponentsTable.id, removeId));
+    if (!keep || !remove) return res.status(404).json({ error: "Adversário não encontrado" });
     await db.update(matchesTable).set({ opponentId: keepId }).where(eq(matchesTable.opponentId, removeId));
     await db.delete(opponentsTable).where(eq(opponentsTable.id, removeId));
-    const [kept] = await db.select({ name: opponentsTable.name }).from(opponentsTable).where(eq(opponentsTable.id, keepId));
-    res.json({ ok: true, kept: kept?.name, removedId: removeId });
+    res.json({ ok: true, kept: keep.name, removedId: removeId });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+// Merge two players: re-point sheet FKs + season stats, then delete removeId
+router.post("/admin/players/merge", requireAdmin, async (req, res) => {
+  try {
+    const { keepId, removeId } = req.body as { keepId: number; removeId: number };
+    if (!keepId || !removeId) return res.status(400).json({ error: "keepId e removeId obrigatórios" });
+    if (keepId === removeId) return res.status(400).json({ error: "IDs devem ser diferentes" });
+
+    const client = await pgPool.connect();
+    try {
+      await client.query("BEGIN");
+      const keepP = await client.query(`SELECT id, name FROM players WHERE id=$1`, [keepId]);
+      const removeP = await client.query(`SELECT id, name FROM players WHERE id=$1`, [removeId]);
+      if (!keepP.rows[0] || !removeP.rows[0]) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: "Jogador não encontrado" });
+      }
+      const keepName = keepP.rows[0].name as string;
+
+      const conflicts = await client.query(
+        `SELECT a.id AS from_lineup_id, b.id AS to_lineup_id
+         FROM match_lineups a
+         JOIN match_lineups b
+           ON a.match_id=b.match_id AND a.side=b.side AND b.player_id=$2
+         WHERE a.player_id=$1`,
+        [removeId, keepId],
+      );
+      for (const c of conflicts.rows) {
+        await client.query(`UPDATE match_goals SET scorer_lineup_id=$2 WHERE scorer_lineup_id=$1`, [
+          c.from_lineup_id,
+          c.to_lineup_id,
+        ]);
+        await client.query(`UPDATE match_goals SET assist_lineup_id=$2 WHERE assist_lineup_id=$1`, [
+          c.from_lineup_id,
+          c.to_lineup_id,
+        ]);
+        await client.query(`UPDATE match_cards SET lineup_id=$2 WHERE lineup_id=$1`, [
+          c.from_lineup_id,
+          c.to_lineup_id,
+        ]);
+        await client.query(
+          `UPDATE match_substitutions SET player_out_lineup_id=$2 WHERE player_out_lineup_id=$1`,
+          [c.from_lineup_id, c.to_lineup_id],
+        );
+        await client.query(
+          `UPDATE match_substitutions SET player_in_lineup_id=$2 WHERE player_in_lineup_id=$1`,
+          [c.from_lineup_id, c.to_lineup_id],
+        );
+        await client.query(`DELETE FROM match_lineups WHERE id=$1`, [c.from_lineup_id]);
+      }
+
+      await client.query(
+        `UPDATE match_lineups SET player_id=$2, player_name=$3 WHERE player_id=$1`,
+        [removeId, keepId, keepName],
+      );
+      await client.query(
+        `UPDATE match_goals SET scorer_player_id=$2, scorer_name=$3 WHERE scorer_player_id=$1`,
+        [removeId, keepId, keepName],
+      );
+      await client.query(
+        `UPDATE match_goals SET assist_player_id=$2, assist_name=$3 WHERE assist_player_id=$1`,
+        [removeId, keepId, keepName],
+      );
+      await client.query(
+        `UPDATE match_cards SET player_id=$2, player_name=$3 WHERE player_id=$1`,
+        [removeId, keepId, keepName],
+      );
+      await client.query(
+        `UPDATE match_substitutions SET player_out_id=$2, player_out_name=$3 WHERE player_out_id=$1`,
+        [removeId, keepId, keepName],
+      );
+      await client.query(
+        `UPDATE match_substitutions SET player_in_id=$2, player_in_name=$3 WHERE player_in_id=$1`,
+        [removeId, keepId, keepName],
+      );
+      await client.query(`UPDATE matches SET captain_player_id=$2 WHERE captain_player_id=$1`, [
+        removeId,
+        keepId,
+      ]);
+
+      const pss = await client.query(
+        `SELECT season, appearances, goals, assists FROM player_season_stats WHERE player_id=$1`,
+        [removeId],
+      );
+      for (const row of pss.rows) {
+        const exist = await client.query(
+          `SELECT id FROM player_season_stats WHERE player_id=$1 AND season=$2`,
+          [keepId, row.season],
+        );
+        if (exist.rows[0]) {
+          await client.query(
+            `UPDATE player_season_stats SET
+               appearances = GREATEST(appearances, $2),
+               goals = GREATEST(goals, $3),
+               assists = GREATEST(assists, $4)
+             WHERE id=$1`,
+            [exist.rows[0].id, row.appearances ?? 0, row.goals ?? 0, row.assists ?? 0],
+          );
+          await client.query(
+            `DELETE FROM player_season_stats WHERE player_id=$1 AND season=$2`,
+            [removeId, row.season],
+          );
+        } else {
+          await client.query(
+            `UPDATE player_season_stats SET player_id=$2 WHERE player_id=$1 AND season=$3`,
+            [removeId, keepId, row.season],
+          );
+        }
+      }
+
+      await client.query(
+        `UPDATE entity_badges SET entity_id=$2
+         WHERE entity_type='player' AND entity_id=$1
+           AND NOT EXISTS (
+             SELECT 1 FROM entity_badges b
+             WHERE b.entity_type='player' AND b.entity_id=$2
+               AND b.label = entity_badges.label
+               AND COALESCE(b.season_year, -1) = COALESCE(entity_badges.season_year, -1)
+           )`,
+        [removeId, keepId],
+      );
+      await client.query(
+        `DELETE FROM entity_badges WHERE entity_type='player' AND entity_id=$1`,
+        [removeId],
+      );
+      await client.query(`DELETE FROM players WHERE id=$1`, [removeId]);
+      await client.query("COMMIT");
+      res.json({ ok: true, kept: keepName, removedId: removeId });
+    } catch (e) {
+      await client.query("ROLLBACK");
+      throw e;
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+// Merge two managers: reassign matches + season stats, then delete removeId
+router.post("/admin/managers/merge", requireAdmin, async (req, res) => {
+  try {
+    const { keepId, removeId } = req.body as { keepId: number; removeId: number };
+    if (!keepId || !removeId) return res.status(400).json({ error: "keepId e removeId obrigatórios" });
+    if (keepId === removeId) return res.status(400).json({ error: "IDs devem ser diferentes" });
+
+    const client = await pgPool.connect();
+    try {
+      await client.query("BEGIN");
+      const keepM = await client.query(`SELECT id, name FROM managers WHERE id=$1`, [keepId]);
+      const removeM = await client.query(`SELECT id FROM managers WHERE id=$1`, [removeId]);
+      if (!keepM.rows[0] || !removeM.rows[0]) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: "Técnico não encontrado" });
+      }
+      const keepName = keepM.rows[0].name as string;
+
+      await client.query(`UPDATE matches SET manager_id=$2 WHERE manager_id=$1`, [removeId, keepId]);
+
+      const mss = await client.query(
+        `SELECT season, games, wins, draws, losses, goals_for, goals_against, stats_source
+         FROM manager_season_stats WHERE manager_id=$1`,
+        [removeId],
+      );
+      for (const row of mss.rows) {
+        const exist = await client.query(
+          `SELECT id FROM manager_season_stats WHERE manager_id=$1 AND season=$2`,
+          [keepId, row.season],
+        );
+        if (exist.rows[0]) {
+          await client.query(
+            `UPDATE manager_season_stats SET
+               games = GREATEST(games, $2),
+               wins = GREATEST(wins, $3),
+               draws = GREATEST(draws, $4),
+               losses = GREATEST(losses, $5),
+               goals_for = GREATEST(goals_for, $6),
+               goals_against = GREATEST(goals_against, $7),
+               stats_source = CASE
+                 WHEN stats_source = 'manual' OR $8 = 'manual' THEN 'manual'
+                 ELSE stats_source
+               END
+             WHERE id=$1`,
+            [
+              exist.rows[0].id,
+              row.games ?? 0,
+              row.wins ?? 0,
+              row.draws ?? 0,
+              row.losses ?? 0,
+              row.goals_for ?? 0,
+              row.goals_against ?? 0,
+              row.stats_source,
+            ],
+          );
+          await client.query(
+            `DELETE FROM manager_season_stats WHERE manager_id=$1 AND season=$2`,
+            [removeId, row.season],
+          );
+        } else {
+          await client.query(
+            `UPDATE manager_season_stats SET manager_id=$2 WHERE manager_id=$1 AND season=$3`,
+            [removeId, keepId, row.season],
+          );
+        }
+      }
+
+      await client.query(
+        `UPDATE entity_badges SET entity_id=$2
+         WHERE entity_type='manager' AND entity_id=$1
+           AND NOT EXISTS (
+             SELECT 1 FROM entity_badges b
+             WHERE b.entity_type='manager' AND b.entity_id=$2
+               AND b.label = entity_badges.label
+               AND COALESCE(b.season_year, -1) = COALESCE(entity_badges.season_year, -1)
+           )`,
+        [removeId, keepId],
+      );
+      await client.query(
+        `DELETE FROM entity_badges WHERE entity_type='manager' AND entity_id=$1`,
+        [removeId],
+      );
+      await client.query(`DELETE FROM managers WHERE id=$1`, [removeId]);
+      await client.query("COMMIT");
+      res.json({ ok: true, kept: keepName, removedId: removeId });
+    } catch (e) {
+      await client.query("ROLLBACK");
+      throw e;
+    } finally {
+      client.release();
+    }
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });

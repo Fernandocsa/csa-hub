@@ -4,6 +4,8 @@ import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
+import { AdminMergeButton } from "@/components/AdminMergeButton";
+import { OpponentCrest } from "@/components/OpponentCrest";
 import type { Opponent } from "./AdminOpponentDetail";
 import { countryDisplayName } from "@/lib/countries";
 
@@ -95,8 +97,9 @@ export default function AdminOpponents() {
                   <td className="px-4 py-2 font-medium">
                     <Link
                       href={`/admin/adversarios/${o.id}`}
-                      className="text-[#1B3A6B] hover:underline"
+                      className="inline-flex items-center gap-2 text-[#1B3A6B] hover:underline"
                     >
+                      <OpponentCrest url={o.logoUrl} name={o.name} size="sm" fallback />
                       {o.name}
                     </Link>
                   </td>
@@ -104,7 +107,13 @@ export default function AdminOpponents() {
                     {opponentSubtitle(o) || "—"}
                   </td>
                   <td className="px-4 py-2">
-                    <div className="flex justify-end">
+                    <div className="flex justify-end gap-1">
+                      <AdminMergeButton
+                        keepId={o.id}
+                        keepName={o.name}
+                        mode={{ kind: "pair", endpoint: "/admin/opponents/merge" }}
+                        onDone={load}
+                      />
                       <button
                         type="button"
                         onClick={() => remove(o.id)}

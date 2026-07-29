@@ -83,7 +83,6 @@ function PlayerProfileForm({
   const [secondaryPositions, setSecondaryPositions] = useState<string[]>(
     initial?.secondaryPositions ?? [],
   );
-  const [nationality, setNationality] = useState(initial?.nationality ?? "");
   const [birthYear, setBirthYear] = useState(String(initial?.birthYear ?? ""));
   const [birthDate, setBirthDate] = useState(initial?.birthDate ?? "");
   const [birthMode, setBirthMode] = useState<BirthMode>(
@@ -112,7 +111,6 @@ function PlayerProfileForm({
     setPhotoUrl(initial?.photoUrl ?? "");
     setPosition(initial?.position ?? "");
     setSecondaryPositions(initial?.secondaryPositions ?? []);
-    setNationality(initial?.nationality ?? "");
     setBirthYear(String(initial?.birthYear ?? ""));
     setBirthDate(initial?.birthDate ?? "");
     setBirthMode(initial?.birthDate ? "exact" : initial?.birthYear != null ? "year" : "exact");
@@ -157,7 +155,7 @@ function PlayerProfileForm({
         photoUrl: photoUrl.trim() || null,
         position: position || null,
         secondaryPositions: secondaryPositions.filter((p) => p && p !== position),
-        nationality: nationality || null,
+        nationality: birthCountry.trim() || null,
         birthYear: normalizedBirthYear,
         birthDate: normalizedBirthDate,
         birthCity: birthCity.trim() || null,
@@ -223,38 +221,26 @@ function PlayerProfileForm({
           placeholder="Se diferente do nome de exibição"
         />
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
-            Posição principal
-          </label>
-          <select
-            className={sel}
-            value={position}
-            onChange={(e) => {
-              const next = e.target.value;
-              setPosition(next);
-              setSecondaryPositions((prev) => prev.filter((p) => p !== next));
-            }}
-          >
-            <option value="">–</option>
-            {primaryOptions.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
-            Nacionalidade
-          </label>
-          <Input
-            value={nationality}
-            onChange={(e) => setNationality(e.target.value)}
-            placeholder="Brasil"
-          />
-        </div>
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+          Posição principal
+        </label>
+        <select
+          className={sel}
+          value={position}
+          onChange={(e) => {
+            const next = e.target.value;
+            setPosition(next);
+            setSecondaryPositions((prev) => prev.filter((p) => p !== next));
+          }}
+        >
+          <option value="">–</option>
+          {primaryOptions.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
+        </select>
       </div>
       <div>
         <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">

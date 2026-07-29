@@ -269,6 +269,82 @@ export function hasAnyStoredStat(
   return STORED_STAT_KEYS.some((key) => body[key] != null);
 }
 
+/**
+ * Manual stored career totals act as a floor.
+ * When linked match count exceeds the manual floor, use linked (computed) stats.
+ * Otherwise keep the manual block (W/D/L stay consistent with the floor).
+ */
+export function resolveManagerCareerStats(
+  computed: {
+    matches: number;
+    wins: number;
+    draws: number;
+    losses: number;
+    goalsScored: number;
+    goalsConceded: number;
+  },
+  stored: {
+    storedGames: number | null;
+    storedWins: number | null;
+    storedDraws: number | null;
+    storedLosses: number | null;
+    storedGoalsFor: number | null;
+    storedGoalsAgainst: number | null;
+  },
+) {
+  const floor = stored.storedGames;
+  if (floor == null) return computed;
+  if (computed.matches > floor) return computed;
+  return {
+    matches: floor,
+    wins: stored.storedWins ?? 0,
+    draws: stored.storedDraws ?? 0,
+    losses: stored.storedLosses ?? 0,
+    goalsScored: stored.storedGoalsFor ?? 0,
+    goalsConceded: stored.storedGoalsAgainst ?? 0,
+  };
+}
+
+/** Per-season: if linked games exceed manual season row, show linked; else keep manual. */
+export function floorManagerSeasonRow(
+  manual: {
+    matches: number;
+    wins: number;
+    draws: number;
+    losses: number;
+    goalsScored: number;
+    goalsConceded: number;
+  } | null,
+  linked: {
+    matches: number;
+    wins: number;
+    draws: number;
+    losses: number;
+    goalsScored: number;
+    goalsConceded: number;
+  } | null,
+) {
+  const m = manual ?? {
+    matches: 0,
+    wins: 0,
+    draws: 0,
+    losses: 0,
+    goalsScored: 0,
+    goalsConceded: 0,
+  };
+  const l = linked ?? {
+    matches: 0,
+    wins: 0,
+    draws: 0,
+    losses: 0,
+    goalsScored: 0,
+    goalsConceded: 0,
+  };
+  if (l.matches > m.matches) return l;
+  if (m.matches > 0 || !linked) return m;
+  return l;
+}
+
 /** Derive tenure from season labels (YYYY-friendly text min/max). */
 export function periodFromSeasons(seasons: string[]): {
   startYear: number | null;

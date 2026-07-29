@@ -17,6 +17,7 @@ import { ShareButton } from "@/components/ShareButton";
 import { PlayerFlag } from "@/components/PlayerFlag";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { EntityPhoto } from "@/components/EntityPhoto";
+import { OpponentCrest } from "@/components/OpponentCrest";
 import { groupPlayersByPosition } from "@/lib/position-groups";
 import { cn } from "@/lib/utils";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
@@ -284,8 +285,13 @@ function SeasonRecentMatches({ year }: { year: string }) {
                     <TableCell className="py-2">
                       <Link
                         href={`/partidas/${match.id}`}
-                        className="font-medium hover:text-primary hover:underline"
+                        className="inline-flex items-center gap-2 font-medium hover:text-primary hover:underline"
                       >
+                        <OpponentCrest
+                          url={(match as { opponentLogoUrl?: string | null }).opponentLogoUrl}
+                          name={match.opponent}
+                          size="sm"
+                        />
                         {match.opponent}
                       </Link>
                       <span

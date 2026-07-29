@@ -7,42 +7,15 @@ import {
 } from "@workspace/db";
 import { sql, eq, desc, asc, and } from "drizzle-orm";
 import { loadEntityBadges } from "../lib/entity-badges";
-import { periodFromSeasons } from "../lib/manager-stats";
+import {
+  computeManagerSeasonStatsFromMatches,
+  floorManagerSeasonRow,
+  periodFromSeasons,
+  resolveManagerCareerStats,
+} from "../lib/manager-stats";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
 
 const router = Router();
-
-/** Prefer stored career totals; fall back to match aggregates. */
-function resolveStats(
-  computed: {
-    matches: number;
-    wins: number;
-    draws: number;
-    losses: number;
-    goalsScored: number;
-    goalsConceded: number;
-  },
-  stored: {
-    storedGames: number | null;
-    storedWins: number | null;
-    storedDraws: number | null;
-    storedLosses: number | null;
-    storedGoalsFor: number | null;
-    storedGoalsAgainst: number | null;
-  },
-) {
-  if (stored.storedGames != null) {
-    return {
-      matches: stored.storedGames,
-      wins: stored.storedWins ?? 0,
-      draws: stored.storedDraws ?? 0,
-      losses: stored.storedLosses ?? 0,
-      goalsScored: stored.storedGoalsFor ?? 0,
-      goalsConceded: stored.storedGoalsAgainst ?? 0,
-    };
-  }
-  return computed;
-}
 
 router.get("/managers", async (req, res) => {
   try {
@@ -111,7 +84,7 @@ router.get("/managers", async (req, res) => {
           goalsScored: r.computedGoalsScored,
           goalsConceded: r.computedGoalsConceded,
         };
-        const stats = resolveStats(computed, r);
+        const stats = resolveManagerCareerStats(computed, r);
         const period = periodFromSeasons(seasonsByManager.get(r.id) ?? []);
         return {
           id: r.id,
@@ -181,9 +154,56 @@ router.get("/managers/:id", async (req, res) => {
       goalsScored: 0,
       goalsConceded: 0,
     };
-    const stats = resolveStats(computed, manager);
+    const stats = resolveManagerCareerStats(computed, manager);
     const badges = await loadEntityBadges("manager", id);
-    const period = periodFromSeasons(seasonRows.map((r) => r.season));
+    const linkedSeasons = await computeManagerSeasonStatsFromMatches(id);
+    const linkedBySeason = new Map(linkedSeasons.map((r) => [r.season, r]));
+    const seasonKeys = new Set([
+      ...seasonRows.map((r) => r.season),
+      ...linkedSeasons.map((r) => r.season),
+    ]);
+    const flooredSeasons = [...seasonKeys]
+      .sort((a, b) => b.localeCompare(a))
+      .map((season) => {
+        const manualRow = seasonRows.find((r) => r.season === season);
+        const linked = linkedBySeason.get(season);
+        const floored = floorManagerSeasonRow(
+          manualRow
+            ? {
+                matches: manualRow.matches,
+                wins: manualRow.wins,
+                draws: manualRow.draws,
+                losses: manualRow.losses,
+                goalsScored: manualRow.goalsScored,
+                goalsConceded: manualRow.goalsConceded,
+              }
+            : null,
+          linked
+            ? {
+                matches: linked.games,
+                wins: linked.wins,
+                draws: linked.draws,
+                losses: linked.losses,
+                goalsScored: linked.goalsFor,
+                goalsConceded: linked.goalsAgainst,
+              }
+            : null,
+        );
+        return {
+          year: season,
+          matches: floored.matches,
+          wins: floored.wins,
+          draws: floored.draws,
+          losses: floored.losses,
+          goalsScored: floored.goalsScored,
+          goalsConceded: floored.goalsConceded,
+          topScorer: null,
+          topScorerGoals: null,
+          topAppearances: null,
+          topAppearancesCount: null,
+        };
+      });
+    const period = periodFromSeasons(flooredSeasons.map((r) => r.year));
 
     res.json({
       id: manager.id,
@@ -212,19 +232,7 @@ router.get("/managers/:id", async (req, res) => {
           ? Math.round((stats.wins / stats.matches) * 100 * 10) / 10
           : 0,
       badges,
-      seasonStats: seasonRows.map((r) => ({
-        year: r.season,
-        matches: r.matches,
-        wins: r.wins,
-        draws: r.draws,
-        losses: r.losses,
-        goalsScored: r.goalsScored,
-        goalsConceded: r.goalsConceded,
-        topScorer: null,
-        topScorerGoals: null,
-        topAppearances: null,
-        topAppearancesCount: null,
-      })),
+      seasonStats: flooredSeasons,
     });
   } catch (err) {
     req.log.error(err);

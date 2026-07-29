@@ -1,15 +1,24 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
+import { AdminMergeButton } from "@/components/AdminMergeButton";
 import type { Player } from "./AdminPlayerDetail";
+
+const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+function nameInitial(name: string): string {
+  const ch = name.trim().charAt(0).toUpperCase();
+  return /^[A-Z]$/.test(ch) ? ch : "#";
+}
 
 export default function AdminPlayers() {
   const [, setLocation] = useLocation();
   const [players, setPlayers] = useState<Player[]>([]);
   const [search, setSearch] = useState("");
+  const [letter, setLetter] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -29,9 +38,14 @@ export default function AdminPlayers() {
     await load();
   }
 
-  const filtered = players.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return players.filter((p) => {
+      if (q && !p.name.toLowerCase().includes(q)) return false;
+      if (letter == null) return true;
+      return nameInitial(p.name) === letter;
+    });
+  }, [players, search, letter]);
 
   return (
     <div>
@@ -58,6 +72,46 @@ export default function AdminPlayers() {
         onValueChange={setSearch}
         onSelect={(item) => setLocation(`/admin/jogadores/${item.id}`)}
       />
+
+      <div className="flex flex-wrap items-center gap-1 mb-3">
+        <button
+          type="button"
+          onClick={() => setLetter(null)}
+          className={`px-2 py-1 text-xs rounded border ${
+            letter == null
+              ? "bg-[#1B3A6B] text-white border-[#1B3A6B]"
+              : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+          }`}
+        >
+          Todos
+        </button>
+        {LETTERS.map((L) => (
+          <button
+            key={L}
+            type="button"
+            onClick={() => setLetter(L)}
+            className={`w-7 h-7 text-xs rounded border ${
+              letter === L
+                ? "bg-[#1B3A6B] text-white border-[#1B3A6B]"
+                : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+            }`}
+          >
+            {L}
+          </button>
+        ))}
+        <button
+          type="button"
+          onClick={() => setLetter("#")}
+          className={`w-7 h-7 text-xs rounded border ${
+            letter === "#"
+              ? "bg-[#1B3A6B] text-white border-[#1B3A6B]"
+              : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+          }`}
+          title="Nomes que não começam com A–Z"
+        >
+          #
+        </button>
+      </div>
 
       {loading ? (
         <p className="text-sm text-gray-400">Carregando...</p>
@@ -96,7 +150,13 @@ export default function AdminPlayers() {
                   <td className="px-4 py-2 text-gray-600">{player.nationality ?? "–"}</td>
                   <td className="px-4 py-2 text-gray-600">{player.birthYear ?? "–"}</td>
                   <td className="px-4 py-2">
-                    <div className="flex items-center justify-end">
+                    <div className="flex items-center justify-end gap-1">
+                      <AdminMergeButton
+                        keepId={player.id}
+                        keepName={player.name}
+                        mode={{ kind: "pair", endpoint: "/admin/players/merge" }}
+                        onDone={load}
+                      />
                       <button
                         type="button"
                         onClick={() => deletePlayer(player.id)}

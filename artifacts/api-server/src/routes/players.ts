@@ -9,6 +9,10 @@ import {
 } from "@workspace/db";
 import { sql, eq, ilike, and, desc, asc, ne, or, isNull } from "drizzle-orm";
 import { loadEntityBadges } from "../lib/entity-badges";
+import {
+  flooredPlayerSeasonStats,
+  sumFlooredSeasons,
+} from "../lib/player-stats-floor";
 
 const router = Router();
 
@@ -501,26 +505,19 @@ router.get("/players/:id", async (req, res) => {
     });
     if (!player) return res.status(404).json({ error: "Jogador não encontrado" });
 
-    const seasonStats = await db
-      .select({
-        id: playerSeasonStatsTable.id,
-        name: playersTable.name,
-        position: playersTable.position,
-        nationality: playersTable.nationality,
-        nationalityFlag: playersTable.nationalityFlag,
-        season: playerSeasonStatsTable.season,
-        appearances: playerSeasonStatsTable.appearances,
-        goals: playerSeasonStatsTable.goals,
-        assists: playerSeasonStatsTable.assists,
-      })
-      .from(playerSeasonStatsTable)
-      .innerJoin(playersTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
-      .where(eq(playerSeasonStatsTable.playerId, id))
-      .orderBy(desc(playerSeasonStatsTable.season));
-
-    const totalAppearances = seasonStats.reduce((s, r) => s + r.appearances, 0);
-    const totalGoals = seasonStats.reduce((s, r) => s + r.goals, 0);
-    const totalAssists = seasonStats.reduce((s, r) => s + (r.assists || 0), 0);
+    const floored = await flooredPlayerSeasonStats(id);
+    const totals = sumFlooredSeasons(floored);
+    const seasonStats = floored.map((r) => ({
+      id: 0,
+      name: player.name,
+      position: player.position,
+      nationality: player.nationality,
+      nationalityFlag: player.nationalityFlag,
+      season: r.season,
+      appearances: r.appearances,
+      goals: r.goals,
+      assists: r.assists,
+    }));
     const recentMatches = await loadPlayerSheetMatches(id, 5);
     const badges = await loadEntityBadges("player", id);
 
@@ -545,9 +542,9 @@ router.get("/players/:id", async (req, res) => {
       verificationStatus: player.verificationStatus,
       verifiedAt: player.verifiedAt,
       verifiedBy: player.verifiedBy,
-      totalAppearances,
-      totalGoals,
-      totalAssists,
+      totalAppearances: totals.appearances,
+      totalGoals: totals.goals,
+      totalAssists: totals.assists,
       seasonStats,
       recentMatches,
       badges,

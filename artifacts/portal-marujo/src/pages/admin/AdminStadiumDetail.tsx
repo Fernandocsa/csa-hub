@@ -43,8 +43,22 @@ type HomeClub = {
   country: string | null;
 };
 
+type StadiumMatch = {
+  id: number;
+  matchDate: string;
+  season: string;
+  goalsFor: number | null;
+  goalsAgainst: number | null;
+  result: string;
+  homeAway: string;
+  competitionName: string;
+  opponentName: string;
+  isFriendly: boolean;
+};
+
 type StadiumDetail = Stadium & {
   homeClubs: HomeClub[];
+  matches: StadiumMatch[];
 };
 
 type OpponentOption = {
@@ -75,7 +89,77 @@ function locationLabel(o: {
   return [o.city, o.state].filter(Boolean).join(" · ");
 }
 
-type TabId = "perfil" | "clubes";
+type TabId = "perfil" | "clubes" | "jogos";
+
+function fmtDate(d: string) {
+  return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
+}
+
+function StadiumMatches({ matches }: { matches: StadiumMatch[] }) {
+  const [, setLocation] = useLocation();
+  if (matches.length === 0) {
+    return (
+      <p className="text-sm text-gray-400">Nenhuma partida cadastrada neste estádio.</p>
+    );
+  }
+
+  return (
+    <div className="bg-white border rounded-lg overflow-hidden">
+      <table className="w-full text-sm">
+        <thead className="bg-gray-50 border-b">
+          <tr>
+            <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+              Data
+            </th>
+            <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+              Adversário
+            </th>
+            <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+              Competição
+            </th>
+            <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+              Placar
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {matches.map((m) => (
+            <tr
+              key={m.id}
+              className="border-b hover:bg-gray-50 cursor-pointer"
+              onClick={() => setLocation(`/admin/partidas/${m.id}`)}
+            >
+              <td className="px-3 py-2 whitespace-nowrap">
+                <Link
+                  href={`/admin/partidas/${m.id}`}
+                  className="text-[#1B3A6B] hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {fmtDate(m.matchDate)}
+                </Link>
+                <span className="block text-[10px] text-gray-400">{m.season}</span>
+              </td>
+              <td className="px-3 py-2 font-medium">{m.opponentName}</td>
+              <td className="px-3 py-2">
+                {m.competitionName}
+                {m.isFriendly ? (
+                  <span className="ml-1 text-[10px] text-amber-600">amistoso</span>
+                ) : null}
+              </td>
+              <td className="px-3 py-2 font-medium">
+                {m.goalsFor ?? "–"}–{m.goalsAgainst ?? "–"}
+                <span className="ml-2 text-xs text-gray-400 uppercase">{m.result}</span>
+                <span className="ml-2 text-xs text-gray-400">
+                  {m.homeAway === "home" ? "Casa" : m.homeAway === "away" ? "Fora" : m.homeAway}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 function StadiumProfileForm({
   initial,
@@ -534,9 +618,15 @@ export default function AdminStadiumDetail() {
 
   const tabs = useMemo(() => {
     const base: { id: TabId; label: string }[] = [{ id: "perfil", label: "Perfil" }];
-    if (!isNew) base.push({ id: "clubes", label: "Clubes" });
+    if (!isNew) {
+      base.push({ id: "clubes", label: "Clubes" });
+      base.push({
+        id: "jogos",
+        label: `Jogos${detail ? ` (${detail.matches?.length ?? 0})` : ""}`,
+      });
+    }
     return base;
-  }, [isNew]);
+  }, [isNew, detail]);
 
   if (loading) {
     return <p className="text-sm text-gray-400">Carregando...</p>;
@@ -609,6 +699,10 @@ export default function AdminStadiumDetail() {
           linked={detail.homeClubs}
           onSaved={load}
         />
+      )}
+
+      {tab === "jogos" && !isNew && detail && (
+        <StadiumMatches matches={detail.matches ?? []} />
       )}
     </div>
   );

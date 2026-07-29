@@ -4,6 +4,7 @@ import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
+import { AdminMergeButton } from "@/components/AdminMergeButton";
 import type { Manager } from "./AdminManagerDetail";
 
 export default function AdminManagers() {
@@ -65,6 +66,7 @@ export default function AdminManagers() {
                 <th className="text-left px-3 py-2">Nome</th>
                 <th className="text-left px-3 py-2">Nacionalidade</th>
                 <th className="text-left px-3 py-2">Período</th>
+                <th className="px-3 py-2" />
               </tr>
             </thead>
             <tbody>
@@ -85,6 +87,16 @@ export default function AdminManagers() {
                       : m.storedGames != null
                         ? `${m.storedGames} jogos`
                         : "–"}
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="flex justify-end">
+                      <AdminMergeButton
+                        keepId={m.id}
+                        keepName={m.name}
+                        mode={{ kind: "pair", endpoint: "/admin/managers/merge" }}
+                        onDone={load}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

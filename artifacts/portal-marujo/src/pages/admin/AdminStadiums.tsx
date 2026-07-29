@@ -4,6 +4,7 @@ import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
+import { AdminMergeButton } from "@/components/AdminMergeButton";
 import type { Stadium } from "./AdminStadiumDetail";
 import { countryDisplayName } from "@/lib/countries";
 
@@ -115,7 +116,13 @@ export default function AdminStadiums() {
                     {s.capacity != null ? s.capacity.toLocaleString("pt-BR") : "—"}
                   </td>
                   <td className="px-4 py-2">
-                    <div className="flex justify-end">
+                    <div className="flex justify-end gap-1">
+                      <AdminMergeButton
+                        keepId={s.id}
+                        keepName={s.name}
+                        mode={{ kind: "stadium" }}
+                        onDone={load}
+                      />
                       <button
                         type="button"
                         onClick={() => remove(s.id)}
