@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
 import { ChevronLeft, Plus, Trash2, RefreshCw } from "lucide-react";
+import {
+  compareByPositionGroupThenName,
+  shortPositionCode,
+} from "@/lib/position-groups";
 
 type CompStat = {
   id: number;
@@ -348,6 +352,17 @@ export default function AdminSeasonDetail() {
       );
     });
   }, [managers, managerDrafts]);
+
+  const rosterSorted = useMemo(
+    () =>
+      [...roster].sort((a, b) =>
+        compareByPositionGroupThenName(
+          { name: a.playerName, position: a.position },
+          { name: b.playerName, position: b.position },
+        ),
+      ),
+    [roster],
+  );
 
   const totals = useMemo(() => {
     return stats.reduce(
@@ -1214,6 +1229,7 @@ export default function AdminSeasonDetail() {
                   <thead>
                     <tr className="text-xs text-gray-400 border-b">
                       <th className="text-left py-1.5">Jogador</th>
+                      <th className="text-left py-1.5 w-12">Pos</th>
                       <th className="text-right py-1.5 w-16">Camisa</th>
                       <th className="text-right py-1.5 w-16">J</th>
                       <th className="text-right py-1.5 w-16">G</th>
@@ -1222,7 +1238,7 @@ export default function AdminSeasonDetail() {
                     </tr>
                   </thead>
                   <tbody>
-                    {roster.map((row) => {
+                    {rosterSorted.map((row) => {
                       const d =
                         rosterDrafts[row.id] ?? draftsFromRoster([row])[row.id];
                       return (
@@ -1234,11 +1250,9 @@ export default function AdminSeasonDetail() {
                             >
                               {row.playerName}
                             </Link>
-                            {row.position && (
-                              <span className="block text-xs text-gray-400">
-                                {row.position}
-                              </span>
-                            )}
+                          </td>
+                          <td className="py-2 pr-2 text-xs text-gray-500">
+                            {shortPositionCode(row.position)}
                           </td>
                           {(
                             [

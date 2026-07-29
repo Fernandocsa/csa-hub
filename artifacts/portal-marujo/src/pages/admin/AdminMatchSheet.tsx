@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, Trash2 } from "lucide-react";
 import { PlayerFlag } from "@/components/PlayerFlag";
-import { shortPositionCode, sortLineupByPosition } from "@/lib/position-groups";
+import {
+  compareByPositionGroupThenName,
+  shortPositionCode,
+  sortLineupByPosition,
+} from "@/lib/position-groups";
 import MatchGeneralForm, {
   type MatchGeneralFormData,
   type MatchLookupData,
@@ -202,7 +206,10 @@ export default function AdminMatchSheet() {
 
   const [match, setMatch] = useState<MatchMeta | null>(null);
   const [lookup, setLookup] = useState<MatchLookupData | null>(null);
-  const [managers, setManagers] = useState<{ id: number; name: string }[]>([]);
+  /** All managers (lookup) — only used to resolve names for a manager already on the match. */
+  const [allManagers, setAllManagers] = useState<{ id: number; name: string }[]>([]);
+  /** Managers linked to the match season via /admin/seasons/:year/managers. */
+  const [seasonManagers, setSeasonManagers] = useState<{ id: number; name: string }[]>([]);
   const [seasons, setSeasons] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -325,7 +332,7 @@ export default function AdminMatchSheet() {
             stadiums: lookupJson.stadiums ?? [],
             referees: lookupJson.referees ?? [],
           });
-          setManagers(
+          setAllManagers(
             [...(lookupJson.managers ?? [])].sort((a: { name: string }, b: { name: string }) =>
               a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
             ),
@@ -349,12 +356,26 @@ export default function AdminMatchSheet() {
         setMatch(found);
         setRosterSeason(found.season);
 
-        const [sheetRes, rosterRes] = await Promise.all([
+        const [sheetRes, rosterRes, managersRes] = await Promise.all([
           adminFetch(`/admin/matches/${matchId}/sheet`),
           adminFetch(`/admin/matches/${matchId}/roster?season=${encodeURIComponent(found.season)}`),
+          adminFetch(`/admin/seasons/${encodeURIComponent(found.season)}/managers`),
         ]);
         if (!sheetRes.ok || !rosterRes.ok) throw new Error("Erro ao carregar ficha");
         if (cancelled) return;
+
+        if (managersRes.ok) {
+          const mgrJson = (await managersRes.json()) as {
+            data?: Array<{ managerId: number; managerName: string }>;
+          };
+          setSeasonManagers(
+            (mgrJson.data ?? [])
+              .map((m) => ({ id: m.managerId, name: m.managerName }))
+              .sort((a, b) => a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" })),
+          );
+        } else {
+          setSeasonManagers([]);
+        }
 
         const rosterJson = (await rosterRes.json()) as { players?: RosterPlayer[] };
         const rosterPlayers = rosterJson.players ?? [];
@@ -429,8 +450,28 @@ export default function AdminMatchSheet() {
       });
       seen.add(id);
     }
-    return rows;
+    return [...rows].sort((a, b) =>
+      compareByPositionGroupThenName(
+        { name: a.playerName, position: a.position },
+        { name: b.playerName, position: b.position },
+      ),
+    );
   }, [roster, starterIds, benchIds, playerInfo]);
+
+  /** Season managers + current match manager if missing from the season link list. */
+  const managerRows = useMemo(() => {
+    const rows = [...seasonManagers];
+    const selectedId = managerIdDraft ? Number(managerIdDraft) : null;
+    if (selectedId != null && !Number.isNaN(selectedId) && !rows.some((m) => m.id === selectedId)) {
+      const fromAll = allManagers.find((m) => m.id === selectedId);
+      rows.push({
+        id: selectedId,
+        name: fromAll?.name ?? match?.managerName ?? `Técnico #${selectedId}`,
+      });
+      rows.sort((a, b) => a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }));
+    }
+    return rows;
+  }, [seasonManagers, managerIdDraft, allManagers, match?.managerName]);
 
   const lineupOptions = useMemo(
     () =>
@@ -980,25 +1021,49 @@ export default function AdminMatchSheet() {
             </table>
           </div>
 
-          <div className="max-w-xs">
-            <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
-              Técnico
-            </label>
-            <select
-              className={selectCls}
-              value={managerIdDraft}
-              onChange={(e) => {
-                setManagerIdDraft(e.target.value);
-                setSavedMsg("");
-              }}
-            >
-              <option value="">– sem técnico –</option>
-              {managers.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
+          <div className="space-y-2">
+            <h3 className="text-xs font-semibold text-gray-500 uppercase">Técnico</h3>
+            <p className="text-xs text-gray-400">
+              Técnicos vinculados à temporada {match.season}. Uma seleção apenas.
+            </p>
+            <div className="border rounded overflow-hidden overflow-x-auto max-w-lg">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-100 text-left text-[11px] uppercase text-gray-500">
+                    <th className="px-2 py-2">Técnico</th>
+                    <th className="px-2 py-2 w-14 text-center">Sel.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {managerRows.map((m, i) => {
+                    const selected = managerIdDraft === String(m.id);
+                    return (
+                      <tr key={m.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                        <td className="px-2 py-1.5 font-medium">{m.name}</td>
+                        <td className="px-2 py-1.5 text-center">
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 accent-[#1B3A6B]"
+                            checked={selected}
+                            onChange={(e) => {
+                              setSavedMsg("");
+                              setManagerIdDraft(e.target.checked ? String(m.id) : "");
+                            }}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {managerRows.length === 0 && (
+                    <tr>
+                      <td colSpan={2} className="px-2 py-4 text-center text-xs text-gray-400">
+                        Nenhum técnico vinculado a {match.season}. Vincule em Temporadas.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <Button type="button" className="bg-[#1B3A6B]" onClick={saveEscalacao} disabled={savingLineup}>
