@@ -7,6 +7,7 @@ import {
   playerSeasonStatsTable,
 } from "@workspace/db";
 import { officialPlayedMatchConditions } from "./match-filters";
+import { csaLineupActuallyPlayedCondition } from "./player-appeared";
 
 export type PlayerSeasonFloor = {
   season: string;
@@ -38,6 +39,7 @@ export async function linkedPlayerSeasonStats(playerId: number) {
       and(
         eq(matchLineupsTable.playerId, playerId),
         eq(matchLineupsTable.side, "csa"),
+        csaLineupActuallyPlayedCondition(),
         officialPlayedMatchConditions(),
       ),
     )

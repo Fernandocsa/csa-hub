@@ -9,6 +9,7 @@ import {
 } from "@workspace/db";
 import { and, asc, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import { officialPlayedMatchConditions, scoredFieldMatchConditions } from "./match-filters";
+import { csaLineupActuallyPlayedCondition } from "./player-appeared";
 
 export interface OpponentHighlightEntry {
   id: number;
@@ -154,6 +155,7 @@ export async function getOpponentHighlights(
           inArray(matchLineupsTable.matchId, fichaMatchIds),
           eq(matchLineupsTable.side, "csa"),
           isNotNull(matchLineupsTable.playerId),
+          csaLineupActuallyPlayedCondition(),
         ),
       )
       .groupBy(playersTable.id, playersTable.name)

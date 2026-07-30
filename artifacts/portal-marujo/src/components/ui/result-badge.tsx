@@ -5,7 +5,7 @@ type Result = "win" | "draw" | "loss";
 const labels: Record<Result, string> = { win: "V", draw: "E", loss: "D" };
 const styles: Record<Result, string> = {
   win: "bg-green-600 text-white",
-  draw: "bg-amber-500 text-white",
+  draw: "bg-zinc-500 text-white",
   loss: "bg-red-600 text-white",
 };
 

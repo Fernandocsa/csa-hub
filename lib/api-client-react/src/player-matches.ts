@@ -10,9 +10,20 @@ export interface PlayerSheetMatch {
   goalsAgainst: number | null;
   result: string;
   homeAway: string;
+  competition?: string | null;
+  competitionType?: string | null;
+  phase?: string | null;
+  round?: string | null;
   role: string;
   shirtNumber: number | null;
   position: string | null;
+  playerGoals: number;
+  yellowCards: number;
+  redCards: number;
+  minuteIn: number | null;
+  minuteInInjury: number | null;
+  minuteOut: number | null;
+  minuteOutInjury: number | null;
 }
 
 export interface PlayerMatchesResponse {

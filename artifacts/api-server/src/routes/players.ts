@@ -4,15 +4,21 @@ import {
   playersTable,
   playerSeasonStatsTable,
   matchLineupsTable,
+  matchGoalsTable,
+  matchCardsTable,
+  matchSubstitutionsTable,
   matchesTable,
   opponentsTable,
+  competitionsTable,
 } from "@workspace/db";
-import { sql, eq, ilike, and, desc, asc, ne, or, isNull } from "drizzle-orm";
+import { sql, eq, ilike, and, desc, asc, ne, or, isNull, inArray } from "drizzle-orm";
 import { loadEntityBadges } from "../lib/entity-badges";
 import {
   flooredPlayerSeasonStats,
   sumFlooredSeasons,
 } from "../lib/player-stats-floor";
+import { csaLineupActuallyPlayedCondition } from "../lib/player-appeared";
+import { officialPlayedMatchConditions } from "../lib/match-filters";
 
 const router = Router();
 
@@ -27,6 +33,10 @@ async function loadPlayerSheetMatches(playerId: number, limit?: number) {
       goalsAgainst: matchesTable.goalsAgainst,
       result: matchesTable.result,
       homeAway: matchesTable.homeAway,
+      phase: matchesTable.phase,
+      round: matchesTable.round,
+      competition: competitionsTable.name,
+      competitionType: competitionsTable.type,
       role: matchLineupsTable.role,
       shirtNumber: matchLineupsTable.shirtNumber,
       position: matchLineupsTable.position,
@@ -34,10 +44,16 @@ async function loadPlayerSheetMatches(playerId: number, limit?: number) {
     .from(matchLineupsTable)
     .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
     .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+    .innerJoin(
+      competitionsTable,
+      eq(matchesTable.competitionId, competitionsTable.id),
+    )
     .where(
       and(
         eq(matchLineupsTable.playerId, playerId),
         eq(matchLineupsTable.side, "csa"),
+        csaLineupActuallyPlayedCondition(),
+        officialPlayedMatchConditions(),
       ),
     )
     .orderBy(desc(matchesTable.matchDate), desc(matchesTable.id))
@@ -46,20 +62,128 @@ async function loadPlayerSheetMatches(playerId: number, limit?: number) {
   if (limit != null) q = q.limit(limit);
 
   const rows = await q;
-  return rows.map((r) => ({
-    matchId: r.matchId,
-    date: r.date,
-    season: r.season,
-    opponent: r.opponent,
-    goalsFor: r.goalsFor ?? null,
-    goalsAgainst: r.goalsAgainst ?? null,
-    result: r.result,
-    homeAway: r.homeAway,
-    role: r.role,
-    shirtNumber: r.shirtNumber ?? null,
-    position: r.position ?? null,
-  }));
+  if (rows.length === 0) return [];
+
+  const matchIds = rows.map((r) => r.matchId);
+
+  const [goalRows, cardRows, subInRows, subOutRows] = await Promise.all([
+    db
+      .select({
+        matchId: matchGoalsTable.matchId,
+        goals: sql<number>`cast(count(*) as int)`,
+      })
+      .from(matchGoalsTable)
+      .where(
+        and(
+          inArray(matchGoalsTable.matchId, matchIds),
+          eq(matchGoalsTable.scorerPlayerId, playerId),
+          eq(matchGoalsTable.side, "csa"),
+          eq(matchGoalsTable.isOwnGoal, false),
+        ),
+      )
+      .groupBy(matchGoalsTable.matchId),
+    db
+      .select({
+        matchId: matchCardsTable.matchId,
+        cardType: matchCardsTable.cardType,
+        count: sql<number>`cast(count(*) as int)`,
+      })
+      .from(matchCardsTable)
+      .where(
+        and(
+          inArray(matchCardsTable.matchId, matchIds),
+          eq(matchCardsTable.playerId, playerId),
+          eq(matchCardsTable.side, "csa"),
+        ),
+      )
+      .groupBy(matchCardsTable.matchId, matchCardsTable.cardType),
+    db
+      .select({
+        matchId: matchSubstitutionsTable.matchId,
+        minute: matchSubstitutionsTable.minute,
+        injuryTimeMinute: matchSubstitutionsTable.injuryTimeMinute,
+      })
+      .from(matchSubstitutionsTable)
+      .where(
+        and(
+          inArray(matchSubstitutionsTable.matchId, matchIds),
+          eq(matchSubstitutionsTable.playerInId, playerId),
+          eq(matchSubstitutionsTable.side, "csa"),
+        ),
+      ),
+    db
+      .select({
+        matchId: matchSubstitutionsTable.matchId,
+        minute: matchSubstitutionsTable.minute,
+        injuryTimeMinute: matchSubstitutionsTable.injuryTimeMinute,
+      })
+      .from(matchSubstitutionsTable)
+      .where(
+        and(
+          inArray(matchSubstitutionsTable.matchId, matchIds),
+          eq(matchSubstitutionsTable.playerOutId, playerId),
+          eq(matchSubstitutionsTable.side, "csa"),
+        ),
+      ),
+  ]);
+
+  const goalsByMatch = new Map(goalRows.map((r) => [r.matchId, r.goals ?? 0]));
+  const yellowByMatch = new Map<number, number>();
+  const redByMatch = new Map<number, number>();
+  for (const r of cardRows) {
+    if (r.cardType === "yellow") yellowByMatch.set(r.matchId, r.count ?? 0);
+    else if (r.cardType === "red") redByMatch.set(r.matchId, r.count ?? 0);
+  }
+  // First sub-in / sub-out per match (rare to have multiple)
+  const minuteInByMatch = new Map<number, { minute: number; injury: number | null }>();
+  for (const r of subInRows) {
+    if (!minuteInByMatch.has(r.matchId)) {
+      minuteInByMatch.set(r.matchId, {
+        minute: r.minute,
+        injury: r.injuryTimeMinute ?? null,
+      });
+    }
+  }
+  const minuteOutByMatch = new Map<number, { minute: number; injury: number | null }>();
+  for (const r of subOutRows) {
+    if (!minuteOutByMatch.has(r.matchId)) {
+      minuteOutByMatch.set(r.matchId, {
+        minute: r.minute,
+        injury: r.injuryTimeMinute ?? null,
+      });
+    }
+  }
+
+  return rows.map((r) => {
+    const subIn = minuteInByMatch.get(r.matchId) ?? null;
+    const subOut = minuteOutByMatch.get(r.matchId) ?? null;
+    return {
+      matchId: r.matchId,
+      date: r.date,
+      season: r.season,
+      opponent: r.opponent,
+      goalsFor: r.goalsFor ?? null,
+      goalsAgainst: r.goalsAgainst ?? null,
+      result: r.result,
+      homeAway: r.homeAway,
+      competition: r.competition,
+      competitionType: r.competitionType ?? null,
+      phase: r.phase ?? null,
+      round: r.round ?? null,
+      role: r.role,
+      shirtNumber: r.shirtNumber ?? null,
+      position: r.position ?? null,
+      playerGoals: goalsByMatch.get(r.matchId) ?? 0,
+      yellowCards: yellowByMatch.get(r.matchId) ?? 0,
+      redCards: redByMatch.get(r.matchId) ?? 0,
+      minuteIn: subIn?.minute ?? null,
+      minuteInInjury: subIn?.injury ?? null,
+      minuteOut: subOut?.minute ?? null,
+      minuteOutInjury: subOut?.injury ?? null,
+    };
+  });
 }
+
 
 router.get("/players", async (req, res) => {
   try {

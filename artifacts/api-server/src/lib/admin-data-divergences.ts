@@ -9,6 +9,7 @@ import {
 } from "@workspace/db";
 import { and, eq, sql } from "drizzle-orm";
 import { officialPlayedMatchConditions } from "./match-filters";
+import { csaLineupActuallyPlayedCondition } from "./player-appeared";
 
 export type DivergenceEntityType = "player" | "manager";
 
@@ -474,7 +475,11 @@ async function playerLinkedVsManualSeason(): Promise<DivergenceGroup> {
     .from(matchLineupsTable)
     .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
     .where(
-      and(eq(matchLineupsTable.side, "csa"), officialPlayedMatchConditions()),
+      and(
+        eq(matchLineupsTable.side, "csa"),
+        csaLineupActuallyPlayedCondition(),
+        officialPlayedMatchConditions(),
+      ),
     )
     .groupBy(matchLineupsTable.playerId, matchesTable.season);
 
@@ -497,14 +502,16 @@ async function playerLinkedVsManualSeason(): Promise<DivergenceGroup> {
 
   const items: DivergenceItem[] = [];
   for (const row of linked) {
-    const manual = manualMap.get(`${row.playerId}|${row.season}`) ?? 0;
+    if (row.playerId == null) continue;
+    const playerId = row.playerId;
+    const manual = manualMap.get(`${playerId}|${row.season}`) ?? 0;
     if (row.linkedApps <= manual) continue;
     // Only flag meaningful overcounts (digitization noise of +1 can happen; focus on clear excess)
     if (row.linkedApps - manual < 2 && manual > 0) continue;
     if (manual === 0 && row.linkedApps < 3) continue;
-    const name = nameById.get(row.playerId) ?? `#${row.playerId}`;
+    const name = nameById.get(playerId) ?? `#${playerId}`;
     items.push({
-      id: row.playerId,
+      id: playerId,
       name,
       href: `/admin/jogadores/${row.playerId}`,
       summary: `${row.season}: manual ${manual}J · fichas ${row.linkedApps}J`,
