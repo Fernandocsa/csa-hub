@@ -89,19 +89,15 @@ function CardIcon({ color }: { color: "yellow" | "red" }) {
   );
 }
 
-/** Simple cleat/boot mark for assists (no Lucide cleat icon). */
-function AssistBootIcon() {
+/** Same “A” mark used on match sheets for assists. */
+function AssistMark() {
   return (
-    <svg
-      viewBox="0 0 16 16"
-      className="h-3.5 w-3.5 text-sky-700 dark:text-sky-400"
+    <span
       aria-hidden
+      className="font-bold text-[10px] border rounded px-0.5 leading-none"
     >
-      <path
-        fill="currentColor"
-        d="M2.2 11.2c.2-1.4 1.1-2.4 2.4-3.1l4.3-2.2c.5-.3 1.1-.2 1.5.2l2.6 2.5c.5.5.5 1.3 0 1.8l-.7.7c-.3.3-.7.4-1.1.3l-1.3-.3-1.2.9H3.1c-.6 0-1-.5-.9-1.1zm9.1-1.5.5-.5-1.8-1.7-.9.4 2.2 1.8zM3.4 13h8.2v1H3.4z"
-      />
-    </svg>
+      A
+    </span>
   );
 }
 
@@ -131,17 +127,21 @@ export function PlayerMatchHistoryTable({
             <TableHead className="py-2 text-center">Placar</TableHead>
             <TableHead className="py-2 text-center whitespace-nowrap">Min</TableHead>
             <TableHead className="py-2 text-center w-7" title="Cartão amarelo">
-              A
+              <span className="inline-flex justify-center w-full">
+                <CardIcon color="yellow" />
+              </span>
             </TableHead>
             <TableHead className="py-2 text-center w-7" title="Cartão vermelho">
-              V
+              <span className="inline-flex justify-center w-full">
+                <CardIcon color="red" />
+              </span>
             </TableHead>
             <TableHead className="py-2 text-center w-7" title="Gol">
               ⚽
             </TableHead>
             <TableHead className="py-2 text-center w-8" title="Assistência">
               <span className="inline-flex justify-center w-full">
-                <AssistBootIcon />
+                <AssistMark />
               </span>
             </TableHead>
           </TableRow>
@@ -248,7 +248,7 @@ export function PlayerMatchHistoryTable({
                       aria-label={`${assists} assistência(s)`}
                       title={`${assists} assistência(s)`}
                     >
-                      <AssistBootIcon />
+                      <AssistMark />
                       {assists > 1 && (
                         <span className="text-[10px] text-muted-foreground">
                           ×{assists}
