@@ -1210,6 +1210,8 @@ components:
           type: ["integer", "null"]
         endYear:
           type: ["integer", "null"]
+        verificationStatus:
+          type: ["string", "null"]
         matches:
           type: integer
         wins:

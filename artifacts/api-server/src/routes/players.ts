@@ -10,6 +10,7 @@ import {
   matchesTable,
   opponentsTable,
   competitionsTable,
+  managersTable,
 } from "@workspace/db";
 import { sql, eq, ilike, and, desc, asc, ne, or, isNull, inArray } from "drizzle-orm";
 import { loadEntityBadges } from "../lib/entity-badges";
@@ -66,7 +67,7 @@ async function loadPlayerSheetMatches(playerId: number, limit?: number) {
 
   const matchIds = rows.map((r) => r.matchId);
 
-  const [goalRows, cardRows, subInRows, subOutRows] = await Promise.all([
+  const [goalRows, assistRows, cardRows, subInRows, subOutRows] = await Promise.all([
     db
       .select({
         matchId: matchGoalsTable.matchId,
@@ -77,6 +78,21 @@ async function loadPlayerSheetMatches(playerId: number, limit?: number) {
         and(
           inArray(matchGoalsTable.matchId, matchIds),
           eq(matchGoalsTable.scorerPlayerId, playerId),
+          eq(matchGoalsTable.side, "csa"),
+          eq(matchGoalsTable.isOwnGoal, false),
+        ),
+      )
+      .groupBy(matchGoalsTable.matchId),
+    db
+      .select({
+        matchId: matchGoalsTable.matchId,
+        assists: sql<number>`cast(count(*) as int)`,
+      })
+      .from(matchGoalsTable)
+      .where(
+        and(
+          inArray(matchGoalsTable.matchId, matchIds),
+          eq(matchGoalsTable.assistPlayerId, playerId),
           eq(matchGoalsTable.side, "csa"),
           eq(matchGoalsTable.isOwnGoal, false),
         ),
@@ -128,6 +144,7 @@ async function loadPlayerSheetMatches(playerId: number, limit?: number) {
   ]);
 
   const goalsByMatch = new Map(goalRows.map((r) => [r.matchId, r.goals ?? 0]));
+  const assistsByMatch = new Map(assistRows.map((r) => [r.matchId, r.assists ?? 0]));
   const yellowByMatch = new Map<number, number>();
   const redByMatch = new Map<number, number>();
   for (const r of cardRows) {
@@ -174,6 +191,7 @@ async function loadPlayerSheetMatches(playerId: number, limit?: number) {
       shirtNumber: r.shirtNumber ?? null,
       position: r.position ?? null,
       playerGoals: goalsByMatch.get(r.matchId) ?? 0,
+      playerAssists: assistsByMatch.get(r.matchId) ?? 0,
       yellowCards: yellowByMatch.get(r.matchId) ?? 0,
       redCards: redByMatch.get(r.matchId) ?? 0,
       minuteIn: subIn?.minute ?? null,
@@ -645,6 +663,12 @@ router.get("/players/:id", async (req, res) => {
     const recentMatches = await loadPlayerSheetMatches(id, 5);
     const badges = await loadEntityBadges("player", id);
 
+    const [linkedMgr] = await db
+      .select({ id: managersTable.id, name: managersTable.name })
+      .from(managersTable)
+      .where(eq(managersTable.playerId, id))
+      .limit(1);
+
     res.json({
       id: player.id,
       name: player.name,
@@ -672,6 +696,7 @@ router.get("/players/:id", async (req, res) => {
       seasonStats,
       recentMatches,
       badges,
+      linkedManager: linkedMgr ?? null,
     });
   } catch (err) {
     req.log.error(err);

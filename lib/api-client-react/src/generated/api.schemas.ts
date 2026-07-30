@@ -381,6 +381,8 @@ export interface Manager {
   startYear?: number | null;
   /** @nullable */
   endYear?: number | null;
+  /** @nullable */
+  verificationStatus?: string | null;
   matches: number;
   wins: number;
   draws: number;

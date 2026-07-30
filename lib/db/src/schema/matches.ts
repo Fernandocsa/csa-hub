@@ -43,6 +43,11 @@ export const managersTable = pgTable("managers", {
   isDeceased: boolean("is_deceased").notNull().default(false),
   /** Profile photo: absolute HTTPS URL or site path. */
   photoUrl: text("photo_url"),
+  /**
+   * Optional link to the same person as a CSA player (ex-jogador → treinador).
+   * Unique when set — one manager career per player profile.
+   */
+  playerId: integer("player_id").references(() => playersTable.id),
   verificationStatus: text("verification_status").notNull().default("unverified"),
   verifiedAt: timestamp("verified_at", { withTimezone: true }),
   verifiedBy: text("verified_by"),

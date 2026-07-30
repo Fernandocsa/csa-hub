@@ -35,6 +35,8 @@ export interface Player {
   verificationStatus: string;
   verifiedAt: string | null;
   verifiedBy: string | null;
+  linkedManagerId?: number | null;
+  linkedManagerName?: string | null;
 }
 
 interface StatRow {
@@ -46,7 +48,7 @@ interface StatRow {
   assists: number;
 }
 
-type PlayerPayload = Omit<Player, "id">;
+type PlayerPayload = Omit<Player, "id" | "linkedManagerName">;
 
 type BirthMode = "exact" | "year";
 
@@ -101,6 +103,11 @@ function PlayerProfileForm({
   const [isDeceased, setIsDeceased] = useState(initial?.isDeceased ?? false);
   const [isVerified, setIsVerified] = useState(initial?.verificationStatus === "verified");
   const [verifiedBy, setVerifiedBy] = useState(initial?.verifiedBy ?? "");
+  const [linkedManagerId, setLinkedManagerId] = useState(
+    initial?.linkedManagerId != null ? String(initial.linkedManagerId) : "",
+  );
+  const [managerSearch, setManagerSearch] = useState("");
+  const [managerOptions, setManagerOptions] = useState<{ id: number; name: string }[]>([]);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -123,7 +130,37 @@ function PlayerProfileForm({
     setIsDeceased(initial?.isDeceased ?? false);
     setIsVerified(initial?.verificationStatus === "verified");
     setVerifiedBy(initial?.verifiedBy ?? "");
+    setLinkedManagerId(
+      initial?.linkedManagerId != null ? String(initial.linkedManagerId) : "",
+    );
   }, [initial]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const r = await adminFetch("/admin/managers");
+      if (!r.ok || cancelled) return;
+      const rows = (await r.json()) as { id: number; name: string }[];
+      if (!cancelled) setManagerOptions(rows.map((m) => ({ id: m.id, name: m.name })));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const filteredManagers = useMemo(() => {
+    const q = managerSearch.trim().toLowerCase();
+    if (!q) return managerOptions.slice(0, 30);
+    return managerOptions
+      .filter((m) => m.name.toLowerCase().includes(q) || String(m.id) === q)
+      .slice(0, 30);
+  }, [managerOptions, managerSearch]);
+
+  const selectedManagerName =
+    linkedManagerId &&
+    (managerOptions.find((m) => String(m.id) === linkedManagerId)?.name ??
+      initial?.linkedManagerName ??
+      null);
 
   const sel = "w-full border rounded px-3 py-2 text-sm bg-white";
   const primaryOptions = positionOptions(position);
@@ -168,6 +205,9 @@ function PlayerProfileForm({
         verificationStatus: isVerified ? "verified" : "unverified",
         verifiedAt: null,
         verifiedBy: isVerified ? verifiedBy.trim() || null : null,
+        linkedManagerId: linkedManagerId.trim()
+          ? parseInt(linkedManagerId.trim(), 10)
+          : null,
       });
     } catch (err: any) {
       setError(err.message ?? "Erro ao salvar");
@@ -424,6 +464,59 @@ function PlayerProfileForm({
             A alteração de verificação só é gravada ao salvar o perfil.
           </p>
         </div>
+      </div>
+      <div className="border rounded p-3 space-y-2 bg-gray-50">
+        <label className="text-xs font-semibold text-gray-500 uppercase block">
+          Vínculo com técnico (ex-jogador → técnico)
+        </label>
+        <Input
+          value={managerSearch}
+          onChange={(e) => setManagerSearch(e.target.value)}
+          placeholder="Buscar técnico por nome ou ID…"
+        />
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            value={linkedManagerId}
+            onChange={(e) => setLinkedManagerId(e.target.value)}
+            placeholder="ID do técnico"
+            className="w-32"
+          />
+          {selectedManagerName ? (
+            <span className="text-sm text-gray-700">
+              Selecionado: <strong>{selectedManagerName}</strong>
+            </span>
+          ) : (
+            <span className="text-xs text-gray-400">Nenhum técnico vinculado</span>
+          )}
+          {linkedManagerId && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setLinkedManagerId("")}
+            >
+              Limpar
+            </Button>
+          )}
+        </div>
+        {managerSearch.trim() && filteredManagers.length > 0 && (
+          <ul className="max-h-40 overflow-y-auto border rounded bg-white text-sm divide-y">
+            {filteredManagers.map((m) => (
+              <li key={m.id}>
+                <button
+                  type="button"
+                  className="w-full text-left px-2 py-1.5 hover:bg-blue-50"
+                  onClick={() => {
+                    setLinkedManagerId(String(m.id));
+                    setManagerSearch("");
+                  }}
+                >
+                  #{m.id} — {m.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex flex-wrap items-center gap-2 pt-2">

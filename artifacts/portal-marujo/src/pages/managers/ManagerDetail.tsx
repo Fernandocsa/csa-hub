@@ -1,5 +1,6 @@
 import { Link, useParams } from "wouter";
 import { useGetManager, getGetManagerQueryKey } from "@workspace/api-client-react";
+import type { ManagerMatch } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
@@ -8,22 +9,87 @@ import { EntityBadges } from "@/components/EntityBadges";
 import { EntityComments } from "@/components/EntityComments";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { VerificationCard } from "@/components/VerificationCard";
-import { BrazilFlag, isBrazilianNationality } from "@/components/BrazilFlag";
+import { PlayerFlag } from "@/components/PlayerFlag";
 import { ShareButton } from "@/components/ShareButton";
 import { EntityPhoto } from "@/components/EntityPhoto";
+import { MatchRows } from "@/components/MatchRows";
+import type { ReactNode } from "react";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
   return ((wins / total) * 100).toFixed(1) + "%";
 }
 
+function calcAge(birthDate?: string | null): number | null {
+  if (!birthDate) return null;
+  const d = new Date(birthDate.includes("T") ? birthDate : birthDate + "T12:00:00");
+  if (Number.isNaN(d.getTime())) return null;
+  const now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  const m = now.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+  return age >= 0 ? age : null;
+}
+
+function fmtBirthDate(birthDate?: string | null): string | null {
+  if (!birthDate) return null;
+  const d = new Date(birthDate.includes("T") ? birthDate : birthDate + "T12:00:00");
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("pt-BR");
+}
+
+function PersonalRow({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div className="flex gap-2 text-sm">
+      <span className="text-muted-foreground shrink-0 min-w-[7.5rem]">{label}</span>
+      <span className="font-medium">{value}</span>
+    </div>
+  );
+}
+
+type ManagerProfile = {
+  id: number;
+  name: string;
+  fullName?: string | null;
+  nationality?: string | null;
+  photoUrl?: string | null;
+  birthDate?: string | null;
+  birthCity?: string | null;
+  birthState?: string | null;
+  birthCountry?: string | null;
+  isDeceased?: boolean;
+  startYear?: number | null;
+  endYear?: number | null;
+  verificationStatus?: string | null;
+  verifiedAt?: string | null;
+  verifiedBy?: string | null;
+  matches: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  winPercentage?: number;
+  goalsFor?: number;
+  goalsAgainst?: number;
+  seasonStats?: {
+    year: string;
+    matches: number;
+    wins: number;
+    draws: number;
+    losses: number;
+  }[];
+  recentMatches?: ManagerMatch[];
+  badges?: { id: number; label: string; source?: string }[];
+  linkedPlayer?: { id: number; name: string } | null;
+};
+
 export default function ManagerDetail() {
   const params = useParams();
   const id = parseInt(params.id ?? "0", 10);
 
-  const { data: manager, isLoading, isError } = useGetManager(id, {
+  const { data, isLoading, isError } = useGetManager(id, {
     query: { enabled: !!id, queryKey: getGetManagerQueryKey(id) },
   });
+  const manager = data as ManagerProfile | undefined;
 
   if (isLoading) {
     return (
@@ -39,6 +105,81 @@ export default function ManagerDetail() {
     return <div className="text-center p-8 text-destructive">Técnico não encontrado.</div>;
   }
 
+  const age = manager.isDeceased ? null : calcAge(manager.birthDate);
+  const showFullName =
+    !!manager.fullName?.trim() &&
+    manager.fullName.trim().toLowerCase() !== manager.name.trim().toLowerCase();
+  const birthDateLabel = fmtBirthDate(manager.birthDate);
+  const locality = [manager.birthCity, manager.birthState]
+    .map((x) => x?.trim())
+    .filter(Boolean)
+    .join(", ");
+  const birthCountry = manager.birthCountry?.trim() || null;
+  const birthSuffix = manager.isDeceased
+    ? " (Falecido)"
+    : age != null
+      ? ` (${age} anos)`
+      : "";
+
+  const personalRows: { label: string; value: ReactNode }[] = [];
+  if (showFullName) {
+    personalRows.push({ label: "Nome completo", value: manager.fullName!.trim() });
+  }
+  if (birthDateLabel) {
+    personalRows.push({
+      label: "Data de nascimento",
+      value: `${birthDateLabel}${birthSuffix}`,
+    });
+  }
+  if (locality || birthCountry) {
+    personalRows.push({
+      label: "Local de nascimento",
+      value: (
+        <span className="inline-flex flex-wrap items-center gap-x-1">
+          {locality ? <span>{locality}{birthCountry ? "," : ""}</span> : null}
+          {birthCountry ? (
+            <span className="inline-flex items-center gap-1">
+              <PlayerFlag nationality={birthCountry} size="sm" />
+              <span>{birthCountry}</span>
+            </span>
+          ) : null}
+        </span>
+      ),
+    });
+  } else if (manager.nationality) {
+    personalRows.push({
+      label: "Nacionalidade",
+      value: (
+        <span className="inline-flex items-center gap-1">
+          <PlayerFlag nationality={manager.nationality} size="sm" />
+          <span>{manager.nationality}</span>
+        </span>
+      ),
+    });
+  }
+  if (manager.startYear != null) {
+    personalRows.push({
+      label: "Período no CSA",
+      value:
+        manager.endYear != null && manager.endYear !== manager.startYear
+          ? `${manager.startYear}–${manager.endYear}`
+          : String(manager.startYear),
+    });
+  }
+  if (manager.linkedPlayer) {
+    personalRows.push({
+      label: "Como jogador",
+      value: (
+        <Link
+          href={`/jogadores/${manager.linkedPlayer.id}`}
+          className="text-primary hover:underline"
+        >
+          {manager.linkedPlayer.name}
+        </Link>
+      ),
+    });
+  }
+
   return (
     <div className="space-y-5 max-w-3xl">
       <Link href="/tecnicos">
@@ -47,58 +188,56 @@ export default function ManagerDetail() {
         </span>
       </Link>
 
-      <div className="border-b pb-4">
-        <div className="flex items-start gap-3">
-          <EntityPhoto
-            url={manager.photoUrl}
-            name={manager.name}
-            size="lg"
-            className="mt-0.5"
-            label="Foto do técnico"
-          />
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-bold" data-testid="heading-manager">{manager.name}</h1>
-              <ShareButton title={manager.name} />
-              <VerificationCard
-                status={manager.verificationStatus}
-                verifiedBy={manager.verifiedBy}
-                verifiedAt={manager.verifiedAt}
-              />
+      <div className="border-b pb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        <div>
+          <div className="flex items-start gap-3">
+            <EntityPhoto
+              url={manager.photoUrl}
+              name={manager.name}
+              size="lg"
+              className="mt-0.5"
+              label="Foto do técnico"
+            />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-2xl font-bold" data-testid="heading-manager">{manager.name}</h1>
+                {manager.isDeceased && (
+                  <span
+                    className="text-muted-foreground text-lg leading-none"
+                    title="Falecido"
+                    aria-label="Falecido"
+                  >
+                    †
+                  </span>
+                )}
+                <ShareButton title={manager.name} />
+                <VerificationCard
+                  status={manager.verificationStatus}
+                  verifiedBy={manager.verifiedBy}
+                  verifiedAt={manager.verifiedAt}
+                />
+              </div>
+              <EntityBadges badges={manager.badges} />
             </div>
-            {(manager.nationality || manager.startYear != null) && (
-              <p className="text-sm text-muted-foreground mt-1 inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
-                {manager.nationality && (
-                  <span className="inline-flex items-center gap-1">
-                    {isBrazilianNationality(manager.nationality) && (
-                      <BrazilFlag size="sm" title={manager.nationality} />
-                    )}
-                    <span>{manager.nationality}</span>
-                  </span>
-                )}
-                {manager.nationality && manager.startYear != null && <span aria-hidden>·</span>}
-                {manager.startYear != null && (
-                  <span>
-                    {manager.endYear != null && manager.endYear !== manager.startYear
-                      ? `${manager.startYear}–${manager.endYear}`
-                      : String(manager.startYear)}
-                  </span>
-                )}
-              </p>
-            )}
           </div>
         </div>
-        <EntityBadges
-          badges={
-            (manager as { badges?: { id: number; label: string; source?: string }[] })
-              .badges
-          }
-        />
+
+        {personalRows.length > 0 && (
+          <div data-testid="manager-personal-data">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+              Dados Pessoais
+            </h2>
+            <div className="space-y-1.5">
+              {personalRows.map((r) => (
+                <PersonalRow key={r.label} label={r.label} value={r.value} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <StarRating entityType="manager" entityId={manager.id} />
 
-      {/* Stat bar */}
       <div className="grid grid-cols-5 gap-px bg-border rounded overflow-hidden" data-testid="manager-stat-bar">
         {[
           { label: "Partidas", value: manager.matches, highlight: true },
@@ -114,7 +253,23 @@ export default function ManagerDetail() {
         ))}
       </div>
 
-      {/* Season-by-season */}
+      {(manager.recentMatches?.length ?? 0) > 0 && (
+        <div data-testid="manager-recent-matches" className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Jogos
+            </h2>
+            <Link
+              href={`/tecnicos/${manager.id}/jogos`}
+              className="text-xs text-primary hover:underline"
+            >
+              Ver todos
+            </Link>
+          </div>
+          <MatchRows matches={manager.recentMatches!} />
+        </div>
+      )}
+
       {manager.seasonStats && manager.seasonStats.length > 0 && (
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Histórico por Temporada</h2>

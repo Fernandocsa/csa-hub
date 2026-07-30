@@ -29,6 +29,7 @@ import OpponentsList from "./pages/opponents/OpponentsList";
 import OpponentDetail from "./pages/opponents/OpponentDetail";
 import ManagersList from "./pages/managers/ManagersList";
 import ManagerDetail from "./pages/managers/ManagerDetail";
+import ManagerMatches from "./pages/managers/ManagerMatches";
 import RefereesList from "./pages/referees/RefereesList";
 import RefereeDetail from "./pages/referees/RefereeDetail";
 import RefereesByState from "./pages/referees/RefereesByState";
@@ -87,6 +88,7 @@ export default function AppRouter() {
         <Route path="/adversarios" component={OpponentsList} />
         <Route path="/adversarios/:id" component={OpponentDetail} />
         <Route path="/tecnicos" component={ManagersList} />
+        <Route path="/tecnicos/:id/jogos" component={ManagerMatches} />
         <Route path="/tecnicos/:id" component={ManagerDetail} />
         <Route path="/arbitros/por-estado/:uf" component={RefereesByStateDetail} />
         <Route path="/arbitros/por-estado" component={RefereesByState} />

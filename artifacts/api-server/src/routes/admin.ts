@@ -18,7 +18,7 @@ import {
   suggestionsTable,
   seasonCompetitionStatsTable,
 } from "@workspace/db";
-import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray } from "drizzle-orm";
+import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray, ne } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard } from "../lib/match-sheet";
 import { syncRelatedMatchLink, parsePenaltyShootoutFields } from "../lib/match-links";
 import {
@@ -312,7 +312,16 @@ router.get("/admin/players/:id", requireAdmin, async (req, res) => {
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
     const [player] = await db.select().from(playersTable).where(eq(playersTable.id, id));
     if (!player) return res.status(404).json({ error: "Jogador não encontrado" });
-    res.json(player);
+    const [linkedManager] = await db
+      .select({ id: managersTable.id, name: managersTable.name })
+      .from(managersTable)
+      .where(eq(managersTable.playerId, id))
+      .limit(1);
+    res.json({
+      ...player,
+      linkedManagerId: linkedManager?.id ?? null,
+      linkedManagerName: linkedManager?.name ?? null,
+    });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -339,6 +348,7 @@ router.post("/admin/players", requireAdmin, async (req, res) => {
       isDeceased?: boolean;
       verificationStatus?: string | null;
       verifiedBy?: string | null;
+      linkedManagerId?: number | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
 
@@ -393,7 +403,38 @@ router.post("/admin/players", requireAdmin, async (req, res) => {
         verifiedBy,
       })
       .returning();
-    res.status(201).json(player);
+
+    if (body.linkedManagerId != null && body.linkedManagerId !== ("" as unknown)) {
+      const linkedManagerId = Number(body.linkedManagerId);
+      if (Number.isInteger(linkedManagerId) && linkedManagerId > 0) {
+        const [mgr] = await db
+          .select({ id: managersTable.id })
+          .from(managersTable)
+          .where(eq(managersTable.id, linkedManagerId))
+          .limit(1);
+        if (mgr) {
+          await db
+            .update(managersTable)
+            .set({ playerId: null })
+            .where(eq(managersTable.playerId, player.id));
+          await db
+            .update(managersTable)
+            .set({ playerId: player.id })
+            .where(eq(managersTable.id, linkedManagerId));
+        }
+      }
+    }
+
+    const [linkedManager] = await db
+      .select({ id: managersTable.id, name: managersTable.name })
+      .from(managersTable)
+      .where(eq(managersTable.playerId, player.id))
+      .limit(1);
+    res.status(201).json({
+      ...player,
+      linkedManagerId: linkedManager?.id ?? null,
+      linkedManagerName: linkedManager?.name ?? null,
+    });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -422,6 +463,7 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
       isDeceased?: boolean;
       verificationStatus?: string | null;
       verifiedBy?: string | null;
+      linkedManagerId?: number | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
 
@@ -478,7 +520,45 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
       .where(eq(playersTable.id, id))
       .returning();
     if (!updated) return res.status(404).json({ error: "Jogador não encontrado" });
-    res.json(updated);
+
+    if (Object.prototype.hasOwnProperty.call(body, "linkedManagerId")) {
+      const raw = body.linkedManagerId;
+      const linkedManagerId =
+        raw == null || raw === ("" as unknown) ? null : Number(raw);
+      if (linkedManagerId != null && (!Number.isInteger(linkedManagerId) || linkedManagerId < 1)) {
+        return res.status(400).json({ error: "linkedManagerId inválido" });
+      }
+      if (linkedManagerId != null) {
+        const [mgr] = await db
+          .select({ id: managersTable.id })
+          .from(managersTable)
+          .where(eq(managersTable.id, linkedManagerId))
+          .limit(1);
+        if (!mgr) return res.status(400).json({ error: "Técnico vinculado não encontrado" });
+      }
+      // Detach this player from any manager, then attach to the chosen one.
+      await db
+        .update(managersTable)
+        .set({ playerId: null })
+        .where(eq(managersTable.playerId, id));
+      if (linkedManagerId != null) {
+        await db
+          .update(managersTable)
+          .set({ playerId: id })
+          .where(eq(managersTable.id, linkedManagerId));
+      }
+    }
+
+    const [linkedManager] = await db
+      .select({ id: managersTable.id, name: managersTable.name })
+      .from(managersTable)
+      .where(eq(managersTable.playerId, id))
+      .limit(1);
+    res.json({
+      ...updated,
+      linkedManagerId: linkedManager?.id ?? null,
+      linkedManagerName: linkedManager?.name ?? null,
+    });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -2409,7 +2489,19 @@ router.get("/admin/managers/:id", requireAdmin, async (req, res) => {
     const [manager] = await db.select().from(managersTable).where(eq(managersTable.id, id));
     if (!manager) return res.status(404).json({ error: "Técnico não encontrado" });
     const seasonsMap = await seasonsByManagerIds([id]);
-    res.json(serializeManagerAdmin(withDerivedPeriod(manager, seasonsMap.get(id) ?? [])));
+    let playerName: string | null = null;
+    if (manager.playerId != null) {
+      const [p] = await db
+        .select({ name: playersTable.name })
+        .from(playersTable)
+        .where(eq(playersTable.id, manager.playerId))
+        .limit(1);
+      playerName = p?.name ?? null;
+    }
+    res.json({
+      ...serializeManagerAdmin(withDerivedPeriod(manager, seasonsMap.get(id) ?? [])),
+      playerName,
+    });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -2430,6 +2522,7 @@ router.post("/admin/managers", requireAdmin, async (req, res) => {
       photoUrl?: string | null;
       verificationStatus?: string | null;
       verifiedBy?: string | null;
+      playerId?: number | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
     const birthDate = body.birthDate?.trim() || null;
@@ -2441,6 +2534,23 @@ router.post("/admin/managers", requireAdmin, async (req, res) => {
     const verifiedBy =
       verificationStatus === "verified" ? body.verifiedBy?.trim() || null : null;
     const verifiedAt = verificationStatus === "verified" ? new Date() : null;
+    let playerId: number | null = null;
+    if (body.playerId != null && body.playerId !== ("" as unknown)) {
+      playerId = Number(body.playerId);
+      if (!Number.isInteger(playerId) || playerId < 1) {
+        return res.status(400).json({ error: "playerId inválido" });
+      }
+      const [p] = await db
+        .select({ id: playersTable.id })
+        .from(playersTable)
+        .where(eq(playersTable.id, playerId))
+        .limit(1);
+      if (!p) return res.status(400).json({ error: "Jogador vinculado não encontrado" });
+      await db
+        .update(managersTable)
+        .set({ playerId: null })
+        .where(eq(managersTable.playerId, playerId));
+    }
     const [manager] = await db
       .insert(managersTable)
       .values({
@@ -2453,6 +2563,7 @@ router.post("/admin/managers", requireAdmin, async (req, res) => {
         birthCountry: body.birthCountry?.trim() || null,
         isDeceased: body.isDeceased ?? false,
         photoUrl: parseOptionalUrl(body.photoUrl),
+        playerId,
         verificationStatus,
         verifiedBy,
         verifiedAt,
@@ -2486,6 +2597,7 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
       photoUrl?: string | null;
       verificationStatus?: string | null;
       verifiedBy?: string | null;
+      playerId?: number | null;
       // career totals: prefer season-stats endpoints; still accepted for rare overrides
       storedGames?: number | null;
       storedWins?: number | null;
@@ -2521,6 +2633,28 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
           ? new Date()
           : null;
 
+    let playerIdUpdate: { playerId: number | null } | undefined;
+    if (Object.prototype.hasOwnProperty.call(body, "playerId")) {
+      const raw = body.playerId;
+      const playerId = raw == null || raw === ("" as unknown) ? null : Number(raw);
+      if (playerId != null && (!Number.isInteger(playerId) || playerId < 1)) {
+        return res.status(400).json({ error: "playerId inválido" });
+      }
+      if (playerId != null) {
+        const [p] = await db
+          .select({ id: playersTable.id })
+          .from(playersTable)
+          .where(eq(playersTable.id, playerId))
+          .limit(1);
+        if (!p) return res.status(400).json({ error: "Jogador vinculado não encontrado" });
+        await db
+          .update(managersTable)
+          .set({ playerId: null })
+          .where(and(eq(managersTable.playerId, playerId), ne(managersTable.id, id)));
+      }
+      playerIdUpdate = { playerId };
+    }
+
     const statsChanged = managerStoredStatsChanged(current, body);
     const [updated] = await db
       .update(managersTable)
@@ -2549,6 +2683,7 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
           verifiedBy,
           verifiedAt,
         }),
+        ...(playerIdUpdate ?? {}),
         ...(body.storedGames !== undefined && { storedGames: body.storedGames }),
         ...(body.storedWins !== undefined && { storedWins: body.storedWins }),
         ...(body.storedDraws !== undefined && { storedDraws: body.storedDraws }),
@@ -2562,9 +2697,19 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
       .where(eq(managersTable.id, id))
       .returning();
     const seasonsMap = await seasonsByManagerIds([id]);
-    res.json(
-      serializeManagerAdmin(withDerivedPeriod(updated, seasonsMap.get(id) ?? [])),
-    );
+    let playerName: string | null = null;
+    if (updated.playerId != null) {
+      const [p] = await db
+        .select({ name: playersTable.name })
+        .from(playersTable)
+        .where(eq(playersTable.id, updated.playerId))
+        .limit(1);
+      playerName = p?.name ?? null;
+    }
+    res.json({
+      ...serializeManagerAdmin(withDerivedPeriod(updated, seasonsMap.get(id) ?? [])),
+      playerName,
+    });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });

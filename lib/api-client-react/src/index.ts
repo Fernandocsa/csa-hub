@@ -16,6 +16,7 @@ export * from "./opponents-by-foreign";
 export * from "./opponents-by-region";
 export * from "./players-by-birth-state";
 export * from "./player-matches";
+export * from "./manager-matches";
 export * from "./referees";
 export * from "./streak-detail";
 export * from "./titles";

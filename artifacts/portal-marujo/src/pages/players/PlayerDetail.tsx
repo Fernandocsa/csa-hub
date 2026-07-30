@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 import { VerificationCard } from "@/components/VerificationCard";
-import { PlayerMatchRows } from "@/components/PlayerMatchRows";
+import { PlayerMatchHistoryTable } from "@/components/PlayerMatchHistoryTable";
 import { StarRating } from "@/components/StarRating";
 import { EntityComments } from "@/components/EntityComments";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
@@ -53,6 +53,7 @@ type PlayerProfile = {
     autoKind?: string | null;
     seasonYear?: number | null;
   }[];
+  linkedManager?: { id: number; name: string } | null;
 };
 
 function calcAge(birthDate?: string | null, birthYear?: number | null): number | null {
@@ -197,9 +198,22 @@ export default function PlayerDetail() {
   }
   if (foot) personalRows.push({ label: "Pé preferencial", value: foot });
   if (heightWeight) personalRows.push({ label: "Altura / Peso", value: heightWeight });
+  if (player.linkedManager) {
+    personalRows.push({
+      label: "Como técnico",
+      value: (
+        <Link
+          href={`/tecnicos/${player.linkedManager.id}`}
+          className="text-primary hover:underline"
+        >
+          {player.linkedManager.name}
+        </Link>
+      ),
+    });
+  }
 
   return (
-    <div className="space-y-5 max-w-3xl">
+    <div className="space-y-5 max-w-5xl">
       <Link href="/jogadores">
         <span
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground cursor-pointer"
@@ -210,7 +224,7 @@ export default function PlayerDetail() {
       </Link>
 
       {/* Header + Dados Pessoais */}
-      <div className="border-b pb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+      <div className="border-b pb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-3xl">
         <div>
           <div className="flex items-start gap-3">
             <PlayerPhoto
@@ -296,7 +310,7 @@ export default function PlayerDetail() {
               Ver todos
             </Link>
           </div>
-          <PlayerMatchRows matches={player.recentMatches!} />
+          <PlayerMatchHistoryTable matches={player.recentMatches!} />
         </div>
       )}
 

@@ -5,6 +5,7 @@ import {
   managersTable,
   managerSeasonStatsTable,
   opponentsTable,
+  playersTable,
 } from "@workspace/db";
 import { sql, eq, desc, asc, and } from "drizzle-orm";
 import { loadEntityBadges } from "../lib/entity-badges";
@@ -59,6 +60,7 @@ router.get("/managers", async (req, res) => {
         name: managersTable.name,
         nationality: managersTable.nationality,
         fullName: managersTable.fullName,
+        verificationStatus: managersTable.verificationStatus,
         storedGames: managersTable.storedGames,
         storedWins: managersTable.storedWins,
         storedDraws: managersTable.storedDraws,
@@ -83,6 +85,7 @@ router.get("/managers", async (req, res) => {
         managersTable.name,
         managersTable.nationality,
         managersTable.fullName,
+        managersTable.verificationStatus,
         managersTable.storedGames,
         managersTable.storedWins,
         managersTable.storedDraws,
@@ -123,6 +126,7 @@ router.get("/managers", async (req, res) => {
         name: r.name,
         fullName: r.fullName,
         nationality: r.nationality,
+        verificationStatus: r.verificationStatus,
         // Derived tenure (replaces legacy start_year/end_year for public display)
         startYear: period.startYear,
         endYear: period.endYear,
@@ -209,6 +213,16 @@ router.get("/managers/:id", async (req, res) => {
         ? []
         : await loadManagerMatches(id, 5);
 
+    let linkedPlayer: { id: number; name: string } | null = null;
+    if (manager.playerId != null) {
+      const [p] = await db
+        .select({ id: playersTable.id, name: playersTable.name })
+        .from(playersTable)
+        .where(eq(playersTable.id, manager.playerId))
+        .limit(1);
+      if (p) linkedPlayer = p;
+    }
+
     res.json({
       id: manager.id,
       name: manager.name,
@@ -238,6 +252,7 @@ router.get("/managers/:id", async (req, res) => {
       badges,
       seasonStats: flooredSeasons,
       recentMatches,
+      linkedPlayer,
     });
   } catch (err) {
     req.log.error(err);

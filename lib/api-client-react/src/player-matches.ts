@@ -18,6 +18,7 @@ export interface PlayerSheetMatch {
   shirtNumber: number | null;
   position: string | null;
   playerGoals: number;
+  playerAssists: number;
   yellowCards: number;
   redCards: number;
   minuteIn: number | null;

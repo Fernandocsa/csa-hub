@@ -25,6 +25,8 @@ export interface Manager {
   birthCountry: string | null;
   isDeceased: boolean;
   photoUrl: string | null;
+  playerId: number | null;
+  playerName?: string | null;
   verificationStatus: "verified" | "unverified";
   verifiedAt: string | null;
   verifiedBy: string | null;
@@ -50,6 +52,7 @@ type ManagerPayload = {
   birthCountry: string | null;
   isDeceased: boolean;
   photoUrl: string | null;
+  playerId: number | null;
   verificationStatus: "verified" | "unverified";
   verifiedBy: string | null;
 };
@@ -124,6 +127,11 @@ function ManagerProfileForm({
   const [isDeceased, setIsDeceased] = useState(initial?.isDeceased ?? false);
   const [isVerified, setIsVerified] = useState(initial?.verificationStatus === "verified");
   const [verifiedBy, setVerifiedBy] = useState(initial?.verifiedBy ?? "");
+  const [playerId, setPlayerId] = useState(
+    initial?.playerId != null ? String(initial.playerId) : "",
+  );
+  const [playerSearch, setPlayerSearch] = useState("");
+  const [playerOptions, setPlayerOptions] = useState<{ id: number; name: string }[]>([]);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -139,7 +147,35 @@ function ManagerProfileForm({
     setIsDeceased(initial?.isDeceased ?? false);
     setIsVerified(initial?.verificationStatus === "verified");
     setVerifiedBy(initial?.verifiedBy ?? "");
+    setPlayerId(initial?.playerId != null ? String(initial.playerId) : "");
   }, [initial]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const r = await adminFetch("/admin/players");
+      if (!r.ok || cancelled) return;
+      const rows = (await r.json()) as { id: number; name: string }[];
+      if (!cancelled) setPlayerOptions(rows.map((p) => ({ id: p.id, name: p.name })));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const filteredPlayers = useMemo(() => {
+    const q = playerSearch.trim().toLowerCase();
+    if (!q) return playerOptions.slice(0, 30);
+    return playerOptions
+      .filter((p) => p.name.toLowerCase().includes(q) || String(p.id) === q)
+      .slice(0, 30);
+  }, [playerOptions, playerSearch]);
+
+  const selectedPlayerName =
+    playerId &&
+    (playerOptions.find((p) => String(p.id) === playerId)?.name ??
+      initial?.playerName ??
+      null);
 
   const isBrazil =
     !birthCountry.trim() ||
@@ -150,6 +186,10 @@ function ManagerProfileForm({
     setSaving(true);
     setError("");
     try {
+      const parsedPlayerId = playerId.trim() ? parseInt(playerId.trim(), 10) : null;
+      if (playerId.trim() && (!Number.isInteger(parsedPlayerId) || (parsedPlayerId ?? 0) < 1)) {
+        throw new Error("ID de jogador inválido");
+      }
       await onSave({
         name,
         fullName: fullName.trim() || null,
@@ -160,6 +200,7 @@ function ManagerProfileForm({
         birthCountry: birthCountry.trim() || null,
         isDeceased,
         photoUrl: photoUrl.trim() || null,
+        playerId: parsedPlayerId,
         verificationStatus: isVerified ? "verified" : "unverified",
         verifiedBy: isVerified ? verifiedBy.trim() || null : null,
       });
@@ -311,6 +352,54 @@ function ManagerProfileForm({
             A alteração de verificação só é gravada ao salvar o perfil.
           </p>
         </div>
+      </div>
+      <div className="border rounded p-3 space-y-2 bg-gray-50">
+        <label className="text-xs font-semibold text-gray-500 uppercase block">
+          Vínculo com jogador (ex-jogador → técnico)
+        </label>
+        <Input
+          value={playerSearch}
+          onChange={(e) => setPlayerSearch(e.target.value)}
+          placeholder="Buscar jogador por nome ou ID…"
+        />
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            value={playerId}
+            onChange={(e) => setPlayerId(e.target.value)}
+            placeholder="ID do jogador"
+            className="w-32"
+          />
+          {selectedPlayerName ? (
+            <span className="text-sm text-gray-700">
+              Selecionado: <strong>{selectedPlayerName}</strong>
+            </span>
+          ) : (
+            <span className="text-xs text-gray-400">Nenhum jogador vinculado</span>
+          )}
+          {playerId && (
+            <Button type="button" variant="outline" size="sm" onClick={() => setPlayerId("")}>
+              Limpar
+            </Button>
+          )}
+        </div>
+        {playerSearch.trim() && filteredPlayers.length > 0 && (
+          <ul className="max-h-40 overflow-y-auto border rounded bg-white text-sm divide-y">
+            {filteredPlayers.map((p) => (
+              <li key={p.id}>
+                <button
+                  type="button"
+                  className="w-full text-left px-2 py-1.5 hover:bg-blue-50"
+                  onClick={() => {
+                    setPlayerId(String(p.id));
+                    setPlayerSearch("");
+                  }}
+                >
+                  #{p.id} — {p.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex flex-wrap items-center gap-2 pt-2">

@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { useListManagers } from "@workspace/api-client-react";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ListPagination } from "@/components/ListPagination";
@@ -49,8 +50,9 @@ export default function ManagersList() {
                   <TableRow key={m.id} className="text-sm" data-testid={`row-manager-${m.id}`}>
                     <TableCell className="py-2 text-muted-foreground text-xs">{formatCompetitionRank(ranks[rankOffset + i])}</TableCell>
                     <TableCell className="py-2 font-medium">
-                      <Link href={`/tecnicos/${m.id}`} className="hover:text-primary hover:underline" data-testid={`link-manager-${m.id}`}>
+                      <Link href={`/tecnicos/${m.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1" data-testid={`link-manager-${m.id}`}>
                         {m.name}
+                        <VerifiedBadge status={m.verificationStatus} />
                       </Link>
                     </TableCell>
                     <TableCell className="py-2 text-right text-muted-foreground text-xs">

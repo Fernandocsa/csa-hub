@@ -604,6 +604,7 @@ export const ListManagersResponseItem = zod.object({
   "nationality": zod.string().nullish(),
   "startYear": zod.number().nullish(),
   "endYear": zod.number().nullish(),
+  "verificationStatus": zod.string().nullish(),
   "matches": zod.number(),
   "wins": zod.number(),
   "draws": zod.number(),
