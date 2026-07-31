@@ -1,6 +1,7 @@
 /**
- * Normalize walkover scores to conventional 1–0 (win) / 0–1 (loss)
- * and refresh season_competition_stats including W.O. (officialPlayedMatchConditions).
+ * Fill missing walkover scores with conventional 1–0 (win) / 0–1 (loss).
+ * Does NOT overwrite placares already set (ex.: CSA 3x0 Igaci 2025 was an official 3–0 W.O.).
+ * Then refresh season_competition_stats including W.O. (officialPlayedMatchConditions).
  */
 import { loadEnvFromDotenv, createPgPool } from "./_load-env.mjs";
 
@@ -16,8 +17,7 @@ try {
      SET goals_for = 1, goals_against = 0
      WHERE coalesce(is_walkover, false) = true
        AND result = 'win'
-       AND (goals_for IS NULL OR goals_against IS NULL
-            OR goals_for IS DISTINCT FROM 1 OR goals_against IS DISTINCT FROM 0)
+       AND (goals_for IS NULL OR goals_against IS NULL)
      RETURNING id, season, competition_id`,
   );
 
@@ -26,8 +26,7 @@ try {
      SET goals_for = 0, goals_against = 1
      WHERE coalesce(is_walkover, false) = true
        AND result = 'loss'
-       AND (goals_for IS NULL OR goals_against IS NULL
-            OR goals_for IS DISTINCT FROM 0 OR goals_against IS DISTINCT FROM 1)
+       AND (goals_for IS NULL OR goals_against IS NULL)
      RETURNING id, season, competition_id`,
   );
 

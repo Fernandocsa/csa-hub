@@ -342,16 +342,23 @@ export default function MatchGeneralForm({
               const on = e.target.checked;
               setIsWalkover(on);
               if (on) {
-                // Conventional official score: 1–0 win / 0–1 loss (no scorer credit).
-                if (result === "loss") {
-                  setGoalsFor("0");
-                  setGoalsAgainst("1");
-                } else {
-                  setGoalsFor("1");
-                  setGoalsAgainst("0");
-                  if (!result || result === "draw" || result === "unknown") {
-                    setResult("win");
+                // Default W.O. placar 1–0 / 0–1 only when score is empty —
+                // keep intentional exceptions (ex.: 3–0 federated W.O.).
+                const gfEmpty = goalsFor === "" || goalsFor == null;
+                const gaEmpty = goalsAgainst === "" || goalsAgainst == null;
+                if (gfEmpty && gaEmpty) {
+                  if (result === "loss") {
+                    setGoalsFor("0");
+                    setGoalsAgainst("1");
+                  } else {
+                    setGoalsFor("1");
+                    setGoalsAgainst("0");
+                    if (!result || result === "draw" || result === "unknown") {
+                      setResult("win");
+                    }
                   }
+                } else if (!result || result === "draw" || result === "unknown") {
+                  setResult("win");
                 }
               }
             }}

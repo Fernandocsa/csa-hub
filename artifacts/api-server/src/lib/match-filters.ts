@@ -5,8 +5,9 @@ import { matchesTable } from "@workspace/db";
  * Official matches that already count toward historical stats / rankings.
  * Excludes friendlies, scheduled fixtures, and unknown-result placeholders.
  *
- * Walkovers (is_walkover) ARE included: they are official results, conventionally
+ * Walkovers (is_walkover) ARE included: they are official results, usually
  * recorded as 1–0 (win) or 0–1 (loss) at match level — no player goals credited.
+ * Rare exceptions keep the federated placar (ex.: CSA 3–0 Igaci, Alagoano 2025).
  */
 export function officialPlayedMatchConditions(): SQL | undefined {
   return and(

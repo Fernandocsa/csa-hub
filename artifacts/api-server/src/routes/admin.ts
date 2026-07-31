@@ -16,8 +16,14 @@ import {
   seasonsTable,
   commentsTable,
   suggestionsTable,
+  ratingsTable,
   seasonCompetitionStatsTable,
 } from "@workspace/db";
+import {
+  isRatingEntityType,
+  ratingLabel,
+  type RatingEntityType,
+} from "../lib/rating-labels";
 import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray, ne } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard } from "../lib/match-sheet";
 import { syncRelatedMatchLink, parsePenaltyShootoutFields } from "../lib/match-links";
@@ -5904,6 +5910,146 @@ router.delete("/admin/suggestions/:id", requireAdmin, async (req, res) => {
       .returning({ id: suggestionsTable.id });
     if (deleted.length === 0) {
       return res.status(404).json({ error: "Sugestão não encontrada" });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+// ── Ratings moderation ────────────────────────────────────────────────────────
+
+router.get("/admin/ratings", requireAdmin, async (req, res) => {
+  try {
+    const limitRaw = parseInt(String(req.query.limit ?? 50), 10);
+    const offsetRaw = parseInt(String(req.query.offset ?? 0), 10);
+    const limit = Number.isFinite(limitRaw)
+      ? Math.min(Math.max(limitRaw, 1), 100)
+      : 50;
+    const offset = Number.isFinite(offsetRaw) && offsetRaw >= 0 ? offsetRaw : 0;
+    const typeFilter =
+      typeof req.query.entityType === "string" &&
+      isRatingEntityType(req.query.entityType)
+        ? req.query.entityType
+        : null;
+
+    const totalR = typeFilter
+      ? await pgPool.query(
+          `SELECT count(*)::int AS total FROM ratings WHERE entity_type = $1`,
+          [typeFilter],
+        )
+      : await pgPool.query(`SELECT count(*)::int AS total FROM ratings`);
+    const total = totalR.rows[0]?.total ?? 0;
+
+    const params: unknown[] = [];
+    let where = "";
+    if (typeFilter) {
+      params.push(typeFilter);
+      where = `WHERE r.entity_type = $${params.length}`;
+    }
+    params.push(limit);
+    const limitIdx = params.length;
+    params.push(offset);
+    const offsetIdx = params.length;
+
+    const { rows } = await pgPool.query(
+      `SELECT
+         r.id,
+         r.entity_type AS "entityType",
+         r.entity_id AS "entityId",
+         r.stars,
+         r.created_at AS "createdAt",
+         CASE
+           WHEN r.entity_type = 'player' THEN p.name
+           WHEN r.entity_type = 'manager' THEN m.name
+           WHEN r.entity_type = 'match' THEN
+             COALESCE(to_char(mt.match_date::timestamp, 'YYYY-MM-DD'), '?') ||
+             CASE WHEN o.name IS NOT NULL THEN ' vs ' || o.name ELSE '' END
+           ELSE NULL
+         END AS "entityLabel"
+       FROM ratings r
+       LEFT JOIN players p
+         ON r.entity_type = 'player' AND r.entity_id = p.id
+       LEFT JOIN managers m
+         ON r.entity_type = 'manager' AND r.entity_id = m.id
+       LEFT JOIN matches mt
+         ON r.entity_type = 'match' AND r.entity_id = mt.id
+       LEFT JOIN opponents o
+         ON mt.opponent_id = o.id
+       ${where}
+       ORDER BY r.created_at DESC, r.id DESC
+       LIMIT $${limitIdx} OFFSET $${offsetIdx}`,
+      params,
+    );
+
+    res.json({
+      data: rows.map(
+        (r: {
+          id: number;
+          entityType: string;
+          entityId: number;
+          stars: number;
+          createdAt: Date | string;
+          entityLabel: string | null;
+        }) => {
+          let publicPath = "/";
+          let adminPath = "/admin";
+          let entityLabel = r.entityLabel ?? `#${r.entityId}`;
+          if (r.entityType === "player") {
+            publicPath = `/jogadores/${r.entityId}`;
+            adminPath = `/admin/jogadores/${r.entityId}`;
+            if (!r.entityLabel) entityLabel = `Jogador #${r.entityId}`;
+          } else if (r.entityType === "manager") {
+            publicPath = `/tecnicos/${r.entityId}`;
+            adminPath = `/admin/tecnicos/${r.entityId}`;
+            if (!r.entityLabel) entityLabel = `Técnico #${r.entityId}`;
+          } else if (r.entityType === "match") {
+            publicPath = `/partidas/${r.entityId}`;
+            adminPath = `/admin/partidas/${r.entityId}`;
+            if (!r.entityLabel) entityLabel = `Partida #${r.entityId}`;
+          }
+          const entityType = r.entityType as RatingEntityType;
+          return {
+            id: r.id,
+            entityType: r.entityType,
+            entityId: r.entityId,
+            entityLabel,
+            publicPath,
+            adminPath,
+            stars: r.stars,
+            label: isRatingEntityType(r.entityType)
+              ? ratingLabel(entityType, r.stars)
+              : null,
+            createdAt:
+              r.createdAt instanceof Date
+                ? r.createdAt.toISOString()
+                : String(r.createdAt),
+          };
+        },
+      ),
+      total,
+      limit,
+      offset,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.delete("/admin/ratings/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id) || id < 1) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+    const deleted = await db
+      .delete(ratingsTable)
+      .where(eq(ratingsTable.id, id))
+      .returning({ id: ratingsTable.id });
+    if (deleted.length === 0) {
+      return res.status(404).json({ error: "Avaliação não encontrada" });
     }
     res.json({ ok: true });
   } catch (err) {

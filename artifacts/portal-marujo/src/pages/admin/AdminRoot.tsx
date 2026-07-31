@@ -26,6 +26,7 @@ import AdminMatchSheet from "./AdminMatchSheet";
 import AdminMatchSheetRedirect from "./AdminMatchSheetRedirect";
 import AdminMatchReview from "./AdminMatchReview";
 import AdminComments from "./AdminComments";
+import AdminRatings from "./AdminRatings";
 import AdminSuggestions from "./AdminSuggestions";
 import AdminBirthdays from "./AdminBirthdays";
 import AdminRecords from "./AdminRecords";
@@ -80,6 +81,7 @@ export default function AdminRoot() {
         <Route path="/admin/proximo-jogo" component={AdminUpcomingMatches} />
         <Route path="/admin/jogos-futuros" component={AdminUpcomingMatches} />
         <Route path="/admin/comentarios" component={AdminComments} />
+        <Route path="/admin/avaliacoes" component={AdminRatings} />
         <Route path="/admin/sugestoes" component={AdminSuggestions} />
         <Route path="/admin/partidas-duplicadas" component={AdminMatchReview} />
         <Route path="/admin/importar-exportar" component={AdminImportExport} />
