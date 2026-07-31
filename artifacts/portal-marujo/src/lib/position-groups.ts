@@ -3,10 +3,10 @@
  *
  * Field order:
  *   Goleiro → Lateral Direito → Lateral → Zagueiro → Lateral Esquerdo →
- *   Volante → Meia Central → Meia Ofensivo → Ponta Direita → Ponta Esquerda →
- *   2º Atacante → Centroavante → Atacante → Outros
+ *   Volante → Meia → Meia Central → Meia Ofensivo → Meia Direita → Meia Esquerda →
+ *   Ponta Direita → Ponta Esquerda → 2º Atacante → Centroavante → Atacante → Outros
  *
- * Legacy "Meia" maps to Meia Central for ordering.
+ * "Meia" without subtype sits between Volante and Meia Central.
  * "Lateral" without side sits between Lateral Direito and Zagueiro.
  */
 
@@ -17,8 +17,11 @@ export type LineupPositionSlot =
   | "Zagueiro"
   | "Lateral Esquerdo"
   | "Volante"
+  | "Meia"
   | "Meia Central"
   | "Meia Ofensivo"
+  | "Meia Direita"
+  | "Meia Esquerda"
   | "Ponta Direita"
   | "Ponta Esquerda"
   | "2º Atacante"
@@ -34,8 +37,11 @@ export const PLAYER_POSITIONS: Exclude<LineupPositionSlot, "Outros">[] = [
   "Zagueiro",
   "Lateral Esquerdo",
   "Volante",
+  "Meia",
   "Meia Central",
   "Meia Ofensivo",
+  "Meia Direita",
+  "Meia Esquerda",
   "Ponta Direita",
   "Ponta Esquerda",
   "2º Atacante",
@@ -163,17 +169,35 @@ export function lineupPositionSlot(
     return "Meia Central";
   }
 
-  // Legacy "Meia" and other midfield aliases → Meia Central
+  if (
+    p === "meia direita" ||
+    p === "meia-direita" ||
+    p === "md" ||
+    p.includes("meia direita") ||
+    p.includes("meia-direita")
+  ) {
+    return "Meia Direita";
+  }
+
+  if (
+    p === "meia esquerda" ||
+    p === "meia-esquerda" ||
+    p === "me" ||
+    p.includes("meia esquerda") ||
+    p.includes("meia-esquerda")
+  ) {
+    return "Meia Esquerda";
+  }
+
+  // Generic meia (no subtype) and other midfield aliases
   if (
     p === "mei" ||
     p === "mf" ||
     p === "meia" ||
-    p === "md" ||
-    p === "me" ||
     p.includes("meia") ||
     p.includes("meio")
   ) {
-    return "Meia Central";
+    return "Meia";
   }
 
   if (
@@ -248,8 +272,11 @@ export function positionGroup(position: string | null | undefined): PositionGrou
     case "Lateral Esquerdo":
       return "Defensores";
     case "Volante":
+    case "Meia":
     case "Meia Central":
     case "Meia Ofensivo":
+    case "Meia Direita":
+    case "Meia Esquerda":
       return "Meias";
     case "Ponta Direita":
     case "Ponta Esquerda":
