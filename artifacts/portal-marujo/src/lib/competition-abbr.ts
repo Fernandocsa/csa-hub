@@ -17,6 +17,7 @@ export function competitionAbbreviation(name?: string | null): string {
     [/copa do nordeste/, "CdN"],
     [/campeonato alagoano|alagoano/, "AL"],
     [/torneio norte[- ]?nordeste/, "TNN"],
+    [/torneio in[ií]cio/, "TI"],
     [/copa alagoas/, "CA"],
     [/amistoso/, "Am"],
   ];
