@@ -1018,8 +1018,8 @@ export default function AdminSeasonDetail() {
           </h2>
           <p className="text-xs text-gray-400 w-full order-last basis-full">
             Marque “Título” para creditar o campeonato a todo o elenco relacionado em qualquer
-            ficha da campanha (banco incluso) e a técnicos com ≥1 partida. Final é opcional
-            (uma perna basta em finais de ida e volta).
+            ficha da campanha (banco incluso). Técnico: da final marcada (ou do último jogo se
+            não houver final). Final opcional — uma perna basta em finais de ida e volta.
           </p>
           <div className="flex items-center gap-2">
             <Button

@@ -99,17 +99,70 @@ export async function playerIdsForChampionCampaign(
     .filter((id): id is number => id != null);
 }
 
-/** Managers who commanded ≥1 official match in the winning campaign. */
+/**
+ * Managers credited for a championship title.
+ * Prefer the coach(es) of the marked final (both legs when linked via related_match_id).
+ * If no final is set, fall back to the coach of the campaign's last official match —
+ * not every interim who appeared earlier in the season.
+ */
 export async function managerIdsForChampionCampaign(
   season: string,
   competitionId: number,
 ): Promise<number[]> {
+  const [campaign] = await db
+    .select({
+      finalMatchId: seasonCompetitionStatsTable.finalMatchId,
+    })
+    .from(seasonCompetitionStatsTable)
+    .where(
+      and(
+        eq(seasonCompetitionStatsTable.season, season),
+        eq(seasonCompetitionStatsTable.competitionId, competitionId),
+        eq(seasonCompetitionStatsTable.isChampion, true),
+      ),
+    )
+    .limit(1);
+
+  const matchIds = new Set<number>();
+  if (campaign?.finalMatchId) {
+    matchIds.add(campaign.finalMatchId);
+    const [finalRow] = await db
+      .select({
+        id: matchesTable.id,
+        relatedMatchId: matchesTable.relatedMatchId,
+      })
+      .from(matchesTable)
+      .where(eq(matchesTable.id, campaign.finalMatchId))
+      .limit(1);
+    if (finalRow?.relatedMatchId) matchIds.add(finalRow.relatedMatchId);
+    const otherLegs = await db
+      .select({ id: matchesTable.id })
+      .from(matchesTable)
+      .where(eq(matchesTable.relatedMatchId, campaign.finalMatchId));
+    for (const leg of otherLegs) matchIds.add(leg.id);
+  } else {
+    const [last] = await db
+      .select({ id: matchesTable.id })
+      .from(matchesTable)
+      .where(
+        and(
+          campaignMatchConditions(season, competitionId),
+          isNotNull(matchesTable.managerId),
+        ),
+      )
+      .orderBy(desc(matchesTable.matchDate), desc(matchesTable.id))
+      .limit(1);
+    if (last) matchIds.add(last.id);
+  }
+
+  if (matchIds.size === 0) return [];
+
   const rows = await db
     .selectDistinct({ managerId: matchesTable.managerId })
     .from(matchesTable)
     .where(
       and(
-        campaignMatchConditions(season, competitionId),
+        inArray(matchesTable.id, [...matchIds]),
         isNotNull(matchesTable.managerId),
       ),
     );
@@ -150,29 +203,13 @@ export async function countPlayerTitles(playerId: number): Promise<number> {
 }
 
 export async function countManagerTitles(managerId: number): Promise<number> {
-  const champions = await db
-    .select({
-      season: seasonCompetitionStatsTable.season,
-      competitionId: seasonCompetitionStatsTable.competitionId,
-    })
-    .from(seasonCompetitionStatsTable)
-    .where(eq(seasonCompetitionStatsTable.isChampion, true));
-
+  const champions = await listChampionCampaigns();
   if (champions.length === 0) return 0;
 
   let count = 0;
   for (const c of champions) {
-    const [hit] = await db
-      .select({ one: sql<number>`1` })
-      .from(matchesTable)
-      .where(
-        and(
-          campaignMatchConditions(c.season, c.competitionId),
-          eq(matchesTable.managerId, managerId),
-        ),
-      )
-      .limit(1);
-    if (hit) count += 1;
+    const ids = await managerIdsForChampionCampaign(c.season, c.competitionId);
+    if (ids.includes(managerId)) count += 1;
   }
   return count;
 }
@@ -212,17 +249,8 @@ export async function listManagerTitles(
   const champions = await listChampionCampaigns();
   const out: TitleAward[] = [];
   for (const c of champions) {
-    const [hit] = await db
-      .select({ one: sql<number>`1` })
-      .from(matchesTable)
-      .where(
-        and(
-          campaignMatchConditions(c.season, c.competitionId),
-          eq(matchesTable.managerId, managerId),
-        ),
-      )
-      .limit(1);
-    if (hit) {
+    const ids = await managerIdsForChampionCampaign(c.season, c.competitionId);
+    if (ids.includes(managerId)) {
       out.push({
         season: c.season,
         competitionId: c.competitionId,
