@@ -2,6 +2,7 @@ import { db } from "@workspace/db";
 import {
   matchesTable,
   matchGoalsTable,
+  matchCardsTable,
   matchLineupsTable,
   playersTable,
   managersTable,
@@ -23,6 +24,12 @@ export type PlayerRecordHolder = {
   playerId: number;
   playerName: string;
   value: number;
+};
+
+/** Ranking of players by number of matches with exactly `goalsInMatch` CSA goals. */
+export type MultiGoalHaulBucket = {
+  goalsInMatch: number;
+  players: PlayerRecordHolder[];
 };
 
 export type ManagerRecordHolder = {
@@ -267,7 +274,11 @@ async function topPenaltyGoals(limit = 10): Promise<PlayerRecordHolder[]> {
   }));
 }
 
-async function topHatTricks(limit = 10): Promise<PlayerRecordHolder[]> {
+/**
+ * Rankings of players by how many matches they scored exactly N goals in
+ * (N = 3 hat-trick, 4 poker, 5+, …). Only buckets with at least one haul are returned.
+ */
+async function multiGoalHaulsByCount(limit = 10): Promise<MultiGoalHaulBucket[]> {
   const perMatch = await db
     .select({
       playerId: matchGoalsTable.scorerPlayerId,
@@ -287,28 +298,78 @@ async function topHatTricks(limit = 10): Promise<PlayerRecordHolder[]> {
     .groupBy(matchGoalsTable.scorerPlayerId, matchGoalsTable.matchId)
     .having(sql`count(*) >= 3`);
 
-  const counts = new Map<number, number>();
+  /** goalsInMatch → playerId → haul count */
+  const byGoals = new Map<number, Map<number, number>>();
   for (const row of perMatch) {
     if (row.playerId == null) continue;
-    counts.set(row.playerId, (counts.get(row.playerId) ?? 0) + 1);
+    const g = Number(row.goals);
+    let playerCounts = byGoals.get(g);
+    if (!playerCounts) {
+      playerCounts = new Map();
+      byGoals.set(g, playerCounts);
+    }
+    playerCounts.set(row.playerId, (playerCounts.get(row.playerId) ?? 0) + 1);
   }
 
-  const ranked = [...counts.entries()]
-    .map(([playerId, value]) => ({ playerId, value }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, limit);
+  const goalLevels = [...byGoals.keys()].sort((a, b) => a - b);
+  if (goalLevels.length === 0) return [];
 
-  if (ranked.length === 0) return [];
-
+  const allPlayerIds = [
+    ...new Set(
+      [...byGoals.values()].flatMap((m) => [...m.keys()]),
+    ),
+  ];
   const players = await db
     .select({ id: playersTable.id, name: playersTable.name })
     .from(playersTable)
-    .where(inArray(playersTable.id, ranked.map((r) => r.playerId)));
+    .where(inArray(playersTable.id, allPlayerIds));
   const nameById = new Map(players.map((p) => [p.id, p.name]));
 
-  return ranked.map((r) => ({
-    playerId: r.playerId,
-    playerName: nameById.get(r.playerId) ?? `#${r.playerId}`,
+  return goalLevels.map((goalsInMatch) => {
+    const counts = byGoals.get(goalsInMatch)!;
+    const ranked = [...counts.entries()]
+      .map(([playerId, value]) => ({
+        playerId,
+        playerName: nameById.get(playerId) ?? `#${playerId}`,
+        value,
+      }))
+      .sort(
+        (a, b) =>
+          b.value - a.value || a.playerName.localeCompare(b.playerName),
+      )
+      .slice(0, limit);
+    return { goalsInMatch, players: ranked };
+  });
+}
+
+async function topCards(
+  cardType: "yellow" | "red",
+  limit = 10,
+): Promise<PlayerRecordHolder[]> {
+  const rows = await db
+    .select({
+      playerId: matchCardsTable.playerId,
+      playerName: playersTable.name,
+      value: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchCardsTable)
+    .innerJoin(matchesTable, eq(matchCardsTable.matchId, matchesTable.id))
+    .innerJoin(playersTable, eq(matchCardsTable.playerId, playersTable.id))
+    .where(
+      and(
+        recordsMatchConditions(),
+        eq(matchCardsTable.side, "csa"),
+        eq(matchCardsTable.cardType, cardType),
+        isNotNull(matchCardsTable.playerId),
+      ),
+    )
+    .groupBy(matchCardsTable.playerId, playersTable.name)
+    .orderBy(desc(sql`count(*)`), asc(playersTable.name))
+    .limit(limit);
+
+  return rows.map((r) => ({
+    playerId: r.playerId!,
+    playerName: r.playerName,
     value: r.value,
   }));
 }
@@ -625,7 +686,9 @@ export async function computeClubRecords() {
     assists,
     appearances,
     penalties,
-    hatTricks,
+    multiGoalHauls,
+    yellowCards,
+    redCards,
     playerWins,
     goalsAsSub,
     appsAsSub,
@@ -639,7 +702,9 @@ export async function computeClubRecords() {
     topAssists(),
     topAppearances(),
     topPenaltyGoals(),
-    topHatTricks(),
+    multiGoalHaulsByCount(),
+    topCards("yellow"),
+    topCards("red"),
     topPlayerWins(),
     topGoalsAsSubstitute(),
     topAppearancesAsSubstitute(),
@@ -649,6 +714,9 @@ export async function computeClubRecords() {
     topPlayersByTitles(10),
     topManagersByTitles(10),
   ]);
+
+  const topHatTricks =
+    multiGoalHauls.find((b) => b.goalsInMatch === 3)?.players ?? [];
 
   return {
     rules: {
@@ -662,7 +730,12 @@ export async function computeClubRecords() {
       topAssists: assists,
       topAppearances: appearances,
       topPenaltyGoals: penalties,
-      topHatTricks: hatTricks,
+      /** Exact 3-goal hauls only (kept for compatibility). */
+      topHatTricks,
+      /** Buckets for exact N goals in a match (3, 4, 5, …). */
+      multiGoalHauls,
+      topYellowCards: yellowCards,
+      topRedCards: redCards,
       topWins: playerWins,
       topGoalsAsSubstitute: goalsAsSub,
       topAppearancesAsSubstitute: appsAsSub,

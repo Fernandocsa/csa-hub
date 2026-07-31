@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type PlayerRow = { playerId: number; playerName: string; value: number };
+type MultiGoalBucket = { goalsInMatch: number; players: PlayerRow[] };
 type ManagerRow = { managerId: number; managerName: string; value: number };
 type MatchRow = {
   matchId: number;
@@ -31,6 +33,9 @@ type RecordsPayload = {
     topAppearances: PlayerRow[];
     topPenaltyGoals: PlayerRow[];
     topHatTricks: PlayerRow[];
+    multiGoalHauls: MultiGoalBucket[];
+    topYellowCards: PlayerRow[];
+    topRedCards: PlayerRow[];
     topWins: PlayerRow[];
     topGoalsAsSubstitute: PlayerRow[];
     topAppearancesAsSubstitute: PlayerRow[];
@@ -53,6 +58,13 @@ function fmtDate(d: string | null) {
   if (!d) return "—";
   const [y, m, day] = d.slice(0, 10).split("-");
   return `${day}/${m}/${y}`;
+}
+
+function multiGoalTitle(goalsInMatch: number) {
+  if (goalsInMatch === 3) return "Hat-tricks (exatos 3 gols)";
+  if (goalsInMatch === 4) return "Poker (exatos 4 gols)";
+  if (goalsInMatch === 5) return "Repóquer (exatos 5 gols)";
+  return `${goalsInMatch} gols no mesmo jogo`;
 }
 
 function PlayerList({ rows }: { rows: PlayerRow[] }) {
@@ -169,6 +181,26 @@ export default function AdminRecords() {
     load();
   }, [load]);
 
+  const multiGoalHauls = (() => {
+    const buckets = data?.players.multiGoalHauls ?? [];
+    if (buckets.length > 0) return buckets;
+    if (data?.players.topHatTricks) {
+      return [{ goalsInMatch: 3, players: data.players.topHatTricks }];
+    }
+    return [{ goalsInMatch: 3, players: [] as PlayerRow[] }];
+  })();
+
+  // Always show exact-3; only show 4+ when there is at least one haul
+  const displayHauls = (() => {
+    const three =
+      multiGoalHauls.find((b) => b.goalsInMatch === 3) ?? {
+        goalsInMatch: 3,
+        players: [] as PlayerRow[],
+      };
+    const rest = multiGoalHauls.filter((b) => b.goalsInMatch > 3);
+    return [three, ...rest];
+  })();
+
   return (
     <div className="space-y-6">
       <div>
@@ -203,9 +235,6 @@ export default function AdminRecords() {
             <Card title="Gols de pênalti">
               <PlayerList rows={data.players.topPenaltyGoals} />
             </Card>
-            <Card title="Hat-tricks (3+ gols no mesmo jogo)">
-              <PlayerList rows={data.players.topHatTricks} />
-            </Card>
             <Card title="Mais vitórias (jogador)">
               <PlayerList rows={data.players.topWins} />
             </Card>
@@ -225,6 +254,37 @@ export default function AdminRecords() {
               <ManagerList rows={data.managers.topTitles} />
             </Card>
           </div>
+
+          <div>
+            <h2 className="text-sm font-semibold text-gray-800 mb-3">
+              Gols no mesmo jogo
+            </h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              {displayHauls.map((bucket) => (
+                <Card
+                  key={bucket.goalsInMatch}
+                  title={multiGoalTitle(bucket.goalsInMatch)}
+                >
+                  <PlayerList rows={bucket.players} />
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          <Card title="Cartões">
+            <Tabs defaultValue="yellow">
+              <TabsList className="mb-3">
+                <TabsTrigger value="yellow">Mais cartões amarelos</TabsTrigger>
+                <TabsTrigger value="red">Mais cartões vermelhos</TabsTrigger>
+              </TabsList>
+              <TabsContent value="yellow">
+                <PlayerList rows={data.players.topYellowCards ?? []} />
+              </TabsContent>
+              <TabsContent value="red">
+                <PlayerList rows={data.players.topRedCards ?? []} />
+              </TabsContent>
+            </Tabs>
+          </Card>
 
           <Card title="Maior goleada">
             {data.team.biggestWins.length === 0 ? (
