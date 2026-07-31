@@ -16,6 +16,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import {
+  isUnknownEventMinute,
+  UNKNOWN_EVENT_MINUTE_LABEL,
+} from "@/lib/event-minute";
+
 function fmtDate(d: string) {
   return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString(
     "pt-BR",
@@ -23,6 +28,7 @@ function fmtDate(d: string) {
 }
 
 function fmtMinute(minute: number, injury?: number | null) {
+  if (isUnknownEventMinute(minute)) return UNKNOWN_EVENT_MINUTE_LABEL;
   if (injury != null && injury > 0) return `${minute}+${injury}'`;
   return `${minute}'`;
 }

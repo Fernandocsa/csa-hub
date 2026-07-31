@@ -20,6 +20,7 @@ import {
   eventMinuteToFormValue,
   isUnknownEventMinute,
   normalizeEventMinute,
+  UNKNOWN_EVENT_MINUTE_LABEL,
   UNKNOWN_EVENT_MINUTE_TITLE,
 } from "@/lib/event-minute";
 
@@ -201,7 +202,7 @@ function formatSavedMinute(minute: number, injury: number | null | undefined) {
   if (isUnknownEventMinute(minute)) {
     return (
       <span title={UNKNOWN_EVENT_MINUTE_TITLE} className="cursor-help underline decoration-dotted">
-        N/D
+        {UNKNOWN_EVENT_MINUTE_LABEL}
       </span>
     );
   }
@@ -1157,7 +1158,7 @@ export default function AdminMatchSheet() {
               Eventos - CSA
             </h2>
             <p className="text-xs text-gray-400">
-              Minuto é opcional: deixe em branco ou use 200 para “não disponível” (aparece como N/D).
+              Minuto é opcional: deixe em branco ou use 200 para “não disponível” (aparece como n/d).
               Assistências ainda precisam do minuto do gol para vincular.
             </p>
             {lineupOptions.length === 0 && (
@@ -1691,7 +1692,7 @@ export default function AdminMatchSheet() {
             Substituições CSA
           </h2>
           <p className="text-xs text-gray-400">
-            Minuto opcional (vazio ou 200 = N/D).
+            Minuto opcional (vazio ou 200 = n/d).
           </p>
           {lineupOptions.length === 0 && (
             <p className="text-xs text-gray-400">

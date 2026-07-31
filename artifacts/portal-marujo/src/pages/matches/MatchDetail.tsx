@@ -20,6 +20,7 @@ import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { ShareButton } from "@/components/ShareButton";
 import {
   isUnknownEventMinute,
+  UNKNOWN_EVENT_MINUTE_LABEL,
   UNKNOWN_EVENT_MINUTE_TITLE,
 } from "@/lib/event-minute";
 
@@ -40,7 +41,7 @@ function EventMinute({
         title={UNKNOWN_EVENT_MINUTE_TITLE}
         className="tabular-nums cursor-help underline decoration-dotted"
       >
-        N/D
+        {UNKNOWN_EVENT_MINUTE_LABEL}
       </span>
     );
   }
