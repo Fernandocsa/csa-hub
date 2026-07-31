@@ -1,5 +1,4 @@
 import { useState, type ReactNode } from "react";
-import { Link } from "wouter";
 import {
   useListSeasons,
   useListWalkovers,
@@ -12,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
+import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
 import { cn } from "@/lib/utils";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
@@ -218,12 +218,11 @@ export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind })
                         {fmtDate(match.date)}
                       </TableCell>
                       <TableCell className="py-2">
-                        <Link
-                          href={`/partidas/${match.id}`}
-                          className="font-medium hover:text-primary hover:underline"
-                        >
-                          {match.opponent}
-                        </Link>
+                        <OpponentHistoryLink
+                          opponentId={(match as { opponentId?: number }).opponentId}
+                          name={match.opponent}
+                          showCrest={false}
+                        />
                         <span
                           className={cn(
                             "ml-2 text-xs px-1 py-0.5 rounded",
@@ -244,20 +243,27 @@ export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind })
                               <ResultBadge result={match.result} />
                             )}
                           </TableCell>
-                          <TableCell className="py-2 text-center font-mono font-bold">
+                          <TableCell className="py-2 text-center">
                             {isUnknown ? (
-                              <span className="text-gray-400 dark:text-gray-500">❓</span>
+                              <MatchScoreLink matchId={match.id} className="text-gray-400 dark:text-gray-500">
+                                ❓
+                              </MatchScoreLink>
                             ) : (
-                              `${match.goalsFor}–${match.goalsAgainst}`
+                              <MatchScoreLink matchId={match.id}>
+                                {match.goalsFor}–{match.goalsAgainst}
+                              </MatchScoreLink>
                             )}
                           </TableCell>
                         </>
                       ) : (
                         <>
                           <TableCell className="py-2 text-center">
-                            <span className="text-xs font-semibold text-muted-foreground border px-2 py-0.5 rounded">
+                            <MatchScoreLink
+                              matchId={match.id}
+                              className="text-xs font-semibold text-muted-foreground border px-2 py-0.5 rounded no-underline hover:underline font-sans"
+                            >
                               W.O.
-                            </span>
+                            </MatchScoreLink>
                           </TableCell>
                           <TableCell className="py-2 text-center">
                             {match.result === "win" || match.result === "loss" ? (

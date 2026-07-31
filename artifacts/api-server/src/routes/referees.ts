@@ -324,6 +324,7 @@ router.get("/referees/:id", async (req, res) => {
         goalsAgainst: matchesTable.goalsAgainst,
         result: matchesTable.result,
         homeAway: matchesTable.homeAway,
+        opponentId: matchesTable.opponentId,
         opponentName: opponentsTable.name,
         competitionName: competitionsTable.name,
         stadiumName: stadiumsTable.name,
@@ -350,6 +351,7 @@ router.get("/referees/:id", async (req, res) => {
       allMatches: allMatchRows.map((m) => ({
         id: m.id,
         date: m.matchDate,
+        opponentId: m.opponentId,
         opponent: m.opponentName,
         goalsFor: m.goalsFor,
         goalsAgainst: m.goalsAgainst,

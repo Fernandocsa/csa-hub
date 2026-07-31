@@ -1,8 +1,8 @@
-import { useLocation } from "wouter";
-import type { ReactNode, KeyboardEvent } from "react";
+import type { ReactNode } from "react";
 import type { PlayerSheetMatch } from "@workspace/api-client-react";
 import { ResultBadge } from "@/components/ui/result-badge";
 import { BrazilFlag } from "@/components/BrazilFlag";
+import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
 import {
   competitionAbbreviation,
   matchRoundCompact,
@@ -112,8 +112,6 @@ export function PlayerMatchHistoryTable({
 }: {
   matches: PlayerSheetMatch[];
 }) {
-  const [, setLocation] = useLocation();
-
   if (matches.length === 0) return null;
 
   return (
@@ -158,26 +156,12 @@ export function PlayerMatchHistoryTable({
             const rd = matchRoundCompact(m.phase, m.round);
             const isUnknown = m.result === "unknown";
             const assists = m.playerAssists ?? 0;
-            const href = `/partidas/${m.matchId}`;
-
-            const go = () => setLocation(href);
-            const onKey = (e: KeyboardEvent) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                go();
-              }
-            };
 
             return (
               <TableRow
                 key={m.matchId}
-                role="link"
-                tabIndex={0}
-                onClick={go}
-                onKeyDown={onKey}
-                className="text-sm hover:bg-muted/50 cursor-pointer"
+                className="text-sm hover:bg-muted/50"
                 data-testid={`row-player-match-${m.matchId}`}
-                aria-label={`Partida CSA × ${m.opponent}`}
               >
                 <TableCell className="py-2 px-2">
                   {!isUnknown ? (
@@ -206,12 +190,18 @@ export function PlayerMatchHistoryTable({
                 <TableCell className="py-2 font-medium">
                   CSA <VenueMark homeAway={m.homeAway} />
                   <span className="text-muted-foreground font-normal mx-1">×</span>
-                  {m.opponent}
+                  <OpponentHistoryLink
+                    opponentId={m.opponentId}
+                    name={m.opponent}
+                    showCrest={false}
+                  />
                 </TableCell>
-                <TableCell className="py-2 text-center font-mono tabular-nums text-xs whitespace-nowrap">
-                  {isUnknown
-                    ? "?-?"
-                    : `${m.goalsFor ?? "–"}-${m.goalsAgainst ?? "–"}`}
+                <TableCell className="py-2 text-center text-xs whitespace-nowrap">
+                  <MatchScoreLink matchId={m.matchId} className="text-xs font-mono">
+                    {isUnknown
+                      ? "?-?"
+                      : `${m.goalsFor ?? "–"}-${m.goalsAgainst ?? "–"}`}
+                  </MatchScoreLink>
                 </TableCell>
                 <TableCell className="py-2 text-center text-xs whitespace-nowrap">
                   <MinutesCell m={m} />

@@ -176,6 +176,7 @@ export const MatchHomeAway = {
 export interface Match {
   id: number;
   date: string;
+  opponentId?: number;
   opponent: string;
   /** @nullable */
   opponentLogoUrl?: string | null;

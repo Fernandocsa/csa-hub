@@ -1,7 +1,6 @@
-import { useLocation } from "wouter";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { OpponentNameWithCrest } from "@/components/OpponentCrest";
+import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 function fmtDate(d: string) {
@@ -21,6 +20,7 @@ function matchRankKey(m: {
 
 export type RecordMatchRow = {
   id: number;
+  opponentId?: number;
   opponent: string;
   opponentLogoUrl?: string | null;
   goalsFor?: number | null;
@@ -32,23 +32,21 @@ export type RecordMatchRow = {
 
 /**
  * Shared goleadas / recordes match table (escudo + adversário).
- * Used by /registros and /partidas/recordes.
+ * Opponent → histórico; placar → partida.
  */
 export function RecordMatchTable({
   data,
   isLoading,
   colorClass,
-  clickable = false,
   hideCompetitionOnMobile = false,
 }: {
   data: RecordMatchRow[] | undefined;
   isLoading: boolean;
   colorClass: string;
-  /** Navigate to match detail on row click (Visão Geral). */
+  /** @deprecated Row click removed; use score/opponent links. */
   clickable?: boolean;
   hideCompetitionOnMobile?: boolean;
 }) {
-  const [, setLocation] = useLocation();
   const rows = data ?? [];
   const ranks = assignCompetitionRanks(rows, matchRankKey);
 
@@ -76,20 +74,21 @@ export function RecordMatchTable({
                 </TableRow>
               ))
             : rows.map((m, i) => (
-                <TableRow
-                  key={m.id}
-                  className={`text-sm${clickable ? " cursor-pointer hover:bg-muted/40" : ""}`}
-                  onClick={clickable ? () => setLocation(`/partidas/${m.id}`) : undefined}
-                  data-testid={`row-match-${m.id}`}
-                >
+                <TableRow key={m.id} className="text-sm" data-testid={`row-match-${m.id}`}>
                   <TableCell className="py-1.5 text-muted-foreground text-xs">
                     {formatCompetitionRank(ranks[i])}
                   </TableCell>
                   <TableCell className="py-1.5 font-medium">
-                    <OpponentNameWithCrest name={m.opponent} logoUrl={m.opponentLogoUrl} />
+                    <OpponentHistoryLink
+                      opponentId={m.opponentId}
+                      name={m.opponent}
+                      logoUrl={m.opponentLogoUrl}
+                    />
                   </TableCell>
-                  <TableCell className={`py-1.5 text-center font-bold font-mono ${colorClass}`}>
-                    {m.goalsFor}–{m.goalsAgainst}
+                  <TableCell className={`py-1.5 text-center ${colorClass}`}>
+                    <MatchScoreLink matchId={m.id} className={colorClass}>
+                      {m.goalsFor}–{m.goalsAgainst}
+                    </MatchScoreLink>
                   </TableCell>
                   <TableCell className="py-1.5 text-muted-foreground text-xs">
                     {fmtDate(m.date)}

@@ -15,6 +15,7 @@ function buildMatchRow(row: any) {
   return {
     id: row.id,
     date: row.matchDate,
+    opponentId: row.opponentId,
     opponent: row.opponentName,
     opponentLogoUrl: row.opponentLogoUrl ?? null,
     goalsFor: row.goalsFor ?? null,
@@ -51,6 +52,7 @@ const matchSelectFields = {
   status: matchesTable.status,
   phase: matchesTable.phase,
   round: matchesTable.round,
+  opponentId: matchesTable.opponentId,
   opponentName: opponentsTable.name,
   opponentLogoUrl: opponentsTable.logoUrl,
   competitionName: competitionsTable.name,

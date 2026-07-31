@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useSearch, useLocation } from "wouter";
+import { useSearch, useLocation } from "wouter";
 import { useListMatches, useListSeasons } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -7,10 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
+import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
 import { cn } from "@/lib/utils";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
-import { OpponentCrest } from "@/components/OpponentCrest";
 import { ListPagination } from "@/components/ListPagination";
 import { LIST_PAGE_SIZE } from "@/lib/list-page";
 
@@ -231,17 +231,11 @@ export default function MatchesList() {
                       {fmtDate(match.date)}
                     </TableCell>
                     <TableCell className="py-2">
-                      <Link
-                        href={`/partidas/${match.id}`}
-                        className="font-medium hover:text-primary hover:underline inline-flex items-center gap-1.5"
-                      >
-                        <span>{match.opponent}</span>
-                        <OpponentCrest
-                          url={(match as { opponentLogoUrl?: string | null }).opponentLogoUrl}
-                          name={match.opponent}
-                          size="sm"
-                        />
-                      </Link>
+                      <OpponentHistoryLink
+                        opponentId={(match as { opponentId?: number }).opponentId}
+                        name={match.opponent}
+                        logoUrl={(match as { opponentLogoUrl?: string | null }).opponentLogoUrl}
+                      />
                       <span
                         className={cn(
                           "ml-2 text-xs px-1 py-0.5 rounded",
@@ -256,8 +250,10 @@ export default function MatchesList() {
                     <TableCell className="py-2 text-center">
                       <ResultBadge result={match.result} />
                     </TableCell>
-                    <TableCell className="py-2 text-center font-mono font-bold">
-                      {match.goalsFor}–{match.goalsAgainst}
+                    <TableCell className="py-2 text-center">
+                      <MatchScoreLink matchId={match.id}>
+                        {match.goalsFor}–{match.goalsAgainst}
+                      </MatchScoreLink>
                     </TableCell>
                     <TableCell className="py-2 text-muted-foreground text-xs">
                       <div>{match.competition}</div>

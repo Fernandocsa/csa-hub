@@ -6,6 +6,7 @@ export type StreakDetailType = "winning" | "unbeaten" | "losing";
 export interface StreakDetailMatch {
   id: number;
   date: string;
+  opponentId?: number;
   opponent: string;
   opponentLogoUrl?: string | null;
   goalsFor: number | null;

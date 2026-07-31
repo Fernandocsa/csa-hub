@@ -3,7 +3,7 @@ import { useGetStreakDetail, type StreakDetailType } from "@workspace/api-client
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
-import { OpponentNameWithCrest } from "@/components/OpponentCrest";
+import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
 import { RecordsLayout } from "./RecordsLayout";
 import { cn } from "@/lib/utils";
 
@@ -101,15 +101,11 @@ export default function StreakDetailPage({ type }: { type: StreakDetailType }) {
                       </TableCell>
                       <TableCell className="py-2">
                         <span className="inline-flex flex-wrap items-center gap-2">
-                          <Link
-                            href={`/partidas/${m.id}`}
-                            className="font-medium hover:text-primary hover:underline"
-                          >
-                            <OpponentNameWithCrest
-                              name={m.opponent}
-                              logoUrl={m.opponentLogoUrl}
-                            />
-                          </Link>
+                          <OpponentHistoryLink
+                            opponentId={m.opponentId}
+                            name={m.opponent}
+                            logoUrl={m.opponentLogoUrl}
+                          />
                           <span
                             className={cn(
                               "text-xs px-1 py-0.5 rounded",
@@ -129,8 +125,14 @@ export default function StreakDetailPage({ type }: { type: StreakDetailType }) {
                           <ResultBadge result={m.result} />
                         )}
                       </TableCell>
-                      <TableCell className="py-2 text-center font-mono font-bold">
-                        {isUnknown ? "❓" : `${m.goalsFor}–${m.goalsAgainst}`}
+                      <TableCell className="py-2 text-center">
+                        {isUnknown ? (
+                          <span className="font-mono font-bold">❓</span>
+                        ) : (
+                          <MatchScoreLink matchId={m.id}>
+                            {m.goalsFor}–{m.goalsAgainst}
+                          </MatchScoreLink>
+                        )}
                       </TableCell>
                       <TableCell className="py-2 text-muted-foreground text-xs hidden sm:table-cell">
                         {m.competition}

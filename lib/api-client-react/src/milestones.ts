@@ -4,6 +4,7 @@ import { customFetch } from "./custom-fetch";
 export interface MilestoneMatch {
   id: number;
   date: string;
+  opponentId?: number;
   opponent: string;
   /** @nullable */
   opponentLogoUrl?: string | null;

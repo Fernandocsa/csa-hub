@@ -1,21 +1,26 @@
 import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
+import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
 
 /**
  * CSA × Opponent (or reverse) for match/game rows.
  * Opponent crest comes AFTER the Nome-UF (match lists / match detail only).
+ * When opponentId/matchId are set, opponent → histórico and score separator → partida.
  */
 export function MatchSidesLabel({
   homeAway,
   opponent,
+  opponentId,
+  matchId,
   logoUrl,
   separator = "×",
 }: {
   homeAway: string;
   opponent: string;
+  opponentId?: number | null;
+  matchId?: number | null;
   logoUrl?: string | null;
   separator?: string;
 }) {
-  const oppCrest = <OpponentCrest url={logoUrl} name={opponent} size="sm" />;
   const csa = (
     <span className="inline-flex items-center gap-1.5 shrink-0">
       <CsaCrest size="sm" />
@@ -23,16 +28,26 @@ export function MatchSidesLabel({
     </span>
   );
   const opp = (
-    <span className="inline-flex items-center gap-1.5 min-w-0">
-      <span className="truncate">{opponent}</span>
-      {oppCrest}
-    </span>
+    <OpponentHistoryLink
+      opponentId={opponentId}
+      name={opponent}
+      logoUrl={logoUrl}
+    />
   );
+  const sep =
+    matchId != null && separator !== "×" ? (
+      <MatchScoreLink matchId={matchId} className="text-muted-foreground font-mono font-normal">
+        {separator}
+      </MatchScoreLink>
+    ) : (
+      <span className="text-muted-foreground">{separator}</span>
+    );
+
   if (homeAway === "home") {
     return (
       <span className="inline-flex items-center gap-1.5 min-w-0">
         {csa}
-        <span className="text-muted-foreground">{separator}</span>
+        {sep}
         {opp}
       </span>
     );
@@ -40,7 +55,7 @@ export function MatchSidesLabel({
   return (
     <span className="inline-flex items-center gap-1.5 min-w-0">
       {opp}
-      <span className="text-muted-foreground">{separator}</span>
+      {sep}
       {csa}
     </span>
   );

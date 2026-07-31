@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "wouter";
 import { useGetBiggestAttendance, type AttendanceSortBy } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -103,18 +102,15 @@ function AttendanceTable({ sortBy }: { sortBy: Tab }) {
                     <TableRow key={m.id} className="text-sm">
                       <TableCell className="py-2 text-muted-foreground font-mono text-xs">{formatCompetitionRank(ranks[rankOffset + i])}</TableCell>
                       <TableCell className="py-2 font-medium">
-                        <Link
-                          href={`/partidas/${m.id}`}
-                          className="hover:text-primary hover:underline inline-flex items-center gap-1.5 flex-wrap"
-                        >
-                          <MatchSidesLabel
-                            homeAway={m.homeAway}
-                            opponent={m.opponent}
-                            logoUrl={m.opponentLogoUrl}
-                            separator={`${m.goalsFor}–${m.goalsAgainst}`}
-                          />
-                          <span className="text-xs text-muted-foreground">({m.season})</span>
-                        </Link>
+                        <MatchSidesLabel
+                          homeAway={m.homeAway}
+                          opponent={m.opponent}
+                          opponentId={(m as { opponentId?: number }).opponentId}
+                          matchId={m.id}
+                          logoUrl={m.opponentLogoUrl}
+                          separator={`${m.goalsFor}–${m.goalsAgainst}`}
+                        />
+                        <span className="text-xs text-muted-foreground ml-1.5">({m.season})</span>
                       </TableCell>
                       <TableCell className="py-2 text-muted-foreground text-xs hidden sm:table-cell">{m.competition}</TableCell>
                       <TableCell className="py-2 text-muted-foreground text-xs hidden md:table-cell">{fmtDate(m.date)}</TableCell>

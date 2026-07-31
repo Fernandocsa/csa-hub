@@ -26,6 +26,7 @@ export type RefereeMatchRecord = {
 export type RefereeMatchRow = {
   id: number;
   date: string;
+  opponentId?: number;
   opponent: string;
   goalsFor: number | null;
   goalsAgainst: number | null;

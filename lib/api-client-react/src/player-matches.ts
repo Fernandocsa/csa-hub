@@ -5,6 +5,7 @@ export interface PlayerSheetMatch {
   matchId: number;
   date: string;
   season: string;
+  opponentId?: number;
   opponent: string;
   goalsFor: number | null;
   goalsAgainst: number | null;

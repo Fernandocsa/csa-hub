@@ -332,6 +332,7 @@ type StreakMatchRow = {
   goalsFor: number | null;
   goalsAgainst: number | null;
   homeAway: string;
+  opponentId: number;
   opponentName: string;
   opponentLogoUrl: string | null;
   competitionName: string;
@@ -402,6 +403,7 @@ async function loadOfficialMatchesForStreaks(): Promise<StreakMatchRow[]> {
       goalsFor: matchesTable.goalsFor,
       goalsAgainst: matchesTable.goalsAgainst,
       homeAway: matchesTable.homeAway,
+      opponentId: matchesTable.opponentId,
       opponentName: opponentsTable.name,
       opponentLogoUrl: opponentsTable.logoUrl,
       competitionName: competitionsTable.name,
@@ -443,6 +445,7 @@ router.get("/records/streaks/:type", async (req, res) => {
     const slice = matches.slice(range.start, range.end + 1).map((m) => ({
       id: m.id,
       date: m.matchDate,
+      opponentId: m.opponentId,
       opponent: m.opponentName,
       opponentLogoUrl: m.opponentLogoUrl ?? null,
       goalsFor: m.goalsFor,

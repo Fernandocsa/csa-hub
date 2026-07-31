@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, ChevronLeft as PrevIcon, ChevronRight } from "lucide-react";
 import { ResultBadge } from "@/components/ui/result-badge";
+import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
 import { Button } from "@/components/ui/button";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { ufDisplayName } from "@/lib/br-locations";
@@ -199,19 +200,22 @@ export default function RefereeDetail() {
                 pageMatches.map((match) => (
                   <TableRow key={match.id} className="text-sm">
                     <TableCell className="py-2 text-muted-foreground text-xs">
-                      <Link
-                        href={`/partidas/${match.id}`}
-                        className="hover:text-primary hover:underline"
-                      >
-                        {fmtDate(match.date)}
-                      </Link>
+                      {fmtDate(match.date)}
                     </TableCell>
-                    <TableCell className="py-2 font-medium">{match.opponent}</TableCell>
+                    <TableCell className="py-2 font-medium">
+                      <OpponentHistoryLink
+                        opponentId={match.opponentId}
+                        name={match.opponent}
+                        showCrest={false}
+                      />
+                    </TableCell>
                     <TableCell className="py-2 text-center">
                       <ResultBadge result={match.result} />
                     </TableCell>
-                    <TableCell className="py-2 text-center font-mono font-bold">
-                      {match.goalsFor}–{match.goalsAgainst}
+                    <TableCell className="py-2 text-center">
+                      <MatchScoreLink matchId={match.id}>
+                        {match.goalsFor}–{match.goalsAgainst}
+                      </MatchScoreLink>
                     </TableCell>
                     <TableCell className="py-2 text-xs text-muted-foreground">
                       {match.homeAway === "home"

@@ -27,6 +27,7 @@ import {
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { OpponentCrest } from "@/components/OpponentCrest";
 import { MatchSidesLabel } from "@/components/MatchSidesLabel";
+import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
 import { PlayerFlag } from "@/components/PlayerFlag";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { EntityPhoto } from "@/components/EntityPhoto";
@@ -51,11 +52,11 @@ const resultColor: Record<string, string> = {
 function MilestoneCard({ label, match }: { label: string; match: MilestoneMatch }) {
   const isHome = match.homeAway === "home";
   const scoreColor = resultColor[match.result] ?? "text-foreground";
+  const opponentId = (match as { opponentId?: number }).opponentId;
 
   return (
-    <Link
-      href={`/partidas/${match.id}`}
-      className="border rounded p-4 space-y-2 block hover:bg-muted/40 transition-colors"
+    <div
+      className="border rounded p-4 space-y-2"
       data-testid={`link-milestone-${label.toLowerCase().replace(/\s+/g, "-")}`}
     >
       <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
@@ -65,17 +66,20 @@ function MilestoneCard({ label, match }: { label: string; match: MilestoneMatch 
           <MatchSidesLabel
             homeAway={match.homeAway}
             opponent={match.opponent}
+            opponentId={opponentId}
             logoUrl={match.opponentLogoUrl}
           />
         </p>
       </div>
       <p className={`text-2xl font-black ${scoreColor}`}>
-        {isHome ? match.goalsFor : match.goalsAgainst}
-        <span className="text-muted-foreground font-normal text-lg mx-1">–</span>
-        {isHome ? match.goalsAgainst : match.goalsFor}
+        <MatchScoreLink matchId={match.id} className={scoreColor}>
+          {isHome ? match.goalsFor : match.goalsAgainst}
+          <span className="text-muted-foreground font-normal text-lg mx-1">–</span>
+          {isHome ? match.goalsAgainst : match.goalsFor}
+        </MatchScoreLink>
       </p>
       <p className="text-xs text-muted-foreground">{match.season}</p>
-    </Link>
+    </div>
   );
 }
 
@@ -516,23 +520,27 @@ export default function Home() {
             </Link>
           )}
           {biggestWin && (
-            <Link
-              href={`/partidas/${biggestWin.id}`}
-              className="border rounded p-4 space-y-1 block hover:bg-muted/40 transition-colors"
+            <div
+              className="border rounded p-4 space-y-1"
               data-testid="record-biggest-win"
             >
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Vitória</p>
-              <p className="font-bold text-base inline-flex items-center gap-2">
-                {biggestWin.opponent}
-                <OpponentCrest url={biggestWin.opponentLogoUrl} name={biggestWin.opponent} size="sm" />
+              <p className="font-bold text-base">
+                <OpponentHistoryLink
+                  opponentId={(biggestWin as { opponentId?: number }).opponentId}
+                  name={biggestWin.opponent}
+                  logoUrl={biggestWin.opponentLogoUrl}
+                />
               </p>
               <p className="text-2xl font-black text-green-600">
-                {biggestWin.goalsFor}–{biggestWin.goalsAgainst}{" "}
-                <span className="text-sm font-normal text-muted-foreground">
-                  {fmtDate(biggestWin.date)}
-                </span>
+                <MatchScoreLink matchId={biggestWin.id} className="text-green-600">
+                  {biggestWin.goalsFor}–{biggestWin.goalsAgainst}{" "}
+                  <span className="text-sm font-normal text-muted-foreground">
+                    {fmtDate(biggestWin.date)}
+                  </span>
+                </MatchScoreLink>
               </p>
-            </Link>
+            </div>
           )}
         </div>
       </div>
@@ -610,19 +618,15 @@ export default function Home() {
                       <TableRow key={m.id} className="text-sm">
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeAttendanceRanks[i])}</TableCell>
                         <TableCell className="py-1.5 font-medium">
-                          <Link
-                            href={`/partidas/${m.id}`}
-                            className="hover:text-primary hover:underline inline-flex items-center gap-1.5 flex-wrap"
-                            data-testid={`link-attendance-match-${m.id}`}
-                          >
-                            <MatchSidesLabel
-                              homeAway={m.homeAway}
-                              opponent={m.opponent}
-                              logoUrl={m.opponentLogoUrl}
-                              separator={`${m.goalsFor}–${m.goalsAgainst}`}
-                            />
-                            <span className="text-xs text-muted-foreground">({m.season})</span>
-                          </Link>
+                          <MatchSidesLabel
+                            homeAway={m.homeAway}
+                            opponent={m.opponent}
+                            opponentId={(m as { opponentId?: number }).opponentId}
+                            matchId={m.id}
+                            logoUrl={m.opponentLogoUrl}
+                            separator={`${m.goalsFor}–${m.goalsAgainst}`}
+                          />
+                          <span className="text-xs text-muted-foreground ml-1.5">({m.season})</span>
                         </TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary">
                           {m.attendance.toLocaleString("pt-BR")}
