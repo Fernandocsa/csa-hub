@@ -183,11 +183,12 @@ function SidebarContent({ location, onClose }: { location: string; onClose?: () 
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between px-4 h-14 border-b border-sidebar-border flex-shrink-0">
         <Link href="/" onClick={onClose}>
-          <span className="text-lg font-black tracking-tight leading-none cursor-pointer" data-testid="nav-logo">
-            <span className="text-primary-foreground">PORTAL</span>
-            <br />
-            <span className="text-accent">MARUJO</span>
-          </span>
+          <img
+            src="/portal-marujo-logo.png"
+            alt="Portal Marujo"
+            className="h-10 w-auto cursor-pointer"
+            data-testid="nav-logo"
+          />
         </Link>
         {onClose && (
           <button onClick={onClose} className="text-sidebar-foreground/70 hover:text-sidebar-foreground">
@@ -238,10 +239,11 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           >
             <Menu className="h-5 w-5" />
           </button>
-          <span className="text-sm font-black tracking-tight">
-            <span className="text-primary-foreground">PORTAL</span>{" "}
-            <span className="text-accent">MARUJO</span>
-          </span>
+          <img
+            src="/portal-marujo-logo.png"
+            alt="Portal Marujo"
+            className="h-8 w-auto"
+          />
         </header>
 
         <main className="flex-1 min-w-0">
