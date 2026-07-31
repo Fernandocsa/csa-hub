@@ -80,8 +80,7 @@ export default function AdminTitles() {
         <h1 className="text-xl font-bold text-[#1B3A6B]">Títulos</h1>
         <p className="text-sm text-gray-500 mt-1">
           Campanhas marcadas como campeãs. Jogador: relacionado em qualquer ficha da campanha
-          (banco incluso). Técnico: da final marcada (ambas as pernas) ou, sem final, do último
-          jogo oficial da campanha.
+          (banco incluso). Técnico: apenas o último jogo oficial da campanha.
         </p>
       </div>
 

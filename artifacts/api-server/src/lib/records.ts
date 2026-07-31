@@ -655,7 +655,7 @@ export async function computeClubRecords() {
       matches: "Somente partidas oficiais (sem amistosos nem W.O.)",
       appearances: "Titular ou reserva que entrou",
       titles:
-        "Jogador: relacionado em qualquer ficha da campanha campeã (banco incluso). Técnico: final marcada (ambas as pernas) ou, sem final, o último jogo oficial da campanha",
+        "Jogador: relacionado em qualquer ficha da campanha campeã (banco incluso). Técnico: apenas o último jogo oficial da campanha",
     },
     players: {
       topScorers: goals,

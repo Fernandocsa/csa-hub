@@ -100,76 +100,26 @@ export async function playerIdsForChampionCampaign(
 }
 
 /**
- * Managers credited for a championship title.
- * Prefer the coach(es) of the marked final (both legs when linked via related_match_id).
- * If no final is set, fall back to the coach of the campaign's last official match —
- * not every interim who appeared earlier in the season.
+ * Managers credited for a championship title: only the coach of the campaign's
+ * last official match (by date). Interims earlier in the season do not get credit.
  */
 export async function managerIdsForChampionCampaign(
   season: string,
   competitionId: number,
 ): Promise<number[]> {
-  const [campaign] = await db
-    .select({
-      finalMatchId: seasonCompetitionStatsTable.finalMatchId,
-    })
-    .from(seasonCompetitionStatsTable)
-    .where(
-      and(
-        eq(seasonCompetitionStatsTable.season, season),
-        eq(seasonCompetitionStatsTable.competitionId, competitionId),
-        eq(seasonCompetitionStatsTable.isChampion, true),
-      ),
-    )
-    .limit(1);
-
-  const matchIds = new Set<number>();
-  if (campaign?.finalMatchId) {
-    matchIds.add(campaign.finalMatchId);
-    const [finalRow] = await db
-      .select({
-        id: matchesTable.id,
-        relatedMatchId: matchesTable.relatedMatchId,
-      })
-      .from(matchesTable)
-      .where(eq(matchesTable.id, campaign.finalMatchId))
-      .limit(1);
-    if (finalRow?.relatedMatchId) matchIds.add(finalRow.relatedMatchId);
-    const otherLegs = await db
-      .select({ id: matchesTable.id })
-      .from(matchesTable)
-      .where(eq(matchesTable.relatedMatchId, campaign.finalMatchId));
-    for (const leg of otherLegs) matchIds.add(leg.id);
-  } else {
-    const [last] = await db
-      .select({ id: matchesTable.id })
-      .from(matchesTable)
-      .where(
-        and(
-          campaignMatchConditions(season, competitionId),
-          isNotNull(matchesTable.managerId),
-        ),
-      )
-      .orderBy(desc(matchesTable.matchDate), desc(matchesTable.id))
-      .limit(1);
-    if (last) matchIds.add(last.id);
-  }
-
-  if (matchIds.size === 0) return [];
-
-  const rows = await db
-    .selectDistinct({ managerId: matchesTable.managerId })
+  const [last] = await db
+    .select({ managerId: matchesTable.managerId })
     .from(matchesTable)
     .where(
       and(
-        inArray(matchesTable.id, [...matchIds]),
+        campaignMatchConditions(season, competitionId),
         isNotNull(matchesTable.managerId),
       ),
-    );
+    )
+    .orderBy(desc(matchesTable.matchDate), desc(matchesTable.id))
+    .limit(1);
 
-  return rows
-    .map((r) => r.managerId)
-    .filter((id): id is number => id != null);
+  return last?.managerId != null ? [last.managerId] : [];
 }
 
 export async function countPlayerTitles(playerId: number): Promise<number> {
