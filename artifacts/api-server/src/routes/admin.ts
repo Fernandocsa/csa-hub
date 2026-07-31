@@ -62,6 +62,12 @@ import {
   listSeasonCompetitionStats,
   recalculateSeasonCompetitionStats,
 } from "../lib/season-competition-stats";
+import { computeClubRecords } from "../lib/records";
+import {
+  listChampionCampaigns,
+  playerIdsForChampionCampaign,
+  managerIdsForChampionCampaign,
+} from "../lib/titles";
 import countriesList from "../../../portal-marujo/src/lib/countries.json" with { type: "json" };
 
 const VALID_COUNTRY_CODES = new Set(
@@ -3229,6 +3235,8 @@ function serializeSeasonCompetitionStat(
     goalsFor: row.goalsFor,
     goalsAgainst: row.goalsAgainst,
     classification: row.classification,
+    isChampion: row.isChampion,
+    finalMatchId: row.finalMatchId,
     statsSource: row.statsSource,
     statsRecalculatedAt:
       row.statsRecalculatedAt instanceof Date
@@ -3400,6 +3408,8 @@ router.put(
         goalsFor: number;
         goalsAgainst: number;
         classification: string | null;
+        isChampion: boolean | null;
+        finalMatchId: number | null | undefined;
       }[] = [];
 
       for (const row of raw) {
@@ -3432,6 +3442,45 @@ router.put(
         if (classification === undefined && item.classification != null) {
           return res.status(400).json({ error: "classification inválida" });
         }
+        const isChampionProvided = Object.prototype.hasOwnProperty.call(
+          item,
+          "isChampion",
+        );
+        let isChampion: boolean | null = null;
+        if (isChampionProvided) {
+          if (typeof item.isChampion === "boolean") {
+            isChampion = item.isChampion;
+          } else if (item.isChampion === "true" || item.isChampion === 1) {
+            isChampion = true;
+          } else if (item.isChampion === "false" || item.isChampion === 0) {
+            isChampion = false;
+          } else {
+            return res.status(400).json({ error: "isChampion inválido" });
+          }
+        }
+        const finalMatchProvided = Object.prototype.hasOwnProperty.call(
+          item,
+          "finalMatchId",
+        );
+        let finalMatchId: number | null | undefined = undefined;
+        if (finalMatchProvided) {
+          if (
+            item.finalMatchId === null ||
+            item.finalMatchId === "" ||
+            item.finalMatchId === undefined
+          ) {
+            finalMatchId = null;
+          } else {
+            const parsed =
+              typeof item.finalMatchId === "number"
+                ? item.finalMatchId
+                : parseInt(String(item.finalMatchId), 10);
+            if (!Number.isInteger(parsed) || parsed < 1) {
+              return res.status(400).json({ error: "finalMatchId inválido" });
+            }
+            finalMatchId = parsed;
+          }
+        }
         updates.push({
           id,
           games,
@@ -3441,6 +3490,8 @@ router.put(
           goalsFor,
           goalsAgainst,
           classification: classification ?? null,
+          isChampion,
+          finalMatchId,
         });
       }
 
@@ -3451,9 +3502,11 @@ router.put(
              games = $1, wins = $2, draws = $3, losses = $4,
              goals_for = $5, goals_against = $6,
              classification = $7,
+             is_champion = COALESCE($8::boolean, is_champion),
+             final_match_id = CASE WHEN $9::boolean THEN $10::integer ELSE final_match_id END,
              stats_source = 'manual',
              stats_recalculated_at = NULL
-           WHERE id = $8 AND season = $9
+           WHERE id = $11 AND season = $12
            RETURNING id`,
           [
             u.games,
@@ -3463,6 +3516,9 @@ router.put(
             u.goalsFor,
             u.goalsAgainst,
             u.classification,
+            u.isChampion,
+            u.finalMatchId !== undefined,
+            u.finalMatchId ?? null,
             u.id,
             season,
           ],
@@ -3529,6 +3585,178 @@ router.delete(
         return res.status(404).json({ error: "Linha não encontrada" });
       }
       res.json({ ok: true });
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "Erro interno" });
+    }
+  },
+);
+
+router.get("/admin/records", requireAdmin, async (req, res) => {
+  try {
+    const data = await computeClubRecords();
+    res.json(data);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.get("/admin/titles", requireAdmin, async (req, res) => {
+  try {
+    const campaigns = await listChampionCampaigns();
+    const withCounts = await Promise.all(
+      campaigns.map(async (c) => {
+        const [playerIds, managerIds] = await Promise.all([
+          playerIdsForChampionCampaign(c.season, c.competitionId),
+          managerIdsForChampionCampaign(c.season, c.competitionId),
+        ]);
+        return {
+          ...c,
+          playerCount: playerIds.length,
+          managerCount: managerIds.length,
+        };
+      }),
+    );
+    res.json({ total: withCounts.length, campaigns: withCounts });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.get("/admin/titles/:id/holders", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [row] = await db
+      .select({
+        id: seasonCompetitionStatsTable.id,
+        season: seasonCompetitionStatsTable.season,
+        competitionId: seasonCompetitionStatsTable.competitionId,
+        competitionName: competitionsTable.name,
+        isChampion: seasonCompetitionStatsTable.isChampion,
+      })
+      .from(seasonCompetitionStatsTable)
+      .innerJoin(
+        competitionsTable,
+        eq(seasonCompetitionStatsTable.competitionId, competitionsTable.id),
+      )
+      .where(eq(seasonCompetitionStatsTable.id, id))
+      .limit(1);
+    if (!row) return res.status(404).json({ error: "Campanha não encontrada" });
+    if (!row.isChampion) {
+      return res.status(400).json({ error: "Campanha não marcada como título" });
+    }
+
+    const [playerIds, managerIds] = await Promise.all([
+      playerIdsForChampionCampaign(row.season, row.competitionId),
+      managerIdsForChampionCampaign(row.season, row.competitionId),
+    ]);
+
+    const players =
+      playerIds.length === 0
+        ? []
+        : await db
+            .select({ id: playersTable.id, name: playersTable.name })
+            .from(playersTable)
+            .where(inArray(playersTable.id, playerIds))
+            .orderBy(asc(playersTable.name));
+
+    const managers =
+      managerIds.length === 0
+        ? []
+        : await db
+            .select({ id: managersTable.id, name: managersTable.name })
+            .from(managersTable)
+            .where(inArray(managersTable.id, managerIds))
+            .orderBy(asc(managersTable.name));
+
+    res.json({
+      id: row.id,
+      season: row.season,
+      competitionId: row.competitionId,
+      competitionName: row.competitionName,
+      players,
+      managers,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.patch(
+  "/admin/season-competition-stats/:id/champion",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+      const body = req.body as {
+        isChampion?: unknown;
+        finalMatchId?: unknown;
+      };
+
+      const [existing] = await db
+        .select()
+        .from(seasonCompetitionStatsTable)
+        .where(eq(seasonCompetitionStatsTable.id, id))
+        .limit(1);
+      if (!existing) return res.status(404).json({ error: "Linha não encontrada" });
+
+      const patch: {
+        isChampion?: boolean;
+        finalMatchId?: number | null;
+      } = {};
+
+      if (typeof body.isChampion === "boolean") {
+        patch.isChampion = body.isChampion;
+      }
+      if (body.finalMatchId === null || body.finalMatchId === "") {
+        patch.finalMatchId = null;
+      } else if (body.finalMatchId !== undefined) {
+        const mid =
+          typeof body.finalMatchId === "number"
+            ? body.finalMatchId
+            : parseInt(String(body.finalMatchId), 10);
+        if (!Number.isInteger(mid) || mid < 1) {
+          return res.status(400).json({ error: "finalMatchId inválido" });
+        }
+        const [match] = await db
+          .select({
+            id: matchesTable.id,
+            season: matchesTable.season,
+            competitionId: matchesTable.competitionId,
+          })
+          .from(matchesTable)
+          .where(eq(matchesTable.id, mid))
+          .limit(1);
+        if (!match) return res.status(404).json({ error: "Partida não encontrada" });
+        if (
+          match.season !== existing.season ||
+          match.competitionId !== existing.competitionId
+        ) {
+          return res.status(400).json({
+            error: "A final deve ser da mesma temporada e competição",
+          });
+        }
+        patch.finalMatchId = mid;
+      }
+
+      if (Object.keys(patch).length === 0) {
+        return res.status(400).json({ error: "Nada para atualizar" });
+      }
+
+      await db
+        .update(seasonCompetitionStatsTable)
+        .set(patch)
+        .where(eq(seasonCompetitionStatsTable.id, id));
+
+      const rows = await listSeasonCompetitionStats(existing.season);
+      const row = rows.find((r) => r.id === id);
+      if (!row) return res.status(404).json({ error: "Linha não encontrada" });
+      res.json(serializeSeasonCompetitionStat(row));
     } catch (err) {
       req.log.error(err);
       res.status(500).json({ error: "Erro interno" });

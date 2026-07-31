@@ -39,6 +39,8 @@ type PlayerProfile = {
   totalAppearances: number;
   totalGoals: number;
   totalAssists?: number | null;
+  titleCount?: number;
+  titles?: { season: string; competitionId: number; competitionName: string }[];
   seasonStats: {
     season: string;
     appearances: number;
@@ -278,13 +280,14 @@ export default function PlayerDetail() {
 
       {/* Stat bar — unchanged */}
       <div
-        className="grid grid-cols-4 gap-px bg-border rounded overflow-hidden"
+        className="grid grid-cols-5 gap-px bg-border rounded overflow-hidden"
         data-testid="player-stat-bar"
       >
         {[
           { label: "Partidas", value: player.totalAppearances, highlight: true },
           { label: "Gols", value: player.totalGoals },
           { label: "Assistências", value: player.totalAssists ?? "–" },
+          { label: "Títulos", value: player.titleCount ?? 0, highlight: true },
           { label: "Gols/Jogo", value: avgGoals },
         ].map(({ label, value, highlight }) => (
           <div key={label} className="bg-background p-3">
@@ -295,6 +298,33 @@ export default function PlayerDetail() {
           </div>
         ))}
       </div>
+
+      {(player.titles?.length ?? 0) > 0 && (
+        <div data-testid="player-titles">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            Títulos
+          </h2>
+          <ul className="space-y-1 text-sm">
+            {player.titles!.map((t) => (
+              <li key={`${t.competitionId}-${t.season}`}>
+                <Link
+                  href={`/temporadas/${t.season}`}
+                  className="font-medium tabular-nums hover:text-primary hover:underline"
+                >
+                  {t.season}
+                </Link>
+                <span className="text-muted-foreground"> · </span>
+                <Link
+                  href={`/competicoes/${t.competitionId}`}
+                  className="hover:text-primary hover:underline"
+                >
+                  {t.competitionName}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Recent sheet matches — omitted when empty */}
       {(player.recentMatches?.length ?? 0) > 0 && (

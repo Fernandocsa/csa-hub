@@ -16,6 +16,7 @@ import {
   resolveManagerSeasonStatsPublic,
 } from "../lib/manager-stats";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
+import { countManagerTitles, listManagerTitles } from "../lib/titles";
 
 const router = Router();
 
@@ -196,6 +197,10 @@ router.get("/managers/:id", async (req, res) => {
     };
     const stats = resolveManagerCareerStats(computed, manager);
     const badges = await loadEntityBadges("manager", id);
+    const [titleCount, titles] = await Promise.all([
+      countManagerTitles(id),
+      listManagerTitles(id),
+    ]);
     const preferManual =
       manager.statsSource === "manual" && seasonRows.length > 0;
     const linkedSeasons = preferManual
@@ -250,6 +255,8 @@ router.get("/managers/:id", async (req, res) => {
           ? Math.round((stats.wins / stats.matches) * 100 * 10) / 10
           : 0,
       badges,
+      titleCount,
+      titles,
       seasonStats: flooredSeasons,
       recentMatches,
       linkedPlayer,

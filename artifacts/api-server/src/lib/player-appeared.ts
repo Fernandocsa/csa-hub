@@ -19,3 +19,21 @@ export function csaLineupActuallyPlayedCondition(): SQL {
     )
   )`;
 }
+
+/**
+ * True when the player was on the bench and entered as a substitute
+ * (never started that match).
+ */
+export function csaLineupCameOnAsSubCondition(): SQL {
+  return sql`(
+    ${matchLineupsTable.role} = 'bench'
+    AND EXISTS (
+      SELECT 1
+      FROM ${matchSubstitutionsTable}
+      WHERE ${matchSubstitutionsTable.matchId} = ${matchLineupsTable.matchId}
+        AND ${matchSubstitutionsTable.side} = 'csa'
+        AND ${matchSubstitutionsTable.playerInId} IS NOT NULL
+        AND ${matchSubstitutionsTable.playerInId} = ${matchLineupsTable.playerId}
+    )
+  )`;
+}

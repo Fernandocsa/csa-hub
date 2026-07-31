@@ -9,7 +9,7 @@ export default function Titles() {
   return (
     <RecordsLayout
       title="Títulos"
-      subtitle='Campeonatos marcados com classificação “1º” no resumo por competição de cada temporada'
+      subtitle="Campeonatos marcados como título no resumo por competição de cada temporada"
     >
       {isLoading ? (
         <div className="space-y-4">
@@ -21,8 +21,8 @@ export default function Titles() {
         <p className="text-sm text-destructive">Erro ao carregar títulos.</p>
       ) : data.total === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Nenhum título cadastrado ainda. No admin, marque a classificação como{" "}
-          <span className="font-mono">1º</span> na temporada/competição correspondente.
+          Nenhum título cadastrado ainda. No admin, marque a coluna “Título” na
+          temporada/competição correspondente.
         </p>
       ) : (
         <div className="space-y-6">

@@ -20,6 +20,7 @@ import {
 } from "../lib/player-stats-floor";
 import { csaLineupActuallyPlayedCondition } from "../lib/player-appeared";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
+import { countPlayerTitles, listPlayerTitles } from "../lib/titles";
 
 const router = Router();
 
@@ -662,6 +663,10 @@ router.get("/players/:id", async (req, res) => {
     }));
     const recentMatches = await loadPlayerSheetMatches(id, 5);
     const badges = await loadEntityBadges("player", id);
+    const [titleCount, titles] = await Promise.all([
+      countPlayerTitles(id),
+      listPlayerTitles(id),
+    ]);
 
     const [linkedMgr] = await db
       .select({ id: managersTable.id, name: managersTable.name })
@@ -693,6 +698,8 @@ router.get("/players/:id", async (req, res) => {
       totalAppearances: totals.appearances,
       totalGoals: totals.goals,
       totalAssists: totals.assists,
+      titleCount,
+      titles,
       seasonStats,
       recentMatches,
       badges,

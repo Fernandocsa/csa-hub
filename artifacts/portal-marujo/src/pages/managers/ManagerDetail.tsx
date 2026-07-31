@@ -79,6 +79,8 @@ type ManagerProfile = {
   }[];
   recentMatches?: ManagerMatch[];
   badges?: { id: number; label: string; source?: string }[];
+  titleCount?: number;
+  titles?: { season: string; competitionId: number; competitionName: string }[];
   linkedPlayer?: { id: number; name: string } | null;
 };
 
@@ -238,12 +240,13 @@ export default function ManagerDetail() {
 
       <StarRating entityType="manager" entityId={manager.id} />
 
-      <div className="grid grid-cols-5 gap-px bg-border rounded overflow-hidden" data-testid="manager-stat-bar">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-px bg-border rounded overflow-hidden" data-testid="manager-stat-bar">
         {[
           { label: "Partidas", value: manager.matches, highlight: true },
           { label: "Vitórias", value: manager.wins, color: "text-green-600" },
           { label: "Empates", value: manager.draws, color: "text-amber-600" },
           { label: "Derrotas", value: manager.losses, color: "text-red-600" },
+          { label: "Títulos", value: manager.titleCount ?? 0, highlight: true },
           { label: "Aproveit.", value: `${(manager.winPercentage ?? 0).toFixed(1)}%`, highlight: true },
         ].map(({ label, value, color, highlight }) => (
           <div key={label} className="bg-background p-3 text-center">
@@ -252,6 +255,33 @@ export default function ManagerDetail() {
           </div>
         ))}
       </div>
+
+      {(manager.titles?.length ?? 0) > 0 && (
+        <div data-testid="manager-titles">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            Títulos
+          </h2>
+          <ul className="space-y-1 text-sm">
+            {manager.titles!.map((t) => (
+              <li key={`${t.competitionId}-${t.season}`}>
+                <Link
+                  href={`/temporadas/${t.season}`}
+                  className="font-medium tabular-nums hover:text-primary hover:underline"
+                >
+                  {t.season}
+                </Link>
+                <span className="text-muted-foreground"> · </span>
+                <Link
+                  href={`/competicoes/${t.competitionId}`}
+                  className="hover:text-primary hover:underline"
+                >
+                  {t.competitionName}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {(manager.recentMatches?.length ?? 0) > 0 && (
         <div data-testid="manager-recent-matches" className="space-y-3">

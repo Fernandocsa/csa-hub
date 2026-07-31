@@ -166,6 +166,8 @@ export async function listSeasonCompetitionStats(season: string) {
       goalsFor: seasonCompetitionStatsTable.goalsFor,
       goalsAgainst: seasonCompetitionStatsTable.goalsAgainst,
       classification: seasonCompetitionStatsTable.classification,
+      isChampion: seasonCompetitionStatsTable.isChampion,
+      finalMatchId: seasonCompetitionStatsTable.finalMatchId,
       statsSource: seasonCompetitionStatsTable.statsSource,
       statsRecalculatedAt: seasonCompetitionStatsTable.statsRecalculatedAt,
     })

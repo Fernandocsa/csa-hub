@@ -3,6 +3,7 @@ import {
   text,
   serial,
   integer,
+  boolean,
   timestamp,
   uniqueIndex,
   index,
@@ -28,6 +29,10 @@ export const seasonCompetitionStatsTable = pgTable(
     goalsAgainst: integer("goals_against").notNull().default(0),
     /** Free-text placement, e.g. "SF", "1º", "QF". Never auto-calculated. */
     classification: text("classification"),
+    /** Marked championship win for this season×competition. */
+    isChampion: boolean("is_champion").notNull().default(false),
+    /** Optional final leg (FK enforced in SQL; two-legged via matches.related_match_id). */
+    finalMatchId: integer("final_match_id"),
     /** 'manual' | 'calculated' */
     statsSource: text("stats_source").notNull().default("manual"),
     statsRecalculatedAt: timestamp("stats_recalculated_at", {

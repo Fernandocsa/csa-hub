@@ -460,7 +460,7 @@ router.get("/records/streaks/:type", async (req, res) => {
   }
 });
 
-/** Titles: season_competition_stats rows with classification exactly "1º". */
+/** Titles: season_competition_stats rows marked is_champion. */
 router.get("/titles", async (req, res) => {
   try {
     const rows = await db
@@ -474,7 +474,7 @@ router.get("/titles", async (req, res) => {
         competitionsTable,
         eq(seasonCompetitionStatsTable.competitionId, competitionsTable.id),
       )
-      .where(eq(seasonCompetitionStatsTable.classification, "1º"))
+      .where(eq(seasonCompetitionStatsTable.isChampion, true))
       .orderBy(asc(competitionsTable.name), asc(seasonCompetitionStatsTable.season));
 
     const byComp = new Map<

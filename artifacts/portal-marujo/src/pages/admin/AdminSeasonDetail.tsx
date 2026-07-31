@@ -22,6 +22,8 @@ type CompStat = {
   goalsFor: number;
   goalsAgainst: number;
   classification: string | null;
+  isChampion: boolean;
+  finalMatchId: number | null;
   statsSource: string;
   statsRecalculatedAt: string | null;
 };
@@ -34,6 +36,8 @@ type CompDraft = {
   goalsFor: string;
   goalsAgainst: string;
   classification: string;
+  isChampion: boolean;
+  finalMatchId: string;
 };
 
 type RosterRow = {
@@ -107,6 +111,8 @@ function draftsFromComp(stats: CompStat[]): Record<number, CompDraft> {
       goalsFor: String(s.goalsFor),
       goalsAgainst: String(s.goalsAgainst),
       classification: s.classification ?? "",
+      isChampion: Boolean(s.isChampion),
+      finalMatchId: s.finalMatchId != null ? String(s.finalMatchId) : "",
     };
   }
   return out;
@@ -166,6 +172,16 @@ export default function AdminSeasonDetail() {
   const [compSavedMsg, setCompSavedMsg] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [addCompetitionId, setAddCompetitionId] = useState("");
+  const [seasonMatches, setSeasonMatches] = useState<
+    {
+      id: number;
+      matchDate: string;
+      opponentName: string;
+      competitionId: number;
+      phase: string | null;
+      round: string | null;
+    }[]
+  >([]);
 
   // Roster
   const [roster, setRoster] = useState<RosterRow[]>([]);
@@ -204,9 +220,10 @@ export default function AdminSeasonDetail() {
     if (!Number.isInteger(year)) return;
     setLoading(true);
     setCompError("");
-    const [statsRes, lookupRes] = await Promise.all([
+    const [statsRes, lookupRes, matchesRes] = await Promise.all([
       adminFetch(`/admin/seasons/${year}/competition-stats`),
       adminFetch("/admin/lookup"),
+      adminFetch(`/admin/matches?season=${year}&limit=500`),
     ]);
     if (!statsRes.ok) {
       setCompError("Falha ao carregar resumo");
@@ -220,6 +237,27 @@ export default function AdminSeasonDetail() {
     if (lookupRes.ok) {
       const lookup = await lookupRes.json();
       setCompetitions(lookup.competitions ?? []);
+    }
+    if (matchesRes.ok) {
+      const mdata = await matchesRes.json();
+      const list = Array.isArray(mdata) ? mdata : (mdata.data ?? mdata.matches ?? []);
+      setSeasonMatches(
+        (list as {
+          id: number;
+          matchDate: string;
+          opponentName: string;
+          competitionId: number;
+          phase?: string | null;
+          round?: string | null;
+        }[]).map((m) => ({
+          id: m.id,
+          matchDate: m.matchDate,
+          opponentName: m.opponentName,
+          competitionId: m.competitionId,
+          phase: m.phase ?? null,
+          round: m.round ?? null,
+        })),
+      );
     }
     setLoading(false);
   }, [year]);
@@ -319,7 +357,9 @@ export default function AdminSeasonDetail() {
         d.losses !== String(s.losses) ||
         d.goalsFor !== String(s.goalsFor) ||
         d.goalsAgainst !== String(s.goalsAgainst) ||
-        d.classification !== (s.classification ?? "")
+        d.classification !== (s.classification ?? "") ||
+        d.isChampion !== Boolean(s.isChampion) ||
+        d.finalMatchId !== (s.finalMatchId != null ? String(s.finalMatchId) : "")
       );
     });
   }, [stats, drafts]);
@@ -386,7 +426,11 @@ export default function AdminSeasonDetail() {
     );
   }, [stats, drafts]);
 
-  function updateDraft(id: number, field: keyof CompDraft, value: string) {
+  function updateDraft(
+    id: number,
+    field: keyof CompDraft,
+    value: string | boolean,
+  ) {
     setDrafts((prev) => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
     setCompSavedMsg("");
   }
@@ -422,6 +466,9 @@ export default function AdminSeasonDetail() {
         goalsFor: parseInt(d.goalsFor, 10),
         goalsAgainst: parseInt(d.goalsAgainst, 10),
         classification: d.classification,
+        isChampion: d.isChampion,
+        finalMatchId:
+          d.finalMatchId.trim() === "" ? null : parseInt(d.finalMatchId, 10),
       };
     });
     const r = await adminFetch(`/admin/seasons/${year}/competition-stats/bulk`, {
@@ -970,7 +1017,9 @@ export default function AdminSeasonDetail() {
             Resumo por competição
           </h2>
           <p className="text-xs text-gray-400 w-full order-last basis-full">
-            Classif. <span className="font-mono">1º</span> = título (página pública /titulos).
+            Marque “Título” para creditar o campeonato a todo o elenco relacionado em qualquer
+            ficha da campanha (banco incluso) e a técnicos com ≥1 partida. Final é opcional
+            (uma perna basta em finais de ida e volta).
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -1027,11 +1076,15 @@ export default function AdminSeasonDetail() {
               </p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm min-w-[48rem]">
+                <table className="w-full text-sm min-w-[64rem]">
                   <thead>
                     <tr className="text-xs text-gray-400 border-b">
                       <th className="text-left py-1.5">Competição</th>
-                      <th className="text-left py-1.5 w-24">Classif.</th>
+                      <th className="text-left py-1.5 w-20">Classif.</th>
+                      <th className="text-center py-1.5 w-14" title="Campeão">
+                        Título
+                      </th>
+                      <th className="text-left py-1.5 min-w-[12rem]">Final</th>
                       <th className="text-right py-1.5 w-14">J</th>
                       <th className="text-right py-1.5 w-14">V</th>
                       <th className="text-right py-1.5 w-14">E</th>
@@ -1048,9 +1101,12 @@ export default function AdminSeasonDetail() {
                       const d = drafts[stat.id] ?? draftsFromComp([stat])[stat.id];
                       const gp = parseInt(d.goalsFor, 10) || 0;
                       const gc = parseInt(d.goalsAgainst, 10) || 0;
+                      const finalOptions = seasonMatches.filter(
+                        (m) => m.competitionId === stat.competitionId,
+                      );
                       return (
                         <tr key={stat.id} className="border-b border-gray-100">
-                          <td className="py-2 font-medium pr-2 max-w-[14rem]">
+                          <td className="py-2 font-medium pr-2 max-w-[12rem]">
                             <span className="truncate block" title={stat.competitionName}>
                               {stat.competitionName}
                             </span>
@@ -1062,9 +1118,37 @@ export default function AdminSeasonDetail() {
                                 updateDraft(stat.id, "classification", e.target.value)
                               }
                               placeholder="1º"
-                              title='Use exatamente "1º" para contar como título'
-                              className="h-8 w-[5.5rem] px-1.5"
+                              className="h-8 w-[5rem] px-1.5"
                             />
+                          </td>
+                          <td className="py-1.5 text-center">
+                            <input
+                              type="checkbox"
+                              checked={d.isChampion}
+                              onChange={(e) =>
+                                updateDraft(stat.id, "isChampion", e.target.checked)
+                              }
+                              title="Marcar como título (campeão)"
+                              className="h-4 w-4 accent-[#1B3A6B]"
+                            />
+                          </td>
+                          <td className="py-1.5 pr-2">
+                            <select
+                              value={d.finalMatchId}
+                              onChange={(e) =>
+                                updateDraft(stat.id, "finalMatchId", e.target.value)
+                              }
+                              className="w-full h-8 border rounded-md px-1.5 text-xs bg-white max-w-[16rem]"
+                              title="Opcional: uma perna da final"
+                            >
+                              <option value="">—</option>
+                              {finalOptions.map((m) => (
+                                <option key={m.id} value={m.id}>
+                                  {m.matchDate.slice(0, 10)} × {m.opponentName}
+                                  {m.phase ? ` (${m.phase})` : ""}
+                                </option>
+                              ))}
+                            </select>
                           </td>
                           {(
                             [
@@ -1110,7 +1194,7 @@ export default function AdminSeasonDetail() {
                       );
                     })}
                     <tr className="border-t-2 border-gray-200">
-                      <td className="py-2 font-semibold text-gray-800" colSpan={2}>
+                      <td className="py-2 font-semibold text-gray-800" colSpan={4}>
                         Total
                       </td>
                       <td className="py-2 text-right font-semibold tabular-nums">

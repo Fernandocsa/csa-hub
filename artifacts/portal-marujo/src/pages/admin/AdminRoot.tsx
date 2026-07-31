@@ -28,6 +28,8 @@ import AdminMatchReview from "./AdminMatchReview";
 import AdminComments from "./AdminComments";
 import AdminSuggestions from "./AdminSuggestions";
 import AdminBirthdays from "./AdminBirthdays";
+import AdminRecords from "./AdminRecords";
+import AdminTitles from "./AdminTitles";
 
 export default function AdminRoot() {
   const { checked, authenticated, login, logout } = useAdminAuth();
@@ -73,6 +75,8 @@ export default function AdminRoot() {
         <Route path="/admin/estadios/:id" component={AdminStadiumDetail} />
         <Route path="/admin/estadios" component={AdminStadiums} />
         <Route path="/admin/aniversariantes" component={AdminBirthdays} />
+        <Route path="/admin/recordes" component={AdminRecords} />
+        <Route path="/admin/titulos" component={AdminTitles} />
         <Route path="/admin/proximo-jogo" component={AdminUpcomingMatches} />
         <Route path="/admin/jogos-futuros" component={AdminUpcomingMatches} />
         <Route path="/admin/comentarios" component={AdminComments} />

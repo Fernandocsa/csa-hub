@@ -29,6 +29,17 @@ export function scoredFieldMatchConditions(): SQL | undefined {
   );
 }
 
+/**
+ * Matches that count toward club/player records (artilheiros, sequências, etc.).
+ * Excludes friendlies and walkovers.
+ */
+export function recordsMatchConditions(): SQL | undefined {
+  return and(
+    officialPlayedMatchConditions(),
+    eq(matchesTable.isWalkover, false),
+  );
+}
+
 /** Future fixtures (Home "próximo jogo", admin calendário). */
 export function scheduledMatchConditions(): SQL | undefined {
   return eq(matchesTable.status, "scheduled");
