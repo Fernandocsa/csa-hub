@@ -54,7 +54,8 @@ const UPDATES = [
   { id: 246, name: "Marco Túlio", age: 24 },
   // Already had birth data (not in UPDATES): Cedric, Didira, Douglas, Ernandes,
   // Éverton Silva, Gabriel Tonini, Geovane, Giva, Jonathan, Lucão, Paulo Ricardo,
-  // Rodrigo Rodrigues, Tito, William (id 292 — cadastro 2004 / elenco listava 35)
+  // Rodrigo Rodrigues, Tito.
+  // William 2022 is William Fernando da Silva (see fix-william-2022-2023-split.mjs).
 ];
 
 try {
@@ -149,8 +150,6 @@ try {
           "Pedro Caracoci",
           "Luan Henrique",
         ],
-        williamNote:
-          "William (id 292) kept birth_year 2004 (age 18 in 2022); source list had 35 — likely different athlete / wrong roster link",
       },
       null,
       2,

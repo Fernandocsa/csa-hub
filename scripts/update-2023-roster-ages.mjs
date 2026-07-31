@@ -18,7 +18,7 @@ const UPDATES = [
   { id: 349, name: "Dalberson", age: 26 },
   { id: 301, name: "Paulo Ricardo", age: 26 },
   // Defensor
-  { id: 292, name: "William", age: 19 },
+  // William Jackson dos Santos (id 292): birth_date set in fix-william-2022-2023-split.mjs
   { id: 357, name: "Paulo César", age: 24 },
   { id: 310, name: "Gabriel Oliveira", age: 24 },
   { id: 93, name: "Jonathan", age: 30 },
@@ -178,6 +178,7 @@ try {
         alreadyHadBirthOnRoster: [
           { id: 52, name: "Xandão" },
           { id: 108, name: "Celsinho" },
+          { id: 292, name: "William (Jackson)" },
           { id: 492, name: "Robinho" },
         ],
         stillMissingAgeOnRoster: stillMissing,
