@@ -24,6 +24,7 @@ type Streak = {
   endMatchId: number | null;
 };
 type PlayerStreak = Streak & { playerId: number; playerName: string };
+type ManagerStreak = Streak & { managerId: number; managerName: string };
 
 type RecordsPayload = {
   rules: { matches: string; appearances: string; titles: string };
@@ -45,6 +46,8 @@ type RecordsPayload = {
   managers: {
     topWins: ManagerRow[];
     topTitles: ManagerRow[];
+    winStreak: { historical: ManagerStreak[]; active: ManagerStreak[] };
+    unbeatenStreak: { historical: ManagerStreak[]; active: ManagerStreak[] };
   };
   team: {
     biggestWins: MatchRow[];
@@ -141,6 +144,54 @@ function StreakBlock({
         </p>
       </div>
     </div>
+  );
+}
+
+function ManagerStreakList({
+  rows,
+  activeTone = false,
+}: {
+  rows: ManagerStreak[];
+  activeTone?: boolean;
+}) {
+  if (rows.length === 0) {
+    return (
+      <p className="text-sm text-gray-400">
+        {activeTone ? "Nenhuma sequência ativa." : "Sem dados ainda."}
+      </p>
+    );
+  }
+  return (
+    <ol className="space-y-1.5">
+      {rows.map((r, i) => (
+        <li
+          key={`${r.managerId}-${r.startMatchId ?? "active"}`}
+          className="flex items-baseline justify-between gap-3 text-sm"
+        >
+          <span className="min-w-0 truncate">
+            <span className="text-gray-400 tabular-nums mr-2">{i + 1}.</span>
+            <Link
+              href={`/admin/tecnicos/${r.managerId}`}
+              className="text-[#1B3A6B] hover:underline font-medium"
+            >
+              {r.managerName}
+            </Link>
+            <span className="text-xs text-gray-400 ml-2">
+              {activeTone
+                ? `desde ${fmtDate(r.startDate)}`
+                : `${fmtDate(r.startDate)} → ${fmtDate(r.endDate)}`}
+            </span>
+          </span>
+          <span
+            className={`tabular-nums font-semibold shrink-0 ${
+              activeTone ? "text-[#F5A623]" : ""
+            }`}
+          >
+            {r.length}
+          </span>
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -329,6 +380,31 @@ export default function AdminRecords() {
               <StreakBlock
                 historical={data.team.cleanSheetStreak.historical}
                 active={data.team.cleanSheetStreak.active}
+              />
+            </Card>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card title="Mais vitórias seguidas (técnico) — histórico">
+              <ManagerStreakList
+                rows={data.managers.winStreak?.historical ?? []}
+              />
+            </Card>
+            <Card title="Mais vitórias seguidas (técnico) — em andamento">
+              <ManagerStreakList
+                rows={data.managers.winStreak?.active ?? []}
+                activeTone
+              />
+            </Card>
+            <Card title="Mais jogos sem perder (técnico) — histórico">
+              <ManagerStreakList
+                rows={data.managers.unbeatenStreak?.historical ?? []}
+              />
+            </Card>
+            <Card title="Mais jogos sem perder (técnico) — em andamento">
+              <ManagerStreakList
+                rows={data.managers.unbeatenStreak?.active ?? []}
+                activeTone
               />
             </Card>
           </div>

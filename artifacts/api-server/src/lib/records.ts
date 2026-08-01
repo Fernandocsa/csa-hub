@@ -63,6 +63,11 @@ export type PlayerStreakRecord = StreakRecord & {
   playerName: string;
 };
 
+export type ManagerStreakRecord = StreakRecord & {
+  managerId: number;
+  managerName: string;
+};
+
 type MatchRow = {
   id: number;
   matchDate: string;
@@ -72,6 +77,7 @@ type MatchRow = {
   goalsAgainst: number | null;
   opponentName: string;
   competitionName: string;
+  managerId: number | null;
 };
 
 async function loadRecordsMatches(): Promise<MatchRow[]> {
@@ -85,6 +91,7 @@ async function loadRecordsMatches(): Promise<MatchRow[]> {
       goalsAgainst: matchesTable.goalsAgainst,
       opponentName: opponentsTable.name,
       competitionName: competitionsTable.name,
+      managerId: matchesTable.managerId,
     })
     .from(matchesTable)
     .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
@@ -672,6 +679,107 @@ async function consecutiveStartsRecords(): Promise<{
   };
 }
 
+/**
+ * Consecutive wins / unbeaten run for each manager across the club calendar.
+ * A match coached by someone else (or without a manager) breaks the streak.
+ */
+async function managerStreakRecords(
+  matches: MatchRow[],
+  continues: (m: MatchRow) => boolean,
+  limit = 10,
+): Promise<{ historical: ManagerStreakRecord[]; active: ManagerStreakRecord[] }> {
+  const managerIds = new Set<number>();
+  for (const m of matches) {
+    if (m.managerId != null) managerIds.add(m.managerId);
+  }
+  if (managerIds.size === 0) return { historical: [], active: [] };
+
+  const managers = await db
+    .select({ id: managersTable.id, name: managersTable.name })
+    .from(managersTable)
+    .where(inArray(managersTable.id, [...managerIds]));
+  const nameById = new Map(managers.map((m) => [m.id, m.name]));
+
+  type Acc = {
+    bestLen: number;
+    bestStart: MatchRow | null;
+    bestEnd: MatchRow | null;
+    curLen: number;
+    curStart: MatchRow | null;
+    curEnd: MatchRow | null;
+  };
+  const acc = new Map<number, Acc>();
+  for (const id of managerIds) {
+    acc.set(id, {
+      bestLen: 0,
+      bestStart: null,
+      bestEnd: null,
+      curLen: 0,
+      curStart: null,
+      curEnd: null,
+    });
+  }
+
+  for (const m of matches) {
+    for (const managerId of managerIds) {
+      const a = acc.get(managerId)!;
+      if (m.managerId === managerId && continues(m)) {
+        if (a.curLen === 0) a.curStart = m;
+        a.curLen += 1;
+        a.curEnd = m;
+        if (a.curLen > a.bestLen) {
+          a.bestLen = a.curLen;
+          a.bestStart = a.curStart;
+          a.bestEnd = a.curEnd;
+        }
+      } else {
+        a.curLen = 0;
+        a.curStart = null;
+        a.curEnd = null;
+      }
+    }
+  }
+
+  const historical: ManagerStreakRecord[] = [];
+  const active: ManagerStreakRecord[] = [];
+  for (const [managerId, a] of acc) {
+    if (a.bestLen > 0 && a.bestStart && a.bestEnd) {
+      historical.push({
+        managerId,
+        managerName: nameById.get(managerId) ?? `#${managerId}`,
+        length: a.bestLen,
+        startDate: a.bestStart.matchDate,
+        endDate: a.bestEnd.matchDate,
+        startMatchId: a.bestStart.id,
+        endMatchId: a.bestEnd.id,
+      });
+    }
+    if (a.curLen > 0 && a.curStart && a.curEnd) {
+      active.push({
+        managerId,
+        managerName: nameById.get(managerId) ?? `#${managerId}`,
+        length: a.curLen,
+        startDate: a.curStart.matchDate,
+        endDate: a.curEnd.matchDate,
+        startMatchId: a.curStart.id,
+        endMatchId: a.curEnd.id,
+      });
+    }
+  }
+
+  historical.sort(
+    (a, b) => b.length - a.length || a.managerName.localeCompare(b.managerName),
+  );
+  active.sort(
+    (a, b) => b.length - a.length || a.managerName.localeCompare(b.managerName),
+  );
+
+  return {
+    historical: historical.slice(0, limit),
+    active: active.slice(0, limit),
+  };
+}
+
 export async function computeClubRecords() {
   const matches = await loadRecordsMatches();
   const unbeaten = bestTeamStreak(matches, (m) => m.result === "win" || m.result === "draw");
@@ -697,6 +805,8 @@ export async function computeClubRecords() {
     starts,
     playerTitles,
     managerTitles,
+    managerWinStreaks,
+    managerUnbeatenStreaks,
   ] = await Promise.all([
     topScorers(),
     topAssists(),
@@ -713,6 +823,11 @@ export async function computeClubRecords() {
     consecutiveStartsRecords(),
     topPlayersByTitles(10),
     topManagersByTitles(10),
+    managerStreakRecords(matches, (m) => m.result === "win"),
+    managerStreakRecords(
+      matches,
+      (m) => m.result === "win" || m.result === "draw",
+    ),
   ]);
 
   const topHatTricks =
@@ -753,6 +868,8 @@ export async function computeClubRecords() {
         managerName: r.name,
         value: r.titleCount,
       })),
+      winStreak: managerWinStreaks,
+      unbeatenStreak: managerUnbeatenStreaks,
     },
     team: {
       biggestWins: thrashings,
