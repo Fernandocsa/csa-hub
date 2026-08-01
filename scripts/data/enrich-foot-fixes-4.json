@@ -1,0 +1,37 @@
+[
+  {
+    "id": 419,
+    "name": "Angelo",
+    "fullName": "José Angelo Victor Felix Santos",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "2006-03-09",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 175,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/angelo/1660101"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 323,
+    "name": "Giresse",
+    "fullName": "Giresse Gabriel Montenegro dos Santos",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "2005-07-11",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/giresse/1045177",
+      "https://www.transfermarkt.com.br/giresse-gabriel/profil/spieler/1224556"
+    ],
+    "confidence": "high"
+  }
+]

@@ -1,0 +1,340 @@
+[
+  {
+    "id": 136,
+    "name": "Yago",
+    "reason": "mapped to Yago César (Athletico loan 2021); confirm not another Yago from 2018"
+  },
+  {
+    "id": 158,
+    "name": "Rony Fernandes",
+    "reason": "incomplete list birth_year 1998 vs GE/TM 1997-07-18; enrichment uses GE/TM"
+  },
+  {
+    "id": 177,
+    "name": "Léo Santos",
+    "seasons": [
+      "2019"
+    ],
+    "reason": "Léo Santos — TM nickname-only full name"
+  },
+  {
+    "id": 179,
+    "name": "Euller Silva",
+    "reason": "birthCity conflict: Wikipedia São José de Piranhas (PB) vs Transfermarkt/StatsCrew São Paulo; enrichment uses Wikipedia"
+  },
+  {
+    "id": 183,
+    "name": "Jarro Pedroso",
+    "reason": "StatsCrew birthDate 1994-03-28 vs Transfermarkt 1994-03-23; enrichment uses Transfermarkt"
+  },
+  {
+    "id": 190,
+    "name": "Jordi",
+    "reason": "birthCity conflict: Wikipedia Volta Redonda vs Transfermarkt Rio de Janeiro; enrichment uses Volta Redonda"
+  },
+  {
+    "id": 197,
+    "name": "Matheus Prado",
+    "reason": "StatsCrew birth year 1999 vs Transfermarkt 2000-04-06; enrichment uses Transfermarkt"
+  },
+  {
+    "id": 202,
+    "name": "Joazi",
+    "reason": "birthDate day conflict GE 26/10/1996 vs Transfermarkt 28/10/1996; enrichment uses Transfermarkt 1996-10-28"
+  },
+  {
+    "id": 204,
+    "name": "Netto",
+    "seasons": [
+      "2020"
+    ],
+    "reason": "Netto — full name not verified high-confidence"
+  },
+  {
+    "id": 207,
+    "name": "Cantionilo",
+    "seasons": [
+      "2020",
+      "2021"
+    ],
+    "reason": "Cantionilo — TM incomplete full name"
+  },
+  {
+    "id": 208,
+    "name": "Schutz",
+    "reason": "fullName not fully verified beyond nickname / too short for high confidence",
+    "candidate": {
+      "id": 208,
+      "name": "Schutz",
+      "fullName": "Gustavo Schutz",
+      "position": "Centroavante",
+      "preferredFoot": "destro",
+      "birthDate": "1999-01-01",
+      "birthCity": null,
+      "birthState": null,
+      "heightCm": 179,
+      "weightKg": 67,
+      "nationality": "Brasil",
+      "sources": [
+        "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+        "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020"
+      ],
+      "confidence": "high"
+    }
+  },
+  {
+    "id": 217,
+    "name": "Bruno Tesouro",
+    "seasons": [
+      "2020",
+      "2021"
+    ],
+    "reason": "Bruno Tesouro — insufficient high-confidence sources"
+  },
+  {
+    "id": 218,
+    "name": "Wallace",
+    "reason": "fullName not fully verified beyond nickname / too short for high confidence",
+    "candidate": {
+      "id": 218,
+      "name": "Wallace",
+      "fullName": "Wallace Junio",
+      "position": "Meia Ofensivo",
+      "preferredFoot": "destro",
+      "birthDate": "2000-05-10",
+      "birthCity": "Maceió",
+      "birthState": "AL",
+      "heightCm": 177,
+      "weightKg": null,
+      "nationality": "Brasil",
+      "sources": [
+        "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+        "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021"
+      ],
+      "confidence": "high"
+    }
+  },
+  {
+    "id": 222,
+    "name": "Tito",
+    "seasons": [
+      "2020",
+      "2021",
+      "2022",
+      "2023"
+    ],
+    "reason": "Tito — full name not verified high-confidence"
+  },
+  {
+    "id": 234,
+    "name": "Caio Felipe",
+    "reason": "fullName not fully verified beyond nickname / too short for high confidence",
+    "candidate": {
+      "id": 234,
+      "name": "Caio Felipe",
+      "fullName": "Caio Felipe",
+      "position": "Lateral Direito",
+      "preferredFoot": "destro",
+      "birthDate": "1999-02-02",
+      "birthCity": "Rio de Janeiro",
+      "birthState": "RJ",
+      "heightCm": 177,
+      "weightKg": 69,
+      "nationality": "Brasil",
+      "sources": [
+        "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+        "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020"
+      ],
+      "confidence": "high"
+    }
+  },
+  {
+    "id": 240,
+    "name": "Alisson",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Alisson — ambiguous nickname"
+  },
+  {
+    "id": 241,
+    "name": "Dudu Beberibe",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Dudu Beberibe — full name incomplete/unverified"
+  },
+  {
+    "id": 242,
+    "name": "Gabriel Tonini",
+    "reason": "fullName not fully verified beyond nickname / too short for high confidence",
+    "candidate": {
+      "id": 242,
+      "name": "Gabriel Tonini",
+      "fullName": "Gabriel Tonini",
+      "position": "Volante",
+      "preferredFoot": "destro",
+      "birthDate": "1996-05-12",
+      "birthCity": "Realeza",
+      "birthState": "PR",
+      "heightCm": 185,
+      "weightKg": null,
+      "nationality": "Brasil",
+      "sources": [
+        "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+        "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021"
+      ],
+      "confidence": "high"
+    }
+  },
+  {
+    "id": 244,
+    "name": "Andrey Rafael",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Andrey Rafael — insufficient sources"
+  },
+  {
+    "id": 249,
+    "name": "João",
+    "seasons": [
+      "2020",
+      "2021"
+    ],
+    "reason": "João — ambiguous among João/João Victor at CSA 2021"
+  },
+  {
+    "id": 250,
+    "name": "Athirson",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Athirson — sparse TM profile"
+  },
+  {
+    "id": 252,
+    "name": "Ryan Gonzales",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Ryan Gonzales — sparse TM profile"
+  },
+  {
+    "id": 253,
+    "name": "Reinaldo",
+    "reason": "StatsCrew hometown Siderópolis vs Transfermarkt Criciúma; enrichment uses Criciúma (TM)"
+  },
+  {
+    "id": 257,
+    "name": "Montanhas",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Montanhas — full name not verified"
+  },
+  {
+    "id": 259,
+    "name": "Zé do Carmo",
+    "seasons": [
+      "2020",
+      "2021"
+    ],
+    "reason": "Zé do Carmo — full name not verified"
+  },
+  {
+    "id": 261,
+    "name": "Wykley",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Wykley — sparse TM profile"
+  },
+  {
+    "id": 262,
+    "name": "Pedrinho",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Pedrinho — ambiguous nickname"
+  },
+  {
+    "id": 263,
+    "name": "Ítalo",
+    "reason": "fullName not fully verified beyond nickname / too short for high confidence",
+    "candidate": {
+      "id": 263,
+      "name": "Ítalo",
+      "fullName": "Ítalo Melo",
+      "position": "Meia Ofensivo",
+      "preferredFoot": "destro",
+      "birthDate": "1993-02-25",
+      "birthCity": "Salvador",
+      "birthState": "BA",
+      "heightCm": 175,
+      "weightKg": 71,
+      "nationality": "Brasil",
+      "sources": [
+        "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+        "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021"
+      ],
+      "confidence": "high"
+    }
+  },
+  {
+    "id": 266,
+    "name": "Vinicius José",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Vinicius José — sparse TM profile"
+  },
+  {
+    "id": 270,
+    "name": "Gustavo Martins",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Gustavo Martins — insufficient sources"
+  },
+  {
+    "id": 272,
+    "name": "Fernando Ferro",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Fernando Ferro — sparse TM profile"
+  },
+  {
+    "id": 606,
+    "name": "João Victor Pinheiro",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "João Victor Pinheiro — insufficient sources"
+  },
+  {
+    "id": 607,
+    "name": "José Victor",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "José Victor — insufficient sources"
+  },
+  {
+    "id": 608,
+    "name": "Pedro Rocha",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Pedro Rocha — insufficient sources"
+  },
+  {
+    "id": 609,
+    "name": "Paquetá",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Paquetá — insufficient apps/sources"
+  }
+]

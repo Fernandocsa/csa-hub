@@ -1,0 +1,107 @@
+[
+  {
+    "id": 240,
+    "name": "Alisson",
+    "reason": "Ambiguous nickname Alisson; no clear CSA 2021 meia profile matching birth_year 2000"
+  },
+  {
+    "id": 244,
+    "name": "Andrey Rafael",
+    "reason": "Insufficient high-confidence sources for CSA 2021 Andrey Rafael"
+  },
+  {
+    "id": 270,
+    "name": "Gustavo Martins",
+    "reason": "Insufficient sources for CSA 2021 Gustavo Martins"
+  },
+  {
+    "id": 607,
+    "name": "José Victor",
+    "reason": "Insufficient sources for CSA 2021 goalkeeper José Victor"
+  },
+  {
+    "id": 609,
+    "name": "Paquetá",
+    "reason": "Insufficient apps/sources for CSA 2021 Paquetá"
+  },
+  {
+    "id": 262,
+    "name": "Pedrinho",
+    "reason": "Ambiguous nickname Pedrinho (zagueiro 2002); not the famous Pedrinho/Shakhtar"
+  },
+  {
+    "id": 608,
+    "name": "Pedro Rocha",
+    "reason": "Insufficient sources for CSA 2021 Pedro Rocha"
+  },
+  {
+    "id": 331,
+    "name": "Alex Matheus",
+    "reason": "Insufficient sources for CSA 2023 youth Alex Matheus"
+  },
+  {
+    "id": 512,
+    "name": "Clevinho",
+    "reason": "Nickname-only; no verified full name/birth date for CSA Clevinho"
+  },
+  {
+    "id": 350,
+    "name": "Eduardo",
+    "reason": "Ambiguous goleiro Eduardo CSA 2023–24; identity not confirmed with full bio"
+  },
+  {
+    "id": 339,
+    "name": "Fabrício Santos",
+    "reason": "Insufficient sources for CSA 2023 Fabrício Santos"
+  },
+  {
+    "id": 354,
+    "name": "Gabryel",
+    "reason": "Ambiguous Gabryel; Copinha sub only, no verified full name/birth"
+  },
+  {
+    "id": 330,
+    "name": "Kauã",
+    "reason": "Ambiguous Kauã zagueiro; multiple TM Kauãs, none clearly CSA 2004"
+  },
+  {
+    "id": 341,
+    "name": "Kleiton",
+    "reason": "Insufficient sources for CSA 2023 Kleiton"
+  },
+  {
+    "id": 340,
+    "name": "Mateus Santos",
+    "reason": "Ambiguous Mateus/Matheus Santos at CSA base vs other Matheus Santos"
+  },
+  {
+    "id": 324,
+    "name": "Matheus Lima",
+    "reason": "Ambiguous Matheus Lima; Copinha card only, no full bio"
+  },
+  {
+    "id": 599,
+    "name": "Pedro Henrique",
+    "reason": "Ambiguous Pedro Henrique zagueiro CSA 2023"
+  },
+  {
+    "id": 346,
+    "name": "Pedro Victor",
+    "reason": "Insufficient sources for CSA 2023 Pedro Victor"
+  },
+  {
+    "id": 336,
+    "name": "Victor Ramalho",
+    "reason": "Insufficient sources for CSA 2023 Victor Ramalho"
+  },
+  {
+    "id": 342,
+    "name": "Vinicius Peixoto",
+    "reason": "Insufficient sources for CSA 2023 Vinicius Peixoto"
+  },
+  {
+    "id": 328,
+    "name": "Vitão",
+    "reason": "Identified as João Victor da Silva Santos (ex-Cruzeiro/CSA) but exact birthDate not verified"
+  }
+]

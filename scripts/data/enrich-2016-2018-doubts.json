@@ -1,0 +1,380 @@
+[
+  {
+    "id": 611,
+    "name": "Cassiano",
+    "seasons": [
+      "2016",
+      "2017"
+    ],
+    "reason": "Partial DB data present; missing foot/height/weight or needs secondary confirmation"
+  },
+  {
+    "id": 626,
+    "name": "Damião",
+    "seasons": [
+      "2016"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 110,
+    "name": "Elizeu",
+    "seasons": [
+      "2016"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 615,
+    "name": "Evandrízio",
+    "seasons": [
+      "2016"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 618,
+    "name": "Gabriel Yan",
+    "seasons": [
+      "2016"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 619,
+    "name": "Guerra",
+    "seasons": [
+      "2016"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 113,
+    "name": "Kelvin",
+    "seasons": [
+      "2016",
+      "2017"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 624,
+    "name": "Manoel Chuva",
+    "seasons": [
+      "2016"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 81,
+    "name": "Pantera",
+    "seasons": [
+      "2016"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 623,
+    "name": "Pedro Gusmão",
+    "seasons": [
+      "2016"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 51,
+    "name": "Ronaldo Caetano",
+    "seasons": [
+      "2016"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 103,
+    "name": "Santa Rosa",
+    "seasons": [
+      "2016"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 95,
+    "name": "Sorin",
+    "seasons": [
+      "2016"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 54,
+    "name": "Thiago Santos",
+    "seasons": [
+      "2016"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 621,
+    "name": "Walfrido",
+    "seasons": [
+      "2016"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 73,
+    "name": "Washington",
+    "seasons": [
+      "2016"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 114,
+    "name": "Zé Romário",
+    "seasons": [
+      "2016"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 64,
+    "name": "Daniel Cruz",
+    "seasons": [
+      "2017"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 90,
+    "name": "Francisco Alex",
+    "seasons": [
+      "2017"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 96,
+    "name": "Geovani",
+    "seasons": [
+      "2017"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 65,
+    "name": "Gustavinho",
+    "seasons": [
+      "2017"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 116,
+    "name": "Jeam",
+    "seasons": [
+      "2017"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 118,
+    "name": "Joãozinho",
+    "seasons": [
+      "2017"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 93,
+    "name": "Jonathan",
+    "seasons": [
+      "2017"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 614,
+    "name": "Lucas Silva",
+    "seasons": [
+      "2017"
+    ],
+    "reason": "Partial DB data present; missing foot/height/weight or needs secondary confirmation"
+  },
+  {
+    "id": 109,
+    "name": "Luís Maranhão",
+    "seasons": [
+      "2017"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 644,
+    "name": "Luís Ricardo",
+    "seasons": [
+      "2017"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 66,
+    "name": "Mateus Lima",
+    "seasons": [
+      "2017"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 97,
+    "name": "Serginho",
+    "seasons": [
+      "2017"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 135,
+    "name": "Charles",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 153,
+    "name": "Da Silva",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 157,
+    "name": "Daniel Alagoano",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 132,
+    "name": "Elly",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Partial DB data present; missing foot/height/weight or needs secondary confirmation"
+  },
+  {
+    "id": 125,
+    "name": "Joílson",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 151,
+    "name": "Josimar",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 145,
+    "name": "Matheus Lopes",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 160,
+    "name": "Muriel",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 633,
+    "name": "Neto",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Partial DB data present; missing foot/height/weight or needs secondary confirmation"
+  },
+  {
+    "id": 127,
+    "name": "Paulinho",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 142,
+    "name": "Pingo",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 146,
+    "name": "Roger",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 158,
+    "name": "Rony Fernandes",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 156,
+    "name": "Rubens",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 628,
+    "name": "Toinho",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 140,
+    "name": "Vital",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 152,
+    "name": "Wellington Silva",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  },
+  {
+    "id": 136,
+    "name": "Yago",
+    "seasons": [
+      "2018"
+    ],
+    "reason": "Ambiguous nickname/common name or insufficient high-confidence CSA+year bio match"
+  }
+]

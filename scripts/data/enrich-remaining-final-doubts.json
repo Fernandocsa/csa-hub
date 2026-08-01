@@ -1,0 +1,344 @@
+[
+  {
+    "id": 250,
+    "name": "Athirson",
+    "seasons": ["2021"],
+    "reason": "Identity confirmed as Athirson José Alves Pereira (TM 976730, Lateral Esq., 2000-05-14, CSA). preferredFoot not stated on that TM profile; do not use Athirson Kauan Silva Campos (TM 1122215)."
+  },
+  {
+    "id": 319,
+    "name": "Pedrão",
+    "seasons": ["2023"],
+    "reason": "Identity confirmed Pedro Henrique Gonçalo de Paiva (TM 1096666; BeSoccer CSA U20 2023). preferredFoot not stated on TM. Position conflict: DB Atacante vs TM Meio-Campo — left as-is."
+  },
+  {
+    "id": 611,
+    "name": "Cassiano",
+    "seasons": ["2016", "2017"],
+    "reason": "Near-complete Cassiano Juvêncio da Silva (TM 1372696). preferredFoot not stated on TM/ogol/Sofascore."
+  },
+  {
+    "id": 631,
+    "name": "Rafael Silva",
+    "seasons": ["2016"],
+    "reason": "Near-complete Rafael Gonçalves da Silva (TM 393231, d.2018). preferredFoot not stated."
+  },
+  {
+    "id": 633,
+    "name": "Neto",
+    "seasons": ["2018"],
+    "reason": "Near-complete Guilherme Ferreira Lúcio Neto (TM 1370721). preferredFoot not stated."
+  },
+  {
+    "id": 173,
+    "name": "Lucca Motta",
+    "seasons": ["2019"],
+    "reason": "Near-complete Lucca Carvalho Mota (TM 642675). preferredFoot not stated on TM/ogol/Sofascore."
+  },
+  {
+    "id": 292,
+    "name": "William",
+    "seasons": ["2023"],
+    "reason": "Near-complete as William Jackson dos Santos (2003-08-02, Zagueiro) from CSA match logs; no TM/ogol/Sofascore preferredFoot found."
+  },
+  {
+    "id": 472,
+    "name": "Gabriel Boquinha",
+    "seasons": ["2026"],
+    "reason": "Near-complete (Gabriel dos Santos, Lateral, 2008-08-28). No preferredFoot on Transfermarkt/ogol/Sofascore."
+  },
+  {
+    "id": 355,
+    "name": "Elvis",
+    "seasons": ["2023", "2025"],
+    "reason": "Near-complete Elvis Gustavo Oliveira de Sá Filho (TM 1096686). preferredFoot not stated on TM; no matching ogol foot field found."
+  },
+  {
+    "id": 307,
+    "name": "José Cleverton",
+    "seasons": ["2023", "2024"],
+    "reason": "Near-complete José Cleverton Honorio de Melo (TM 1224545 / Sofascore 1633817). preferredFoot not stated."
+  },
+  {
+    "id": 426,
+    "name": "Betinho",
+    "seasons": ["2025"],
+    "reason": "Near-complete Luiz Roberto Silva Santos (TM 1083101). preferredFoot not on TM/ogol/Sofascore (club news saying canhoto ignored — not an allowed source)."
+  },
+  {
+    "id": 438,
+    "name": "Ewerton",
+    "seasons": ["2025"],
+    "reason": "Near-complete Ewerton Viana de Morais (TM 1224558). preferredFoot not stated."
+  },
+  {
+    "id": 424,
+    "name": "Luiz Gustavo",
+    "seasons": ["2025"],
+    "reason": "Near-complete Luiz Gustavo da Silva Alves (TM 991846). preferredFoot not stated on TM."
+  },
+  {
+    "id": 425,
+    "name": "Marllon Moizes",
+    "seasons": ["2025"],
+    "reason": "Near-complete Marllon Moizes dos Santos Souza. preferredFoot not found on Transfermarkt/ogol/Sofascore."
+  },
+  {
+    "id": 451,
+    "name": "Arthur Rocha",
+    "seasons": ["2025"],
+    "reason": "Near-complete Arthur Rocha de Oliveira (TM 1496828). preferredFoot not stated (do not confuse with ogol Arthur Cardoso Rocha)."
+  },
+  {
+    "id": 417,
+    "name": "Guilherme Santana",
+    "seasons": ["2025"],
+    "reason": "Near-complete Guilherme Santana da Silva (TM 1496823). preferredFoot not stated."
+  },
+  {
+    "id": 443,
+    "name": "Sobral",
+    "seasons": ["2025"],
+    "reason": "Near-complete Felipe Giarlysson Privino Campos (TM 1496824). preferredFoot not stated."
+  },
+  {
+    "id": 427,
+    "name": "Teles Junior",
+    "seasons": ["2025"],
+    "reason": "Near-complete Baltazar dos Anjos Teles Junior (TM 1496821). preferredFoot not stated."
+  },
+  {
+    "id": 626,
+    "name": "Damião",
+    "seasons": ["2016"],
+    "reason": "Near-complete Damião Vitorino de Lima (TM 1012480). preferredFoot not stated."
+  },
+  {
+    "id": 615,
+    "name": "Evandrízio",
+    "seasons": ["2016"],
+    "reason": "Near-complete Evandrízio Rodrigues Wanderley da Silva (TM 942756). preferredFoot not stated."
+  },
+  {
+    "id": 624,
+    "name": "Manoel Chuva",
+    "seasons": ["2016"],
+    "reason": "Near-complete Manoel Lucas Sousa Farias (TM 1208877). preferredFoot not stated on matching profile."
+  },
+  {
+    "id": 81,
+    "name": "Pantera",
+    "seasons": ["2016"],
+    "reason": "Near-complete Eliel José Martins Santos (TM 349822). preferredFoot not stated."
+  },
+  {
+    "id": 51,
+    "name": "Ronaldo Caetano",
+    "seasons": ["2016"],
+    "reason": "Near-complete Ronaldo Alessandro Batista Caetano (TM 1318482). preferredFoot not stated."
+  },
+  {
+    "id": 103,
+    "name": "Santa Rosa",
+    "seasons": ["2016"],
+    "reason": "Near-complete Bruno Santa Rosa de Freitas (TM 1325417). preferredFoot not stated."
+  },
+  {
+    "id": 73,
+    "name": "Washington",
+    "seasons": ["2016"],
+    "reason": "Near-complete Douglas Washington Cataneo (TM 1232787). preferredFoot not stated."
+  },
+  {
+    "id": 109,
+    "name": "Luís Maranhão",
+    "seasons": ["2017"],
+    "reason": "Near-complete Luís Ricardo Gonçalves Evangelista (TM 1145575); duplicate of Luís Ricardo (id 644). preferredFoot not stated."
+  },
+  {
+    "id": 644,
+    "name": "Luís Ricardo",
+    "seasons": ["2017"],
+    "reason": "Same person as Luís Maranhão (id 109). preferredFoot not stated."
+  },
+  {
+    "id": 135,
+    "name": "Charles",
+    "seasons": ["2018"],
+    "reason": "Near-complete Charles Henrique Vieira dos Santos (TM 698751). preferredFoot not stated."
+  },
+  {
+    "id": 628,
+    "name": "Toinho",
+    "seasons": ["2018"],
+    "reason": "Near-complete Antônio Izidoro da Silva Filho (TM 698747). preferredFoot not stated."
+  },
+  {
+    "id": 272,
+    "name": "Fernando Ferro",
+    "seasons": ["2021"],
+    "reason": "Near-complete Fernando Ferro Diniz Barbosa de Melo (TM 1471547). preferredFoot not stated."
+  },
+  {
+    "id": 606,
+    "name": "João Victor Pinheiro",
+    "seasons": ["2021"],
+    "reason": "Near-complete João Victor Pinheiro Rodrigues. preferredFoot not found on Transfermarkt/ogol/Sofascore."
+  },
+  {
+    "id": 252,
+    "name": "Ryan Gonzales",
+    "seasons": ["2021"],
+    "reason": "Near-complete Ryan Gonzales Leal (TM 1153085). preferredFoot not stated."
+  },
+  {
+    "id": 266,
+    "name": "Vinicius José",
+    "seasons": ["2021"],
+    "reason": "Near-complete Vinicius José dos Santos (TM 724605). preferredFoot not stated."
+  },
+  {
+    "id": 261,
+    "name": "Wykley",
+    "seasons": ["2021"],
+    "reason": "Near-complete Wykley Flysmaky Alves de Almeida (TM 977134). preferredFoot not stated."
+  },
+  {
+    "id": 325,
+    "name": "Eduardo Jacone",
+    "seasons": ["2023"],
+    "reason": "Near-complete Eduardo dos Santos Jacone (TM 1096668). preferredFoot not stated."
+  },
+  {
+    "id": 356,
+    "name": "Erick Melo",
+    "seasons": ["2023"],
+    "reason": "Near-complete Erick Júnior dos Santos Bezerra de Melo (TM 1096685). preferredFoot not stated."
+  },
+  {
+    "id": 361,
+    "name": "Wenderson",
+    "seasons": ["2023"],
+    "reason": "Near-complete Wenderson Rodrigues da Silva (Sofascore 1589771). preferredFoot not stated."
+  },
+  {
+    "id": 619,
+    "name": "Guerra",
+    "seasons": ["2016"],
+    "reason": "Empty bio; no Transfermarkt/ogol CSA 2016 match for zagueiro Guerra (~1994)."
+  },
+  {
+    "id": 240,
+    "name": "Alisson",
+    "seasons": ["2021"],
+    "reason": "Empty bio; ambiguous nickname Alisson — no clear CSA 2021 meia matching birth_year 2000."
+  },
+  {
+    "id": 244,
+    "name": "Andrey Rafael",
+    "seasons": ["2021"],
+    "reason": "Empty bio; insufficient high-confidence sources for CSA 2021 Andrey Rafael."
+  },
+  {
+    "id": 270,
+    "name": "Gustavo Martins",
+    "seasons": ["2021"],
+    "reason": "Empty bio; insufficient sources for CSA 2021 Gustavo Martins."
+  },
+  {
+    "id": 607,
+    "name": "José Victor",
+    "seasons": ["2021"],
+    "reason": "Empty bio; CSA 2021 GK appears in match logs/Portal Elencos but full name+birthDate not verified."
+  },
+  {
+    "id": 609,
+    "name": "Paquetá",
+    "seasons": ["2021"],
+    "reason": "Empty bio; insufficient apps/sources for CSA 2021 Paquetá."
+  },
+  {
+    "id": 262,
+    "name": "Pedrinho",
+    "seasons": ["2021"],
+    "reason": "Empty bio; ambiguous nickname Pedrinho (zagueiro ~2002)."
+  },
+  {
+    "id": 608,
+    "name": "Pedro Rocha",
+    "seasons": ["2021"],
+    "reason": "Empty bio; insufficient sources for CSA 2021 Pedro Rocha."
+  },
+  {
+    "id": 331,
+    "name": "Alex Matheus",
+    "seasons": ["2023"],
+    "reason": "Empty bio; insufficient sources for CSA 2023 youth Alex Matheus."
+  },
+  {
+    "id": 512,
+    "name": "Clevinho",
+    "seasons": ["2023"],
+    "reason": "Empty bio; nickname-only (Copinha meia) — no verified full name+birthDate."
+  },
+  {
+    "id": 350,
+    "name": "Eduardo",
+    "seasons": ["2023", "2024"],
+    "reason": "Empty bio; ambiguous goleiro Eduardo CSA 2023–24; identity not confirmed with full bio."
+  },
+  {
+    "id": 339,
+    "name": "Fabrício Santos",
+    "seasons": ["2023"],
+    "reason": "Empty bio; insufficient sources for CSA 2023 Fabrício Santos."
+  },
+  {
+    "id": 354,
+    "name": "Gabryel",
+    "seasons": ["2023"],
+    "reason": "Empty bio; ambiguous Gabryel — no verified full name+birth."
+  },
+  {
+    "id": 341,
+    "name": "Kleiton",
+    "seasons": ["2023"],
+    "reason": "Empty bio; insufficient sources for CSA 2023 Kleiton."
+  },
+  {
+    "id": 324,
+    "name": "Matheus Lima",
+    "seasons": ["2023"],
+    "reason": "Empty bio; ambiguous Matheus Lima — no full bio."
+  },
+  {
+    "id": 599,
+    "name": "Pedro Henrique",
+    "seasons": ["2023"],
+    "reason": "Empty bio; ambiguous Pedro Henrique zagueiro CSA 2023."
+  },
+  {
+    "id": 346,
+    "name": "Pedro Victor",
+    "seasons": ["2023"],
+    "reason": "Empty bio; insufficient sources for CSA 2023 Pedro Victor."
+  },
+  {
+    "id": 336,
+    "name": "Victor Ramalho",
+    "seasons": ["2023"],
+    "reason": "Empty bio; insufficient sources for CSA 2023 Victor Ramalho."
+  },
+  {
+    "id": 342,
+    "name": "Vinicius Peixoto",
+    "seasons": ["2023"],
+    "reason": "Empty bio; insufficient sources for CSA 2023 Vinicius Peixoto."
+  },
+  {
+    "id": 394,
+    "name": "Jefferson Júnior",
+    "seasons": ["2024", "2025"],
+    "reason": "Empty bio; Copinha/Sofascore Jeferson Manoel Da Silva Santos possible but birthDate not confirmed with high confidence."
+  }
+]

@@ -1,0 +1,467 @@
+[
+  {
+    "id": 290,
+    "name": "Denílson",
+    "fullName": "Denílson dos Santos Souza",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1995-04-18",
+    "birthCity": "Brasília",
+    "birthState": "DF",
+    "heightCm": 187,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/denilson/profil/spieler/476366",
+      "https://br.bolavip.com/futebol/Menos-de-tres-meses-apos-anuncio-da-contratacao-CSA-anuncia-saida-de-defensor-pouco-utilizado-por-Mozart-20220309-0186.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 323,
+    "name": "Giresse",
+    "fullName": "Giresse Gabriel Montenegro dos Santos",
+    "position": "Lateral",
+    "birthDate": "2005-07-11",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/giresse-gabriel/profil/spieler/1224556",
+      "https://ne45.com.br/2023/12/25/csa-divulga-lista-de-relacionados-copinha/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 307,
+    "name": "José Cleverton",
+    "fullName": "José Cleverton Honorio de Melo",
+    "position": "Meia",
+    "birthDate": "2003-02-21",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/jose-cleverton/profil/spieler/1224545",
+      "https://ne45.com.br/2023/12/25/csa-divulga-lista-de-relacionados-copinha/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 340,
+    "name": "Mateus Santos",
+    "fullName": "Mateus Santos Martiniano",
+    "position": "Lateral",
+    "preferredFoot": "destro",
+    "birthDate": "2003-02-18",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/santos/profil/spieler/1096691",
+      "https://www.ogol.com.br/jogador/mateus-santos/775646",
+      "https://ne45.com.br/2023/12/25/csa-divulga-lista-de-relacionados-copinha/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 329,
+    "name": "Vinicius Toledo",
+    "fullName": "Vinicius Toledo da Rocha Ramos",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "2005-01-05",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 182,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.ar/vinicius-toledo/profil/spieler/1096689",
+      "https://ne45.com.br/2023/12/25/csa-divulga-lista-de-relacionados-copinha/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 355,
+    "name": "Elvis",
+    "fullName": "Elvis Gustavo Oliveira de Sá Filho",
+    "position": "Atacante",
+    "birthDate": "2005-11-03",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.us/elvis/profil/spieler/1096686",
+      "https://esportenewsmundo.com.br/elvis-assina-primeiro-contrato-profissional-com-o-csa/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 382,
+    "name": "Douglas Skilo",
+    "fullName": "Douglas Pires da Rosa",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1994-11-13",
+    "birthCity": "Porto Alegre",
+    "birthState": "RS",
+    "heightCm": 174,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/douglas-skilo/profil/spieler/554983",
+      "https://sercaxias.com.br/douglas-skilo-e-do-grena-do-povo/",
+      "https://ne45.com.br/2024/02/03/abc-anuncia-contratacao-douglas-skilo/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 375,
+    "name": "Ismael Nunes",
+    "fullName": "Ismael Nunes do Nascimento Araújo",
+    "position": "Lateral",
+    "preferredFoot": "destro",
+    "birthDate": "2005-12-25",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 175,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/ismael-nunes/profil/spieler/1224542",
+      "https://ne45.com.br/2023/12/25/csa-divulga-lista-de-relacionados-copinha/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 365,
+    "name": "Kevin",
+    "fullName": "Kevin Kesley de Souza",
+    "position": "Lateral",
+    "preferredFoot": "canhoto",
+    "birthDate": "2000-03-14",
+    "birthCity": "Osasco",
+    "birthState": "SP",
+    "heightCm": 185,
+    "weightKg": 84,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/kevin-kesley/profil/spieler/494834",
+      "https://www.transferhunt.com/player/kevin-kesley-de-souza/80301",
+      "https://www.fotmob.com/players/935040/kevin"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 380,
+    "name": "Richard",
+    "fullName": "Richard Alexandre Birkheun Rodrigues",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1999-10-11",
+    "birthCity": "Barão",
+    "birthState": "RS",
+    "heightCm": 178,
+    "weightKg": 69,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/richard-birkheun/profil/spieler/574949",
+      "https://ne45.com.br/2024/05/08/csa-anuncia-atacante-richard/",
+      "https://it.wikipedia.org/wiki/Richard_(calciatore_1999)"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 396,
+    "name": "Rômulo",
+    "fullName": "Rômulo dos Santos de Souza",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1995-04-28",
+    "birthCity": "Campo Grande",
+    "birthState": null,
+    "heightCm": 175,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/romulo-souza/profil/spieler/349515",
+      "https://ne45.com.br/2024/03/08/csa-anuncia-saida-do-atacante-romulo/",
+      "https://ge.globo.com/sc/futebol/times/chapecoense/noticia/2024/03/12/chapecoense-anuncia-a-contratacao-do-atacante-romulo.ghtml"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 419,
+    "name": "Angelo",
+    "fullName": "José Angelo Victor Felix Santos",
+    "position": "Atacante",
+    "birthDate": "2006-03-09",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.besoccer.com/player/angelo-3619932",
+      "https://www.sofascore.com/football/team/csa-u20/307188"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 451,
+    "name": "Arthur Rocha",
+    "fullName": "Arthur Rocha de Oliveira",
+    "position": "Meia",
+    "birthDate": "2007-07-24",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/arthur-rocha/profil/spieler/1496828",
+      "https://www.sofascore.com/football/team/csa-u20/307188"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 446,
+    "name": "Batinga",
+    "fullName": "Anthony Rammon Batinga Lima",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "2005-03-03",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/batinga/996336",
+      "https://pt.besoccer.com/jogador/batinga-3371948"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 426,
+    "name": "Betinho",
+    "fullName": "Luiz Roberto Silva Santos",
+    "position": "Meia",
+    "birthDate": "2004-07-22",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 171,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/betinho/profil/spieler/1083101",
+      "https://www.transfermarkt.us/csa-al-b/startseite/verein/98931/saison_id/2024"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 414,
+    "name": "Enzo Santos",
+    "fullName": "Enzo Henrique dos Santos",
+    "position": "Lateral",
+    "preferredFoot": "canhoto",
+    "birthDate": "2002-07-18",
+    "birthCity": "Santos",
+    "birthState": "SP",
+    "heightCm": 182,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/enzo/profil/spieler/1139255",
+      "https://en.wikipedia.org/wiki/Enzo_Santos",
+      "https://ge.globo.com/rs/futebol/times/gremio/noticia/2025/09/02/gremio-anuncia-contratacao-de-lateral-esquerdo-do-csa.ghtml"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 438,
+    "name": "Ewerton",
+    "fullName": "Ewerton Viana de Morais",
+    "position": "Atacante",
+    "birthDate": "2006-05-14",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.co.uk/ewerton/profil/spieler/1224558",
+      "https://ne45.com.br/2023/12/25/csa-divulga-lista-de-relacionados-copinha/",
+      "https://www.sofascore.com/football/team/csa-u20/307188"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 417,
+    "name": "Guilherme Santana",
+    "fullName": "Guilherme Santana da Silva",
+    "position": "Meia",
+    "birthDate": "2007-05-06",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/guilherme-santana/profil/spieler/1496823",
+      "https://ge.globo.com/al/futebol/times/csa/noticia/2025/12/31/csa-embarca-para-copa-sao-paulo-confira-relacionados.ghtml"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 445,
+    "name": "Lucas Matheus",
+    "fullName": "Lucas Matheus Pedro da Silva",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "2003-02-28",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 186,
+    "weightKg": 68,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.pt/lucas-matheus/profil/spieler/1096671",
+      "https://soesporte.com.br/treze-oficializa-goleiro-lucas-matheus-para-a-sequencia-da-temporada-2026/",
+      "https://www.gazetaweb.com/noticias/esportes/alagoano/terceira-opcao-no-gol-lucas-matheus-deixa-o-csa-em-comum-acordo-888421"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 424,
+    "name": "Luiz Gustavo",
+    "fullName": "Luiz Gustavo da Silva Alves",
+    "position": "Zagueiro",
+    "birthDate": "2003-05-30",
+    "birthCity": "São João Nepomuceno",
+    "birthState": "MG",
+    "heightCm": 193,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/luiz-gustavo/profil/spieler/991846",
+      "https://en.wikipedia.org/wiki/Luiz_Gustavo_(footballer,_born_2003)"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 425,
+    "name": "Marllon Moizes",
+    "fullName": "Marllon Moizes dos Santos Souza",
+    "position": "Zagueiro",
+    "birthDate": "2006-02-15",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://es.aiscore.com/player-marllon-moizes-dos-santos-souza/g6763ierp8xc97r",
+      "https://www.camelscore.live/player/Marllon%20Moizes%20Dos%20Santos%20Souza/y39mp1h14dn2moj"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 429,
+    "name": "Rodrigo Amorim",
+    "fullName": "Rodrigo de Araújo Amorim Silveira",
+    "position": "Zagueiro",
+    "preferredFoot": "ambidestro",
+    "birthDate": "2004-01-15",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 184,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.us/rodrigo-amorim/profil/spieler/1088841",
+      "https://www.sofascore.com/football/player/rodrigo-amorim/2468261"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 443,
+    "name": "Sobral",
+    "fullName": "Felipe Giarlysson Privino Campos",
+    "position": "Meia",
+    "birthDate": "2007-01-23",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/sobral/profil/spieler/1496824",
+      "https://ge.globo.com/al/futebol/times/csa/noticia/2025/12/31/csa-embarca-para-copa-sao-paulo-confira-relacionados.ghtml"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 427,
+    "name": "Teles Junior",
+    "fullName": "Baltazar dos Anjos Teles Junior",
+    "position": "Atacante",
+    "birthDate": "2006-04-07",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/teles/profil/spieler/1496821",
+      "https://ge.globo.com/al/futebol/times/csa/noticia/2025/04/25/neto-do-palhaco-birinho-assina-contrato-profissional-com-o-csa-meu-avo-esta-muito-feliz.ghtml"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 428,
+    "name": "Wellington Júnior",
+    "fullName": "Wellington Nunes Costa Júnior",
+    "position": "Atacante",
+    "birthDate": "1998-11-24",
+    "birthCity": "São Luís",
+    "birthState": "MA",
+    "heightCm": 181,
+    "weightKg": 76,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pbesportes.net/2025/02/25/sousa-contrata-atacante-wellington-nunes-ex-csa-al/",
+      "https://ge.globo.com/pb/futebol/times/sousa/noticia/2025/02/25/sousa-anuncia-a-contratacao-do-atacante-wellington-nunes-ex-csa.ghtml",
+      "https://www.tnh1.com.br/noticia/nid/apos-eliminacao-no-estadual-atacante-do-csa-e-emprestado-para-clube-do-nordeste/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 330,
+    "name": "Kauã",
+    "fullName": "Cauã Soares Ferreira Cavalcante",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "2005-04-20",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.co.uk/caua-soares/profil/spieler/1224555",
+      "https://ne45.com.br/2023/12/25/csa-divulga-lista-de-relacionados-copinha/",
+      "https://www.fotmob.com/players/1935517/caua-soares-ferreira-cavalcante"
+    ],
+    "confidence": "high"
+  }
+]

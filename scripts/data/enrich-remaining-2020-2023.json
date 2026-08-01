@@ -1,0 +1,534 @@
+[
+  {
+    "id": 217,
+    "name": "Bruno Tesouro",
+    "fullName": "Bruno Rafael da Silva",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "destro",
+    "birthDate": "2001-03-07",
+    "birthCity": "Palmeira dos Índios",
+    "birthState": "AL",
+    "heightCm": 172,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/bruno-rafael/profil/spieler/936021",
+      "https://caldense.com.br/2021/06/30/caldense-apresenta-reforco-bruno-rafael-atacante-que-estava-no-csa/",
+      "https://www.zerozero.pt/player.php?id=631854"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 208,
+    "name": "Schutz",
+    "fullName": "Gustavo Schutz",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1999-01-01",
+    "birthCity": "Limeira",
+    "birthState": "SP",
+    "heightCm": 179,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/gustavo-schutz/profil/spieler/519599",
+      "https://trezefc.com.br/2025/02/19/comunicado-schutz/",
+      "https://www.gazetadealagoas.com.br/esportes/283006/csa-gustavo-schutz-sai-e-ignacio-chega-ao-clube"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 218,
+    "name": "Wallace",
+    "fullName": "Wallace Junio Vieira Batista",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "2000-05-10",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": 177,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/wallace-junio/profil/spieler/856100",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 249,
+    "name": "João",
+    "fullName": "João Victor da Silva Rocha",
+    "position": "Meia Central",
+    "preferredFoot": "destro",
+    "birthDate": "2002-01-11",
+    "birthCity": "Suzano",
+    "birthState": "SP",
+    "heightCm": 182,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/joao-victor/profil/spieler/867800",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 606,
+    "name": "João Victor Pinheiro",
+    "fullName": "João Victor Pinheiro Rodrigues",
+    "position": "Goleiro",
+    "birthDate": "2002-02-17",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/joao/profil/spieler/1154985",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 263,
+    "name": "Ítalo",
+    "fullName": "Ítalo Melo Oliveira",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1993-02-25",
+    "birthCity": "Salvador",
+    "birthState": "BA",
+    "heightCm": 175,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/italo-melo/profil/spieler/258622",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 250,
+    "name": "Athirson",
+    "fullName": "Athirson José Alves Pereira",
+    "position": "Lateral Esquerdo",
+    "birthDate": "2000-05-14",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/athirson/profil/spieler/976730",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 272,
+    "name": "Fernando Ferro",
+    "fullName": "Fernando Ferro Diniz Barbosa de Melo",
+    "position": "Meia",
+    "birthDate": "2001-01-11",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/fernando-ferro/profil/spieler/1471547",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 252,
+    "name": "Ryan Gonzales",
+    "fullName": "Ryan Gonzales Leal",
+    "position": "Centroavante",
+    "birthDate": "2001-03-08",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/ryan-gonzales/profil/spieler/1153085",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 266,
+    "name": "Vinicius José",
+    "fullName": "Vinicius José dos Santos",
+    "position": "Meia Ofensivo",
+    "birthDate": "2001-03-29",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/vinicius-jose/profil/spieler/724605",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 261,
+    "name": "Wykley",
+    "fullName": "Wykley Flysmaky Alves de Almeida",
+    "position": "Atacante",
+    "birthDate": "2002-09-11",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/wykley/profil/spieler/977134",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 283,
+    "name": "Douglas",
+    "fullName": "Douglas Matheus do Nascimento",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1995-03-23",
+    "birthCity": "Santa Cruz do Sul",
+    "birthState": "RS",
+    "heightCm": 190,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/douglas/profil/spieler/643374",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2021/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 290,
+    "name": "Denílson",
+    "fullName": "Denílson dos Santos Souza",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1995-04-18",
+    "birthCity": "Brasília",
+    "birthState": "DF",
+    "heightCm": 187,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/denilson/profil/spieler/476366",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2021/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 300,
+    "name": "Edson Lucas",
+    "fullName": "Edson Lucas Pereira",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "2000-07-30",
+    "birthCity": "Recife",
+    "birthState": "PE",
+    "heightCm": 175,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/edson-lucas/profil/spieler/886688",
+      "https://elencos.com.br/elenco/elenco-do-csa-2022"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 12,
+    "name": "Élton",
+    "fullName": "Élton Rodrigues Brandão",
+    "position": "Centroavante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1985-08-01",
+    "birthCity": "Iramaia",
+    "birthState": "BA",
+    "heightCm": 185,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/elton/profil/spieler/41052",
+      "https://elencos.com.br/elenco/elenco-do-csa-2022",
+      "https://sportbaseline.com/player/elton-41052"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 303,
+    "name": "Felipe Augusto",
+    "fullName": "Felipe Augusto Ferreira Batista",
+    "position": "Ponta Direita",
+    "preferredFoot": "destro",
+    "birthDate": "1992-03-06",
+    "birthCity": "Governador Valadares",
+    "birthState": "MG",
+    "heightCm": 182,
+    "weightKg": 77,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/felipe-augusto/profil/spieler/410443",
+      "https://en.wikipedia.org/wiki/Felipe_Augusto_(footballer,_born_1992)",
+      "https://elencos.com.br/elenco/elenco-do-csa-2022"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 297,
+    "name": "Ferreira",
+    "fullName": "Matheus Ferreira de Sousa",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1993-02-19",
+    "birthCity": "Divinópolis",
+    "birthState": "MG",
+    "heightCm": 190,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/ferreira/profil/spieler/546173",
+      "https://elencos.com.br/elenco/elenco-do-csa-2022"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 302,
+    "name": "Jean",
+    "fullName": "Jean Carlos Batista",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "2000-07-24",
+    "birthCity": "Edéia",
+    "birthState": "GO",
+    "heightCm": 196,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/jean/profil/spieler/838835",
+      "https://elencos.com.br/elenco/elenco-do-csa-2022"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 277,
+    "name": "Léo Carvalho",
+    "fullName": "Leonardo da Silva de Carvalho",
+    "position": "Volante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1999-01-02",
+    "birthCity": "Taboão da Serra",
+    "birthState": "SP",
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/leo-carvalho/profil/spieler/739446",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2021/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 293,
+    "name": "Wellington Nascimento",
+    "fullName": "Wellington Ferreira Nascimento",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1995-03-01",
+    "birthCity": "Brasília",
+    "birthState": "DF",
+    "heightCm": 190,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/wellington-nascimento/profil/spieler/353807",
+      "https://elencos.com.br/elenco/elenco-do-csa-2022"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 315,
+    "name": "Geovane Silva",
+    "fullName": "Geovane Nascimento Silva",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1998-06-15",
+    "birthCity": "Jacobina",
+    "birthState": "BA",
+    "heightCm": 172,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/geovane/profil/spieler/401532",
+      "https://ne45.com.br/2022/12/27/csa-oficializa-contratacao-do-meia-geovane-que-estava-no-mirassol/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 358,
+    "name": "Thiaguinho",
+    "fullName": "Thiago Fernandes Rodrigues",
+    "position": "Ponta Direita",
+    "preferredFoot": "canhoto",
+    "birthDate": "2001-03-13",
+    "birthCity": "Recife",
+    "birthState": "PE",
+    "heightCm": 173,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/thiaguinho/profil/spieler/638305",
+      "https://www.futebolinterior.com.br/csa-contratacao-atacante-thiago/",
+      "https://ne45.com.br/2023/07/21/sampaio-correa-anuncia-thiaguinho/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 355,
+    "name": "Elvis",
+    "fullName": "Elvis Gustavo Oliveira de Sá Filho",
+    "position": "Meia Ofensivo",
+    "birthDate": "2005-11-03",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/elvis/profil/spieler/1096686",
+      "https://esportenewsmundo.com.br/elvis-assina-primeiro-contrato-profissional-com-o-csa/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 356,
+    "name": "Erick Melo",
+    "fullName": "Erick Júnior dos Santos Bezerra de Melo",
+    "position": "Meia",
+    "birthDate": "2006-04-11",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/erick-melo/profil/spieler/1096685"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 323,
+    "name": "Giresse",
+    "fullName": "Giresse Gabriel Montenegro dos Santos",
+    "position": "Lateral Esquerdo",
+    "birthDate": "2005-07-11",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/giresse-gabriel/profil/spieler/1224556",
+      "https://ne45.com.br/2023/12/25/csa-divulga-lista-de-relacionados-copinha/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 325,
+    "name": "Eduardo Jacone",
+    "fullName": "Eduardo dos Santos Jacone",
+    "position": "Zagueiro",
+    "birthDate": "2003-01-17",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/eduardo-jacone/profil/spieler/1096668",
+      "https://ge.globo.com/pi/futebol/noticia/2024/11/19/piaui-contrata-zagueiro-eduardo-jacone-ex-csa-e-atacante-adilio-dybala-ex-america-rn-para-2025.ghtml"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 319,
+    "name": "Pedrão",
+    "fullName": "Pedro Henrique Gonçalo de Paiva",
+    "position": "Meia",
+    "birthDate": "2003-05-14",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.besoccer.com/jogador/pedro-henrique-3262208",
+      "https://www.gazetaweb.com/noticias/esportes/alagoano/com-23-jogadores-disponiveis-csa-revela-elenco-para-a-copinha-2023"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 329,
+    "name": "Vinicius Toledo",
+    "fullName": "Vinicius Toledo da Rocha Ramos",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "2005-01-05",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 182,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/vinicius-toledo/profil/spieler/1096689",
+      "https://ne45.com.br/2023/12/25/csa-divulga-lista-de-relacionados-copinha/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 361,
+    "name": "Wenderson",
+    "fullName": "Wenderson Rodrigues da Silva",
+    "position": "Atacante",
+    "birthDate": "2004-09-14",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.sofascore.com/football/player/wenderson-rodrigues-da-silva/1589771",
+      "https://pt.besoccer.com/jogador/wenderson-3372307",
+      "https://www.gazetaweb.com/noticias/esportes/alagoano/com-23-jogadores-disponiveis-csa-revela-elenco-para-a-copinha-2023"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 307,
+    "name": "José Cleverton",
+    "fullName": "José Cleverton Honório de Melo",
+    "position": "Meia",
+    "birthDate": "2003-02-21",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.sofascore.com/player/jose-cleverton-honorio-de-melo/1633817",
+      "https://www.besoccer.com/player/jose-cleverton-3441697"
+    ],
+    "confidence": "high"
+  }
+]

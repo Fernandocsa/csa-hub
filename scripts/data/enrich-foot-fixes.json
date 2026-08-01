@@ -1,0 +1,44 @@
+[
+  {
+    "id": 88,
+    "name": "Denilson",
+    "fullName": "Denilson Hernandes Santos Sineiro",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1987-07-04",
+    "birthCity": "São Luís",
+    "birthState": "MA",
+    "heightCm": 180,
+    "nationality": "Brasil",
+    "sources": ["https://www.transfermarkt.com.br/denilson/profil/spieler/554021"],
+    "confidence": "high"
+  },
+  {
+    "id": 84,
+    "name": "Jônatas Obina",
+    "fullName": "Jônatas Paulino da Silva Inácio",
+    "position": "Centroavante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1985-12-18",
+    "birthCity": "Sete Lagoas",
+    "birthState": "MG",
+    "heightCm": 181,
+    "nationality": "Guiné Equatorial",
+    "sources": ["https://www.transfermarkt.com.br/jonatas-obina/profil/spieler/247900"],
+    "confidence": "high"
+  },
+  {
+    "id": 289,
+    "name": "Héctor Canteros",
+    "fullName": "Héctor Miguel Canteros",
+    "position": "Meia Central",
+    "preferredFoot": "destro",
+    "birthDate": "1989-03-15",
+    "birthCity": "Buenos Aires",
+    "birthState": null,
+    "heightCm": 176,
+    "nationality": "Argentina",
+    "sources": ["https://www.transfermarkt.com.br/hector-canteros/profil/spieler/96255"],
+    "confidence": "high"
+  }
+]

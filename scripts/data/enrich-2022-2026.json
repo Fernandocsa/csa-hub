@@ -1,0 +1,475 @@
+[
+  {
+    "id": 440,
+    "name": "Luiz Guilherme",
+    "fullName": "Luiz Guilherme Oliveira da Silva",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "2006-02-01",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/luiz-guilherme/profil/spieler/1365526",
+      "https://www.besoccer.com/player/luiz-guilherme-3480799"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 482,
+    "name": "Arthur Silveira",
+    "fullName": "Arthur Silveira",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "2002-04-14",
+    "birthCity": "Antônio Carlos",
+    "birthState": "SC",
+    "heightCm": 192,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/arthur-silveira/profil/spieler/1091918",
+      "https://superplacar.com.br/jogador/36920/arthur-silveira/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 469,
+    "name": "Lucas Serafini",
+    "fullName": "Lucas Serafini",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "2000-06-27",
+    "birthCity": "Bento Gonçalves",
+    "birthState": "RS",
+    "heightCm": 180,
+    "weightKg": 81,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.pt/lucas-serafini/profil/spieler/698826",
+      "https://ge.globo.com/al/futebol/times/csa/noticia/2026/04/23/diretoria-do-csa-anuncia-saida-de-lateral.ghtml"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 278,
+    "name": "Anderson Martins",
+    "fullName": "Anderson Vieira Martins",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1987-08-21",
+    "birthCity": "Fortaleza",
+    "birthState": "CE",
+    "heightCm": 184,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Anderson_Martins",
+      "https://www.transfermarkt.com.br/anderson-martins/profil/spieler/68832",
+      "https://ge.globo.com/futebol/times/vasco/noticia/2022/08/22/ex-vasco-corinthians-e-sao-paulo-anderson-martins-anuncia-aposentadoria.ghtml"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 287,
+    "name": "Bruno Mezenga",
+    "fullName": "Bruno Ferreira Mombra Rosa",
+    "position": "Centroavante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1988-08-08",
+    "birthCity": "Niterói",
+    "birthState": "RJ",
+    "heightCm": 185,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Bruno_Mezenga",
+      "https://www.transfermarkt.com.br/bruno-mezenga/profil/spieler/54044"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 279,
+    "name": "Sassá",
+    "fullName": "Luiz Ricardo Alves",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1994-01-11",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 174,
+    "weightKg": 72,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Sass%C3%A1_(futebolista)",
+      "https://www.ogol.com.br/jogador/sassa/249690",
+      "https://www.transfermarkt.pt/sassa/profil/spieler/218353"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 289,
+    "name": "Héctor Canteros",
+    "fullName": "Héctor Miguel Canteros",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1989-03-15",
+    "birthCity": "Buenos Aires",
+    "birthState": null,
+    "heightCm": 176,
+    "weightKg": 80,
+    "nationality": "Argentina",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/H%C3%A9ctor_Canteros",
+      "https://www.transfermarkt.com.br/hector-canteros/profil/spieler/96255",
+      "https://en.wikipedia.org/wiki/H%C3%A9ctor_Canteros"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 291,
+    "name": "Werley",
+    "fullName": "Werley Ananias da Silva",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1988-09-05",
+    "birthCity": "Oliveira",
+    "birthState": "MG",
+    "heightCm": 184,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Werley",
+      "https://www.transfermarkt.com.br/werley/profil/spieler/75437"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 276,
+    "name": "Osvaldo",
+    "fullName": "Osvaldo Lourenço Filho",
+    "position": "Ponta Direita",
+    "preferredFoot": "destro",
+    "birthDate": "1987-04-11",
+    "birthCity": "Fortaleza",
+    "birthState": "CE",
+    "heightCm": 170,
+    "weightKg": 62,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/osvaldo/profil/spieler/76191",
+      "https://www.gazetaweb.com/blogs/arivaldo-maia/csa-anuncia-a-contratacao-do-atacante-osvaldo-ex-fortaleza-e-sao-paulo"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 275,
+    "name": "Rogério",
+    "fullName": "José Rogério de Oliveira",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1990-12-24",
+    "birthCity": "Pesqueira",
+    "birthState": "PE",
+    "heightCm": 172,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Rog%C3%A9rio_(footballer,_born_1990)"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 288,
+    "name": "Marcelo Carné",
+    "fullName": "Marcelo Henrique Passos Carné",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1990-02-06",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 188,
+    "weightKg": 83,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/marcelo-carne/profil/spieler/14881",
+      "https://en.wikipedia.org/wiki/Marcelo_Carn%C3%A9"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 296,
+    "name": "Dalberto",
+    "fullName": "Dalberto Luan Belo",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1994-09-15",
+    "birthCity": "Bento Fernandes",
+    "birthState": "RN",
+    "heightCm": 182,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.pt/dalberto/profil/spieler/519891",
+      "https://www.meutimenarede.com.br/jogadores/8981/dalberto"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 248,
+    "name": "Yann Rolim",
+    "fullName": "Yann Del Pino Rolim",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1995-03-15",
+    "birthCity": "Osório",
+    "birthState": "RS",
+    "heightCm": 173,
+    "weightKg": 78,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/yann-rolim/profil/spieler/336724",
+      "https://www.meutimenarede.com.br/jogadores/9570/yann-rolim"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 281,
+    "name": "Bruno Paulista",
+    "fullName": "Bruno Jacinto da Silva",
+    "position": "Volante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1995-08-21",
+    "birthCity": "Nova Odessa",
+    "birthState": "SP",
+    "heightCm": 192,
+    "weightKg": 81,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/bruno-paulista/profil/spieler/343602",
+      "https://www.besoccer.com/player/bruno-paulista-238142"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 37,
+    "name": "Diego Renan",
+    "fullName": "Diego Renan de Lima Ferreira",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "ambidestro",
+    "birthDate": "1990-01-26",
+    "birthCity": "Surubim",
+    "birthState": "PE",
+    "heightCm": 172,
+    "weightKg": 71,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Diego_Renan",
+      "https://www.transfermarkt.com.br/diego-renan/profil/spieler/75059"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 256,
+    "name": "Rodrigo Rodrigues",
+    "fullName": "Rodrigo Rodrigues Silva",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1996-06-18",
+    "birthCity": "Fortaleza",
+    "birthState": "CE",
+    "heightCm": 191,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Rodrigo_Rodrigues_(footballer)",
+      "https://www.transfermarkt.com.br/rodrigo-rodrigues/profil/spieler/638262"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 40,
+    "name": "Cedric",
+    "fullName": "Ilson Cedric Borges de Accácio Lima",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1998-02-14",
+    "birthCity": "Salvador",
+    "birthState": "BA",
+    "heightCm": 174,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/cedric/profil/spieler/578629",
+      "https://footystats.org/players/brazil/ilson-cedric-borges-de-lima"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 265,
+    "name": "Éverton Silva",
+    "fullName": "Éverton José Modesto da Silva",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1988-08-04",
+    "birthCity": "São João de Meriti",
+    "birthState": "RJ",
+    "heightCm": 171,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/everton-silva/profil/spieler/100011",
+      "https://en.wikipedia.org/wiki/Everton_Jos%C3%A9_Modesto_Silva",
+      "https://ge.globo.com/pi/futebol/noticia/2024/06/21/altos-acerta-com-lateral-ex-flamengo-ceara-e-csa-para-serie-d-do-brasileiro.ghtml"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 264,
+    "name": "Ernandes",
+    "fullName": "Ernandes Dias Luz",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1987-11-11",
+    "birthCity": "São Félix do Araguaia",
+    "birthState": "MT",
+    "heightCm": 173,
+    "weightKg": 71,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Ernandes",
+      "https://www.transfermarkt.com.br/ernandes/profil/spieler/108611"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 294,
+    "name": "Lourenço",
+    "fullName": "João Paulo Ferreira Lourenço",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1997-09-07",
+    "birthCity": "Belo Horizonte",
+    "birthState": "MG",
+    "heightCm": 169,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/lourenco/profil/spieler/515068",
+      "https://ne45.com.br/2022/03/29/csa-contrata-lourenco-ex-santa-cruz-avai/",
+      "https://www.avassessoria.com.br/clientes/lourenco/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 286,
+    "name": "Marcel Scalese",
+    "fullName": "Marcel Philipe Afonso Genestra Scalese",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1996-04-17",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 190,
+    "weightKg": 83,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Marcel_Scalese",
+      "https://www.transfermarkt.pt/marcel/profil/spieler/547724",
+      "https://static.superplacar.com.br/jogador/16605/marcel-scalese/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 298,
+    "name": "Guilherme Paraíba",
+    "fullName": "Guilherme Mendes da Silva",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1994-05-24",
+    "birthCity": "Queimadas",
+    "birthState": "PB",
+    "heightCm": 193,
+    "weightKg": 88,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.americadenatalsaf.com.br/jogadores/elenco-principal/guilherme-paraiba",
+      "https://www.transfermarkt.com/guilherme-paraiba/profil/spieler/725079"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 285,
+    "name": "Igor Inocêncio",
+    "fullName": "Igor Inocêncio de Oliveira",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1998-04-20",
+    "birthCity": "João Pessoa",
+    "birthState": "PB",
+    "heightCm": 185,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/igor-inocencio/profil/spieler/733578",
+      "https://en.wikipedia.org/wiki/Igor_Inoc%C3%AAncio"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 280,
+    "name": "Rickson",
+    "fullName": "Rickson Barbosa Sá da Conceição",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1998-03-04",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 180,
+    "weightKg": 68,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/rickson/profil/spieler/529609",
+      "https://en.wikipedia.org/wiki/Rickson_(footballer)"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 295,
+    "name": "Lucas Lourenço",
+    "fullName": "Lucas Lourenço Andrade",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "2001-01-23",
+    "birthCity": "Santos",
+    "birthState": "SP",
+    "heightCm": 164,
+    "weightKg": 60,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/lucas-lourenco/profil/spieler/432169",
+      "https://www.apwin.com/player/142751/lucas-lourenco-andrade/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 304,
+    "name": "John Mercado",
+    "fullName": "John Anthony Mercado Cuero",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "canhoto",
+    "birthDate": "2002-06-03",
+    "birthCity": "Guayaquil",
+    "birthState": null,
+    "heightCm": 186,
+    "weightKg": null,
+    "nationality": "Equador",
+    "sources": [
+      "https://en.wikipedia.org/wiki/John_Mercado",
+      "https://www.transfermarkt.pt/john-mercado/profil/spieler/659804"
+    ],
+    "confidence": "high"
+  }
+]

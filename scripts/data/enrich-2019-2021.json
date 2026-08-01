@@ -1,0 +1,1559 @@
+[
+  {
+    "id": 1,
+    "name": "Rodrigo Pimpão",
+    "fullName": "Rodrigo Pimpão Vianna",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "destro",
+    "birthDate": "1987-10-23",
+    "birthCity": "Curitiba",
+    "birthState": "PR",
+    "heightCm": 176,
+    "weightKg": 71,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.transfermarkt.com.br/rodrigo-pimpao/profil/spieler/76134",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 7,
+    "name": "João Paulo",
+    "fullName": "João Paulo Ferreira Romão",
+    "position": "Meia",
+    "preferredFoot": null,
+    "birthDate": "2000-09-14",
+    "birthCity": "Belo Horizonte",
+    "birthState": "MG",
+    "heightCm": 177,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 21,
+    "name": "Nilton",
+    "fullName": "Nilton Ferreira Júnior",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1987-04-21",
+    "birthCity": "Barra do Garças",
+    "birthState": "MT",
+    "heightCm": 186,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.transfermarkt.com.br/nilton/profil/spieler/56676",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 30,
+    "name": "Cristovam",
+    "fullName": "Cristovam Roberto Ribeiro da Silva",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1990-07-25",
+    "birthCity": "Feira de Santana",
+    "birthState": "BA",
+    "heightCm": 175,
+    "weightKg": 67,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021",
+      "https://www.transfermarkt.com.br/cristovam/profil/spieler/278402"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 45,
+    "name": "Renato Cajá",
+    "fullName": "Renato Adriano Jacó de Morais",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1984-09-15",
+    "birthCity": "Cajazeiras",
+    "birthState": "PB",
+    "heightCm": 173,
+    "weightKg": 70,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.transfermarkt.com.br/renato-caja/profil/spieler/55489",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 132,
+    "name": "Elly",
+    "fullName": "Elly Emanoel Cândido Rolim",
+    "position": "Ponta Direita",
+    "preferredFoot": "destro",
+    "birthDate": "1998-02-20",
+    "birthCity": "Campina Grande",
+    "birthState": "PB",
+    "heightCm": 180,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 136,
+    "name": "Yago",
+    "fullName": "Yago César Ferreira da Silva",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "canhoto",
+    "birthDate": "1997-05-26",
+    "birthCity": "Taboão da Serra",
+    "birthState": "SP",
+    "heightCm": 170,
+    "weightKg": 65,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021",
+      "https://www.transfermarkt.com.br/yago-cesar/profil/spieler/448308"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 140,
+    "name": "Vital",
+    "fullName": "Johnatan Lucas da Silva Vital",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1999-09-03",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 195,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 158,
+    "name": "Rony Fernandes",
+    "fullName": "Rony Fernandes da Silva",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1997-07-18",
+    "birthCity": "Cuiabá",
+    "birthState": "MT",
+    "heightCm": 191,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 163,
+    "name": "Matheus Sávio",
+    "fullName": "Matheus Gonçalves Sávio",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1997-04-15",
+    "birthCity": "Brodowski",
+    "birthState": "SP",
+    "heightCm": 175,
+    "weightKg": 74,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/matheus-savio/profil/spieler/312666",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 164,
+    "name": "Carlinhos",
+    "fullName": "Carlos Andrade Souza",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1987-01-23",
+    "birthCity": "Vitória da Conquista",
+    "birthState": "BA",
+    "heightCm": 175,
+    "weightKg": 68,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.transfermarkt.com.br/carlinhos/profil/spieler/41417",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 165,
+    "name": "Mauro Silva",
+    "fullName": "Mauro Silva do Nascimento Junior",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1994-02-28",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 180,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 166,
+    "name": "João Carlos",
+    "fullName": "João Carlos Heidemann",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1988-04-06",
+    "birthCity": "Paranavaí",
+    "birthState": "PR",
+    "heightCm": 191,
+    "weightKg": 92,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/joao-carlos/profil/spieler/68408",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 167,
+    "name": "Lohan",
+    "fullName": "Lohan do Santos Freire",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1995-09-20",
+    "birthCity": "Carmo",
+    "birthState": "RJ",
+    "heightCm": 191,
+    "weightKg": 86,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 168,
+    "name": "Cristian Maidana",
+    "fullName": "Cristian Alberto Maidana",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1987-01-24",
+    "birthCity": "Resistencia",
+    "birthState": "Chaco",
+    "heightCm": 180,
+    "weightKg": 75,
+    "nationality": "Argentina",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 169,
+    "name": "Gersinho",
+    "fullName": "Gerson José Laurentino Junior",
+    "position": "Centroavante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1999-12-09",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": 165,
+    "weightKg": 70,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 170,
+    "name": "Andrés Escobar",
+    "fullName": "Andrés Ramiro Escobar Díaz",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "destro",
+    "birthDate": "1991-05-14",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 167,
+    "weightKg": null,
+    "nationality": "Colômbia",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019",
+      "https://www.transfermarkt.com.br/andres-escobar/profil/spieler/148690"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 171,
+    "name": "Gerson",
+    "fullName": "Gerson Guimarães Ferreira Junior",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1992-01-07",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 186,
+    "weightKg": 85,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 172,
+    "name": "Héctor Bustamante",
+    "fullName": "Héctor Manuel Bustamante",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "canhoto",
+    "birthDate": "1995-03-31",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 164,
+    "weightKg": 67,
+    "nationality": "Paraguai",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019",
+      "https://www.transfermarkt.com.br/hector-bustamante/profil/spieler/390803"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 173,
+    "name": "Lucca Motta",
+    "fullName": "Lucca Carvalho Motta",
+    "position": "Meia Ofensivo",
+    "preferredFoot": null,
+    "birthDate": "1998-02-20",
+    "birthCity": "Niterói",
+    "birthState": "RJ",
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 175,
+    "name": "Jhonnatan",
+    "fullName": "Jhonnatan Guimaraes Saraiva Teixeira",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1992-02-18",
+    "birthCity": "Belém",
+    "birthState": "PA",
+    "heightCm": 174,
+    "weightKg": 70,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 176,
+    "name": "Alisson Safira",
+    "fullName": "Alisson Pelegrini Safira",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1995-03-17",
+    "birthCity": "Terra Boa",
+    "birthState": "PR",
+    "heightCm": 185,
+    "weightKg": 72,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019",
+      "https://en.wikipedia.org/wiki/Alisson_Safira"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 178,
+    "name": "Bruno Ramires",
+    "fullName": "Bruno Edgar Silva Almeida",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1994-03-18",
+    "birthCity": "Salvador",
+    "birthState": "BA",
+    "heightCm": 190,
+    "weightKg": 79,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://pt.wikipedia.org/wiki/Bruno_Ramires",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 179,
+    "name": "Euller Silva",
+    "fullName": "Elosman Euller Silva Cavalcanti",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "canhoto",
+    "birthDate": "1995-01-04",
+    "birthCity": "São José de Piranhas",
+    "birthState": "PB",
+    "heightCm": 175,
+    "weightKg": 65,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://en.wikipedia.org/wiki/Euller_(footballer,_born_1995)"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 180,
+    "name": "Igo Gabriel",
+    "fullName": "Igo Gabriel Santos Pereira",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "2001-10-13",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 190,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 182,
+    "name": "Maranhão",
+    "fullName": "Francinilson Santos Meireles",
+    "position": "Ponta Direita",
+    "preferredFoot": "canhoto",
+    "birthDate": "1990-05-03",
+    "birthCity": "São Luís",
+    "birthState": "MA",
+    "heightCm": 170,
+    "weightKg": 63,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://pt.wikipedia.org/wiki/Maranh%C3%A3o_(futebolista)",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 183,
+    "name": "Jarro Pedroso",
+    "fullName": "Emilton Pedroso Domingues",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "destro",
+    "birthDate": "1994-03-23",
+    "birthCity": "Pedro Osório",
+    "birthState": "RS",
+    "heightCm": 180,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.transfermarkt.com.br/jarro-pedroso/profil/spieler/420400",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 184,
+    "name": "Amaral",
+    "fullName": "Mauricio Azevedo Alves",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1988-05-01",
+    "birthCity": "Rio das Ostras",
+    "birthState": "RJ",
+    "heightCm": 175,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 185,
+    "name": "Madson",
+    "fullName": "Madson Formagini Caridade",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "ambidestro",
+    "birthDate": "1986-05-21",
+    "birthCity": "Volta Redonda",
+    "birthState": "RJ",
+    "heightCm": 157,
+    "weightKg": 60,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.transfermarkt.com.br/madson/profil/spieler/74119",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 186,
+    "name": "Ramon",
+    "fullName": "Ramon de Araújo Siqueira",
+    "position": "Meia",
+    "preferredFoot": "canhoto",
+    "birthDate": "1998-09-19",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 166,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 187,
+    "name": "Lucas Dias",
+    "fullName": "Lucas Vinicius Dias Costa",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1995-07-20",
+    "birthCity": "Goianésia",
+    "birthState": "GO",
+    "heightCm": 191,
+    "weightKg": 82,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 188,
+    "name": "Patrick Fabiano",
+    "fullName": "Patrick Fabiano Alves Nóbrega Luz",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1987-09-04",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 184,
+    "weightKg": 79,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://pt.wikipedia.org/wiki/Patrick_Fabiano",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 189,
+    "name": "Pedro Rosa",
+    "fullName": "Pedro Henrique Rosa",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1990-08-28",
+    "birthCity": "Caeté",
+    "birthState": "MG",
+    "heightCm": 186,
+    "weightKg": 76,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 190,
+    "name": "Jordi",
+    "fullName": "Jordi Martins Almeida",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1993-09-03",
+    "birthCity": "Volta Redonda",
+    "birthState": "RJ",
+    "heightCm": 192,
+    "weightKg": 81,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://en.wikipedia.org/wiki/Jordi_Almeida",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 191,
+    "name": "Rodolfo Gamarra",
+    "fullName": "Rodolfo Gamarra Álvarez",
+    "position": "2º Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1988-12-10",
+    "birthCity": "Asunción",
+    "birthState": null,
+    "heightCm": 168,
+    "weightKg": 69,
+    "nationality": "Paraguai",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 193,
+    "name": "Ronaldo Alves",
+    "fullName": "Ronaldo Luiz Alves",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1989-07-09",
+    "birthCity": "Bebedouro",
+    "birthState": "SP",
+    "heightCm": 187,
+    "weightKg": 89,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.transfermarkt.com.br/ronaldo-alves/profil/spieler/124543",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 194,
+    "name": "Naldo",
+    "fullName": "Marinaldo dos Santos Oliveira",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1990-05-13",
+    "birthCity": "Maetinga",
+    "birthState": "BA",
+    "heightCm": 185,
+    "weightKg": 76,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019",
+      "https://www.transfermarkt.com.br/naldo/profil/spieler/237621"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 195,
+    "name": "Hiago Ramiro",
+    "fullName": "Hiago de Oliveira Ramiro",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1991-09-20",
+    "birthCity": "Porto Alegre",
+    "birthState": "RS",
+    "heightCm": 175,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 197,
+    "name": "Matheus Prado",
+    "fullName": "Matheus Rodrigues do Prado",
+    "position": "Ponta Direita",
+    "preferredFoot": "canhoto",
+    "birthDate": "2000-04-06",
+    "birthCity": "Itajaí",
+    "birthState": "SC",
+    "heightCm": 165,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 198,
+    "name": "Fabrício Santana",
+    "fullName": "Fabrício Barros Santana",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1986-01-07",
+    "birthCity": "Paranavaí",
+    "birthState": "PR",
+    "heightCm": 193,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 200,
+    "name": "Warley",
+    "fullName": "Warley Leandro da Silva",
+    "position": "Lateral Direito",
+    "preferredFoot": "ambidestro",
+    "birthDate": "1999-09-17",
+    "birthCity": "Recife",
+    "birthState": "PE",
+    "heightCm": 172,
+    "weightKg": 63,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 201,
+    "name": "Régis Souza",
+    "fullName": "Régis Ribeiro de Souza",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1989-06-03",
+    "birthCity": "Brasília",
+    "birthState": "DF",
+    "heightCm": 179,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 202,
+    "name": "Joazi",
+    "fullName": "Joazi Oliveira da Silva",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1996-10-28",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 168,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 203,
+    "name": "Bruno Alves",
+    "fullName": "Bruno Alves de Souza",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "destro",
+    "birthDate": "1992-09-13",
+    "birthCity": "Seabra",
+    "birthState": "BA",
+    "heightCm": 179,
+    "weightKg": 72,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 206,
+    "name": "Willian Rocha",
+    "fullName": "Willian Pereira da Rocha",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1989-04-01",
+    "birthCity": "Abadia dos Dourados",
+    "birthState": "MG",
+    "heightCm": 186,
+    "weightKg": 81,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020",
+      "https://www.transfermarkt.com.br/willian-rocha/profil/spieler/177538"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 209,
+    "name": "Pedro Lucas",
+    "fullName": "Pedro Lucas Schwaizer",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1998-09-05",
+    "birthCity": "Vale Real",
+    "birthState": "RS",
+    "heightCm": 185,
+    "weightKg": 77,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 210,
+    "name": "Ignácio",
+    "fullName": "Ignácio da Silva Oliveira",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1996-12-01",
+    "birthCity": "Currais Novos",
+    "birthState": "RN",
+    "heightCm": 190,
+    "weightKg": 92,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://en.wikipedia.org/wiki/Ign%C3%A1cio_(footballer)",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 211,
+    "name": "Rafael Bilu",
+    "fullName": "Rafael Bilu Mudesto",
+    "position": "Ponta Direita",
+    "preferredFoot": "canhoto",
+    "birthDate": "1999-04-21",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 174,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020",
+      "https://www.transfermarkt.com.br/rafael-bilu/profil/spieler/625333"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 212,
+    "name": "Bruno Grassi",
+    "fullName": "Bruno Medeiros Grassi",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1987-03-05",
+    "birthCity": "Tubarão",
+    "birthState": "SC",
+    "heightCm": 192,
+    "weightKg": 88,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 214,
+    "name": "Rone",
+    "fullName": "Rone Carlos de Paula",
+    "position": "Ponta Direita",
+    "preferredFoot": "ambidestro",
+    "birthDate": "1995-08-15",
+    "birthCity": "Alvorada do Oeste",
+    "birthState": "RO",
+    "heightCm": 180,
+    "weightKg": 78,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020",
+      "https://www.transfermarkt.com.br/rone-carlos/profil/spieler/673642"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 215,
+    "name": "Norberto",
+    "fullName": "Norberto Pereira Marinho Neto",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1990-07-19",
+    "birthCity": "Brumado",
+    "birthState": "BA",
+    "heightCm": 175,
+    "weightKg": 74,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020",
+      "https://www.transfermarkt.com.br/norberto/profil/spieler/152538"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 216,
+    "name": "Yago Henrique",
+    "fullName": "Yago Henrique Severin de Lima",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1995-07-07",
+    "birthCity": "Belo Horizonte",
+    "birthState": "MG",
+    "heightCm": 180,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 219,
+    "name": "Pedro Júnior",
+    "fullName": "Pedro Bispo Moreira Júnior",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1987-01-29",
+    "birthCity": "Santana do Araguaia",
+    "birthState": "PA",
+    "heightCm": 183,
+    "weightKg": 76,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020",
+      "https://www.transfermarkt.com.br/pedro-junior/profil/spieler/54161"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 220,
+    "name": "Matheus Mendes",
+    "fullName": "Matheus Mendes Werneck de Oliveira",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1999-03-10",
+    "birthCity": "Governador Valadares",
+    "birthState": "MG",
+    "heightCm": 193,
+    "weightKg": 89,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 221,
+    "name": "Richard Franco",
+    "fullName": "Richard Javier Franco",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1992-07-16",
+    "birthCity": "Hernandarias",
+    "birthState": null,
+    "heightCm": 184,
+    "weightKg": 85,
+    "nationality": "Paraguai",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 224,
+    "name": "Andrigo",
+    "fullName": "Andrigo Oliveira de Araujo",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1995-02-27",
+    "birthCity": "Estrela",
+    "birthState": "RS",
+    "heightCm": 170,
+    "weightKg": 71,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.transfermarkt.com.br/andrigo/profil/spieler/181775",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 225,
+    "name": "Márcio Araújo",
+    "fullName": "Márcio Rodrigues Araújo",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1984-06-11",
+    "birthCity": "São Luís",
+    "birthState": "MA",
+    "heightCm": 172,
+    "weightKg": 66,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020",
+      "https://www.transfermarkt.com.br/marcio-araujo/profil/spieler/65162"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 226,
+    "name": "Rodrigo Andrade",
+    "fullName": "José Rodrigo Andrade Ramos",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1997-02-03",
+    "birthCity": "Belém",
+    "birthState": "PA",
+    "heightCm": 174,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020",
+      "https://www.transfermarkt.com.br/rodrigo-andrade/profil/spieler/435239"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 228,
+    "name": "Renatinho",
+    "fullName": "Renato Vieira Rodrigues",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1992-01-31",
+    "birthCity": "Foz do Iguaçu",
+    "birthState": "PR",
+    "heightCm": 172,
+    "weightKg": 68,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 230,
+    "name": "Nádson",
+    "fullName": "Nádson da Silva Almeida",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1989-07-22",
+    "birthCity": "Lauro de Freitas",
+    "birthState": "BA",
+    "heightCm": 170,
+    "weightKg": 69,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 231,
+    "name": "Igor Fernandes",
+    "fullName": "Igor Fernandes da Silva Araújo",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1992-06-06",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 183,
+    "weightKg": 78,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020",
+      "https://www.transfermarkt.com.br/igor-fernandes/profil/spieler/250841"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 233,
+    "name": "Bruno José",
+    "fullName": "Bruno José de Souza",
+    "position": "Ponta Direita",
+    "preferredFoot": "destro",
+    "birthDate": "1998-03-31",
+    "birthCity": "Monte Sião",
+    "birthState": "MG",
+    "heightCm": 173,
+    "weightKg": 69,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020",
+      "https://www.transfermarkt.com.br/bruno-jose/profil/spieler/644210"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 235,
+    "name": "Rodolfo Filemon",
+    "fullName": "Rodolfo Filemon de Oliveira da Silva",
+    "position": "Zagueiro",
+    "preferredFoot": "ambidestro",
+    "birthDate": "1994-08-29",
+    "birthCity": "São Simão",
+    "birthState": "SP",
+    "heightCm": 184,
+    "weightKg": 78,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 236,
+    "name": "Cleberson",
+    "fullName": "Cleberson Martins de Souza",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1992-08-17",
+    "birthCity": "Macatuba",
+    "birthState": "SP",
+    "heightCm": 185,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 237,
+    "name": "Gustavo Hebling",
+    "fullName": "Gustavo Hebling de Aguiar",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1996-04-05",
+    "birthCity": "Piracicaba",
+    "birthState": "SP",
+    "heightCm": 173,
+    "weightKg": 65,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020",
+      "https://www.transfermarkt.com.br/gustavo-hebling/profil/spieler/288502"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 238,
+    "name": "Paulo Sérgio",
+    "fullName": "Paulo Sérgio Luiz de Souza",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1989-06-11",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 181,
+    "weightKg": 70,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2019/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2020",
+      "https://www.transfermarkt.com.br/paulo-sergio/profil/spieler/53019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 239,
+    "name": "Matheus Felipe",
+    "fullName": "Matheus Felipe Santos Nascimento",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1998-11-09",
+    "birthCity": "Teresina",
+    "birthState": "PI",
+    "heightCm": 184,
+    "weightKg": 84,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 243,
+    "name": "Nilson",
+    "fullName": "José Nilson dos Santos Silva",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1991-04-06",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 184,
+    "weightKg": 86,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021",
+      "https://www.transfermarkt.com.br/nilson/profil/spieler/151736"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 245,
+    "name": "Bruno Mota",
+    "fullName": "Bruno da Mota Miranda",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1995-05-22",
+    "birthCity": "Curitiba",
+    "birthState": "PR",
+    "heightCm": 191,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 247,
+    "name": "Darley",
+    "fullName": "Darley Ramos da Silva",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1989-12-15",
+    "birthCity": "Pedro Leopoldo",
+    "birthState": "MG",
+    "heightCm": 188,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 251,
+    "name": "Fabrício",
+    "fullName": "Fabrício Silva Dornellas",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1990-02-20",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 186,
+    "weightKg": 82,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021",
+      "https://www.transfermarkt.com.br/fabricio/profil/spieler/86917"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 253,
+    "name": "Reinaldo",
+    "fullName": "Reinaldo Nascimento Satorno",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "destro",
+    "birthDate": "2001-06-06",
+    "birthCity": "Criciúma",
+    "birthState": "SC",
+    "heightCm": 177,
+    "weightKg": 73,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021",
+      "https://www.transfermarkt.com.br/reinaldo/profil/spieler/646256"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 254,
+    "name": "Silas",
+    "fullName": "Silas Araújo da Silva",
+    "position": "Volante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1996-05-30",
+    "birthCity": "Pelotas",
+    "birthState": "RS",
+    "heightCm": 176,
+    "weightKg": 66,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 255,
+    "name": "Iury Castilho",
+    "fullName": "Iury Lirio Freitas de Castilho",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1995-09-06",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 185,
+    "weightKg": 74,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://pt.wikipedia.org/wiki/Iury_Castilho",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 258,
+    "name": "Wellington",
+    "fullName": "Wellington Carvalho dos Santos",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1991-09-30",
+    "birthCity": "Bauru",
+    "birthState": "SP",
+    "heightCm": 188,
+    "weightKg": 85,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 260,
+    "name": "Vitor Costa",
+    "fullName": "Vítor Costa de Brito",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1994-07-01",
+    "birthCity": "Valente",
+    "birthState": "BA",
+    "heightCm": 182,
+    "weightKg": 74,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 267,
+    "name": "Patrick Brey",
+    "fullName": "Patrick de Carvalho Brey",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1997-06-05",
+    "birthCity": "Brasília",
+    "birthState": "DF",
+    "heightCm": 177,
+    "weightKg": 69,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021",
+      "https://www.transfermarkt.com.br/patrick-brey/profil/spieler/435170"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 268,
+    "name": "Silvinho",
+    "fullName": "Silvio José Cardoso Reis Júnior",
+    "position": "Ponta Direita",
+    "preferredFoot": "destro",
+    "birthDate": "1990-07-01",
+    "birthCity": "Guajará-Mirim",
+    "birthState": "RO",
+    "heightCm": 174,
+    "weightKg": 72,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://en.wikipedia.org/wiki/Silvinho_(footballer,_born_1990)",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 269,
+    "name": "Ewerthon",
+    "fullName": "Ewerthon Diógenes da Silva",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "2000-11-10",
+    "birthCity": "Recife",
+    "birthState": "PE",
+    "heightCm": 171,
+    "weightKg": 67,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021",
+      "https://www.transfermarkt.com.br/ewerthon/profil/spieler/676034"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 271,
+    "name": "Clayton",
+    "fullName": "Clayton da Silveira da Silva",
+    "position": "Meia Ofensivo",
+    "preferredFoot": null,
+    "birthDate": "1995-10-23",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 175,
+    "weightKg": 69,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021",
+      "https://www.transfermarkt.com.br/clayton/profil/spieler/250007"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 273,
+    "name": "Kevyn",
+    "fullName": "Kevyn Lucas Ramos da Costa",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1997-12-28",
+    "birthCity": "São Gonçalo",
+    "birthState": "RJ",
+    "heightCm": 178,
+    "weightKg": 77,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021",
+      "https://www.transfermarkt.com.br/kevyn/profil/spieler/530286"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 274,
+    "name": "Aylon",
+    "fullName": "Aylon Darwin Tavella",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1992-04-07",
+    "birthCity": "Esteio",
+    "birthState": "RS",
+    "heightCm": 180,
+    "weightKg": 70,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2020/plus/1",
+      "https://pt.wikipedia.org/wiki/Aylon_Darwin_Tavella",
+      "https://www.statscrew.com/worldfootball/roster/t-CSAAL205/y-2021"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 502,
+    "name": "Julián Benítez",
+    "fullName": "Julián Alfonso Benítez",
+    "position": "2º Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1987-06-06",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 174,
+    "weightKg": 70,
+    "nationality": "Paraguai",
+    "sources": [
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 637,
+    "name": "Thiaguinho",
+    "fullName": "Wytallo Thiago Lima Da Silva",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1998-01-02",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 170,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://ge.globo.com/al/arquivo/futebol/times/csa/noticia/2019/01/11/quem-e-quem-veja-as-imagens-e-fichas-dos-jogadores-do-csa-para-2019.ghtml",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2018/plus/1"
+    ],
+    "confidence": "high"
+  }
+]

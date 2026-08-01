@@ -1,0 +1,822 @@
+[
+  {
+    "id": 611,
+    "name": "Cassiano",
+    "full_name": "Cassiano Juvêncio da Silva",
+    "position": "Atacante",
+    "birth_date": "1993-07-20",
+    "birth_year": 1993,
+    "birth_city": "Maceió",
+    "birth_state": "AL",
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2016",
+      "2017"
+    ],
+    "max_apps": 3
+  },
+  {
+    "id": 626,
+    "name": "Damião",
+    "full_name": "Damião Vitorino de Lima",
+    "position": "Atacante",
+    "birth_date": "1994-05-15",
+    "birth_year": 1994,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2016"
+    ],
+    "max_apps": 0
+  },
+  {
+    "id": 615,
+    "name": "Evandrízio",
+    "full_name": "Evandrízio Rodrigues Wanderley da Silva",
+    "position": "Goleiro",
+    "birth_date": "1994-02-18",
+    "birth_year": 1994,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2016"
+    ],
+    "max_apps": 0
+  },
+  {
+    "id": 624,
+    "name": "Manoel Chuva",
+    "full_name": "Manoel Lucas Sousa Farias",
+    "position": "Meia Ofensivo",
+    "birth_date": "1994-01-12",
+    "birth_year": 1994,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2016"
+    ],
+    "max_apps": 0
+  },
+  {
+    "id": 81,
+    "name": "Pantera",
+    "full_name": "Eliel José Martins Santos",
+    "position": "Goleiro",
+    "birth_date": "1983-01-07",
+    "birth_year": 1983,
+    "birth_city": "Arapiraca",
+    "birth_state": "AL",
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": 186,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2016"
+    ],
+    "max_apps": 3
+  },
+  {
+    "id": 631,
+    "name": "Rafael Silva",
+    "full_name": "Rafael Gonçalves da Silva",
+    "position": "Atacante",
+    "birth_date": "1991-11-02",
+    "birth_year": 1991,
+    "birth_city": "São Paulo",
+    "birth_state": "SP",
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": 180,
+    "weight_kg": 73,
+    "verification_status": "unverified",
+    "seasons": [
+      "2016"
+    ],
+    "max_apps": 0
+  },
+  {
+    "id": 51,
+    "name": "Ronaldo Caetano",
+    "full_name": "Ronaldo Alessandro Batista Caetano",
+    "position": "Meia",
+    "birth_date": "1984-08-26",
+    "birth_year": 1985,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2016"
+    ],
+    "max_apps": 2
+  },
+  {
+    "id": 103,
+    "name": "Santa Rosa",
+    "full_name": "Bruno Santa Rosa de Freitas",
+    "position": "Lateral Esquerdo",
+    "birth_date": "1989-08-01",
+    "birth_year": 1990,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2016"
+    ],
+    "max_apps": 3
+  },
+  {
+    "id": 73,
+    "name": "Washington",
+    "full_name": "Douglas Washington Cataneo",
+    "position": "Meia Ofensivo",
+    "birth_date": "1988-08-24",
+    "birth_year": 1989,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2016"
+    ],
+    "max_apps": 4
+  },
+  {
+    "id": 109,
+    "name": "Luís Maranhão",
+    "full_name": "Luís Ricardo Gonçalves Evangelista",
+    "position": "Atacante",
+    "birth_date": "1993-01-30",
+    "birth_year": 1993,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2017"
+    ],
+    "max_apps": 2
+  },
+  {
+    "id": 644,
+    "name": "Luís Ricardo",
+    "full_name": "Luís Ricardo Gonçalves Evangelista",
+    "position": "Atacante",
+    "birth_date": "1993-01-30",
+    "birth_year": 1993,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2017"
+    ],
+    "max_apps": 2
+  },
+  {
+    "id": 135,
+    "name": "Charles",
+    "full_name": "Charles Henrique Vieira dos Santos",
+    "position": "Lateral Direito",
+    "birth_date": "1998-03-16",
+    "birth_year": 1998,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2018"
+    ],
+    "max_apps": 1
+  },
+  {
+    "id": 633,
+    "name": "Neto",
+    "full_name": "Guilherme Ferreira Lúcio Neto",
+    "position": "Zagueiro",
+    "birth_date": "1998-09-19",
+    "birth_year": 1998,
+    "birth_city": "Maceió",
+    "birth_state": "AL",
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": 187,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2018"
+    ],
+    "max_apps": 0
+  },
+  {
+    "id": 628,
+    "name": "Toinho",
+    "full_name": "Antônio Izidoro da Silva Filho",
+    "position": "Lateral Esquerdo",
+    "birth_date": "1999-06-13",
+    "birth_year": 1999,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2018"
+    ],
+    "max_apps": 0
+  },
+  {
+    "id": 173,
+    "name": "Lucca Motta",
+    "full_name": "Lucca Carvalho Motta",
+    "position": "Meia Ofensivo",
+    "birth_date": "1998-02-20",
+    "birth_year": 1998,
+    "birth_city": "Niterói",
+    "birth_state": "RJ",
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2019"
+    ],
+    "max_apps": 1
+  },
+  {
+    "id": 240,
+    "name": "Alisson",
+    "full_name": "Alisson José dos Anjos Constantino",
+    "position": "Meia",
+    "birth_date": "2000-05-18",
+    "birth_year": 2000,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2021"
+    ],
+    "max_apps": 3
+  },
+  {
+    "id": 244,
+    "name": "Andrey Rafael",
+    "full_name": "Andrey Rafael Santos De Oliveira",
+    "position": "Meia",
+    "birth_date": "2000-06-04",
+    "birth_year": 2000,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2021"
+    ],
+    "max_apps": 2
+  },
+  {
+    "id": 250,
+    "name": "Athirson",
+    "full_name": "Athirson José Alves Pereira",
+    "position": "Lateral Esquerdo",
+    "birth_date": "2000-05-14",
+    "birth_year": 2000,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2021"
+    ],
+    "max_apps": 4
+  },
+  {
+    "id": 272,
+    "name": "Fernando Ferro",
+    "full_name": "Fernando Ferro Diniz Barbosa de Melo",
+    "position": "Meia",
+    "birth_date": "2001-01-11",
+    "birth_year": 2001,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2021"
+    ],
+    "max_apps": 3
+  },
+  {
+    "id": 270,
+    "name": "Gustavo Martins",
+    "full_name": "Gustavo Sudario Martins",
+    "position": "Meia",
+    "birth_date": "2003-02-08",
+    "birth_year": 2003,
+    "birth_city": "Rio de Janeiro",
+    "birth_state": "RJ",
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2021"
+    ],
+    "max_apps": 3
+  },
+  {
+    "id": 606,
+    "name": "João Victor Pinheiro",
+    "full_name": "João Victor Pinheiro Rodrigues",
+    "position": "Goleiro",
+    "birth_date": "2002-02-17",
+    "birth_year": 2002,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2021"
+    ],
+    "max_apps": 3
+  },
+  {
+    "id": 262,
+    "name": "Pedrinho",
+    "full_name": "Pedro Alexandre Moreira da Rocha",
+    "position": "Lateral Esquerdo",
+    "birth_date": "2002-02-05",
+    "birth_year": 2002,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2021"
+    ],
+    "max_apps": 1
+  },
+  {
+    "id": 608,
+    "name": "Pedro Rocha",
+    "full_name": null,
+    "position": "Lateral",
+    "birth_date": null,
+    "birth_year": null,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": null,
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2021"
+    ],
+    "max_apps": 1
+  },
+  {
+    "id": 252,
+    "name": "Ryan Gonzales",
+    "full_name": "Ryan Gonzales Leal",
+    "position": "Centroavante",
+    "birth_date": "2001-03-08",
+    "birth_year": 2001,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2021"
+    ],
+    "max_apps": 3
+  },
+  {
+    "id": 266,
+    "name": "Vinicius José",
+    "full_name": "Vinicius José dos Santos",
+    "position": "Meia Ofensivo",
+    "birth_date": "2001-03-29",
+    "birth_year": 2001,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2021"
+    ],
+    "max_apps": 4
+  },
+  {
+    "id": 261,
+    "name": "Wykley",
+    "full_name": "Wykley Flysmaky Alves de Almeida",
+    "position": "Meia Ofensivo",
+    "birth_date": "2002-09-11",
+    "birth_year": 2002,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2021"
+    ],
+    "max_apps": 2
+  },
+  {
+    "id": 325,
+    "name": "Eduardo Jacone",
+    "full_name": "Eduardo dos Santos Jacone",
+    "position": "Zagueiro",
+    "birth_date": "2003-01-17",
+    "birth_year": 2003,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2023"
+    ],
+    "max_apps": 1
+  },
+  {
+    "id": 355,
+    "name": "Elvis",
+    "full_name": "Elvis Gustavo Oliveira de Sá Filho",
+    "position": "Atacante",
+    "birth_date": "2005-11-03",
+    "birth_year": 2006,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2023",
+      "2025"
+    ],
+    "max_apps": 6
+  },
+  {
+    "id": 356,
+    "name": "Erick Melo",
+    "full_name": "Erick Júnior dos Santos Bezerra de Melo",
+    "position": "Meia",
+    "birth_date": "2006-04-11",
+    "birth_year": 2006,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2023"
+    ],
+    "max_apps": 3
+  },
+  {
+    "id": 307,
+    "name": "José Cleverton",
+    "full_name": "José Cleverton Honorio de Melo",
+    "position": "Meia",
+    "birth_date": "2003-02-21",
+    "birth_year": 2003,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2023",
+      "2024"
+    ],
+    "max_apps": 2
+  },
+  {
+    "id": 319,
+    "name": "Pedrão",
+    "full_name": "Pedro Henrique Gonçalo de Paiva",
+    "position": "Atacante",
+    "birth_date": "2003-05-14",
+    "birth_year": 2003,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2023"
+    ],
+    "max_apps": 6
+  },
+  {
+    "id": 342,
+    "name": "Vinicius Peixoto",
+    "full_name": "Vinicius Peixoto de Castro Santos",
+    "position": "Atacante",
+    "birth_date": "2004-11-12",
+    "birth_year": 2005,
+    "birth_city": "Curitiba",
+    "birth_state": "PR",
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2023"
+    ],
+    "max_apps": 3
+  },
+  {
+    "id": 361,
+    "name": "Wenderson",
+    "full_name": "Wenderson Rodrigues da Silva",
+    "position": "Atacante",
+    "birth_date": "2004-09-14",
+    "birth_year": 2005,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2023"
+    ],
+    "max_apps": 4
+  },
+  {
+    "id": 292,
+    "name": "William",
+    "full_name": "William Jackson dos Santos",
+    "position": "Zagueiro",
+    "birth_date": "2003-08-02",
+    "birth_year": 2003,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2023"
+    ],
+    "max_apps": 1
+  },
+  {
+    "id": 451,
+    "name": "Arthur Rocha",
+    "full_name": "Arthur Rocha de Oliveira",
+    "position": "Meia",
+    "birth_date": "2007-07-24",
+    "birth_year": 2007,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2025"
+    ],
+    "max_apps": 2
+  },
+  {
+    "id": 426,
+    "name": "Betinho",
+    "full_name": "Luiz Roberto Silva Santos",
+    "position": "Meia",
+    "birth_date": "2004-07-22",
+    "birth_year": 2004,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": 171,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2025"
+    ],
+    "max_apps": 5
+  },
+  {
+    "id": 438,
+    "name": "Ewerton",
+    "full_name": "Ewerton Viana de Morais",
+    "position": "Atacante",
+    "birth_date": "2006-05-14",
+    "birth_year": 2006,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2025"
+    ],
+    "max_apps": 6
+  },
+  {
+    "id": 417,
+    "name": "Guilherme Santana",
+    "full_name": "Guilherme Santana da Silva",
+    "position": "Meia",
+    "birth_date": "2007-05-06",
+    "birth_year": 2007,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2025"
+    ],
+    "max_apps": 1
+  },
+  {
+    "id": 424,
+    "name": "Luiz Gustavo",
+    "full_name": "Luiz Gustavo da Silva Alves",
+    "position": "Zagueiro",
+    "birth_date": "2003-05-30",
+    "birth_year": 2003,
+    "birth_city": "São João Nepomuceno",
+    "birth_state": "MG",
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": 193,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2025"
+    ],
+    "max_apps": 8
+  },
+  {
+    "id": 425,
+    "name": "Marllon Moizes",
+    "full_name": "Marllon Moizes dos Santos Souza",
+    "position": "Zagueiro",
+    "birth_date": "2006-02-15",
+    "birth_year": 2006,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2025"
+    ],
+    "max_apps": 3
+  },
+  {
+    "id": 443,
+    "name": "Sobral",
+    "full_name": "Felipe Giarlysson Privino Campos",
+    "position": "Meia",
+    "birth_date": "2007-01-23",
+    "birth_year": 2007,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2025"
+    ],
+    "max_apps": 1
+  },
+  {
+    "id": 427,
+    "name": "Teles Junior",
+    "full_name": "Baltazar dos Anjos Teles Junior",
+    "position": "Atacante",
+    "birth_date": "2006-04-07",
+    "birth_year": 2006,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": "Brasil",
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "unverified",
+    "seasons": [
+      "2025"
+    ],
+    "max_apps": 1
+  },
+  {
+    "id": 472,
+    "name": "Gabriel Boquinha",
+    "full_name": "Gabriel dos Santos",
+    "position": "Lateral",
+    "birth_date": "2008-08-28",
+    "birth_year": 2008,
+    "birth_city": null,
+    "birth_state": null,
+    "preferred_foot": null,
+    "nationality": null,
+    "height_cm": null,
+    "weight_kg": null,
+    "verification_status": "verified",
+    "seasons": [
+      "2026"
+    ],
+    "max_apps": 2
+  }
+]

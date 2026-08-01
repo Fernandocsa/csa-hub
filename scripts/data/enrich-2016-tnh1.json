@@ -1,0 +1,158 @@
+[
+  {
+    "id": 112,
+    "name": "Douglas Marques",
+    "fullName": "Douglas Marques dos Santos",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1985-05-18",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 185,
+    "weightKg": 74,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.tnh1.com.br/noticia/nid/acabou-parte-do-misterio-csa-oficializa-nomes-de-13-reforcos-e-apresenta-novos-uniformes/",
+      "https://www.transfermarkt.com.br/douglas-marques/profil/spieler/76105"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 115,
+    "name": "Panda",
+    "fullName": "Márcio Gama Moreira",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1984-07-09",
+    "birthCity": "Fortaleza",
+    "birthState": "CE",
+    "heightCm": 177,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.tnh1.com.br/noticia/nid/acabou-parte-do-misterio-csa-oficializa-nomes-de-13-reforcos-e-apresenta-novos-uniformes/",
+      "https://en.wikipedia.org/wiki/Panda_(footballer)"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 620,
+    "name": "Marcinho Guerreiro",
+    "fullName": "Márcio Glad",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1980-09-23",
+    "birthCity": "Novo Horizonte",
+    "birthState": "SP",
+    "heightCm": 178,
+    "weightKg": 70,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.tnh1.com.br/noticia/nid/acabou-parte-do-misterio-csa-oficializa-nomes-de-13-reforcos-e-apresenta-novos-uniformes/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 87,
+    "name": "Cleyton Lima",
+    "fullName": "Cleyton Rafael Lima da Silva",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1990-02-24",
+    "birthCity": null,
+    "birthState": "MS",
+    "heightCm": 171,
+    "weightKg": 68,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.tnh1.com.br/noticia/nid/acabou-parte-do-misterio-csa-oficializa-nomes-de-13-reforcos-e-apresenta-novos-uniformes/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 622,
+    "name": "Lucas Limão",
+    "fullName": "Lucas Hespanholeto",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1990-08-11",
+    "birthCity": "São Caetano do Sul",
+    "birthState": "SP",
+    "heightCm": 170,
+    "weightKg": 67,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.tnh1.com.br/noticia/nid/acabou-parte-do-misterio-csa-oficializa-nomes-de-13-reforcos-e-apresenta-novos-uniformes/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 123,
+    "name": "David Oliveira",
+    "fullName": "David Aparecido de Oliveira Júnior",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1986-07-23",
+    "birthCity": "Cândido Mota",
+    "birthState": "SP",
+    "heightCm": 180,
+    "weightKg": 73,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.tnh1.com.br/noticia/nid/acabou-parte-do-misterio-csa-oficializa-nomes-de-13-reforcos-e-apresenta-novos-uniformes/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 77,
+    "name": "Rafael Oliveira",
+    "fullName": "Rafael Oliveira Nascimento",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1987-07-06",
+    "birthCity": "Ananindeua",
+    "birthState": "PA",
+    "heightCm": 187,
+    "weightKg": 78,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.tnh1.com.br/noticia/nid/agora-e-oficial-didira-e-apresentado-como-novo-reforco-do-csa-que-anuncia-mais-tres/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 94,
+    "name": "Alex Henrique",
+    "fullName": "Alex Henrique José",
+    "position": "Meia",
+    "preferredFoot": "canhoto",
+    "birthDate": "1985-03-20",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 178,
+    "weightKg": 72,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.tnh1.com.br/noticia/nid/agora-e-oficial-didira-e-apresentado-como-novo-reforco-do-csa-que-anuncia-mais-tres/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 59,
+    "name": "Leandro Souza",
+    "fullName": "Leandro Rosa Souza",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1986-02-24",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 187,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/leandro-souza/profil/spieler/64577",
+      "https://en.wikipedia.org/wiki/Leandro_Rosa_Souza"
+    ],
+    "confidence": "high"
+  }
+]

@@ -1,0 +1,1000 @@
+[
+  {
+    "id": 55,
+    "name": "Michel Douglas",
+    "fullName": "Michel Douglas Guedes",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1992-01-16",
+    "birthCity": "Santa Luzia",
+    "birthState": "MG",
+    "heightCm": 186,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Michel_Douglas",
+      "https://www.transfermarkt.com/michel-douglas/profil/spieler/261365"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 56,
+    "name": "Dick",
+    "fullName": "Luiz Henrique Almeida de Lima",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1984-02-13",
+    "birthCity": "Guarujá",
+    "birthState": "SP",
+    "heightCm": 188,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/dick/profil/spieler/68723"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 58,
+    "name": "Rayro",
+    "fullName": "Rayro da Silva Danin",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1985-12-04",
+    "birthCity": "Belém",
+    "birthState": "PA",
+    "heightCm": 178,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.pt/rayro/profil/spieler/552578",
+      "https://www.ogol.com.br/jogador/rayro/185807"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 59,
+    "name": "Leandro Souza",
+    "fullName": "Leandro Rosa Souza",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1986-02-24",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 187,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Leandro_Souza",
+      "https://www.transfermarkt.com/leandro-souza/profil/spieler/64577",
+      "https://www.footmercato.net/joueur/leandro-rosa-souza/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 60,
+    "name": "Rodrigo Lobão",
+    "fullName": "Rodrigo da Conceição Santos",
+    "position": "Zagueiro",
+    "preferredFoot": null,
+    "birthDate": "1993-07-17",
+    "birthCity": "Salvador",
+    "birthState": "BA",
+    "heightCm": 190,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Rodrigo_Lob%C3%A3o",
+      "https://www.transfermarkt.com/rodrigo-lobao/profil/spieler/374310"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 62,
+    "name": "Willis Mota",
+    "fullName": "Willis Mota Moreira",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1985-03-23",
+    "birthCity": "Feira de Santana",
+    "birthState": "BA",
+    "heightCm": 196,
+    "weightKg": 86,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Mota_(footballer,_born_1985)",
+      "https://www.transfermarkt.com.br/mota/profil/spieler/539219"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 67,
+    "name": "Tiago Chulapa",
+    "fullName": "Tiago Oliveira de Souza",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1988-02-05",
+    "birthCity": "Curitiba",
+    "birthState": "PR",
+    "heightCm": 191,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "http://csa-azulao.blogspot.com/2016/07/csa-atacante-tiago-chulapa-e.html",
+      "https://pt.wikipedia.org/wiki/Tiago_Chulapa",
+      "https://www.transfermarkt.com/tiago-chulapa/profil/spieler/241429"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 68,
+    "name": "Dawhan",
+    "fullName": "Dawhan Fran Urano da Purificação Oliveira",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1996-06-03",
+    "birthCity": "Aracaju",
+    "birthState": "SE",
+    "heightCm": 177,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Dawhan",
+      "https://www.transfermarkt.us/dawhan/profil/spieler/539224"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 69,
+    "name": "David Dener",
+    "fullName": "David Dener Rocha dos Santos Delfino da Silva",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1987-01-14",
+    "birthCity": "Santos Dumont",
+    "birthState": "MG",
+    "heightCm": 184,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.pt/david-dener/profil/spieler/104542",
+      "https://www.ogol.com.br/jogador/david-dener/91453"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 72,
+    "name": "Azul",
+    "fullName": "Jadelson Barbosa da Silva",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1993-02-28",
+    "birthCity": "Barreiros",
+    "birthState": "PE",
+    "heightCm": 180,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.pt/azul/profil/spieler/517674",
+      "http://csa-azulao.blogspot.com/2016/06/atacante-azul-chega-ao-azulao-e-tem.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 76,
+    "name": "Thiago Potiguar",
+    "fullName": "Thiago Jefferson da Silva",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1985-05-27",
+    "birthCity": "Currais Novos",
+    "birthState": "RN",
+    "heightCm": 169,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/thiago-potiguar/profil/spieler/211176"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 77,
+    "name": "Rafael Oliveira",
+    "fullName": "Rafael Oliveira Nascimento",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1987-07-06",
+    "birthCity": "Ananindeua",
+    "birthState": "PA",
+    "heightCm": 187,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.pt/rafael-oliveira/profil/spieler/210120"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 83,
+    "name": "Hudson",
+    "fullName": "Hudson Fernando Tobias de Carvalho",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1986-07-18",
+    "birthCity": "Sorocaba",
+    "birthState": "SP",
+    "heightCm": 172,
+    "weightKg": 70,
+    "nationality": "Brasil",
+    "sources": [
+      "https://saotomenoticias.blogspot.com/2018/03/america-anuncia-mais-duas-contratacoes.html",
+      "https://futeboldomundo.com.br/jogadores/6787/jogador"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 84,
+    "name": "Jônatas Obina",
+    "fullName": "Jônatas Paulino da Silva Inácio",
+    "position": "Atacante",
+    "preferredFoot": null,
+    "birthDate": "1985-12-18",
+    "birthCity": "Sete Lagoas",
+    "birthState": "MG",
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "http://csa-azulao.blogspot.com/2016/05/csa-confirmou-hoje-segunda-feira-dia-23.html",
+      "https://www.national-football-teams.com/old/player/51953/Jonatas_Obina.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 85,
+    "name": "Rosinei",
+    "fullName": "Rosinei Adolfo Nascimento",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1983-05-03",
+    "birthCity": "Lavrinhas",
+    "birthState": "SP",
+    "heightCm": 170,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Rosinei",
+      "https://www.transfermarkt.com/rosinei/profil/spieler/52853"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 87,
+    "name": "Cleyton Lima",
+    "fullName": "Cleyton Rafael Lima da Silva",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1990-02-24",
+    "birthCity": null,
+    "birthState": "MS",
+    "heightCm": 171,
+    "weightKg": 68,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.tnh1.com.br/noticia/nid/acabou-parte-do-misterio-csa-oficializa-nomes-de-13-reforcos-e-apresenta-novos-uniformes/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 88,
+    "name": "Denilson",
+    "fullName": "Denilson Hernandes Santos Sineiro",
+    "position": "Lateral Direito",
+    "preferredFoot": null,
+    "birthDate": "1987-07-04",
+    "birthCity": "São Luís",
+    "birthState": "MA",
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://alanorte.com.br/noticia/6254/quem-fica-inconstancia-marca-serie-d-do-lateral-direito-denilson-pelo-csa",
+      "https://en.wikipedia.org/wiki/Denilson_(footballer,_born_1987)"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 89,
+    "name": "Maxuell Samurai",
+    "fullName": "Máxuell Maia da Silva",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1991-09-30",
+    "birthCity": "Fortaleza",
+    "birthState": "CE",
+    "heightCm": 181,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/maxuell-samurai/profil/spieler/211984"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 91,
+    "name": "Michel Schmöller",
+    "fullName": "Michel Vendelino Schmöller",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1987-11-11",
+    "birthCity": "São Jorge do Oeste",
+    "birthState": "PR",
+    "heightCm": 184,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://tribunahoje.com/noticias/esportes/2017/05/16/82036-csa-anuncia-mais-duas-contratacoes-para-a-disputa-do-brasileiro-da-serie-c",
+      "https://www.transfermarkt.com/michel-schmoller/profil/spieler/56401"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 92,
+    "name": "Daniel Angulo",
+    "fullName": "Daniel Patricio Angulo Arroyo",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1986-11-16",
+    "birthCity": "Esmeraldas",
+    "birthState": null,
+    "heightCm": 185,
+    "weightKg": 81,
+    "nationality": "Equador",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Daniel_Angulo",
+      "https://www.transfermarkt.pt/daniel-angulo/profil/spieler/243185"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 98,
+    "name": "Leandro Cardoso",
+    "fullName": "Leandro Álvares Cardoso",
+    "position": "Zagueiro",
+    "preferredFoot": null,
+    "birthDate": "1981-07-28",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "http://csa-azulao.blogspot.com/2016/05/csa-contrata-2-o-atacante-jeferson.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 99,
+    "name": "Bismarck",
+    "fullName": "Bismarck Vinicyus Freire do Nascimento",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1990-08-25",
+    "birthCity": "Natal",
+    "birthState": "RN",
+    "heightCm": 177,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/bismarck/profil/spieler/101239"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 100,
+    "name": "Luís Soares",
+    "fullName": "Anildson Luís da Silva Soares",
+    "position": "Ponta Direita",
+    "preferredFoot": "destro",
+    "birthDate": "1991-06-30",
+    "birthCity": "Fortaleza",
+    "birthState": "CE",
+    "heightCm": 179,
+    "weightKg": 77,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ferroviario.com.br/2017/12/01/ferroviario-reforca-o-setor-de-ataque-com-o-luis-soares/",
+      "https://www.transfermarkt.com.br/luis-soares/profil/spieler/438429"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 101,
+    "name": "Katê",
+    "fullName": "Kartjaneo Barbosa de Arruda",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1991-09-16",
+    "birthCity": "João Alfredo",
+    "birthState": "PE",
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/kate/136241",
+      "https://www.alagoas24horas.com.br/981707/csa-anuncia-chegada-atacante-kate/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 102,
+    "name": "Marcelo Nicácio",
+    "fullName": "Marcelo da Paixão Ramos Nicácio",
+    "position": "Centroavante",
+    "preferredFoot": "ambidestro",
+    "birthDate": "1983-01-05",
+    "birthCity": "Salvador",
+    "birthState": "BA",
+    "heightCm": 178,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Marcelo_Nic%C3%A1cio",
+      "https://www.transfermarkt.com.br/marcelo-nicacio/profil/spieler/67837"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 106,
+    "name": "Jorge Fellipe",
+    "fullName": "Jorge Fellipe de Oliveira Figueiro",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1988-10-27",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 192,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Jorge_Fellipe",
+      "https://www.transfermarkt.com/jorge-fellipe/profil/spieler/132060"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 111,
+    "name": "Alexandre Cajuru",
+    "fullName": "Alexandre Rosa Paschoalato",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1992-07-12",
+    "birthCity": "Ribeirão Preto",
+    "birthState": "SP",
+    "heightCm": 190,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/alexandre-cajuru/profil/spieler/375469",
+      "https://en.wikipedia.org/wiki/Alexandre_Cajuru"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 112,
+    "name": "Douglas Marques",
+    "fullName": "Douglas Marques dos Santos",
+    "position": "Zagueiro",
+    "preferredFoot": null,
+    "birthDate": "1985-05-18",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 185,
+    "weightKg": 74,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.tnh1.com.br/noticia/nid/acabou-parte-do-misterio-csa-oficializa-nomes-de-13-reforcos-e-apresenta-novos-uniformes/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 115,
+    "name": "Panda",
+    "fullName": "Márcio Gama Moreira",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1984-07-09",
+    "birthCity": "Fortaleza",
+    "birthState": "CE",
+    "heightCm": 177,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.tnh1.com.br/noticia/nid/acabou-parte-do-misterio-csa-oficializa-nomes-de-13-reforcos-e-apresenta-novos-uniformes/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 117,
+    "name": "Jefferson Maranhense",
+    "fullName": "Jeferson Pereira Vieira",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "canhoto",
+    "birthDate": "1989-04-20",
+    "birthCity": "Bacabal",
+    "birthState": "MA",
+    "heightCm": 174,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.pt/jeferson-maranhense/profil/spieler/276052",
+      "http://csa-azulao.blogspot.com/2016/05/csa-contrata-2-o-atacante-jeferson.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 119,
+    "name": "Vanger",
+    "fullName": "Vanger Conceição da Silva",
+    "position": "Ponta Direita",
+    "preferredFoot": "canhoto",
+    "birthDate": "1987-01-27",
+    "birthCity": "São Luís",
+    "birthState": "MA",
+    "heightCm": 173,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Vanger",
+      "https://www.transfermarkt.com.br/vanger/profil/spieler/226702"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 120,
+    "name": "Giancarlo",
+    "fullName": "Giancarlo da Silva Moro",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1982-10-18",
+    "birthCity": "Turvo",
+    "birthState": "SC",
+    "heightCm": 190,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Giancarlo_Moro",
+      "https://tribunahoje.com/noticias/esportes/2017/01/20/82836-giancarlo-sera-o-ultimo-reforco-do-csa-ate-o-inicio-das-competicoes"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 121,
+    "name": "Kauhan",
+    "fullName": "Kauhan Santos Rangel da Silva",
+    "position": "Centroavante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1994-05-27",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 182,
+    "weightKg": 71,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.tnh1.com.br/noticia/nid/acabou-parte-do-misterio-csa-oficializa-nomes-de-13-reforcos-e-apresenta-novos-uniformes/",
+      "https://www.transfermarkt.com/kauhan/profil/spieler/1472615",
+      "https://www.soccerpunter.com/players/359927-Kauhan-Santos-Rangel-da-Silva"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 122,
+    "name": "Jacó",
+    "fullName": "Carlos Alberto Guimarães Filho",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1996-02-27",
+    "birthCity": "Campos dos Goytacazes",
+    "birthState": "RJ",
+    "heightCm": 182,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Jac%C3%B3_(footballer)",
+      "https://www.transfermarkt.com.br/jaco/profil/spieler/348867"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 124,
+    "name": "Hugo Cabral",
+    "fullName": "Hugo da Silva Cabral",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1988-09-06",
+    "birthCity": "São João de Meriti",
+    "birthState": "RJ",
+    "heightCm": 179,
+    "weightKg": 77,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/hugo-cabral/profil/spieler/211270",
+      "https://www.ogol.com.br/jogador/hugo-cabral/125777"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 126,
+    "name": "Eduardo Echeverría",
+    "fullName": "Eduardo Alberto Echeverría Espínola",
+    "position": "Meia",
+    "preferredFoot": "canhoto",
+    "birthDate": "1989-03-04",
+    "birthCity": "Assunção",
+    "birthState": null,
+    "heightCm": 176,
+    "weightKg": 74,
+    "nationality": "Paraguai",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Eduardo_Echeverr%C3%ADa",
+      "https://www.transfermarkt.com.br/eduardo-echeverria/profil/spieler/254378"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 128,
+    "name": "Lucas Frigeri",
+    "fullName": "Lucas Henrique Frigeri",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1989-06-15",
+    "birthCity": "Catanduva",
+    "birthState": "SP",
+    "heightCm": 194,
+    "weightKg": 88,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Lucas_Frigeri",
+      "https://www.transfermarkt.com/lucas-frigeri/profil/spieler/532752"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 130,
+    "name": "Velicka",
+    "fullName": "Leandro Nunes Velicka",
+    "position": "Volante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1986-02-26",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 177,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Velicka_(footballer)",
+      "https://www.transfermarkt.pt/velicka/profil/spieler/185880"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 131,
+    "name": "John Lennon",
+    "fullName": "John Lennon Silva Santos",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1991-12-29",
+    "birthCity": "Araguaína",
+    "birthState": "TO",
+    "heightCm": 178,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/John_Lennon_(footballer)",
+      "https://www.transfermarkt.com.br/john-lennon/profil/spieler/156252"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 133,
+    "name": "Felipe Garcia",
+    "fullName": "Felipe Garcia dos Prazeres",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1988-01-10",
+    "birthCity": "São Vicente",
+    "birthState": "SP",
+    "heightCm": 193,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/felipe-garcia/profil/spieler/52953"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 134,
+    "name": "Jhon Cley",
+    "fullName": "Jhon Cley Jesus Silva Coelho",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1994-03-09",
+    "birthCity": "Brasília",
+    "birthState": "DF",
+    "heightCm": 183,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Jhon_Cley",
+      "https://www.transfermarkt.com.br/jhon-cley/profil/spieler/236772"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 137,
+    "name": "Neto Berola",
+    "fullName": "Sosthenes José Santos Salles",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "destro",
+    "birthDate": "1987-11-18",
+    "birthCity": "Itabuna",
+    "birthState": "BA",
+    "heightCm": 172,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Neto_Berola",
+      "https://en.wikipedia.org/wiki/Neto_Berola",
+      "https://futebolbaiano.com.br/2018/07/apos-ex-lateral-do-bahia-csa-anuncia-atacante-com-passagem-pelo-vitoria.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 139,
+    "name": "Victor Paraíba",
+    "fullName": "Victor Wesley dos Santos Da Silva",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "canhoto",
+    "birthDate": "1998-04-21",
+    "birthCity": "Campina Grande",
+    "birthState": "PB",
+    "heightCm": 179,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Victor_Para%C3%ADba",
+      "https://www.transfermarkt.com/victor-paraiba/profil/spieler/592350"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 143,
+    "name": "Pio",
+    "fullName": "Francisco Hércules de Araújo",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1988-01-23",
+    "birthCity": "Fortaleza",
+    "birthState": "CE",
+    "heightCm": 175,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Pio_(footballer,_born_1988)",
+      "https://www.transfermarkt.com.br/pio/profil/spieler/175377"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 147,
+    "name": "Bruno Veiga",
+    "fullName": "Bruno Veiga Mattos",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1990-01-09",
+    "birthCity": "Mesquita",
+    "birthState": "RJ",
+    "heightCm": 170,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/bruno-veiga/profil/spieler/140680"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 148,
+    "name": "Ferrugem",
+    "fullName": "Weverton Almeida Santos Evaristo",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1988-03-28",
+    "birthCity": "Pedro Canário",
+    "birthState": "ES",
+    "heightCm": 182,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/ferrugem/profil/spieler/155351",
+      "https://en.wikipedia.org/wiki/Ferrugem_(footballer,_born_1988)"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 149,
+    "name": "Niltinho",
+    "fullName": "Nilton Soares Rodrigues",
+    "position": "Ponta Direita",
+    "preferredFoot": "canhoto",
+    "birthDate": "1993-09-11",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 171,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/niltinho/profil/spieler/271353",
+      "https://www.ogol.com.br/jogador/niltinho/394723"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 150,
+    "name": "Leandro Kivel",
+    "fullName": "Leandro Araújo Kivel",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1983-06-11",
+    "birthCity": "São Borja",
+    "birthState": "RS",
+    "heightCm": 186,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Leandro_Kivel",
+      "https://www.transfermarkt.pt/leandro-kivel/profil/spieler/550471"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 155,
+    "name": "Elivelton",
+    "fullName": "Elivelton Viana dos Santos",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1992-05-10",
+    "birthCity": "Bom Jardim",
+    "birthState": "RJ",
+    "heightCm": 181,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "http://m-api.allfootballapp.com/article/630463"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 159,
+    "name": "Judivan",
+    "fullName": "Judivan Flor da Silva",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1995-05-21",
+    "birthCity": "Sousa",
+    "birthState": "PB",
+    "heightCm": 177,
+    "weightKg": 72,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Judivan",
+      "https://www.transfermarkt.com.br/judivan/profil/spieler/344843"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 161,
+    "name": "Juan",
+    "fullName": "Juan Maldonado Jaimez Júnior",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1982-02-06",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 168,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Juan_(footballer,_born_1982)",
+      "https://pt.wikipedia.org/wiki/Juan_Maldonado_Jaimez_J%C3%BAnior"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 616,
+    "name": "Carlão",
+    "fullName": "Carlos Roberto Pereira Dantas",
+    "position": "Goleiro",
+    "preferredFoot": null,
+    "birthDate": "1985-12-31",
+    "birthCity": "Bayeux",
+    "birthState": "PB",
+    "heightCm": 190,
+    "weightKg": 87,
+    "nationality": "Brasil",
+    "sources": [
+      "http://csa-azulao.blogspot.com/2016/05/csa-contrata-mais-um-atacante-rafael.html",
+      "https://agorarn.com.br/ultimas/carlao-e-o-novo-goleiro-do-america/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 617,
+    "name": "Camutanga",
+    "fullName": "Cleidson Andrade de Souza Silva",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1993-09-27",
+    "birthCity": "Camutanga",
+    "birthState": "PE",
+    "heightCm": 189,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Camutanga_(footballer)",
+      "https://www.footballcalculator.co.uk/player/Camutanga-54692/2016"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 620,
+    "name": "Marcinho Guerreiro",
+    "fullName": "Márcio Glad",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1980-09-23",
+    "birthCity": "Novo Horizonte",
+    "birthState": "SP",
+    "heightCm": 178,
+    "weightKg": 70,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.tnh1.com.br/noticia/nid/acabou-parte-do-misterio-csa-oficializa-nomes-de-13-reforcos-e-apresenta-novos-uniformes/",
+      "https://pt.wikipedia.org/wiki/Marcinho_Guerreiro"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 622,
+    "name": "Lucas Limão",
+    "fullName": "Lucas Hespanholeto",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1990-08-11",
+    "birthCity": "São Caetano do Sul",
+    "birthState": "SP",
+    "heightCm": 170,
+    "weightKg": 67,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.tnh1.com.br/noticia/nid/acabou-parte-do-misterio-csa-oficializa-nomes-de-13-reforcos-e-apresenta-novos-uniformes/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 631,
+    "name": "Rafael Silva",
+    "fullName": "Rafael Gonçalves da Silva",
+    "position": "Atacante",
+    "preferredFoot": null,
+    "birthDate": "1991-11-02",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": null,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "http://csa-azulao.blogspot.com/2016/05/csa-contrata-mais-um-atacante-rafael.html"
+    ],
+    "confidence": "high"
+  }
+]

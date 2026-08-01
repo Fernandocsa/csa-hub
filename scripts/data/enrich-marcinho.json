@@ -1,0 +1,19 @@
+[
+  {
+    "id": 509,
+    "name": "Marcinho",
+    "fullName": "Márcio Barbosa Vieira Junior",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1995-07-28",
+    "birthCity": "Londrina",
+    "birthState": "PR",
+    "heightCm": 174,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/marcinho/profil/spieler/520500",
+      "https://ge.globo.com/al/arquivo/futebol/noticia/2024/01/19/csa-anuncia-acerto-com-o-marcinho-ex-sampaio-correa-e-cruzeiro.ghtml"
+    ],
+    "confidence": "high"
+  }
+]

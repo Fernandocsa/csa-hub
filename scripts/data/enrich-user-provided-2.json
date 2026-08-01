@@ -1,0 +1,17 @@
+[
+  {
+    "id": 607,
+    "name": "José Victor",
+    "fullName": "José Victor das Montanhas Melo",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "2001-03-03",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 188,
+    "weightKg": 82,
+    "nationality": "Brasil",
+    "sources": ["user-provided"],
+    "confidence": "high"
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "id": 350,
+    "name": "Eduardo",
+    "seasons": ["2023", "2024"],
+    "reason": "Goleiro CSA with birth_year 2001 and max_apps 7; TNH1 confirms a GK Eduardo played Copa Alagoas then left, but full name/birth date not found with high confidence. Distinct from lateral Eduardo (BID 2024) and Eduardo Biazus."
+  },
+  {
+    "id": 394,
+    "name": "Jefferson Júnior",
+    "seasons": ["2024", "2025"],
+    "reason": "Listed as Jeferson Júnior among CSA Copinha attackers, but no reliable Transfermarkt/ogol bio (full name + birth date) tied clearly to CSA professional/B appearances. Softascore has Jeferson Manoel Da Silva Santos on CSA U20 without birth data."
+  },
+  {
+    "id": 472,
+    "name": "Gabriel Boquinha",
+    "seasons": ["2026"],
+    "reason": "Near-complete already (Gabriel dos Santos, Lateral, 2008-08-28). No reliable preferredFoot found on Transfermarkt/ogol/news sources."
+  },
+  {
+    "id": 290,
+    "name": "Denílson",
+    "seasons": ["2022", "2024"],
+    "reason": "Enriched as Denílson dos Santos Souza (1995-04-18), matching birth_year/max_apps=2 for 2022. Season 2024 may instead refer to youth Denílson Santos (b.2003 / TM 977325) professionalized for 2024; verify before applying 1995 bio to 2024 apps."
+  },
+  {
+    "id": 330,
+    "name": "Kauã",
+    "seasons": ["2023", "2025"],
+    "reason": "Enriched as Cauã Soares Ferreira Cavalcante (CSA CB, TM 1224555). Incomplete name is Kauã and birth_year was 2004 vs TM 2005-04-20; confirm spelling/year before merge."
+  },
+  {
+    "id": 396,
+    "name": "Rômulo",
+    "seasons": ["2024"],
+    "reason": "Birth city Campo Grande on Transfermarkt; some reports say natural do Rio de Janeiro. birthState left null pending UF confirmation (MS vs RJ neighborhood)."
+  },
+  {
+    "id": 424,
+    "name": "Luiz Gustavo",
+    "seasons": ["2025"],
+    "reason": "preferredFoot still missing on Transfermarkt (tmId 991846); bio otherwise enriched."
+  }
+]

@@ -1,0 +1,19 @@
+[
+  {
+    "id": 358,
+    "name": "Thiaguinho",
+    "fullName": "Thiago Fernandes Rodrigues",
+    "position": "Ponta Direita",
+    "preferredFoot": "canhoto",
+    "birthDate": "2001-03-13",
+    "birthCity": "Recife",
+    "birthState": "PE",
+    "heightCm": 170,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/thiaguinho/profil/spieler/638305",
+      "https://sportbaseline.com/player/thiaguinho-638305"
+    ],
+    "confidence": "high"
+  }
+]

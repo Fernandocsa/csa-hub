@@ -1,0 +1,735 @@
+[
+  {
+    "id": 424,
+    "name": "Luiz Gustavo",
+    "seasons": [
+      "2025"
+    ],
+    "reason": "Incomplete TM fields (foot=null, birth=2003-05-30, name=Luiz Gustavo da Silva Alves)",
+    "tmId": "991846"
+  },
+  {
+    "id": 271,
+    "name": "Clayton",
+    "seasons": [
+      "2021",
+      "2022"
+    ],
+    "reason": "Incomplete TM fields (foot=null, birth=1995-10-23, name=Clayton da Silveira da Silva)",
+    "tmId": "250007"
+  },
+  {
+    "id": 350,
+    "name": "Eduardo",
+    "seasons": [
+      "2023",
+      "2024"
+    ],
+    "reason": "Ambiguous common name; skipped without stronger CSA disambiguation",
+    "tmId": "53999"
+  },
+  {
+    "id": 189,
+    "name": "Pedro Rosa",
+    "seasons": [
+      "2019"
+    ],
+    "reason": "Ambiguous common name; skipped without stronger CSA disambiguation",
+    "tmId": "373712"
+  },
+  {
+    "id": 7,
+    "name": "João Paulo",
+    "seasons": [
+      "2020",
+      "2021"
+    ],
+    "reason": "Incomplete TM fields (foot=null, birth=2000-09-14, name=João Paulo Ferreira Romão)",
+    "tmId": "748674"
+  },
+  {
+    "id": 382,
+    "name": "Douglas Skilo",
+    "seasons": [
+      "2024"
+    ],
+    "reason": "Ambiguous common name; skipped without stronger CSA disambiguation",
+    "tmId": "554983"
+  },
+  {
+    "id": 249,
+    "name": "João",
+    "seasons": [
+      "2020",
+      "2021"
+    ],
+    "reason": "Incomplete TM fields (foot=null, birth=2002-02-17, name=João Victor Pinheiro Rodrigues)",
+    "tmId": "1154985"
+  },
+  {
+    "id": 250,
+    "name": "Athirson",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Incomplete TM fields (foot=null, birth=2000-05-14, name=Athirson José Alves Pereira)",
+    "tmId": "976730"
+  },
+  {
+    "id": 266,
+    "name": "Vinicius José",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Incomplete TM fields (foot=null, birth=2001-03-29, name=Vinicius José dos Santos)",
+    "tmId": "724605"
+  },
+  {
+    "id": 186,
+    "name": "Ramon",
+    "seasons": [
+      "2019"
+    ],
+    "reason": "Ambiguous common name; skipped without stronger CSA disambiguation",
+    "tmId": "351899"
+  },
+  {
+    "id": 272,
+    "name": "Fernando Ferro",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Incomplete TM fields (foot=null, birth=2001-01-11, name=Fernando Ferro Diniz Barbosa de Melo)",
+    "tmId": "1471547"
+  },
+  {
+    "id": 252,
+    "name": "Ryan Gonzales",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Incomplete TM fields (foot=null, birth=2001-03-08, name=Ryan Gonzales Leal)",
+    "tmId": "1153085"
+  },
+  {
+    "id": 261,
+    "name": "Wykley",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "Incomplete TM fields (foot=null, birth=2002-09-11, name=Wykley Flysmaky Alves de Almeida)",
+    "tmId": "977134"
+  },
+  {
+    "id": 136,
+    "name": "Yago",
+    "seasons": [
+      "2018",
+      "2021"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 179,
+    "name": "Euller Silva",
+    "seasons": [
+      "2019"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 198,
+    "name": "Fabrício Santana",
+    "seasons": [
+      "2019"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 195,
+    "name": "Hiago Ramiro",
+    "seasons": [
+      "2019"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 173,
+    "name": "Lucca Motta",
+    "seasons": [
+      "2019"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 163,
+    "name": "Matheus Sávio",
+    "seasons": [
+      "2019"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 217,
+    "name": "Bruno Tesouro",
+    "seasons": [
+      "2020",
+      "2021"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 209,
+    "name": "Pedro Lucas",
+    "seasons": [
+      "2020",
+      "2021"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 214,
+    "name": "Rone",
+    "seasons": [
+      "2020",
+      "2021"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 208,
+    "name": "Schutz",
+    "seasons": [
+      "2020"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 218,
+    "name": "Wallace",
+    "seasons": [
+      "2020",
+      "2021",
+      "2022"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 240,
+    "name": "Alisson",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 244,
+    "name": "Andrey Rafael",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 270,
+    "name": "Gustavo Martins",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 263,
+    "name": "Ítalo",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 606,
+    "name": "João Victor Pinheiro",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 607,
+    "name": "José Victor",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 609,
+    "name": "Paquetá",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 262,
+    "name": "Pedrinho",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 608,
+    "name": "Pedro Rocha",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 260,
+    "name": "Vitor Costa",
+    "seasons": [
+      "2021"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 290,
+    "name": "Denílson",
+    "seasons": [
+      "2022",
+      "2024"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 300,
+    "name": "Edson Lucas",
+    "seasons": [
+      "2022"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 12,
+    "name": "Élton",
+    "seasons": [
+      "2022"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 303,
+    "name": "Felipe Augusto",
+    "seasons": [
+      "2022"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 297,
+    "name": "Ferreira",
+    "seasons": [
+      "2022"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 302,
+    "name": "Jean",
+    "seasons": [
+      "2022"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 277,
+    "name": "Léo Carvalho",
+    "seasons": [
+      "2022"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 293,
+    "name": "Wellington Nascimento",
+    "seasons": [
+      "2022"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 331,
+    "name": "Alex Matheus",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 512,
+    "name": "Clevinho",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 325,
+    "name": "Eduardo Jacone",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 355,
+    "name": "Elvis",
+    "seasons": [
+      "2023",
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 356,
+    "name": "Erick Melo",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 339,
+    "name": "Fabrício Santos",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 354,
+    "name": "Gabryel",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 315,
+    "name": "Geovane Silva",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 323,
+    "name": "Giresse",
+    "seasons": [
+      "2023",
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 307,
+    "name": "José Cleverton",
+    "seasons": [
+      "2023",
+      "2024"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 330,
+    "name": "Kauã",
+    "seasons": [
+      "2023",
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 341,
+    "name": "Kleiton",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 340,
+    "name": "Mateus Santos",
+    "seasons": [
+      "2023",
+      "2024"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 324,
+    "name": "Matheus Lima",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 319,
+    "name": "Pedrão",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 599,
+    "name": "Pedro Henrique",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 346,
+    "name": "Pedro Victor",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 336,
+    "name": "Victor Ramalho",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 342,
+    "name": "Vinicius Peixoto",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 329,
+    "name": "Vinicius Toledo",
+    "seasons": [
+      "2023",
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 328,
+    "name": "Vitão",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 361,
+    "name": "Wenderson",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 292,
+    "name": "William",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 375,
+    "name": "Ismael Nunes",
+    "seasons": [
+      "2024"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 394,
+    "name": "Jefferson Júnior",
+    "seasons": [
+      "2024",
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 365,
+    "name": "Kevin",
+    "seasons": [
+      "2024"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 380,
+    "name": "Richard",
+    "seasons": [
+      "2024"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 396,
+    "name": "Rômulo",
+    "seasons": [
+      "2024"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 419,
+    "name": "Angelo",
+    "seasons": [
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 451,
+    "name": "Arthur Rocha",
+    "seasons": [
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 446,
+    "name": "Batinga",
+    "seasons": [
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 426,
+    "name": "Betinho",
+    "seasons": [
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 414,
+    "name": "Enzo Santos",
+    "seasons": [
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 438,
+    "name": "Ewerton",
+    "seasons": [
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 417,
+    "name": "Guilherme Santana",
+    "seasons": [
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 445,
+    "name": "Lucas Matheus",
+    "seasons": [
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 425,
+    "name": "Marllon Moizes",
+    "seasons": [
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 429,
+    "name": "Rodrigo Amorim",
+    "seasons": [
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 443,
+    "name": "Sobral",
+    "seasons": [
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 427,
+    "name": "Teles Junior",
+    "seasons": [
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 428,
+    "name": "Wellington Júnior",
+    "seasons": [
+      "2025"
+    ],
+    "reason": "No clear Transfermarkt CSA squad match or ambiguous nickname; needs manual review"
+  },
+  {
+    "id": 358,
+    "name": "Thiaguinho",
+    "seasons": [
+      "2023"
+    ],
+    "reason": "Birth year mismatch TM=1998 vs DB=2001",
+    "tmCandidate": "Wytallo Thiago Lima da Silva",
+    "sources": [
+      "https://www.transfermarkt.com.br/thiaguinho/profil/spieler/643248"
+    ]
+  },
+  {
+    "id": 283,
+    "name": "Douglas",
+    "seasons": [
+      "2022",
+      "2023"
+    ],
+    "reason": "Ambiguous common name \"Douglas\" — skipped per enrichment policy",
+    "tmCandidate": "Douglas Matheus do Nascimento",
+    "sources": [
+      "https://www.transfermarkt.com.br/douglas/profil/spieler/643374"
+    ]
+  },
+  {
+    "id": 611,
+    "name": "Cassiano",
+    "seasons": [
+      "2016",
+      "2017"
+    ],
+    "reason": "Birth year mismatch TM=1989 vs DB=1993",
+    "tmCandidate": "Cassiano Dias Moreira",
+    "sources": [
+      "https://www.transfermarkt.com.br/cassiano/profil/spieler/238367"
+    ]
+  }
+]

@@ -1,0 +1,2919 @@
+[
+  {
+    "id": 245,
+    "name": "Bruno Mota",
+    "fullName": "Bruno da Mota Miranda",
+    "position": "Meia",
+    "preferredFoot": "canhoto",
+    "birthDate": "1995-05-22",
+    "birthCity": "Curitiba",
+    "birthState": "PR",
+    "heightCm": 191,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/bruno-mota/profil/spieler/369283"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 255,
+    "name": "Iury Castilho",
+    "fullName": "Iury Lirio Freitas de Castilho",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1995-09-06",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 185,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/iury-castilho/profil/spieler/366450",
+      "https://en.wikipedia.org/wiki/Iury_Castilho"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1,
+    "name": "Rodrigo Pimpão",
+    "fullName": "Rodrigo Pimpão Vianna",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "destro",
+    "birthDate": "1987-10-23",
+    "birthCity": "Curitiba",
+    "birthState": "PR",
+    "heightCm": 176,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/rodrigo-pimpao/profil/spieler/76134",
+      "https://en.wikipedia.org/wiki/Rodrigo_Pimpão"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 371,
+    "name": "Gustavo Nicola",
+    "fullName": "Gustavo Amorim Nicola",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1998-10-27",
+    "birthCity": "Taboão da Serra",
+    "birthState": "SP",
+    "heightCm": 177,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/gustavo-nicola/profil/spieler/1026159"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 239,
+    "name": "Matheus Felipe",
+    "fullName": "Matheus Felipe Santos Nascimento",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1998-11-09",
+    "birthCity": "Teresina",
+    "birthState": "PI",
+    "heightCm": 184,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/matheus-felipe/profil/spieler/882916"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 416,
+    "name": "Igor Bahia",
+    "fullName": "Igor Ruan Sousa dos Santos",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1993-02-25",
+    "birthCity": "Salvador",
+    "birthState": "BA",
+    "heightCm": 189,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/igor-bahia/profil/spieler/941369"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 439,
+    "name": "Betão",
+    "fullName": "Alberto Magno Santos de Melo Filho",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1999-06-21",
+    "birthCity": "Maragogi",
+    "birthState": "AL",
+    "heightCm": 188,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/betao/profil/spieler/1216411"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 216,
+    "name": "Yago Henrique",
+    "fullName": "Yago Henrique Severino dos Santos",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1995-07-07",
+    "birthCity": "Belo Horizonte",
+    "birthState": "MG",
+    "heightCm": 180,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/yago-henrique/profil/spieler/281438",
+      "https://en.wikipedia.org/wiki/Yago_(footballer,_born_1995)"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 349,
+    "name": "Dalberson",
+    "fullName": "Dalberson Ferreira do Amaral",
+    "position": "Goleiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1997-01-13",
+    "birthCity": "Belo Horizonte",
+    "birthState": "MG",
+    "heightCm": 192,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/dalberson/profil/spieler/554297",
+      "https://en.wikipedia.org/wiki/Dalberson"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 282,
+    "name": "Lucas Marques",
+    "fullName": "Lucas Alexandre Marques Otaviano",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1998-06-10",
+    "birthCity": "Goiânia",
+    "birthState": "GO",
+    "heightCm": 173,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/lucas-marques/profil/spieler/863066"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 211,
+    "name": "Rafael Bilu",
+    "fullName": "Rafael Bilu Mudesto",
+    "position": "Atacante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1999-04-21",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 174,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/rafael-bilu/profil/spieler/625333"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 345,
+    "name": "Bruno Matias",
+    "fullName": "Bruno Matias dos Santos",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1999-02-24",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 172,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/bruno-matias/profil/spieler/671292"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 254,
+    "name": "Silas",
+    "fullName": "Silas Araújo da Silva",
+    "position": "Meia",
+    "preferredFoot": "canhoto",
+    "birthDate": "1996-05-30",
+    "birthCity": "Pelotas",
+    "birthState": "RS",
+    "heightCm": 176,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/silas/profil/spieler/373302"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 164,
+    "name": "Carlinhos",
+    "fullName": "Carlos Andrade Souza",
+    "position": "Lateral",
+    "preferredFoot": "canhoto",
+    "birthDate": "1987-01-23",
+    "birthCity": "Vitória da Conquista",
+    "birthState": "BA",
+    "heightCm": 175,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/carlinhos/profil/spieler/41417"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 404,
+    "name": "Eduardo Biazus",
+    "fullName": "Eduardo Henrique Biazus",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "2001-03-13",
+    "birthCity": "Curitiba",
+    "birthState": "PR",
+    "heightCm": 186,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/eduardo-biazus/profil/spieler/936773"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 166,
+    "name": "João Carlos",
+    "fullName": "João Carlos Heidemann",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1988-04-06",
+    "birthCity": "Paranavaí",
+    "birthState": "PR",
+    "heightCm": 191,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/joao-carlos/profil/spieler/68408"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 230,
+    "name": "Nádson",
+    "fullName": "Nádson da Silva Almeida",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1989-07-22",
+    "birthCity": "Lauro de Freitas",
+    "birthState": "BA",
+    "heightCm": 170,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/nadson/profil/spieler/191314"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 190,
+    "name": "Jordi",
+    "fullName": "Jordi Martins Almeida",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1993-09-03",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 192,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/jordi/profil/spieler/255928",
+      "https://en.wikipedia.org/wiki/Jordi_Almeida"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 45,
+    "name": "Renato Cajá",
+    "fullName": "Renato Adriano Jacó de Morais",
+    "position": "Meia",
+    "preferredFoot": "canhoto",
+    "birthDate": "1984-09-15",
+    "birthCity": "Cajazeiras",
+    "birthState": "PB",
+    "heightCm": 173,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/renato-caja/profil/spieler/55489",
+      "https://en.wikipedia.org/wiki/Renato_Cajá"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 422,
+    "name": "Gabriel Felix",
+    "fullName": "Gabriel Luis Gonçalves Felix",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1997-12-02",
+    "birthCity": "Pedro Leopoldo",
+    "birthState": "MG",
+    "heightCm": 189,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/gabriel-felix/profil/spieler/443718"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 215,
+    "name": "Norberto",
+    "fullName": "Norberto Pereira Marinho Neto",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1990-07-19",
+    "birthCity": "Brumado",
+    "birthState": "BA",
+    "heightCm": 175,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/norberto/profil/spieler/152538"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 411,
+    "name": "Vander",
+    "fullName": "Vander Tavares Silva",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1998-09-13",
+    "birthCity": "São Luís",
+    "birthState": "MA",
+    "heightCm": 176,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/vander/profil/spieler/468254"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 171,
+    "name": "Gerson",
+    "fullName": "Gerson Guimarães Junior",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1992-01-07",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 186,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/gerson/profil/spieler/161438"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 194,
+    "name": "Naldo",
+    "fullName": "Marinaldo dos Santos Oliveira",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1990-05-13",
+    "birthCity": "Maetinga",
+    "birthState": "BA",
+    "heightCm": 185,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/naldo/profil/spieler/237621"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 274,
+    "name": "Aylon",
+    "fullName": "Aylon Darwin Tavella",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1992-04-07",
+    "birthCity": "Esteio",
+    "birthState": "RS",
+    "heightCm": 180,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/aylon/profil/spieler/329845",
+      "https://en.wikipedia.org/wiki/Aylon_Darwin_Tavella"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 188,
+    "name": "Patrick Fabiano",
+    "fullName": "Patrick Fabiano Alves Nóbrega Luz",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1987-09-04",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 184,
+    "weightKg": null,
+    "nationality": "Timor-Leste",
+    "sources": [
+      "https://www.transfermarkt.com.br/patrick-fabiano/profil/spieler/225381"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 253,
+    "name": "Reinaldo",
+    "fullName": "Reinaldo Nascimento Satorno",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "2001-06-06",
+    "birthCity": "Criciúma",
+    "birthState": "SC",
+    "heightCm": 177,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/reinaldo/profil/spieler/646256"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 430,
+    "name": "Islan",
+    "fullName": "Islan Rafael Ramos Fernandes",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1996-10-22",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": 195,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/islan/profil/spieler/978193"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 268,
+    "name": "Silvinho",
+    "fullName": "Silvio José Cardoso Reis Júnior",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1990-07-01",
+    "birthCity": "Guajará Mirim",
+    "birthState": "RO",
+    "heightCm": 174,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/silvinho/profil/spieler/149748"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 334,
+    "name": "Erik",
+    "fullName": "Erik Vinicius Muniz Gil Figueira",
+    "position": "Meia",
+    "preferredFoot": "canhoto",
+    "birthDate": "2003-04-05",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 177,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/erik/profil/spieler/1096667"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 405,
+    "name": "Gustavo Xuxa",
+    "fullName": "Gustavo Simon Vertuoso",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1993-02-22",
+    "birthCity": "Quilombo",
+    "birthState": "SC",
+    "heightCm": 173,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/gustavo-xuxa/profil/spieler/547662"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 224,
+    "name": "Andrigo",
+    "fullName": "Andrigo Oliveira de Araujo",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1995-02-27",
+    "birthCity": "Estrela",
+    "birthState": "RS",
+    "heightCm": 170,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/andrigo/profil/spieler/181775",
+      "https://en.wikipedia.org/wiki/Andrigo"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 236,
+    "name": "Cleberson",
+    "fullName": "Cleberson Martins de Souza",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1992-08-17",
+    "birthCity": "Macatuba",
+    "birthState": "SP",
+    "heightCm": 185,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/cleberson/profil/spieler/209163"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 220,
+    "name": "Matheus Mendes",
+    "fullName": "Matheus Mendes Werneck de Oliveira",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1999-03-10",
+    "birthCity": "Governardor Valadares",
+    "birthState": "MG",
+    "heightCm": 193,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/matheus-mendes/profil/spieler/629077"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 30,
+    "name": "Cristovam",
+    "fullName": "Cristovam Roberto Ribeiro da Silva",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1990-07-25",
+    "birthCity": "Feira de Santana",
+    "birthState": "BA",
+    "heightCm": 175,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/cristovam/profil/spieler/278402",
+      "https://en.wikipedia.org/wiki/Cristovam_(footballer)"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 353,
+    "name": "Iago Teles",
+    "fullName": "Iago Teles Da Silva",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "2000-06-30",
+    "birthCity": "Barueri",
+    "birthState": "SP",
+    "heightCm": 177,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/iago-teles/profil/spieler/900196"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 351,
+    "name": "Ruan",
+    "fullName": "Geraldo Ruan dos Santos",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "2001-09-12",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": 175,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/ruan/profil/spieler/752565"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 395,
+    "name": "Juninho Valoura",
+    "fullName": "Paulo Roberto Valoura Júnior",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1986-03-20",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 172,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/juninho-valoura/profil/spieler/101542"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 238,
+    "name": "Paulo Sérgio",
+    "fullName": "Paulo Sérgio Luiz de Souza",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1989-06-11",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 181,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/paulo-sergio/profil/spieler/53019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 305,
+    "name": "Moisés Ribeiro",
+    "fullName": "Moisés Ribeiro Santos",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1991-03-03",
+    "birthCity": "Salvador",
+    "birthState": "BA",
+    "heightCm": 179,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/moises-ribeiro/profil/spieler/227986"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 383,
+    "name": "Álvaro",
+    "fullName": "Álvaro Rodrigues Vieira Júnior",
+    "position": "Meia",
+    "preferredFoot": "canhoto",
+    "birthDate": "1993-07-19",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 175,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/alvaro/profil/spieler/351155"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 434,
+    "name": "Georgemy",
+    "fullName": "Georgemy Gonçalves",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1995-08-15",
+    "birthCity": "Americana",
+    "birthState": "SP",
+    "heightCm": 197,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/georgemy/profil/spieler/258369"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 172,
+    "name": "Héctor Bustamante",
+    "fullName": "Héctor Ariel Bustamante Lopez",
+    "position": "Atacante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1995-03-31",
+    "birthCity": "Encarnación",
+    "birthState": null,
+    "heightCm": 164,
+    "weightKg": null,
+    "nationality": "Paraguai",
+    "sources": [
+      "https://www.transfermarkt.com.br/hector-bustamante/profil/spieler/390803"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 348,
+    "name": "Gabriel Taliari",
+    "fullName": "Gabriel Pereira Taliari",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1997-04-13",
+    "birthCity": "Arceburgo",
+    "birthState": "MG",
+    "heightCm": 177,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/gabriel-taliari/profil/spieler/585876"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 347,
+    "name": "Kaio Nunes",
+    "fullName": "Kaio Nunes Ferreira",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1996-01-11",
+    "birthCity": "Brasília",
+    "birthState": "DF",
+    "heightCm": 180,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/kaio-nunes/profil/spieler/592342"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 316,
+    "name": "Rhuan",
+    "fullName": "Rhuan Ferreira Ramos",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "2000-09-18",
+    "birthCity": "Santos",
+    "birthState": "SP",
+    "heightCm": 177,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/rhuan/profil/spieler/371992"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 370,
+    "name": "Marlon",
+    "fullName": "Marlon Silva Lacorte",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1997-08-20",
+    "birthCity": "Santiago",
+    "birthState": null,
+    "heightCm": 185,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/marlon/profil/spieler/857429"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 412,
+    "name": "Marcelinho",
+    "fullName": "Marcelo Antônio de Oliveira",
+    "position": "Atacante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1996-07-17",
+    "birthCity": "Cascavel",
+    "birthState": "PR",
+    "heightCm": 176,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/marcelinho/profil/spieler/439782"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 317,
+    "name": "Ednei",
+    "fullName": "Ednei Barbosa de Souza",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1990-07-05",
+    "birthCity": "Senhor do Bonfim",
+    "birthState": "BA",
+    "heightCm": 189,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/ednei/profil/spieler/178841"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 357,
+    "name": "Paulo César",
+    "fullName": "Paulo César Freitas Barreto",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1999-03-14",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 186,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/paulo-cesar/profil/spieler/1051269"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 377,
+    "name": "Pedro Favela",
+    "fullName": "Pedro Antonio Matheus Martins Favela",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1999-07-10",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 182,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/pedro-favela/profil/spieler/1093317"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 398,
+    "name": "Roberto",
+    "fullName": "Roberto Heuchayer Santos de Araújo",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1990-12-04",
+    "birthCity": "Picos",
+    "birthState": "PI",
+    "heightCm": 177,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/roberto/profil/spieler/114144"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 219,
+    "name": "Pedro Júnior",
+    "fullName": "Pedro Bispo Moreira Júnior",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1987-01-29",
+    "birthCity": "Santana do Araguaia",
+    "birthState": "PA",
+    "heightCm": 183,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/pedro-junior/profil/spieler/54161"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 399,
+    "name": "Gustavo Cabral",
+    "fullName": "Gustavo dos Santos Cabral",
+    "position": "Meia",
+    "preferredFoot": "canhoto",
+    "birthDate": "2001-09-12",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 179,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/gustavo-cabral/profil/spieler/1135708"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 369,
+    "name": "Vitor Leque",
+    "fullName": "Vitor Benedito Leque da Silva",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "2001-01-19",
+    "birthCity": "Cuiabá",
+    "birthState": "MT",
+    "heightCm": 174,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/vitor-leque/profil/spieler/752552"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 418,
+    "name": "Felipe Albuquerque",
+    "fullName": "Felipe Albuquerque Felippi",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1999-09-27",
+    "birthCity": "Nova Andradina",
+    "birthState": "MS",
+    "heightCm": 174,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/felipe-albuquerque/profil/spieler/555012"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 441,
+    "name": "Wanderson",
+    "fullName": "Wanderson Camelo Viana",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1994-10-24",
+    "birthCity": "São Luís",
+    "birthState": "MA",
+    "heightCm": 187,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/wanderson/profil/spieler/550891"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 327,
+    "name": "Jô",
+    "fullName": "Jean Hebert de Freitas",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1999-02-21",
+    "birthCity": "Itabira",
+    "birthState": "MG",
+    "heightCm": 190,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/jotm/profil/spieler/665989"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 312,
+    "name": "João Felipe",
+    "fullName": "João Felipe Proscinski Giaccomoni",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1998-12-02",
+    "birthCity": "Erechim",
+    "birthState": "RS",
+    "heightCm": 180,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/joao-felipe/profil/spieler/1037629"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 407,
+    "name": "Raphinha",
+    "fullName": "Raphael Ribeiro Soares",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1993-10-12",
+    "birthCity": "Pelotas",
+    "birthState": "RS",
+    "heightCm": 170,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/raphinha/profil/spieler/983118"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 251,
+    "name": "Fabrício",
+    "fullName": "Fabrício Silva Dornellas",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1990-02-20",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 186,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/fabricio/profil/spieler/86917"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 242,
+    "name": "Gabriel Tonini",
+    "fullName": "Gabriel Andre Tonini",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1996-05-12",
+    "birthCity": "Realeza",
+    "birthState": "PR",
+    "heightCm": 185,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/gabriel-tonini/profil/spieler/638310"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 344,
+    "name": "Arnaldo",
+    "fullName": "Arnaldo Manoel de Almeida",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1992-04-15",
+    "birthCity": "Uberaba",
+    "birthState": "MG",
+    "heightCm": 173,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/arnaldo/profil/spieler/268522"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 376,
+    "name": "Alisson Farias",
+    "fullName": "Alisson Alves Farias",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1996-04-07",
+    "birthCity": "Lages",
+    "birthState": "SC",
+    "heightCm": 171,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/alisson-farias/profil/spieler/366645"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 406,
+    "name": "Wellington Carvalho",
+    "fullName": "Wellington Carvalho dos Santos",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1993-02-15",
+    "birthCity": "Duque de Caxias",
+    "birthState": "RJ",
+    "heightCm": 185,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/wellington-carvalho/profil/spieler/225639"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 449,
+    "name": "Luciano Naninho",
+    "fullName": "Luciano Francisco Paulino",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1992-07-03",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 174,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/luciano-naninho/profil/spieler/681813"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 225,
+    "name": "Márcio Araújo",
+    "fullName": "Márcio Rodrigues Araújo",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1984-06-11",
+    "birthCity": "São Luís",
+    "birthState": "MA",
+    "heightCm": 172,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/marcio-araujo/profil/spieler/65162"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 228,
+    "name": "Renatinho",
+    "fullName": "Renato Vieira Rodrigues",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1992-01-31",
+    "birthCity": "Foz do Iguaçu",
+    "birthState": "PR",
+    "heightCm": 172,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/renatinho/profil/spieler/202907"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 273,
+    "name": "Kevyn",
+    "fullName": "Kevyn Lucas Ramos da Costa",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1997-12-28",
+    "birthCity": "São Gonçalo",
+    "birthState": "RJ",
+    "heightCm": 178,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/kevyn/profil/spieler/530286"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 387,
+    "name": "Buga",
+    "fullName": "Elilson Correia da Conceição",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "2001-06-21",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 182,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/buga/profil/spieler/976813"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 509,
+    "name": "Marcinho",
+    "fullName": "Márcio Barbosa Vieira Junior",
+    "position": null,
+    "preferredFoot": "destro",
+    "birthDate": "1995-07-28",
+    "birthCity": "Londrina",
+    "birthState": "PR",
+    "heightCm": 174,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/marcinho/profil/spieler/520500"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 444,
+    "name": "Marcão",
+    "fullName": "Marcos Vinicius Carvalho dos Reis",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "2001-05-15",
+    "birthCity": "Betim",
+    "birthState": "MG",
+    "heightCm": 192,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/marcao/profil/spieler/996242"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 200,
+    "name": "Warley",
+    "fullName": "Warley Leandro da Silva",
+    "position": "Atacante",
+    "preferredFoot": "ambidestro",
+    "birthDate": "1999-09-17",
+    "birthCity": "Recife",
+    "birthState": "PE",
+    "heightCm": 172,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/warley/profil/spieler/681627"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 235,
+    "name": "Rodolfo Filemon",
+    "fullName": "Rodolfo Filemon de Oliveira da Silva",
+    "position": "Zagueiro",
+    "preferredFoot": "ambidestro",
+    "birthDate": "1994-08-29",
+    "birthCity": "São Simão",
+    "birthState": "SP",
+    "heightCm": 184,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/rodolfo-filemon/profil/spieler/546037"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 247,
+    "name": "Darley",
+    "fullName": "Darley Ramon Torres",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1989-12-15",
+    "birthCity": "Pedro Leopoldo",
+    "birthState": "MG",
+    "heightCm": 188,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/darley/profil/spieler/67834"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 313,
+    "name": "Luis Felipe",
+    "fullName": "Luis Felipe da Silva Rodrigues",
+    "position": "Atacante",
+    "preferredFoot": "ambidestro",
+    "birthDate": "2000-11-21",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 183,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/luis-felipe/profil/spieler/871738"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 360,
+    "name": "Pará",
+    "fullName": "Anderson Ferreira da Silva",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1995-08-23",
+    "birthCity": "Capanema",
+    "birthState": "PA",
+    "heightCm": 167,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/para/profil/spieler/323618"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 93,
+    "name": "Jonathan",
+    "fullName": "Jonathan Francisco Lemos",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1992-08-25",
+    "birthCity": "Brasília",
+    "birthState": "DF",
+    "heightCm": 178,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/jonathan/profil/spieler/147366"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 203,
+    "name": "Bruno Alves",
+    "fullName": "Bruno Alves de Souza",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1992-09-13",
+    "birthCity": "Seabra",
+    "birthState": "BA",
+    "heightCm": 179,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/bruno-alves/profil/spieler/349318"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 165,
+    "name": "Mauro Silva",
+    "fullName": "Mauro Silva do Nascimento Junior",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1994-02-28",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 180,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/mauro-silva/profil/spieler/546894"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 21,
+    "name": "Nilton",
+    "fullName": "Nilton Ferreira Júnior",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1987-04-21",
+    "birthCity": "Barra do Garças",
+    "birthState": "MT",
+    "heightCm": 186,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/nilton/profil/spieler/56676"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 221,
+    "name": "Richard Franco",
+    "fullName": "Richard Darío Franco Escobar",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1992-07-16",
+    "birthCity": "Ciudad del Leste",
+    "birthState": null,
+    "heightCm": 184,
+    "weightKg": null,
+    "nationality": "Paraguai",
+    "sources": [
+      "https://www.transfermarkt.com.br/richard-franco/profil/spieler/511925"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 343,
+    "name": "Guilherme Rend",
+    "fullName": "Guilherme Ribeiro Rend",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1998-07-24",
+    "birthCity": "Salvador",
+    "birthState": "BA",
+    "heightCm": 181,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/guilherme-rend/profil/spieler/684234"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 309,
+    "name": "William Oliveira",
+    "fullName": "William Oliveira dos Santos",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1992-02-25",
+    "birthCity": "Paracambi",
+    "birthState": "RJ",
+    "heightCm": 182,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/william-oliveira/profil/spieler/436570"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 384,
+    "name": "Vinicius Popó",
+    "fullName": "Vinicius Santana da Silva",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "2001-02-25",
+    "birthCity": "São José do Rio Preto",
+    "birthState": "SP",
+    "heightCm": 179,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/vinicius-popo/profil/spieler/432170"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 170,
+    "name": "Andrés Escobar",
+    "fullName": "Andrés Ramiro Escobar Díaz",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1991-05-14",
+    "birthCity": "Puerto Tejada",
+    "birthState": null,
+    "heightCm": 167,
+    "weightKg": null,
+    "nationality": "Colômbia",
+    "sources": [
+      "https://www.transfermarkt.com.br/andres-escobar/profil/spieler/148690"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 182,
+    "name": "Maranhão",
+    "fullName": "Francinilson Santos Meireles",
+    "position": "Atacante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1990-05-03",
+    "birthCity": "São Luís",
+    "birthState": "MA",
+    "heightCm": 170,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/maranhao/profil/spieler/172454"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 193,
+    "name": "Ronaldo Alves",
+    "fullName": "Ronaldo Luiz Alves",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1989-07-09",
+    "birthCity": "Bebedouro",
+    "birthState": "SP",
+    "heightCm": 187,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/ronaldo-alves/profil/spieler/124543"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 231,
+    "name": "Igor Fernandes",
+    "fullName": "Igor Fernandes da Silva Araújo",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1992-06-06",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 183,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/igor-fernandes/profil/spieler/250841"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 374,
+    "name": "Deivity",
+    "fullName": "Deivity André Cherutti Martins",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1991-03-26",
+    "birthCity": "Porto Alegre",
+    "birthState": "RS",
+    "heightCm": 190,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/deivity/profil/spieler/680600"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 388,
+    "name": "Dudu Miraíma",
+    "fullName": "Eduardo da Silva Albuquerque",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "2000-06-15",
+    "birthCity": "Miraíma",
+    "birthState": "CE",
+    "heightCm": 173,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/dudu-miraima/profil/spieler/740162"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 381,
+    "name": "Guilherme Dal Pian",
+    "fullName": "Guilherme Devitte Dal Pian",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1999-03-16",
+    "birthCity": "Encantado",
+    "birthState": "RS",
+    "heightCm": 170,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/guilherme-dal-pian/profil/spieler/979984"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 372,
+    "name": "Matheus Santos",
+    "fullName": "Matheus Santos Nunes",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1996-01-13",
+    "birthCity": "Iporá do Oeste",
+    "birthState": "SC",
+    "heightCm": 190,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/matheus-santos/profil/spieler/862166"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 437,
+    "name": "Klenisson",
+    "fullName": "Klenisson Luiz da Silva",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1995-05-06",
+    "birthCity": "Arapiraca",
+    "birthState": "AL",
+    "heightCm": 181,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/klenisson/profil/spieler/553668"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 222,
+    "name": "Tito",
+    "fullName": "Gebson Gomes dos Santos",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "2000-07-26",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 184,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/tito/profil/spieler/867798"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 311,
+    "name": "Jean Carlo",
+    "fullName": "Jean Carlo Bernieri Fernandes",
+    "position": "Atacante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1993-06-08",
+    "birthCity": "Sertão",
+    "birthState": "RS",
+    "heightCm": 175,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/jean-carlo/profil/spieler/538259"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 322,
+    "name": "Rodriguinho",
+    "fullName": "Rodrigo Araújo da Silva Filho",
+    "position": "Atacante",
+    "preferredFoot": "canhoto",
+    "birthDate": "2001-04-17",
+    "birthCity": "Belo Horizonte",
+    "birthState": "MG",
+    "heightCm": 179,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/rodriguinho/profil/spieler/942396"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 400,
+    "name": "Iury Tanque",
+    "fullName": "Erickson Iury de Oliveira Lima",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1994-09-15",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 180,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/iury-tanque/profil/spieler/873695"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 187,
+    "name": "Lucas Dias",
+    "fullName": "Lucas Vinicius Dias Costa",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1995-07-20",
+    "birthCity": "Goianésia",
+    "birthState": "GO",
+    "heightCm": 191,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/lucas-dias/profil/spieler/642014"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 233,
+    "name": "Bruno José",
+    "fullName": "Bruno José de Souza",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1998-03-31",
+    "birthCity": "Monte Sião",
+    "birthState": "MG",
+    "heightCm": 173,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/bruno-jose/profil/spieler/644210"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 337,
+    "name": "Dedé",
+    "fullName": "Vitor Hugo Oliveira Corrêa da Silva",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "2002-04-17",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 178,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/dede/profil/spieler/740049"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 359,
+    "name": "Jefferson Oliveira",
+    "fullName": "Jefferson Francisco de Oliveira Junior",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "2002-01-28",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 178,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/jefferson-oliveira/profil/spieler/1096670"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 402,
+    "name": "Fernando Castro",
+    "fullName": "Fernando Augusto de Castro Ribeiro",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1997-03-30",
+    "birthCity": "Orlândia",
+    "birthState": "SP",
+    "heightCm": 195,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/fernando-castro/profil/spieler/584630"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 448,
+    "name": "Gabriel Vieira",
+    "fullName": "Gabriel Vieira da Silva",
+    "position": "Meia",
+    "preferredFoot": "ambidestro",
+    "birthDate": "2002-05-21",
+    "birthCity": "São Felix do Piauí",
+    "birthState": "PI",
+    "heightCm": 173,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/gabriel-vieira/profil/spieler/1011198"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 201,
+    "name": "Régis Souza",
+    "fullName": "Régis Ribeiro de Souza",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1989-06-03",
+    "birthCity": "Brasília",
+    "birthState": "DF",
+    "heightCm": 179,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/regis-souza/profil/spieler/140796"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 212,
+    "name": "Bruno Grassi",
+    "fullName": "Bruno Medeiros Grassi",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1987-03-05",
+    "birthCity": "Tubarão",
+    "birthState": "SC",
+    "heightCm": 192,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/bruno-grassi/profil/spieler/95747"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 320,
+    "name": "Marciel",
+    "fullName": "Marciel Silva da Silva",
+    "position": "Meia",
+    "preferredFoot": "canhoto",
+    "birthDate": "1995-03-08",
+    "birthCity": "Porto Alegre",
+    "birthState": "RS",
+    "heightCm": 186,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/marciel/profil/spieler/363175"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 333,
+    "name": "Rodolfo",
+    "fullName": "Rodolfo de Almeida Guimarães",
+    "position": "Meia",
+    "preferredFoot": "canhoto",
+    "birthDate": "1993-05-03",
+    "birthCity": "Mesquita",
+    "birthState": "RJ",
+    "heightCm": 173,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/rodolfo/profil/spieler/268521"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 421,
+    "name": "Danilinho",
+    "fullName": "Danilo Perassolli da Cruz Albuquerque",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1999-04-07",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 174,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/danilinho/profil/spieler/750703"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 450,
+    "name": "Diogo Batista",
+    "fullName": "Diogo Batista de Souza",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "2003-08-29",
+    "birthCity": "Januária",
+    "birthState": "MG",
+    "heightCm": 173,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/diogo-batista/profil/spieler/994588"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 176,
+    "name": "Alisson Safira",
+    "fullName": "Alisson Pelegrini Safira",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1995-03-17",
+    "birthCity": "Terra Boa",
+    "birthState": "PR",
+    "heightCm": 185,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/alisson-safira/profil/spieler/443338",
+      "https://en.wikipedia.org/wiki/Alisson_Safira"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 178,
+    "name": "Bruno Ramires",
+    "fullName": "Bruno Edgar Silva Almeida",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1994-03-18",
+    "birthCity": null,
+    "birthState": "MG",
+    "heightCm": 190,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/bruno-ramires/profil/spieler/348267"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 169,
+    "name": "Gersinho",
+    "fullName": "Gerson José Laurentino Junior",
+    "position": "Atacante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1999-12-09",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": 165,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/gersinho/profil/spieler/671571"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 167,
+    "name": "Lohan",
+    "fullName": "Lohan dos Santos Freire",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1995-09-20",
+    "birthCity": "Carmo",
+    "birthState": "RJ",
+    "heightCm": 191,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/lohan/profil/spieler/547688"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 185,
+    "name": "Madson",
+    "fullName": "Madson Formagini Caridade",
+    "position": "Meia",
+    "preferredFoot": "ambidestro",
+    "birthDate": "1986-05-21",
+    "birthCity": "Volta Redonda",
+    "birthState": "RJ",
+    "heightCm": 157,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/madson/profil/spieler/74119"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 207,
+    "name": "Cantionilo",
+    "fullName": "Cantionilo Silva dos Santos",
+    "position": "Lateral",
+    "preferredFoot": "canhoto",
+    "birthDate": "2001-02-19",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 180,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/cantionilo/profil/spieler/894217"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 258,
+    "name": "Wellington",
+    "fullName": "Wellington da Silva Pinto",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1991-09-30",
+    "birthCity": "Bauru",
+    "birthState": "SP",
+    "heightCm": 188,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/wellington/profil/spieler/140553"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 301,
+    "name": "Paulo Ricardo",
+    "fullName": "Paulo Ricardo Ferreira Teixeira",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1996-07-29",
+    "birthCity": "Nova Iguaçu",
+    "birthState": "RJ",
+    "heightCm": 190,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/paulo-ricardo/profil/spieler/374151"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 184,
+    "name": "Amaral",
+    "fullName": "Mauricio Azevedo Alves",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1988-05-01",
+    "birthCity": "Rio das Ostras",
+    "birthState": "RJ",
+    "heightCm": 175,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/amaral/profil/spieler/225686"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 269,
+    "name": "Ewerthon",
+    "fullName": "Ewerthon Diógenes da Silva",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "2000-11-10",
+    "birthCity": "Recife",
+    "birthState": "PE",
+    "heightCm": 171,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/ewerthon/profil/spieler/676034"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 318,
+    "name": "Lucas Ryan",
+    "fullName": "Lucas Ryan Dias Santos",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "2002-07-11",
+    "birthCity": "São Luís",
+    "birthState": "MA",
+    "heightCm": 187,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/lucas-ryan/profil/spieler/982547"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 352,
+    "name": "Moisés Gaúcho",
+    "fullName": "Moisés Wolschick",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1994-09-24",
+    "birthCity": "Santa Clara do Sul",
+    "birthState": "RS",
+    "heightCm": 181,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/moises-gaucho/profil/spieler/376867"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 321,
+    "name": "Ray Vanegas",
+    "fullName": "Ray Andrés Vanegas Zúñiga",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1993-03-12",
+    "birthCity": "Sincelejo",
+    "birthState": null,
+    "heightCm": 177,
+    "weightKg": null,
+    "nationality": "Colômbia",
+    "sources": [
+      "https://www.transfermarkt.com.br/ray-vanegas/profil/spieler/255977"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 379,
+    "name": "Allyson",
+    "fullName": "Allyson Gielvany Silva Vieira",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "2003-02-10",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": 184,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/allyson/profil/spieler/668263"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 397,
+    "name": "Mateus Buiate",
+    "fullName": "Mateus Antonio Pinheiro Buiate",
+    "position": "Zagueiro",
+    "preferredFoot": "ambidestro",
+    "birthDate": "2001-03-02",
+    "birthCity": "Uberlândia",
+    "birthState": "MG",
+    "heightCm": 185,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/mateus-buiate/profil/spieler/937611"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 183,
+    "name": "Jarro Pedroso",
+    "fullName": "Emilton Pedroso Domingues",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1994-03-23",
+    "birthCity": "Pedro Osório",
+    "birthState": "RS",
+    "heightCm": 180,
+    "weightKg": null,
+    "nationality": "Uruguai",
+    "sources": [
+      "https://www.transfermarkt.com.br/jarro-pedroso/profil/spieler/420400"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 234,
+    "name": "Caio Felipe",
+    "fullName": "Caio Felipe da Silva Rocha",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1999-02-02",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 177,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/caio-felipe/profil/spieler/729267"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 259,
+    "name": "Zé do Carmo",
+    "fullName": "Renildo Leonardo de Melo de Filho",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "2001-08-18",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 175,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/ze-do-carmo/profil/spieler/894216"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 241,
+    "name": "Dudu Beberibe",
+    "fullName": "Eraldo dos Santos Trindade",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1992-10-10",
+    "birthCity": "Beberibe",
+    "birthState": "CE",
+    "heightCm": 183,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/dudu-beberibe/profil/spieler/861108"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 373,
+    "name": "Calebe Costa",
+    "fullName": "Calebe Oliveira Costa",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "2003-06-07",
+    "birthCity": "Lages",
+    "birthState": "SC",
+    "heightCm": 187,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/calebe-costa/profil/spieler/1033501"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 403,
+    "name": "Miqueias",
+    "fullName": "Miqueias Mendes dos Santos",
+    "position": "Atacante",
+    "preferredFoot": "ambidestro",
+    "birthDate": "2003-01-22",
+    "birthCity": "Passo do Camaragibe",
+    "birthState": "AL",
+    "heightCm": 186,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/miqueias/profil/spieler/1093293"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 431,
+    "name": "Matías Cavalleri",
+    "fullName": "Matías Cavalleri Lopetegui",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1998-04-08",
+    "birthCity": "Vitacura",
+    "birthState": null,
+    "heightCm": 168,
+    "weightKg": null,
+    "nationality": "Chile",
+    "sources": [
+      "https://www.transfermarkt.com.br/matias-cavalleri/profil/spieler/549235"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 158,
+    "name": "Rony Fernandes",
+    "fullName": "Rony Fernandes da Silva",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1997-07-18",
+    "birthCity": "Cuiabá",
+    "birthState": "MT",
+    "heightCm": 191,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/rony-fernandes/profil/spieler/620043"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 237,
+    "name": "Gustavo Hebling",
+    "fullName": "Gustavo Hebling de Aguiar",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1996-04-05",
+    "birthCity": "Piracicaba",
+    "birthState": "SP",
+    "heightCm": 173,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/gustavo-hebling/profil/spieler/288502"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 206,
+    "name": "Willian Rocha",
+    "fullName": "Willian Pereira da Rocha",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1989-04-01",
+    "birthCity": "Abadia dos Dourados",
+    "birthState": "MG",
+    "heightCm": 186,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/willian-rocha/profil/spieler/177538"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 267,
+    "name": "Patrick Brey",
+    "fullName": "Patrick de Carvalho Brey",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1997-06-05",
+    "birthCity": "Brasília",
+    "birthState": "DF",
+    "heightCm": 177,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/patrick-brey/profil/spieler/435170"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 314,
+    "name": "Júnior Todinho",
+    "fullName": "Geremias Ribeiro Junior",
+    "position": "Atacante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1993-12-13",
+    "birthCity": "Salvador",
+    "birthState": "BA",
+    "heightCm": 182,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/junior-todinho/profil/spieler/518080"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 363,
+    "name": "Bruno Cardoso",
+    "fullName": "Bruno Oliveira Cardoso",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "2000-11-09",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 188,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/bruno-cardoso/profil/spieler/936776"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 366,
+    "name": "Caio Vitor",
+    "fullName": "Caio Vitor da Silva Souza",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "2000-08-18",
+    "birthCity": "Angra dos Reis",
+    "birthState": "RJ",
+    "heightCm": 180,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/caio-vitor/profil/spieler/860325"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 389,
+    "name": "Igor Dutra",
+    "fullName": "Igor Da Silva Dutra",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "2001-03-17",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 186,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/igor-dutra/profil/spieler/886753"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 364,
+    "name": "Jean Pierre",
+    "fullName": "Jean Pierre Freitas Militão",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1993-09-30",
+    "birthCity": "Conceição do Coité",
+    "birthState": "BA",
+    "heightCm": 184,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/jean-pierre/profil/spieler/549941"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 362,
+    "name": "Ricardo Sena",
+    "fullName": "Ricardo de Sena Marriel",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1992-07-01",
+    "birthCity": "Belford Roxo",
+    "birthState": "RJ",
+    "heightCm": 181,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/ricardo-sena/profil/spieler/855641"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 368,
+    "name": "Thiago Lopes",
+    "fullName": "Thiago Oliveira Lopes",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "2002-02-01",
+    "birthCity": "Côcos",
+    "birthState": "BA",
+    "heightCm": 189,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/thiago-lopes/profil/spieler/859160"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 202,
+    "name": "Joazi",
+    "fullName": "Joazi Oliveira da Silva",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1996-10-28",
+    "birthCity": "Recife",
+    "birthState": "PE",
+    "heightCm": 168,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/joazi/profil/spieler/435254"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 204,
+    "name": "Netto",
+    "fullName": "Clairton Norchang Netto",
+    "position": "Atacante",
+    "preferredFoot": "ambidestro",
+    "birthDate": "1998-02-28",
+    "birthCity": "Ituiutaba",
+    "birthState": "MG",
+    "heightCm": 174,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/netto/profil/spieler/644203"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 226,
+    "name": "Rodrigo Andrade",
+    "fullName": "José Rodrigo Andrade Ramos",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1997-02-03",
+    "birthCity": "Belém",
+    "birthState": "PA",
+    "heightCm": 174,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/rodrigo-andrade/profil/spieler/435239"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 310,
+    "name": "Gabriel Oliveira",
+    "fullName": "Gabriel Souza Lima de Oliveira",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1999-01-17",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 191,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/gabriel-oliveira/profil/spieler/688679"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 338,
+    "name": "Ramires",
+    "fullName": "Artur Lopes da Silva",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1999-03-03",
+    "birthCity": "Jaboatão dos Guararapes",
+    "birthState": "PE",
+    "heightCm": 183,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/ramires/profil/spieler/866831"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 335,
+    "name": "Rhayner",
+    "fullName": "Rhayner Santos Nascimento",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1990-09-05",
+    "birthCity": "Serra",
+    "birthState": "ES",
+    "heightCm": 179,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/rhayner/profil/spieler/99900"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 401,
+    "name": "Foguinho",
+    "fullName": "Vinicius Xavier da Purificação Moutinho",
+    "position": "Meia",
+    "preferredFoot": "canhoto",
+    "birthDate": "2000-07-17",
+    "birthCity": "Ouro Preto",
+    "birthState": "MG",
+    "heightCm": 169,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/foguinho/profil/spieler/739392"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 392,
+    "name": "Luan Martins",
+    "fullName": "Luan Martins Gonçalves",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1998-10-20",
+    "birthCity": "Santo Antônio de Goiás",
+    "birthState": "GO",
+    "heightCm": 188,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/luan-martins/profil/spieler/728908"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 386,
+    "name": "Roger Modesto",
+    "fullName": "Ronylo Roger Modesto Fagundes",
+    "position": "Atacante",
+    "preferredFoot": "canhoto",
+    "birthDate": "2003-03-13",
+    "birthCity": "Salvaterra",
+    "birthState": "PA",
+    "heightCm": 171,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/roger-modesto/profil/spieler/1065555"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 408,
+    "name": "Vidal",
+    "fullName": "Cristiano da Silva Vidal",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1996-08-23",
+    "birthCity": "Não-Me-Toque",
+    "birthState": "RS",
+    "heightCm": 174,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/vidal/profil/spieler/527047"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 175,
+    "name": "Jhonnatan",
+    "fullName": "Jhonnatan Guimarães Saraiva Teixeira",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1992-02-18",
+    "birthCity": "Belém",
+    "birthState": "PA",
+    "heightCm": 174,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/jhonnatan/profil/spieler/351255"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 197,
+    "name": "Matheus Prado",
+    "fullName": "Matheus Rodrigues do Prado",
+    "position": "Atacante",
+    "preferredFoot": "canhoto",
+    "birthDate": "2000-04-06",
+    "birthCity": "Itajaí",
+    "birthState": "SC",
+    "heightCm": 165,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/matheus-prado/profil/spieler/704561"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 191,
+    "name": "Rodolfo Gamarra",
+    "fullName": "Rodolfo Vicente Gamarra Varela",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1988-12-10",
+    "birthCity": "Limpio",
+    "birthState": null,
+    "heightCm": 168,
+    "weightKg": null,
+    "nationality": "Paraguai",
+    "sources": [
+      "https://www.transfermarkt.com.br/rodolfo-gamarra/profil/spieler/102277"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 210,
+    "name": "Ignácio",
+    "fullName": "Ignácio da Silva Oliveira",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1996-12-01",
+    "birthCity": "Currais Novos",
+    "birthState": "RN",
+    "heightCm": 190,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/ignacio/profil/spieler/624291"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 243,
+    "name": "Nilson",
+    "fullName": "José Nilson dos Santos Silva",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1991-04-06",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 184,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/nilson/profil/spieler/151736"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 332,
+    "name": "Abner Vinicius",
+    "fullName": "Abner Vinicius do Nascimento Custodio",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "2003-01-15",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 171,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/abner-vinicius/profil/spieler/1083634"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 420,
+    "name": "Adiel",
+    "fullName": "Adiel Oliveira da Silva",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "2001-12-13",
+    "birthCity": "Campo Grande",
+    "birthState": "MS",
+    "heightCm": 184,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/adiel/profil/spieler/886752"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 442,
+    "name": "Léo Costa",
+    "fullName": "Leonardo de Oliveira Costa",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1995-11-12",
+    "birthCity": "Cruzeiro",
+    "birthState": "SP",
+    "heightCm": 182,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/leo-costa/profil/spieler/792344"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 132,
+    "name": "Elly",
+    "fullName": "Elly Emanoel Cândido Rolim",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1998-02-20",
+    "birthCity": "Campina Grande",
+    "birthState": "PB",
+    "heightCm": 180,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/elly/profil/spieler/592349"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 140,
+    "name": "Vital",
+    "fullName": "Johnatan Lucas da Silva Vital",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1999-09-03",
+    "birthCity": "Campina Grande",
+    "birthState": "PB",
+    "heightCm": 195,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/vital/profil/spieler/594762"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 168,
+    "name": "Cristian Maidana",
+    "fullName": "Cristian Óscar Maidana",
+    "position": "Meia",
+    "preferredFoot": "canhoto",
+    "birthDate": "1987-01-24",
+    "birthCity": "Resistencia",
+    "birthState": null,
+    "heightCm": 180,
+    "weightKg": null,
+    "nationality": "Argentina",
+    "sources": [
+      "https://www.transfermarkt.com.br/cristian-maidana/profil/spieler/45318"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 180,
+    "name": "Igo Gabriel",
+    "fullName": "Igo Gabriel Santos Pereira",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "2001-10-13",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": 190,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/igo-gabriel/profil/spieler/698750"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 177,
+    "name": "Léo Santos",
+    "fullName": "Alexsandro Santos de Santana",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1997-03-09",
+    "birthCity": "São Francisco do Conde",
+    "birthState": "BA",
+    "heightCm": 178,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/leo-santos/profil/spieler/604404"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 257,
+    "name": "Montanhas",
+    "fullName": "José Victor das Montanhas Melo",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "2001-03-03",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 188,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/montanhas/profil/spieler/880187"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 391,
+    "name": "Alan Pedro",
+    "fullName": "Alan Pedro Sena de Oliveira",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "2002-06-12",
+    "birthCity": "Natal",
+    "birthState": "RN",
+    "heightCm": 179,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/alan-pedro/profil/spieler/873281"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 502,
+    "name": "Julián Benítez",
+    "fullName": "Julián Alfonso Benítez Franco",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1987-06-06",
+    "birthCity": "Pilar",
+    "birthState": null,
+    "heightCm": 174,
+    "weightKg": null,
+    "nationality": "Paraguai",
+    "sources": [
+      "https://www.transfermarkt.com.br/julian-benitez/profil/spieler/99171"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 637,
+    "name": "Thiaguinho",
+    "fullName": "Wytallo Thiago Lima da Silva",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1998-01-02",
+    "birthCity": null,
+    "birthState": null,
+    "heightCm": 170,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/thiaguinho/profil/spieler/643248"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 643,
+    "name": "Paulo Vitor",
+    "fullName": "Paulo Vitor Rinaldi",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1991-01-17",
+    "birthCity": "São João da Boa Vista",
+    "birthState": "SP",
+    "heightCm": 192,
+    "weightKg": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/paulo-vitor/profil/spieler/666798"
+    ],
+    "confidence": "high"
+  }
+]

@@ -1,0 +1,31 @@
+[
+  {
+    "id": 289,
+    "name": "Héctor Canteros",
+    "fullName": "Héctor Miguel Canteros",
+    "position": "Meia Central",
+    "preferredFoot": "destro",
+    "birthDate": "1989-03-15",
+    "birthCity": "Buenos Aires",
+    "birthState": null,
+    "heightCm": 176,
+    "nationality": "Argentina",
+    "sources": ["https://www.transfermarkt.com.br/hector-canteros/profil/spieler/96255"],
+    "confidence": "high"
+  },
+  {
+    "id": 181,
+    "name": "Ricardo Bueno",
+    "fullName": "Ricardo Bueno da Silva",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1987-08-15",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 183,
+    "nationality": "Brasil",
+    "sources": ["https://pt.wikipedia.org/wiki/Ricardo_Bueno", "https://www.transfermarkt.com.br/ricardo-bueno/profil/spieler/84361"],
+    "confidence": "high",
+    "note": "Verify TM id — foot from Wikipedia/common sources"
+  }
+]

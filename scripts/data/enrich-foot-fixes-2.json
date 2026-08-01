@@ -1,0 +1,79 @@
+[
+  {
+    "id": 616,
+    "name": "Carlão",
+    "fullName": "Carlos Roberto Pereira Dantas",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1985-12-31",
+    "birthCity": "Bayeux",
+    "birthState": "PB",
+    "heightCm": 190,
+    "nationality": "Brasil",
+    "sources": ["https://www.transfermarkt.com.br/carlao/profil/spieler/555423"],
+    "confidence": "high"
+  },
+  {
+    "id": 98,
+    "name": "Leandro Cardoso",
+    "fullName": "Leandro Álvares Cardoso",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1981-07-28",
+    "birthCity": "São Gonçalo",
+    "birthState": "RJ",
+    "heightCm": 185,
+    "nationality": "Brasil",
+    "sources": ["https://www.transfermarkt.com.br/leandro-cardoso/profil/spieler/141795"],
+    "confidence": "high"
+  },
+  {
+    "id": 271,
+    "name": "Clayton",
+    "fullName": "Clayton da Silveira da Silva",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1995-10-23",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 175,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.soccerpunter.com/players/276337-Clayton-da-Silveira-da-Silva",
+      "https://www.ogol.com.br/jogador/clayton/296112",
+      "https://pt.soccerwiki.org/player.php?pid=73794"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 60,
+    "name": "Rodrigo Lobão",
+    "fullName": "Rodrigo da Conceição Santos",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1993-07-17",
+    "birthCity": "Salvador",
+    "birthState": "BA",
+    "heightCm": 190,
+    "nationality": "Brasil",
+    "sources": ["https://www.fichajes.com/jugador/rodrigo-da-conceicao-santos/"],
+    "confidence": "high"
+  },
+  {
+    "id": 7,
+    "name": "João Paulo",
+    "fullName": "João Paulo Ferreira Romão",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "2000-09-14",
+    "birthCity": "Belo Horizonte",
+    "birthState": "MG",
+    "heightCm": 177,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.footballtoday.net/player/joao-paulo-ferreira-romao",
+      "https://www.footmercato.net/joueur/joao-paulo-ferreira-romao/"
+    ],
+    "confidence": "high"
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "id": 223,
+    "name": "Allano",
+    "fullName": "Allano Brendon de Souza Lima",
+    "position": "Ponta Direita",
+    "preferredFoot": "canhoto",
+    "birthDate": "1995-04-24",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 182,
+    "nationality": "Brasil",
+    "sources": ["https://www.transfermarkt.com/allano/profil/spieler/376441", "https://en.wikipedia.org/wiki/Allano"],
+    "confidence": "high"
+  },
+  {
+    "id": 232,
+    "name": "Diego Maurício",
+    "fullName": "Diego Maurício Machado de Brito",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1991-06-25",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 183,
+    "nationality": "Brasil",
+    "sources": ["https://www.transfermarkt.com.br/diego-mauricio/profil/spieler/138141"],
+    "confidence": "high"
+  },
+  {
+    "id": 288,
+    "name": "Marcelo Carné",
+    "fullName": "Marcelo Henrique Passos Carné",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1990-02-06",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 188,
+    "nationality": "Brasil",
+    "sources": ["https://www.transfermarkt.com/marcelo-carne/profil/spieler/14881"],
+    "confidence": "high"
+  },
+  {
+    "id": 306,
+    "name": "Rafael Forster",
+    "fullName": "Rafael Forster",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1990-07-23",
+    "birthCity": "São José",
+    "birthState": "SC",
+    "heightCm": 184,
+    "nationality": "Brasil",
+    "sources": ["https://www.transfermarkt.com/rafael-forster/profil/spieler/104590"],
+    "confidence": "high"
+  }
+]

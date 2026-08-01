@@ -1,0 +1,64 @@
+[
+  {
+    "id": 326,
+    "name": "Tomas Bastos",
+    "fullName": "Tomas Almino Bastos Silva",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1992-04-30",
+    "birthCity": "Araguaína",
+    "birthState": "TO",
+    "heightCm": 177,
+    "nationality": "Brasil",
+    "sources": ["https://www.transfermarkt.com.br/tomas-bastos/profil/spieler/349161"],
+    "confidence": "high"
+  },
+  {
+    "id": 294,
+    "name": "Lourenço",
+    "fullName": "João Paulo Ferreira Lourenço",
+    "position": "Meia Central",
+    "preferredFoot": "destro",
+    "birthDate": "1997-09-07",
+    "birthCity": "Belo Horizonte",
+    "birthState": "MG",
+    "heightCm": 169,
+    "nationality": "Brasil",
+    "sources": ["https://www.transfermarkt.com.br/lourenco/profil/spieler/515068"],
+    "confidence": "high"
+  },
+  {
+    "id": 224,
+    "name": "Andrigo",
+    "fullName": "Andrigo Oliveira de Araújo",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1995-02-27",
+    "birthCity": "Estrela",
+    "birthState": "RS",
+    "heightCm": 170,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/andrigo/profil/spieler/181775",
+      "https://en.wikipedia.org/wiki/Andrigo"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 296,
+    "name": "Dalberto",
+    "fullName": "Dalberto Luan Belo",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1994-09-15",
+    "birthCity": "Bento Fernandes",
+    "birthState": "RN",
+    "heightCm": 182,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/dalberto/profil/spieler/519891",
+      "https://en.wikipedia.org/wiki/Dalberto"
+    ],
+    "confidence": "high"
+  }
+]
