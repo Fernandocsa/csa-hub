@@ -2,12 +2,16 @@ import { Link } from "wouter";
 import { useGetPlayersByBirthState } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MapPin } from "lucide-react";
-import { ufDisplayName } from "@/lib/br-locations";
+import { BRAZIL_UFS, ufDisplayName } from "@/lib/br-locations";
+
+const VALID_UF = new Set<string>(BRAZIL_UFS);
 
 export default function PlayersByState() {
   const { data, isLoading, isError } = useGetPlayersByBirthState();
 
-  const states = data?.states ?? [];
+  const states = (data?.states ?? []).filter(
+    (r) => r.state && VALID_UF.has(r.state.toUpperCase()),
+  );
   const unknown = data?.unknown;
   const totalPlayers =
     states.reduce((s, r) => s + r.playerCount, 0) + (unknown?.playerCount ?? 0);

@@ -473,7 +473,17 @@ const BRAZIL_UFS = new Set([
   "RS", "RO", "RR", "SC", "SP", "SE", "TO",
 ]);
 
+/** Common bad values stored as birth_state (city nicknames, typos) → real UF */
+const BIRTH_STATE_ALIASES: Record<string, string> = {
+  BH: "MG", // Belo Horizonte
+};
+
 const birthStateNorm = sql<string>`upper(trim(${playersTable.birthState}))`;
+
+function resolveBirthUf(raw: string): string {
+  const uf = raw.toUpperCase();
+  return BIRTH_STATE_ALIASES[uf] ?? uf;
+}
 
 // Brazilian birth-state summaries
 router.get("/players/by-birth-state", async (req, res) => {
@@ -511,15 +521,30 @@ router.get("/players/by-birth-state", async (req, res) => {
         ),
       );
 
+    // Merge aliases (e.g. BH → MG) and drop non-UF junk from the index
+    const byUf = new Map<
+      string,
+      { state: string; playerCount: number; totalAppearances: number; totalGoals: number }
+    >();
+    for (const r of rows) {
+      if (!r.state) continue;
+      const raw = String(r.state).toUpperCase();
+      const state = resolveBirthUf(raw);
+      if (!BRAZIL_UFS.has(state)) continue;
+      const cur = byUf.get(state) ?? {
+        state,
+        playerCount: 0,
+        totalAppearances: 0,
+        totalGoals: 0,
+      };
+      cur.playerCount += r.playerCount ?? 0;
+      cur.totalAppearances += r.totalAppearances ?? 0;
+      cur.totalGoals += r.totalGoals ?? 0;
+      byUf.set(state, cur);
+    }
+
     res.json({
-      states: rows
-        .filter((r) => r.state)
-        .map((r) => ({
-          state: String(r.state).toUpperCase(),
-          playerCount: r.playerCount ?? 0,
-          totalAppearances: r.totalAppearances ?? 0,
-          totalGoals: r.totalGoals ?? 0,
-        })),
+      states: [...byUf.values()].sort((a, b) => b.playerCount - a.playerCount),
       unknown:
         unknown && (unknown.playerCount ?? 0) > 0
           ? {
@@ -540,18 +565,27 @@ router.get("/players/by-birth-state/:uf", async (req, res) => {
   try {
     const raw = decodeURIComponent(req.params.uf ?? "").trim();
     const isUnknown = raw.toLowerCase() === "sem-estado" || raw.toLowerCase() === "unknown";
-    const uf = raw.toUpperCase();
+    const uf = resolveBirthUf(raw.toUpperCase());
 
-    if (!isUnknown && uf.length === 2 && !BRAZIL_UFS.has(uf)) {
+    if (!isUnknown && !BRAZIL_UFS.has(uf)) {
       return res.status(400).json({ error: "UF inválida" });
     }
+
+    // Include legacy aliases that map to this UF (e.g. BH when querying MG)
+    const aliasValues = Object.entries(BIRTH_STATE_ALIASES)
+      .filter(([, target]) => target === uf)
+      .map(([alias]) => alias);
+    const stateValues = [uf, ...aliasValues];
 
     const stateCondition = isUnknown
       ? or(
           isNull(playersTable.birthState),
           sql`trim(${playersTable.birthState}) = ''`,
         )
-      : eq(birthStateNorm, uf);
+      : sql`${birthStateNorm} in (${sql.join(
+          stateValues.map((v) => sql`${v}`),
+          sql`, `,
+        )})`;
 
     const rows = await db
       .select({
