@@ -588,6 +588,59 @@ try {
         await client.query(`UPDATE matches SET related_match_id=$2 WHERE id=$1`, [idB, idA]);
       }
     }
+
+    const { rows: sheetStats } = await client.query(
+      `
+      WITH apps AS (
+        SELECT ml.player_id,
+          count(DISTINCT ml.match_id)::int AS appearances
+        FROM match_lineups ml
+        JOIN matches m ON m.id=ml.match_id
+        WHERE m.season='2013' AND m.is_friendly=false AND ml.side='csa' AND ml.player_id IS NOT NULL
+          AND (
+            ml.role='starter'
+            OR EXISTS (
+              SELECT 1 FROM match_substitutions s
+              WHERE s.match_id=ml.match_id AND s.side='csa'
+                AND s.player_in_id=ml.player_id
+            )
+          )
+        GROUP BY ml.player_id
+      ),
+      goals AS (
+        SELECT mg.scorer_player_id AS player_id, count(*)::int AS goals
+        FROM match_goals mg
+        JOIN matches m ON m.id=mg.match_id
+        WHERE m.season='2013' AND m.is_friendly=false AND mg.side='csa'
+          AND coalesce(mg.is_own_goal,false)=false AND mg.scorer_player_id IS NOT NULL
+        GROUP BY mg.scorer_player_id
+      )
+      SELECT a.player_id, a.appearances, coalesce(g.goals,0) AS goals
+      FROM apps a
+      LEFT JOIN goals g ON g.player_id=a.player_id
+    `,
+    );
+    let upserted = 0;
+    for (const s of sheetStats) {
+      const { rows: cur } = await client.query(
+        `SELECT id FROM player_season_stats WHERE player_id=$1 AND season='2013'`,
+        [s.player_id],
+      );
+      if (cur[0]) {
+        await client.query(
+          `UPDATE player_season_stats SET appearances=$2, goals=$3 WHERE id=$1`,
+          [cur[0].id, s.appearances, s.goals],
+        );
+      } else {
+        await client.query(
+          `INSERT INTO player_season_stats (player_id, season, appearances, goals, assists)
+           VALUES ($1,'2013',$2,$3,0)`,
+          [s.player_id, s.appearances, s.goals],
+        );
+      }
+      upserted += 1;
+    }
+    console.log(`roster sync (official matches only) rows ${upserted}`);
   }
 
   if (DRY) {

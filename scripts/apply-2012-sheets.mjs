@@ -1,9 +1,8 @@
 /**
- * Enrich existing 2014 matches with sheets/meta from season-2014-sheets.csv.
- * Confirmed reuses (user): Daniel Costa #53, Jeferson Maranhense #117,
- * Pantera #81, Josimar #151, Breno #1191. Other nicknames create new players.
+ * Enrich existing 2012 matches with sheets/meta from season-2012-sheets.csv.
+ * Creates missing players (by nickname) and syncs player_season_stats.
  *
- * Usage: node scripts/apply-2014-sheets.mjs [--dry]
+ * Usage: node scripts/apply-2012-sheets.mjs [--dry]
  */
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -12,6 +11,7 @@ import { loadEnvFromDotenv, createPgPool } from "./_load-env.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DRY = process.argv.includes("--dry");
+const SEASON = "2012";
 
 loadEnvFromDotenv(".env");
 const pool = createPgPool();
@@ -27,9 +27,15 @@ function norm(s) {
 }
 
 function fixPlayerName(n) {
-  return String(n)
-    .trim()
-    .replace(/^Jefferson Maranhense$/i, "Jeferson Maranhense");
+  let s = String(n).trim();
+  s = s
+    .replace(/\bRafael Araujo\b/gi, "Rafael Araújo")
+    .replace(/\bAndré Luis\b/gi, "André Luiz")
+    .replace(/\bPaulinho Marília\b/gi, "Paulinho Marilia")
+    .replace(/\bWagner\b/gi, "Wagnér")
+    .replace(/\bJefferson\b/gi, "Jeferson");
+  if (norm(s) === "rafael") s = "Rafael Araújo";
+  return s;
 }
 
 function parseNestedSubs(inner) {
@@ -74,7 +80,7 @@ function parseGoalsCsa(raw) {
   let ownGoals = 0;
   if (!raw?.trim()) return { goals, ownGoals };
   for (const part of raw.split(";").map((s) => s.trim()).filter(Boolean)) {
-    if (/\(contra/i.test(part)) {
+    if (/\(contra\)/i.test(part)) {
       ownGoals += 1;
       continue;
     }
@@ -128,53 +134,162 @@ function parseCsvLine(line) {
 function parseScore(score) {
   const m = String(score).match(/(\d+)\s*[x×]\s*(\d+)/i);
   if (!m) throw new Error(`bad score ${score}`);
-  return { gf: Number(m[1]), ga: Number(m[2]) };
+  return {
+    gf: Number(m[1]),
+    ga: Number(m[2]),
+    penalties_for: null,
+    penalties_against: null,
+  };
 }
 
 function parseHomeAway(v) {
   const s = String(v).trim().toUpperCase();
   if (s === "C") return "home";
-  if (s === "V") return "away";
+  if (s === "V" || s === "A") return "away";
   throw new Error(`bad home_away ${v}`);
 }
 
 function parseRef(raw) {
-  const t = String(raw ?? "").trim();
-  if (!t) return { name: null, state: null };
-  const m = t.match(/^(.*?)(?:-([A-Z]{2}))?$/);
-  return { name: (m?.[1] ?? t).trim(), state: m?.[2] ?? null };
+  const m = String(raw ?? "").trim().match(/^(.*?)(?:-([A-Z]{2}))?$/);
+  return { name: (m?.[1] ?? raw).trim(), state: m?.[2] ?? null };
 }
 
 function parseStadium(raw) {
   const s = String(raw ?? "").trim();
-  if (!s) return { name: null, city: null, state: null };
   const m = s.match(/^(.*?)\s*-\s*(.+)-([A-Z]{2})$/);
   if (m) return { name: m[1].trim(), city: m[2].trim(), state: m[3] };
   return { name: s, city: null, state: null };
 }
 
-function cleanCoach(name) {
-  return String(name ?? "")
-    .replace(/\s*\(Interino\)\s*/i, "")
-    .trim();
-}
-
-/** Confirmed by user — reuse these IDs. */
+/** Confirmed reuses only. */
 const FORCE_ID = {
-  "daniel costa": 53,
-  "jeferson maranhense": 117,
-  "jefferson maranhense": 117,
-  pantera: 81,
-  josimar: 151,
-  breno: 1191,
+  flavio: 485,
+  ronaldo: 468,
+  "paulinho macaiba": 491,
+  "adriano gabiru": 656,
+  alisson: 1564,
+  adalberto: 1584,
+  celico: 1586,
+  claudinho: 1590,
+  cleberson: 1600,
+  fabiano: 1194,
+  "jucemar gaucho": 1596,
+  kel: 1605,
+  leandrinho: 1582,
+  leandro: 1583,
+  levi: 1593,
+  maxwell: 1625,
+  roberio: 1588,
+  rony: 1202,
+  sinval: 1621,
+  washington: 1601,
+  wilson: 1614, // Wilson Jr 2013 = Wilson dos Santos Januário
+};
+
+/** CSV date → also accept these DB dates */
+const DATE_ALIASES = {};
+
+/** Bios to apply on create / enrich known IDs */
+const BIOS = {
+  wilson: {
+    name: "Wilson",
+    fullName: "Wilson dos Santos Januário",
+    birthDate: "1993-11-04",
+    birthCity: null,
+    birthState: "AL",
+    birthCountry: "Brasil",
+    nationality: "Brasil",
+    position: "Meia Ofensivo",
+    preferredFoot: "destro",
+  },
+  jeferson: {
+    name: "Jeferson",
+    fullName: "Jefferson Sandes Marques Monteiro",
+    birthDate: "1989-03-04",
+    birthCountry: "Brasil",
+    nationality: "Brasil",
+    position: "Lateral Esquerdo",
+    secondaryPositions: ["Zagueiro"],
+    preferredFoot: "canhoto",
+    heightCm: 184,
+    weightKg: 72,
+  },
+  warley: {
+    name: "Warley",
+    fullName: "Warley Moreira dos Santos",
+    birthDate: "1977-05-21",
+    birthCity: "Belo Horizonte",
+    birthState: "MG",
+    birthCountry: "Brasil",
+    nationality: "Brasil",
+    position: "Ponta Direita",
+    secondaryPositions: ["Ponta Esquerda"],
+    preferredFoot: "destro",
+    heightCm: 167,
+    weightKg: 70,
+  },
+  safira: {
+    name: "Safira",
+    fullName: "Anderson Pelegrini Safira",
+    birthDate: "1983-07-20",
+    birthCity: "Terra Boa",
+    birthState: "PR",
+    birthCountry: "Brasil",
+    nationality: "Brasil",
+    position: "Meia Ofensivo",
+    preferredFoot: "canhoto",
+    heightCm: 182,
+    weightKg: 69,
+  },
+  wagner: {
+    name: "Wagnér",
+    fullName: "Wagner Marco da Silva Gomes",
+    birthDate: "1993-07-10",
+    birthCity: "Maceió",
+    birthState: "AL",
+    birthCountry: "Brasil",
+    nationality: "Brasil",
+    position: "Meia Ofensivo",
+    secondaryPositions: ["Centroavante"],
+    preferredFoot: "destro",
+    heightCm: 180,
+    weightKg: 69,
+  },
+  "paulinho marilia": {
+    name: "Paulinho Marilia",
+    fullName: "Paulo Francisco Zamaia Matias",
+    birthDate: "1980-09-02",
+    birthCity: "Tupã",
+    birthState: "SP",
+    birthCountry: "Brasil",
+    nationality: "Brasil",
+    position: "Atacante",
+    preferredFoot: "destro",
+    heightCm: 180,
+    weightKg: 75,
+  },
+  jucemar: {
+    name: "Jucemar",
+    fullName: "Jucemar Luiz Domingos Ambrózio",
+    birthDate: "1980-07-29",
+    birthCity: "Criciúma",
+    birthState: "SC",
+    birthCountry: "Brasil",
+    nationality: "Brasil",
+    position: "Lateral Direito",
+    preferredFoot: "destro",
+    heightCm: 176,
+    weightKg: 70,
+    isDeceased: true,
+  },
 };
 
 try {
   await client.query("BEGIN");
 
-  const csvPath = join(__dirname, "data", "season-2014-sheets.csv");
+  const csvPath = join(__dirname, "data", "season-2012-sheets.csv");
   const games = parseCsv(readFileSync(csvPath, "utf8")).map((row, idx) => {
-    const { gf, ga } = parseScore(row.score);
+    const { gf, ga, penalties_for, penalties_against } = parseScore(row.score);
     const { starters, subs } = parseLineupField(row.lineup);
     const { goals, ownGoals } = parseGoalsCsa(row.goals_csa);
     const stad = parseStadium(row.stadium);
@@ -187,6 +302,8 @@ try {
       ha: parseHomeAway(row.home_away),
       gf,
       ga,
+      penalties_for,
+      penalties_against,
       stadium: stad.name,
       stadiumCity: stad.city,
       stadiumState: stad.state,
@@ -198,17 +315,10 @@ try {
       subs,
       goals,
       ownGoals,
-      coach: cleanCoach(row.coach),
+      coach: row.coach,
     };
   });
   console.log(`parsed ${games.length} games`);
-  for (const g of games) {
-    if (g.starters.length && g.starters.length !== 11) {
-      console.warn(
-        `WARN n=${g.n} ${g.date} ${g.opponent}: ${g.starters.length} starters (expected 11)`,
-      );
-    }
-  }
 
   const { rows: mgrRows } = await client.query(`SELECT id, name FROM managers`);
   function resolveManager(name) {
@@ -224,23 +334,14 @@ try {
 
   const refCache = new Map();
   async function resolveRef(raw) {
+    if (!raw?.trim()) return { id: null, name: null };
     const { name, state } = parseRef(raw);
-    if (!name) return null;
     const key = norm(name);
     if (refCache.has(key)) return refCache.get(key);
     let { rows } = await client.query(
       `SELECT id, name FROM referees WHERE lower(name)=lower($1)`,
       [name],
     );
-    if (!rows[0]) {
-      ({ rows } = await client.query(
-        `SELECT id, name FROM referees WHERE lower(name) LIKE lower($1)`,
-        [`%${name.split(/\s+/).slice(0, 2).join(" ")}%`],
-      ));
-      const exact = rows.filter((r) => norm(r.name) === key);
-      if (exact.length === 1) rows = exact;
-      else if (rows.length !== 1) rows = [];
-    }
     if (!rows[0]) {
       if (DRY) {
         const fake = { id: -1, name };
@@ -262,32 +363,23 @@ try {
   const STADIUM_FORCE = {
     "estadio coaracy da mata fonseca": 22,
     "coaracy da mata fonseca": 22,
-    "coaracy da mata": 22,
-    fumeirao: 22,
-    "estadio do morumbi": null, // resolve by name
-    morumbi: null,
   };
   async function resolveStadium(name, city, state) {
     if (!name) return null;
     const key = norm(name);
     if (STADIUM_FORCE[key] != null) return STADIUM_FORCE[key];
-    const stripped = key.replace(/^estadio\s+(do\s+)?/, "");
+    const stripped = key.replace(/^estadio\s+/, "");
     if (STADIUM_FORCE[stripped] != null) return STADIUM_FORCE[stripped];
     const hits = allStadiums.filter((s) => {
       const sn = norm(s.name);
-      return (
-        sn.includes(key) ||
-        key.includes(sn) ||
-        sn.includes(stripped) ||
-        stripped.includes(sn.replace(/\s*\(.*\)\s*/g, "").trim())
-      );
+      return sn.includes(key) || key.includes(sn) || sn.includes(stripped);
     });
     if (hits.length >= 1) {
       hits.sort((a, b) => a.name.length - b.name.length);
       return hits[0].id;
     }
     if (DRY) {
-      console.log("would create stadium", name, city, state);
+      console.log("would create stadium", name);
       return null;
     }
     const ins = await client.query(
@@ -307,59 +399,172 @@ try {
     playersByNorm.get(k).push(p);
   }
 
-  async function ensureSeason2014(playerId) {
+  async function ensureSeason(playerId) {
     if (DRY) return;
     const { rows } = await client.query(
-      `SELECT id FROM player_season_stats WHERE player_id=$1 AND season='2014'`,
-      [playerId],
+      `SELECT id FROM player_season_stats WHERE player_id=$1 AND season=$2`,
+      [playerId, SEASON],
     );
     if (!rows[0]) {
       await client.query(
         `INSERT INTO player_season_stats (player_id, season, appearances, goals, assists)
-         VALUES ($1,'2014',0,0,0)`,
-        [playerId],
+         VALUES ($1,$2,0,0,0)`,
+        [playerId, SEASON],
       );
     }
   }
 
-  /** Players created in this run (by normalized nickname). */
-  const createdThisRun = new Map();
+  async function applyBio(playerId, bio) {
+    if (DRY || !bio) return;
+    await client.query(
+      `UPDATE players SET
+         name = COALESCE($2, name),
+         full_name = COALESCE($3, full_name),
+         birth_date = COALESCE($4::date, birth_date),
+         birth_year = COALESCE($5, birth_year),
+         birth_city = COALESCE($6, birth_city),
+         birth_state = COALESCE($7, birth_state),
+         birth_country = COALESCE($8, birth_country),
+         nationality = COALESCE($9, nationality),
+         position = COALESCE($10, position),
+         secondary_positions = COALESCE($11::text[], secondary_positions),
+         preferred_foot = COALESCE($12, preferred_foot),
+         height_cm = COALESCE($13, height_cm),
+         weight_kg = COALESCE($14, weight_kg),
+         is_deceased = COALESCE($15, is_deceased)
+       WHERE id = $1`,
+      [
+        playerId,
+        bio.name ?? null,
+        bio.fullName ?? null,
+        bio.birthDate ?? null,
+        bio.birthDate ? Number(bio.birthDate.slice(0, 4)) : null,
+        bio.birthCity ?? null,
+        bio.birthState ?? null,
+        bio.birthCountry ?? "Brasil",
+        bio.nationality ?? "Brasil",
+        bio.position ?? null,
+        bio.secondaryPositions ?? null,
+        bio.preferredFoot ?? null,
+        bio.heightCm ?? null,
+        bio.weightKg ?? null,
+        bio.isDeceased ?? null,
+      ],
+    );
+  }
+
+  async function createWithBio(bio) {
+    if (DRY) {
+      console.log("would create player", bio.name, bio.fullName);
+      return { id: -Math.abs(norm(bio.name).length + 1), name: bio.name };
+    }
+    const ins = await client.query(
+      `INSERT INTO players (
+         name, full_name, birth_date, birth_year, birth_city, birth_state, birth_country,
+         nationality, position, secondary_positions, preferred_foot, height_cm, weight_kg,
+         is_deceased, verification_status
+       ) VALUES (
+         $1,$2,$3::date,$4,$5,$6,$7,$8,$9,COALESCE($10::text[],'{}'::text[]),$11,$12,$13,
+         COALESCE($14,false),'unverified'
+       ) RETURNING id, name`,
+      [
+        bio.name,
+        bio.fullName ?? null,
+        bio.birthDate ?? null,
+        bio.birthDate ? Number(bio.birthDate.slice(0, 4)) : null,
+        bio.birthCity ?? null,
+        bio.birthState ?? null,
+        bio.birthCountry ?? "Brasil",
+        bio.nationality ?? "Brasil",
+        bio.position ?? null,
+        bio.secondaryPositions ?? null,
+        bio.preferredFoot ?? null,
+        bio.heightCm ?? null,
+        bio.weightKg ?? null,
+        bio.isDeceased ?? false,
+      ],
+    );
+    console.log("+ player", ins.rows[0], bio.fullName ?? "");
+    const p = ins.rows[0];
+    const key = norm(p.name);
+    if (!playersByNorm.has(key)) playersByNorm.set(key, []);
+    playersByNorm.get(key).push(p);
+    allPlayers.push(p);
+    await ensureSeason(p.id);
+    return p;
+  }
+
+  // Enrich Wilson Jr → Wilson bio
+  if (!DRY) {
+    await applyBio(1614, BIOS.wilson);
+    console.log("* enriched #1614 Wilson");
+  }
+
+  // Pre-create named bios that must not collide with wrong exact matches
+  const MUST_CREATE = [
+    "jeferson",
+    "warley",
+    "safira",
+    "wagner",
+    "paulinho marilia",
+    "jucemar",
+  ];
+  const createdByKey = new Map();
+  for (const key of MUST_CREATE) {
+    const bio = BIOS[key];
+    if (!bio) continue;
+    // skip if FORCE or already have a 2012 row with this exact name created this run
+    if (FORCE_ID[key] != null) continue;
+    const existing2012 = [];
+    for (const p of playersByNorm.get(key) ?? []) {
+      const { rows } = await client.query(
+        `SELECT 1 FROM player_season_stats WHERE player_id=$1 AND season=$2`,
+        [p.id, SEASON],
+      );
+      if (rows[0]) existing2012.push(p);
+    }
+    if (existing2012.length === 1) {
+      createdByKey.set(key, existing2012[0]);
+      await applyBio(existing2012[0].id, bio);
+      continue;
+    }
+    // For these keys, never reuse distant homonyms — always create (or use FORCE)
+    const p = await createWithBio(bio);
+    createdByKey.set(key, p);
+    if (p.id > 0) FORCE_ID[key] = p.id;
+  }
 
   async function resolvePlayer(name) {
     const key = norm(name);
+    if (createdByKey.has(key)) {
+      const p = createdByKey.get(key);
+      if (p.id > 0) await ensureSeason(p.id);
+      return p;
+    }
     if (FORCE_ID[key] != null) {
       const { rows } = await client.query(`SELECT id, name FROM players WHERE id=$1`, [
         FORCE_ID[key],
       ]);
-      if (!rows[0]) throw new Error(`FORCE_ID missing ${name} → ${FORCE_ID[key]}`);
-      await ensureSeason2014(rows[0].id);
+      if (!rows[0]) throw new Error(`FORCE_ID missing ${name}`);
+      await ensureSeason(rows[0].id);
       return rows[0];
     }
 
-    // Reuse player created earlier in this same apply run.
-    if (createdThisRun.has(key)) {
-      return createdThisRun.get(key);
-    }
-
-    // Reuse if already has a 2014 season row under this exact nickname
-    // (idempotent re-run), but never invent links to other-era namesakes.
-    const sameName = playersByNorm.get(key) ?? [];
-    for (const p of sameName) {
+    // Reuse only if this exact nickname already has a 2012 season row
+    const candidates = playersByNorm.get(key) ?? [];
+    for (const p of candidates) {
       const { rows } = await client.query(
-        `SELECT 1 FROM player_season_stats WHERE player_id=$1 AND season='2014'`,
-        [p.id],
+        `SELECT 1 FROM player_season_stats WHERE player_id=$1 AND season=$2`,
+        [p.id, SEASON],
       );
-      if (rows[0]) {
-        createdThisRun.set(key, p);
-        return p;
-      }
+      if (rows[0]) return p;
     }
 
+    // Also reuse if only one candidate already has adjacent 2013 season and same exact name
+    // — disabled for safety; create new unless FORCE_ID
     if (DRY) {
       console.log("would create player", name);
-      const fake = { id: -Math.abs(key.length + name.charCodeAt(0)), name };
-      createdThisRun.set(key, fake);
-      return fake;
+      return { id: -Math.abs(key.length + name.charCodeAt(0)), name };
     }
     const ins = await client.query(
       `INSERT INTO players (name, nationality, verification_status)
@@ -371,8 +576,7 @@ try {
     if (!playersByNorm.has(key)) playersByNorm.set(key, []);
     playersByNorm.get(key).push(p);
     allPlayers.push(p);
-    createdThisRun.set(key, p);
-    await ensureSeason2014(p.id);
+    await ensureSeason(p.id);
     return p;
   }
 
@@ -396,11 +600,12 @@ try {
            m.goals_for, m.goals_against
     FROM matches m
     JOIN opponents o ON o.id=m.opponent_id
-    WHERE m.season='2014' AND m.is_friendly=false
-  `);
+    WHERE m.season=$1 AND m.is_friendly=false
+  `, [SEASON]);
 
   function findMatch(g) {
-    const sameDate = dbMatches.filter((m) => m.d.slice(0, 10) === g.date);
+    const dates = [g.date, ...(DATE_ALIASES[g.date] ?? [])];
+    const sameDate = dbMatches.filter((m) => dates.includes(m.d.slice(0, 10)));
     if (sameDate.length === 1) return sameDate[0];
     const oppKey = norm(g.opponent).split(/[-\s]/)[0];
     const hit = sameDate.filter((m) => {
@@ -441,12 +646,14 @@ try {
            phase=$8,
            round=$9,
            scorers=$10,
-           own_goals_for_count=$11
+           own_goals_for_count=$11,
+           penalties_for=$12,
+           penalties_against=$13
          WHERE id=$1`,
         [
           match.id,
           mgr.id,
-          ref?.id > 0 ? ref.id : null,
+          ref.id > 0 ? ref.id : null,
           stadiumId,
           g.attendance,
           g.attendance_paid,
@@ -455,6 +662,8 @@ try {
           g.round,
           scorers,
           g.ownGoals,
+          g.penalties_for,
+          g.penalties_against,
         ],
       );
 
@@ -524,19 +733,21 @@ try {
 
     applied++;
     console.log(
-      `* n=${g.n} #${match.id} ${g.date} ${g.opponent} starters=${g.starters.length} subs=${g.subs.length} goals=${g.goals.length} og=${g.ownGoals} coach=${g.coach}`,
+      `* n=${g.n} #${match.id} ${g.date} ${g.opponent} starters=${g.starters.length} subs=${g.subs.length} goals=${g.goals.length} og=${g.ownGoals}`,
     );
   }
 
   if (!DRY) {
     const pairs = [
-      ["2014-02-16", "2014-02-25"], // Nordeste quartas Sport
-      ["2014-03-12", "2014-04-09"], // Copa BR São Paulo
-      ["2014-03-19", "2014-03-22"], // Alagoano Santa Rita
+      ["2012-04-25", "2012-04-28"], // SF 2º turno
+      ["2012-05-01", "2012-05-05"], // Final 2º turno
+      ["2012-09-01", "2012-09-09"], // Oitavas Série D
     ];
     for (const [d1, d2] of pairs) {
-      const a = dbMatches.find((m) => m.d.slice(0, 10) === d1);
-      const b = dbMatches.find((m) => m.d.slice(0, 10) === d2);
+      const dates1 = [d1, ...(DATE_ALIASES[d1] ?? [])];
+      const dates2 = [d2, ...(DATE_ALIASES[d2] ?? [])];
+      const a = dbMatches.find((m) => dates1.includes(m.d.slice(0, 10)));
+      const b = dbMatches.find((m) => dates2.includes(m.d.slice(0, 10)));
       if (a && b) {
         await client.query(`UPDATE matches SET related_match_id=$2 WHERE id=$1`, [a.id, b.id]);
         await client.query(`UPDATE matches SET related_match_id=$2 WHERE id=$1`, [b.id, a.id]);
@@ -550,7 +761,7 @@ try {
           count(DISTINCT ml.match_id)::int AS appearances
         FROM match_lineups ml
         JOIN matches m ON m.id=ml.match_id
-        WHERE m.season='2014' AND m.is_friendly=false AND ml.side='csa' AND ml.player_id IS NOT NULL
+        WHERE m.season=$1 AND m.is_friendly=false AND ml.side='csa' AND ml.player_id IS NOT NULL
           AND (
             ml.role='starter'
             OR EXISTS (
@@ -565,7 +776,7 @@ try {
         SELECT mg.scorer_player_id AS player_id, count(*)::int AS goals
         FROM match_goals mg
         JOIN matches m ON m.id=mg.match_id
-        WHERE m.season='2014' AND m.is_friendly=false AND mg.side='csa'
+        WHERE m.season=$1 AND m.is_friendly=false AND mg.side='csa'
           AND coalesce(mg.is_own_goal,false)=false AND mg.scorer_player_id IS NOT NULL
         GROUP BY mg.scorer_player_id
       )
@@ -573,12 +784,13 @@ try {
       FROM apps a
       LEFT JOIN goals g ON g.player_id=a.player_id
     `,
+      [SEASON],
     );
     let upserted = 0;
     for (const s of sheetStats) {
       const { rows: cur } = await client.query(
-        `SELECT id FROM player_season_stats WHERE player_id=$1 AND season='2014'`,
-        [s.player_id],
+        `SELECT id FROM player_season_stats WHERE player_id=$1 AND season=$2`,
+        [s.player_id, SEASON],
       );
       if (cur[0]) {
         await client.query(
@@ -588,8 +800,8 @@ try {
       } else {
         await client.query(
           `INSERT INTO player_season_stats (player_id, season, appearances, goals, assists)
-           VALUES ($1,'2014',$2,$3,0)`,
-          [s.player_id, s.appearances, s.goals],
+           VALUES ($1,$2,$3,$4,0)`,
+          [s.player_id, SEASON, s.appearances, s.goals],
         );
       }
       upserted += 1;
