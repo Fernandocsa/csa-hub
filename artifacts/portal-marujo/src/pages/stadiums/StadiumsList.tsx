@@ -1,5 +1,7 @@
+import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { useListStadiums } from "@workspace/api-client-react";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ListPagination } from "@/components/ListPagination";
@@ -11,9 +13,29 @@ function pct(wins: number, total: number) {
   return ((wins / total) * 100).toFixed(1) + "%";
 }
 
+function norm(s: string) {
+  return s
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .trim();
+}
+
 export default function StadiumsList() {
   const { data: stadiums, isLoading } = useListStadiums();
-  const rows = stadiums ?? [];
+  const [search, setSearch] = useState("");
+
+  const rows = useMemo(() => {
+    const all = stadiums ?? [];
+    const q = norm(search);
+    if (q.length < 1) return all;
+    return all.filter(
+      (s) =>
+        norm(s.name).includes(q) ||
+        (s.city != null && norm(s.city).includes(q)),
+    );
+  }, [stadiums, search]);
+
   const ranks = assignCompetitionRanks(rows, (s) => s.matches);
   const { page, setPage, pageSize, total, slice, needsPagination, rankOffset } = useClientPage(rows);
 
@@ -22,6 +44,19 @@ export default function StadiumsList() {
       <div className="border-b pb-3">
         <h1 className="text-xl font-bold" data-testid="heading-estadios">Estádios</h1>
         <p className="text-sm text-muted-foreground">Desempenho histórico do CSA em cada praça esportiva</p>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <Input
+          placeholder="Buscar estádio ou cidade..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          className="h-8 w-full sm:w-64 text-sm"
+          data-testid="input-search-stadium"
+        />
       </div>
 
       <div className="border rounded">

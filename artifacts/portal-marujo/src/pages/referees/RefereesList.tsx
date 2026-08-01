@@ -1,5 +1,7 @@
+import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { useListReferees } from "@workspace/api-client-react";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ufDisplayName } from "@/lib/br-locations";
@@ -12,9 +14,30 @@ function pct(wins: number, total: number) {
   return ((wins / total) * 100).toFixed(1) + "%";
 }
 
+function norm(s: string) {
+  return s
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .trim();
+}
+
 export default function RefereesList() {
   const { data: referees, isLoading } = useListReferees();
-  const rows = referees ?? [];
+  const [search, setSearch] = useState("");
+
+  const rows = useMemo(() => {
+    const all = referees ?? [];
+    const q = norm(search);
+    if (q.length < 1) return all;
+    return all.filter((r) => {
+      if (norm(r.name).includes(q)) return true;
+      if (r.state && norm(r.state).includes(q)) return true;
+      if (r.state && norm(ufDisplayName(r.state)).includes(q)) return true;
+      return false;
+    });
+  }, [referees, search]);
+
   const ranks = assignCompetitionRanks(rows, (r) => r.matches);
   const { page, setPage, pageSize, total, slice, needsPagination, rankOffset } = useClientPage(rows);
 
@@ -27,6 +50,19 @@ export default function RefereesList() {
         <p className="text-sm text-muted-foreground">
           Árbitros que apitaram jogos do CSA
         </p>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <Input
+          placeholder="Buscar árbitro ou UF..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          className="h-8 w-full sm:w-64 text-sm"
+          data-testid="input-search-referee"
+        />
       </div>
 
       <div className="border rounded">
@@ -58,7 +94,7 @@ export default function RefereesList() {
                       colSpan={8}
                       className="h-20 text-center text-muted-foreground"
                     >
-                      Nenhum árbitro cadastrado.
+                      Nenhum árbitro encontrado.
                     </TableCell>
                   </TableRow>
                 )

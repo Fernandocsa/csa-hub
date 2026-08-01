@@ -24,7 +24,7 @@ export default function OpponentsList() {
   const limit = LIST_PAGE_SIZE;
 
   const { data, isLoading } = useListOpponents({
-    search: search.length > 1 ? search : undefined,
+    search: search.trim().length >= 1 ? search.trim() : undefined,
     sort,
     limit,
     offset: (page - 1) * limit,

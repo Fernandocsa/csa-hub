@@ -1,15 +1,37 @@
+import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { useListManagers } from "@workspace/api-client-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ListPagination } from "@/components/ListPagination";
 import { useClientPage } from "@/hooks/useClientPage";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
+function norm(s: string) {
+  return s
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .trim();
+}
+
 export default function ManagersList() {
   const { data: managers, isLoading } = useListManagers();
-  const rows = managers ?? [];
+  const [search, setSearch] = useState("");
+
+  const rows = useMemo(() => {
+    const all = managers ?? [];
+    const q = norm(search);
+    if (q.length < 1) return all;
+    return all.filter(
+      (m) =>
+        norm(m.name).includes(q) ||
+        (m.fullName != null && norm(m.fullName).includes(q)),
+    );
+  }, [managers, search]);
+
   const ranks = assignCompetitionRanks(rows, (m) => m.matches);
   const { page, setPage, pageSize, total, slice, needsPagination, rankOffset } = useClientPage(rows);
 
@@ -18,6 +40,19 @@ export default function ManagersList() {
       <div className="border-b pb-3">
         <h1 className="text-xl font-bold" data-testid="heading-tecnicos">Técnicos</h1>
         <p className="text-sm text-muted-foreground">Histórico de treinadores que comandaram o CSA</p>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <Input
+          placeholder="Buscar técnico..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          className="h-8 w-full sm:w-64 text-sm"
+          data-testid="input-search-manager"
+        />
       </div>
 
       <div className="border rounded">
