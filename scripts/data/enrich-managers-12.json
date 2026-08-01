@@ -1,0 +1,49 @@
+[
+  {
+    "id": 56,
+    "name": "Edson Ferreira",
+    "fullName": "Édson Ferreira da Silva",
+    "birthDate": "1959-05-12",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.ogol.com.br/treinador/edson-ferreira/10363",
+      "https://www.transfermarkt.com/edson-silva/profil/trainer/140501"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 48,
+    "name": "Marcos Magalhães",
+    "fullName": "Marco Antonio Magalhães de Aguiar",
+    "birthDate": "1957-11-30",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.ogol.com.br/treinador/marcos-magalhaes/14184"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 69,
+    "name": "Levi Gomes",
+    "fullName": "Levi Marcelino Gomes",
+    "birthDate": "1960-11-14",
+    "birthCity": "Condado",
+    "birthState": "PB",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.transfermarkt.com.br/levi-gomes/profil/trainer/30956",
+      "https://www.ogol.com.br/treinador/levi-gomes/7554"
+    ],
+    "confidence": "high"
+  }
+]

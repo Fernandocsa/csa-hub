@@ -1,0 +1,81 @@
+[
+  {
+    "id": 28,
+    "name": "Celso Teixeira",
+    "fullName": "Celso Luiz Teixeira",
+    "birthDate": "1961-04-18",
+    "birthCity": "Campinas",
+    "birthState": "SP",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Celso_Teixeira",
+      "https://www.transfermarkt.com.br/celso-teixeira/profil/trainer/86346"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 53,
+    "name": "Mário Tilico",
+    "fullName": "Mário de Oliveira Costa",
+    "birthDate": "1965-03-23",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/M%C3%A1rio_Tilico",
+      "https://www.transfermarkt.com.br/tilico/profil/trainer/141073"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 49,
+    "name": "Zé do Carmo",
+    "fullName": "José do Carmo Silva Filho",
+    "birthDate": "1961-08-22",
+    "birthCity": "Recife",
+    "birthState": "PE",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Z%C3%A9_do_Carmo_(futebolista)",
+      "https://terceirotempo.uol.com.br/que-fim-levou/ze-do-carmo-1831"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 51,
+    "name": "Bagé",
+    "fullName": "Ronaldo Rodrigues Rangel",
+    "birthDate": "1960-04-30",
+    "birthCity": "Bagé",
+    "birthState": "RS",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.transfermarkt.com.br/bage/profil/trainer/134499",
+      "https://www.meutimenarede.com.br/tecnicos/166/bage"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 35,
+    "name": "Adriano Rodrigues",
+    "fullName": "Adriano Rodrigues da Silva",
+    "birthDate": "1978-12-08",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://en.wikipedia.org/wiki/Adriano_(footballer,_born_1978)"
+    ],
+    "confidence": "high"
+  }
+]

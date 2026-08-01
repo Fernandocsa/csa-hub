@@ -1,0 +1,64 @@
+[
+  {
+    "id": 62,
+    "name": "Gil Baiano",
+    "fullName": "Gilberto Alves da Silva",
+    "birthDate": "1971-02-26",
+    "birthCity": "Salvador",
+    "birthState": "BA",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "forceOverwrite": true,
+    "sources": [
+      "https://www.ogol.com.br/treinador/gil-baiano/65287",
+      "http://voudekombi.blogspot.com/2008/07/blog-post_19.html"
+    ],
+    "confidence": "high",
+    "notes": "CORRECTION: was wrongly set to José Gildásio (Seleção RB). CSA 2008 player-coach is Gilberto Alves da Silva."
+  },
+  {
+    "id": 80,
+    "name": "Lucio Flavio",
+    "fullName": "Lucio Flavio Freire de Araujo",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.ogol.com.br/treinador/lucio-flavio/24454"
+    ],
+    "confidence": "medium",
+    "notes": "CSA PF/assistant; 1 game 2021. Not Lúcio Flávio dos Santos (Botafogo)."
+  },
+  {
+    "id": 65,
+    "name": "Jorge Vasconcelos",
+    "fullName": "Jorge Vasconcelos",
+    "birthDate": "1927-11-30",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/treinador/jorge-vasconcelos/18414",
+      "https://www.bolanaarea.com/serie_b_1982_fasefinal.htm"
+    ],
+    "confidence": "medium",
+    "notes": "ogol DOB; city unknown. Also spelled Vasconcellos."
+  },
+  {
+    "id": 68,
+    "name": "Marlon Araújo",
+    "fullName": "Marlon Batista Araújo",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "forceOverwrite": true,
+    "sources": [
+      "https://www.cadaminuto.com.br/noticia/2010/01/11/csa-pode-realizar-peneirao-visando-a-segunda-divisao-do-alagoano",
+      "https://ne45.com.br/2023/09/27/csa-apresenta-novo-diretor-e-executivo/"
+    ],
+    "confidence": "medium",
+    "notes": "Prefer Marlon Batista Araújo (Cadaminuto 2010) over earlier unverified longer form. DOB still unknown."
+  }
+]

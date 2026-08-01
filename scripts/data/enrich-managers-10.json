@@ -1,0 +1,48 @@
+[
+  {
+    "id": 70,
+    "name": "Rodrigo Ramos",
+    "fullName": "Rodrigo Ramos Silveira",
+    "birthDate": "1979-08-07",
+    "birthCity": "Santos",
+    "birthState": "SP",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.ogol.com.br/treinador/rodrigo-ramos/37314"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 54,
+    "name": "Hugo Sales",
+    "fullName": "Hugo Marcos Fedulo Sales",
+    "birthDate": "1964-05-14",
+    "birthCity": "Salvador",
+    "birthState": "BA",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.ogol.com.br/treinador/hugo-sales/7372"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 72,
+    "name": "Dorian Junior",
+    "fullName": "Dorian Gray Sobrinho de Melo Junior",
+    "birthDate": null,
+    "birthCity": null,
+    "birthState": null,
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.transfermarkt.pt/dorian-junior/profil/trainer/111945"
+    ],
+    "confidence": "low",
+    "notes": "full name only; birth date not found"
+  }
+]

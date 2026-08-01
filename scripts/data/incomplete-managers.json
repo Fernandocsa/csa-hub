@@ -1,0 +1,229 @@
+{
+  "summary": {
+    "total": 76,
+    "missing_full_name": 5,
+    "missing_birth_date": 9,
+    "missing_nationality": 3,
+    "missing_birth_city": 12,
+    "missing_birth_state": 11,
+    "missing_birth_country": 5,
+    "incomplete": 13
+  },
+  "managers": [
+    {
+      "id": 79,
+      "name": "Alberto Meneses",
+      "full_name": null,
+      "nationality": "Brasil",
+      "birth_date": null,
+      "birth_city": null,
+      "birth_state": null,
+      "birth_country": null,
+      "is_deceased": false,
+      "player_id": null,
+      "verification_status": "unverified",
+      "stored_games": 1,
+      "seasons": [
+        "1981"
+      ]
+    },
+    {
+      "id": 44,
+      "name": "Bebeto Moraes",
+      "full_name": "José Alberto Moraes Trajano",
+      "nationality": "Brasil",
+      "birth_date": "1984-10-06",
+      "birth_city": null,
+      "birth_state": null,
+      "birth_country": "Brasil",
+      "is_deceased": false,
+      "player_id": null,
+      "verification_status": "unverified",
+      "stored_games": 10,
+      "seasons": [
+        "2023"
+      ]
+    },
+    {
+      "id": 89,
+      "name": "Daniel Abras",
+      "full_name": null,
+      "nationality": null,
+      "birth_date": null,
+      "birth_city": null,
+      "birth_state": null,
+      "birth_country": null,
+      "is_deceased": false,
+      "player_id": null,
+      "verification_status": "unverified",
+      "stored_games": null,
+      "seasons": null
+    },
+    {
+      "id": 72,
+      "name": "Dorian Junior",
+      "full_name": "Dorian Gray Sobrinho de Melo Junior",
+      "nationality": "Brasil",
+      "birth_date": null,
+      "birth_city": null,
+      "birth_state": null,
+      "birth_country": "Brasil",
+      "is_deceased": false,
+      "player_id": null,
+      "verification_status": "unverified",
+      "stored_games": 2,
+      "seasons": [
+        "2023"
+      ]
+    },
+    {
+      "id": 91,
+      "name": "Felipe Alves",
+      "full_name": null,
+      "nationality": null,
+      "birth_date": null,
+      "birth_city": null,
+      "birth_state": null,
+      "birth_country": null,
+      "is_deceased": false,
+      "player_id": null,
+      "verification_status": "unverified",
+      "stored_games": null,
+      "seasons": null
+    },
+    {
+      "id": 82,
+      "name": "Félix",
+      "full_name": "João Félix",
+      "nationality": "Brasil",
+      "birth_date": null,
+      "birth_city": null,
+      "birth_state": null,
+      "birth_country": "Brasil",
+      "is_deceased": false,
+      "player_id": null,
+      "verification_status": "unverified",
+      "stored_games": null,
+      "seasons": [
+        "1992"
+      ]
+    },
+    {
+      "id": 90,
+      "name": "Fernando Alves",
+      "full_name": null,
+      "nationality": null,
+      "birth_date": null,
+      "birth_city": null,
+      "birth_state": null,
+      "birth_country": null,
+      "is_deceased": false,
+      "player_id": null,
+      "verification_status": "unverified",
+      "stored_games": null,
+      "seasons": null
+    },
+    {
+      "id": 65,
+      "name": "Jorge Vasconcelos",
+      "full_name": "Jorge Vasconcelos",
+      "nationality": "Brasil",
+      "birth_date": "1927-11-30",
+      "birth_city": null,
+      "birth_state": null,
+      "birth_country": "Brasil",
+      "is_deceased": false,
+      "player_id": null,
+      "verification_status": "unverified",
+      "stored_games": 3,
+      "seasons": [
+        "1982"
+      ]
+    },
+    {
+      "id": 74,
+      "name": "Laelson Lopes",
+      "full_name": "Laelson César Lopes Gomes",
+      "nationality": "Brasil",
+      "birth_date": "1959-12-28",
+      "birth_city": null,
+      "birth_state": null,
+      "birth_country": "Brasil",
+      "is_deceased": false,
+      "player_id": null,
+      "verification_status": "unverified",
+      "stored_games": 1,
+      "seasons": [
+        "2002"
+      ]
+    },
+    {
+      "id": 34,
+      "name": "Laerte Dória",
+      "full_name": "Laerte Dória",
+      "nationality": "Brasil",
+      "birth_date": "1933-05-06",
+      "birth_city": null,
+      "birth_state": "RS",
+      "birth_country": "Brasil",
+      "is_deceased": true,
+      "player_id": null,
+      "verification_status": "unverified",
+      "stored_games": 13,
+      "seasons": [
+        "1980"
+      ]
+    },
+    {
+      "id": 80,
+      "name": "Lucio Flavio",
+      "full_name": "Lucio Flavio Freire de Araujo",
+      "nationality": "Brasil",
+      "birth_date": null,
+      "birth_city": null,
+      "birth_state": null,
+      "birth_country": "Brasil",
+      "is_deceased": false,
+      "player_id": null,
+      "verification_status": "unverified",
+      "stored_games": 1,
+      "seasons": [
+        "2021"
+      ]
+    },
+    {
+      "id": 68,
+      "name": "Marlon Araújo",
+      "full_name": "Marlon Batista Araújo",
+      "nationality": "Brasil",
+      "birth_date": null,
+      "birth_city": "Maceió",
+      "birth_state": "AL",
+      "birth_country": "Brasil",
+      "is_deceased": false,
+      "player_id": null,
+      "verification_status": "unverified",
+      "stored_games": 2,
+      "seasons": [
+        "2014"
+      ]
+    },
+    {
+      "id": 81,
+      "name": "Paulo Marcos",
+      "full_name": null,
+      "nationality": "Brasil",
+      "birth_date": null,
+      "birth_city": null,
+      "birth_state": null,
+      "birth_country": null,
+      "is_deceased": false,
+      "player_id": null,
+      "verification_status": "unverified",
+      "stored_games": null,
+      "seasons": [
+        "1992"
+      ]
+    }
+  ]
+}

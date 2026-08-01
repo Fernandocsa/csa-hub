@@ -1,0 +1,289 @@
+[
+  {
+    "id": 10,
+    "name": "Higo Magalhães",
+    "fullName": "Higo Magalhães Batista",
+    "birthDate": "1982-04-06",
+    "birthCity": "Goiânia",
+    "birthState": "GO",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.transfermarkt.com.br/higo-magalhaes/profil/trainer/93569",
+      "https://en.wikipedia.org/wiki/Higo_Magalh%C3%A3es"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 29,
+    "name": "Moacir Júnior",
+    "fullName": "Moacir Vieira de Araújo Júnior",
+    "birthDate": "1967-02-15",
+    "birthCity": "Curvelo",
+    "birthState": "MG",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://en.wikipedia.org/wiki/Moacir_J%C3%BAnior",
+      "https://www.transfermarkt.us/moacir-junior/profil/trainer/37124"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 14,
+    "name": "Nêdo Xavier",
+    "fullName": "Valdonedo da Silva Xavier",
+    "birthDate": "1952-10-15",
+    "birthCity": "Curitiba",
+    "birthState": "PR",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://en.wikipedia.org/wiki/Nedo_Xavier",
+      "https://www.transfermarkt.us/nedo-xavier/profil/trainer/19421"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2,
+    "name": "Argel Fuchs",
+    "fullName": "Argélico Fuchs",
+    "birthDate": "1974-09-04",
+    "birthCity": "Santa Rosa",
+    "birthState": "RS",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Argel_Fuchs",
+      "https://www.transfermarkt.com.br/argel-fuchs/profil/trainer/10334"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 38,
+    "name": "Ney Franco",
+    "fullName": "Ney Franco da Silveira Júnior",
+    "birthDate": "1966-07-22",
+    "birthCity": "Vargem Alegre",
+    "birthState": "MG",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://en.wikipedia.org/wiki/Ney_Franco",
+      "https://pt.wikipedia.org/wiki/Ney_Franco"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 32,
+    "name": "Eduardo Baptista",
+    "fullName": "Eduardo Alexandre Baptista",
+    "birthDate": "1972-03-30",
+    "birthCity": "Campinas",
+    "birthState": "SP",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Eduardo_Baptista",
+      "https://www.ogol.com.br/treinador/eduardo-baptista-/16078"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 40,
+    "name": "Alberto Valentim",
+    "fullName": "Alberto Valentim do Carmo Neto",
+    "birthDate": "1975-03-22",
+    "birthCity": "Oliveira",
+    "birthState": "MG",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Alberto_Valentim",
+      "https://www.transfermarkt.pt/alberto-valentim/profil/trainer/35052"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 25,
+    "name": "Vinícius Bergantin",
+    "fullName": "Vinícius Bergantin",
+    "birthDate": "1980-07-31",
+    "birthCity": "Salto",
+    "birthState": "SP",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://en.wikipedia.org/wiki/Vin%C3%ADcius_Bergantin",
+      "https://www.transfermarkt.com.br/vinicius-bergantin/profil/trainer/82173"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 36,
+    "name": "Itamar Schülle",
+    "fullName": "Itamar Schülle",
+    "birthDate": "1966-04-08",
+    "birthCity": "Ituporanga",
+    "birthState": "SC",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Itamar_Sch%C3%BClle",
+      "https://www.transfermarkt.co/itamar-schulle/profil/trainer/56068"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 37,
+    "name": "Bruno Pivetti",
+    "fullName": "Bruno Marques Fernandes Pivetti",
+    "birthDate": "1984-02-19",
+    "birthCity": "Campinas",
+    "birthState": "SP",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Bruno_Pivetti",
+      "https://www.transfermarkt.com.br/bruno-pivetti/profil/trainer/61015"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 55,
+    "name": "Mauricio Barbieri",
+    "fullName": "Maurício Nogueira Barbieri",
+    "birthDate": "1981-09-30",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Maur%C3%ADcio_Barbieri",
+      "https://www.transfermarkt.com.br/mauricio-barbieri/profil/trainer/58565"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 50,
+    "name": "Orlando Peçanha",
+    "fullName": "Orlando Peçanha de Carvalho",
+    "birthDate": "1935-09-20",
+    "birthCity": "Niterói",
+    "birthState": "RJ",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": true,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Orlando_Pe%C3%A7anha",
+      "https://en.wikipedia.org/wiki/Orlando_Pe%C3%A7anha"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 84,
+    "name": "Givanildo Oliveira",
+    "fullName": "Givanildo José de Oliveira",
+    "birthDate": "1948-08-08",
+    "birthCity": "Olinda",
+    "birthState": "PE",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Givanildo_Oliveira",
+      "https://www.transfermarkt.com.br/givanildo-oliveira/profil/trainer/7214"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 47,
+    "name": "Luiz Felipe Scolari",
+    "fullName": "Luiz Felipe Scolari",
+    "birthDate": "1948-11-09",
+    "birthCity": "Passo Fundo",
+    "birthState": "RS",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Luis_Felipe_Scolari"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 31,
+    "name": "Agnaldo Liz",
+    "fullName": "Agnaldo Liz Souza",
+    "birthDate": "1968-06-07",
+    "birthCity": "Florianópolis",
+    "birthState": "SC",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Agnaldo_Liz",
+      "https://en.wikipedia.org/wiki/Agnaldo_Liz"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 33,
+    "name": "Flávio Araújo",
+    "fullName": "Flávio José Araújo",
+    "birthDate": "1963-01-30",
+    "birthCity": "Fortaleza",
+    "birthState": "CE",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://en.wikipedia.org/wiki/Fl%C3%A1vio_Ara%C3%BAjo",
+      "https://www.transfermarkt.pt/flavio-araujo/profil/trainer/13617"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 5,
+    "name": "Roberto Fernandes",
+    "fullName": "José Roberto Fernandes Barros",
+    "birthDate": "1971-05-05",
+    "birthCity": "Recife",
+    "birthState": "PE",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Roberto_Fernandes",
+      "https://www.transfermarkt.pt/roberto-fernandes/profil/trainer/4723"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 39,
+    "name": "Valmir Louruz",
+    "fullName": "Valmir Louruz",
+    "birthDate": "1944-03-13",
+    "birthCity": "Porto Alegre",
+    "birthState": "RS",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": true,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Valmir_Louruz",
+      "https://en.wikipedia.org/wiki/Valmir_Louruz"
+    ],
+    "confidence": "high"
+  }
+]

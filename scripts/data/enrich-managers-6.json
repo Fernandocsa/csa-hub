@@ -1,0 +1,112 @@
+[
+  {
+    "id": 24,
+    "name": "Pinho",
+    "fullName": "Olimpio Batista Ferreira Júnior",
+    "birthDate": "1945-03-10",
+    "birthCity": "Ibirá",
+    "birthState": "SP",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Pinho_(futebolista)",
+      "https://www.ogol.com.br/treinador/pinho/22492"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 75,
+    "name": "Lauro Martins",
+    "fullName": "Lauro Martins Barros",
+    "birthDate": "1971-01-19",
+    "birthCity": "Goiânia",
+    "birthState": "GO",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.gazetaweb.com/noticias/esportes/alagoano/novo-auxiliar-tecnico-lauro-martins-barros-chega-ao-csa-e-ja-inicia-trabalhos-813946",
+      "https://www.ogol.com.br/treinador/lauro-martins/41133"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 61,
+    "name": "Jacozinho",
+    "fullName": "Givaldo Santos Vasconcelos",
+    "birthDate": "1956-02-02",
+    "birthCity": "Gararu",
+    "birthState": "SE",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Jacozinho",
+      "https://www.transfermarkt.com.br/jacozinho/profil/trainer/74918"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 43,
+    "name": "Cristian de Souza",
+    "fullName": "Cristian Ziani de Souza",
+    "birthDate": "1977-10-06",
+    "birthCity": "Quaraí",
+    "birthState": "RS",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://en.wikipedia.org/wiki/Cristian_de_Souza"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 22,
+    "name": "Freitas Nascimento",
+    "fullName": "Natalízio Freitas Nascimento",
+    "birthDate": "1954-07-08",
+    "birthCity": "Ipirá",
+    "birthState": "BA",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Freitas_Nascimento"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 44,
+    "name": "Bebeto Moraes",
+    "fullName": "José Alberto Moraes Trajano",
+    "birthDate": "1984-10-06",
+    "birthCity": null,
+    "birthState": null,
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.transfermarkt.com.br/bebeto-moraes/profil/trainer/112823"
+    ],
+    "confidence": "medium",
+    "notes": "birth city/state not found"
+  },
+  {
+    "id": 71,
+    "name": "Denis Iwamura",
+    "fullName": "Denis Yashiro Camargo Iwamura",
+    "birthDate": "1979-08-01",
+    "birthCity": null,
+    "birthState": null,
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.zerozero.ml/entraineur/denis-iwamura/21394"
+    ],
+    "confidence": "medium",
+    "notes": "birth city/state not found; TM date format ambiguous vs zerozero Jan 8"
+  }
+]

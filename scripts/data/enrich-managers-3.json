@@ -1,0 +1,67 @@
+[
+  {
+    "id": 76,
+    "name": "Márcio Goiano",
+    "fullName": "Márcio de Azevedo",
+    "birthDate": "1969-09-23",
+    "birthCity": "Goiânia",
+    "birthState": "GO",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/M%C3%A1rcio_de_Azevedo",
+      "https://www.transfermarkt.com.br/marcio-goiano/profil/trainer/13127"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 62,
+    "name": "Gil Baiano",
+    "fullName": "Gilberto Alves da Silva",
+    "birthDate": "1971-02-26",
+    "birthCity": "Salvador",
+    "birthState": "BA",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.ogol.com.br/treinador/gil-baiano/65287",
+      "http://voudekombi.blogspot.com/2008/07/blog-post_19.html"
+    ],
+    "confidence": "high",
+    "notes": "CSA 2008 player-coach — not José Gildásio (Seleção RB)"
+  },
+  {
+    "id": 26,
+    "name": "Heriberto da Cunha",
+    "fullName": "Heriberto Longuinho da Cunha",
+    "birthDate": "1960-04-07",
+    "birthCity": "Santa Rita do Sapucaí",
+    "birthState": "MG",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Heriberto_da_Cunha",
+      "https://www.transfermarkt.pt/heriberto-da-cunha/profil/trainer/6619"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 66,
+    "name": "Roberval Davino",
+    "fullName": "Roberval Davino da Silva",
+    "birthDate": "1954-08-12",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Roberval_Davino",
+      "https://www.transfermarkt.com.br/roberval-davino/profil/trainer/10183"
+    ],
+    "confidence": "high"
+  }
+]

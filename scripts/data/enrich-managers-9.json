@@ -1,0 +1,34 @@
+[
+  {
+    "id": 63,
+    "name": "Gilberto Pereira",
+    "fullName": "Gilberto Pereira dos Santos",
+    "birthDate": "1965-05-09",
+    "birthCity": "Mirandópolis",
+    "birthState": "SP",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Gilberto_Pereira",
+      "https://www.transfermarkt.com.br/gilberto-pereira/profil/trainer/40596"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 52,
+    "name": "Mario Juliatto",
+    "fullName": "Mário Juliatto",
+    "birthDate": "1944-05-21",
+    "birthCity": "Valinhos",
+    "birthState": "SP",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": true,
+    "sources": [
+      "https://www.transfermarkt.com.br/mario-juliatto/profil/trainer/153780",
+      "https://terceirotempo.uol.com.br/que-fim-levou/mario-juliatto-2671"
+    ],
+    "confidence": "high"
+  }
+]

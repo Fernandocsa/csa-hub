@@ -1,0 +1,51 @@
+[
+  {
+    "id": 57,
+    "name": "Círio Quadros",
+    "fullName": "Círio Quadros de Oliveira",
+    "birthDate": "1962-01-14",
+    "birthCity": "Porto Alegre",
+    "birthState": "RS",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.transfermarkt.com.br/cirio-quadros/profil/trainer/122874",
+      "https://www.ogol.com.br/treinador/cirio-quadros/3243"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 41,
+    "name": "Otávio Quadros",
+    "fullName": "Otávio Quadros de Oliveira",
+    "birthDate": "1963-01-05",
+    "birthCity": "Porto Alegre",
+    "birthState": "RS",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.ogol.com.br/treinador/otavio-quadros/49405",
+      "https://www.transfermarkt.pt/otavio/profil/trainer/149564"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 34,
+    "name": "Laerte Dória",
+    "fullName": "Laerte Dória",
+    "birthDate": "1933-05-06",
+    "birthCity": null,
+    "birthState": "RS",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": true,
+    "sources": [
+      "https://www.ogol.com.br/treinador/laerte-doria/14185",
+      "https://www.meutimenarede.com.br/tecnicos/517/laerte-dnria"
+    ],
+    "confidence": "medium",
+    "notes": "city within RS not specified"
+  }
+]

@@ -1,0 +1,81 @@
+[
+  {
+    "id": 30,
+    "name": "Cláudio Adão",
+    "fullName": "Cláudio Adalberto Adão",
+    "birthDate": "1955-07-02",
+    "birthCity": "Volta Redonda",
+    "birthState": "RJ",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Cl%C3%A1udio_Ad%C3%A3o"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 60,
+    "name": "Estevam Soares",
+    "fullName": "Estevam Eduardo Lemos Soares",
+    "birthDate": "1956-06-10",
+    "birthCity": "Cafelândia",
+    "birthState": "SP",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://en.wikipedia.org/wiki/Estevam_Soares",
+      "https://www.transfermarkt.com.br/estevam-soares/profil/trainer/9553"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 27,
+    "name": "Ney da Matta",
+    "fullName": "Roneivaldo da Matta Soares",
+    "birthDate": "1967-04-17",
+    "birthCity": "Ipatinga",
+    "birthState": "MG",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": true,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Ney_da_Matta",
+      "https://en.wikipedia.org/wiki/Ney_da_Matta"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 64,
+    "name": "Márcio Fernandes",
+    "fullName": "Márcio Fernandes Figueiredo",
+    "birthDate": "1962-03-24",
+    "birthCity": "Santos",
+    "birthState": "SP",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/M%C3%A1rcio_Fernandes",
+      "https://www.transfermarkt.pt/marcio-fernandes/profil/trainer/7391"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 67,
+    "name": "Rogério Corrêa",
+    "fullName": "Rogério de Albuquerque Corrêa",
+    "birthDate": "1981-03-27",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://en.wikipedia.org/wiki/Rog%C3%A9rio_Corr%C3%AAa_(footballer,_born_1981)",
+      "https://www.transfermarkt.us/rogerio-correa/profil/trainer/100197"
+    ],
+    "confidence": "high"
+  }
+]

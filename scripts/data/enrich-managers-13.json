@@ -1,0 +1,71 @@
+[
+  {
+    "id": 71,
+    "name": "Denis Iwamura",
+    "fullName": "Denis Yashiro Camargo Iwamura",
+    "birthDate": "1979-08-01",
+    "birthCity": "Curitiba",
+    "birthState": "PR",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.transfermarkt.us/denis-iwamura/profil/trainer/22204",
+      "https://www.gazetadopovo.com.br/esportes/copa/2014/brasileiro-desbrava-a-coreia-do-sul-9f9zqpq34aeae9g7ebm13lhla/",
+      "https://www.umdoisesportes.com.br/campeonatos/coritiba-denis-iwamura-substituto-mozart/"
+    ],
+    "confidence": "high",
+    "notes": "TM US: Aug 1 1979 (DB had Jan 8 — likely DD/MM misparse). Curitibano confirmed by Gazeta/UmDois."
+  },
+  {
+    "id": 83,
+    "name": "Carlos Gainete",
+    "fullName": "Carlos Gainete Filho",
+    "birthDate": "1940-11-15",
+    "birthCity": "Florianópolis",
+    "birthState": "SC",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Gainete",
+      "https://terceirotempo.uol.com.br/que-fim-levou/gainete-621",
+      "https://www.blog-do-sorrentino.com/news/a1992/"
+    ],
+    "confidence": "high",
+    "notes": "Sorrentino 1992 match sheets list Carlos Gainete as CSA coach (Alagoano)."
+  },
+  {
+    "id": 85,
+    "name": "Erandir Montenegro",
+    "fullName": "Erandyr Pereira Montenegro",
+    "birthDate": "1946-04-24",
+    "birthCity": "Bananeiras",
+    "birthState": "PB",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": true,
+    "sources": [
+      "https://www.ocuriosodofutebol.com.br/2023/12/luto-sepultado-em-natal-ex-jogador-e.html",
+      "http://www.arquivocoral.com.br/2015/11/erandy-montenegro-1965-2015.html",
+      "http://colunacarlosmagno.blogspot.com/2012/11/erandir-vem-ai.html"
+    ],
+    "confidence": "high",
+    "notes": "Also spelled Erandy/Erandir; died 2023-12-07 Natal."
+  },
+  {
+    "id": 74,
+    "name": "Laelson Lopes",
+    "fullName": "Laelson César Lopes Gomes",
+    "birthDate": "1959-12-28",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.transfermarkt.com/laelson-lopes/profil/trainer/89565",
+      "https://www.ogol.com.br/treinador/laelson-lopes/41646"
+    ],
+    "confidence": "medium",
+    "notes": "City unknown on TM/ogol — still incomplete until city found."
+  }
+]

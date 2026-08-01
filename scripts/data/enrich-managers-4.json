@@ -1,0 +1,66 @@
+[
+  {
+    "id": 73,
+    "name": "Mauro Fernandes",
+    "fullName": "Mauro Fernandes da Silva",
+    "birthDate": "1953-08-03",
+    "birthCity": "Sete Lagoas",
+    "birthState": "MG",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Mauro_Fernandes",
+      "https://www.transfermarkt.pt/mauro-fernandes/profil/trainer/9462"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 46,
+    "name": "Roberto Fonseca",
+    "fullName": "Roberto Teixeira da Fonseca",
+    "birthDate": "1962-06-03",
+    "birthCity": "Mandaguari",
+    "birthState": "PR",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Roberto_Fonseca",
+      "https://www.transfermarkt.com.br/roberto-fonseca/profil/trainer/11402"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 21,
+    "name": "Lorival Santos",
+    "fullName": "Lorival Alves dos Santos",
+    "birthDate": "1959-10-07",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://en.wikipedia.org/wiki/Lorival_Santos",
+      "https://www.transfermarkt.us/lorival-santos/profil/trainer/32948"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 23,
+    "name": "Beto Almeida",
+    "fullName": "Roberto de Almeida",
+    "birthDate": "1955-04-05",
+    "birthCity": "Porto Alegre",
+    "birthState": "RS",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Beto_Almeida",
+      "https://www.transfermarkt.com.br/beto-almeida/profil/trainer/5058"
+    ],
+    "confidence": "high"
+  }
+]

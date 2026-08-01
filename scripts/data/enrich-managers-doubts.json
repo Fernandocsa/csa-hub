@@ -1,0 +1,97 @@
+[
+  {
+    "id": 44,
+    "name": "Bebeto Moraes",
+    "fullName": "José Alberto Moraes Trajano",
+    "birthDate": "1984-10-06",
+    "missing": ["birth_city", "birth_state"],
+    "notes": "TM/ogol confirm name+DOB; city not listed"
+  },
+  {
+    "id": 34,
+    "name": "Laerte Dória",
+    "fullName": "Laerte Dória",
+    "birthDate": "1933-05-06",
+    "birthState": "RS",
+    "isDeceased": true,
+    "missing": ["birth_city"],
+    "notes": "ogol/meutimenarede: RS only, city unknown; died 2019-08-16"
+  },
+  {
+    "id": 74,
+    "name": "Laelson Lopes",
+    "fullName": "Laelson César Lopes Gomes",
+    "birthDate": "1959-12-28",
+    "missing": ["birth_city", "birth_state"],
+    "notes": "TM/ogol name+DOB; city not listed"
+  },
+  {
+    "id": 65,
+    "name": "Jorge Vasconcelos",
+    "fullName": "Jorge Vasconcelos",
+    "birthDate": "1927-11-30",
+    "missing": ["birth_city", "birth_state"],
+    "notes": "ogol DOB; city unknown"
+  },
+  {
+    "id": 72,
+    "name": "Dorian Junior",
+    "fullName": "Dorian Gray Sobrinho de Melo Junior",
+    "missing": ["birth_date", "birth_city", "birth_state"],
+    "notes": "TM has full name only (CSA U20)"
+  },
+  {
+    "id": 68,
+    "name": "Marlon Araújo",
+    "fullName": "Marlon Batista Araújo",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "missing": ["birth_date"],
+    "notes": "~47y in Sep 2023 — exact DOB not found"
+  },
+  {
+    "id": 82,
+    "name": "Félix",
+    "fullName": "João Félix",
+    "seasons": ["1992"],
+    "missing": ["birth_date", "birth_city", "birth_state"],
+    "notes": "GE: João Félix CSA coach Copa BR 1992; Sorrentino: Félix/interino"
+  },
+  {
+    "id": 80,
+    "name": "Lucio Flavio",
+    "fullName": "Lucio Flavio Freire de Araujo",
+    "missing": ["birth_date", "birth_city", "birth_state"],
+    "notes": "ogol: CSA PF/assistant; 1 game 2021. Not Botafogo's Lúcio Flávio."
+  },
+  {
+    "id": 79,
+    "name": "Alberto Meneses",
+    "seasons": ["1981"],
+    "missing": ["all bio"]
+  },
+  {
+    "id": 81,
+    "name": "Paulo Marcos",
+    "seasons": ["1992"],
+    "missing": ["all bio"]
+  },
+  {
+    "id": 89,
+    "name": "Daniel Abras",
+    "seasons": null,
+    "missing": ["all bio"]
+  },
+  {
+    "id": 90,
+    "name": "Fernando Alves",
+    "seasons": null,
+    "missing": ["all bio"]
+  },
+  {
+    "id": 91,
+    "name": "Felipe Alves",
+    "seasons": null,
+    "missing": ["all bio"]
+  }
+]

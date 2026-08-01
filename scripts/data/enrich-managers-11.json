@@ -1,0 +1,66 @@
+[
+  {
+    "id": 42,
+    "name": "Ubirajara Veiga",
+    "fullName": "Ubirajara Veiga da Silva",
+    "birthDate": "1955-02-02",
+    "birthCity": "Porto Alegre",
+    "birthState": "RS",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": true,
+    "sources": [
+      "https://www.transfermarkt.com.br/bira-veiga/profil/trainer/73095",
+      "https://www.national-football-teams.com/app.php/coach/76707/Ubirajara_Veiga.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 58,
+    "name": "Júlio Espinosa",
+    "fullName": "Júlio César Castro Espinosa",
+    "birthDate": "1951-12-19",
+    "birthCity": "Porto Alegre",
+    "birthState": "RS",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": true,
+    "sources": [
+      "https://en.wikipedia.org/wiki/J%C3%BAlio_Espinosa",
+      "https://www.transfermarkt.com/julio-espinosa/profil/trainer/130983"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 77,
+    "name": "Valdemar Carabina",
+    "fullName": "Valdemar dos Santos Figueira",
+    "birthDate": "1932-01-28",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": true,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Valdemar_Carabina",
+      "https://www.palmeiras.com.br/craques/valdemar-carabina/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 59,
+    "name": "Gilmar Batista",
+    "fullName": "Gilmar Antônio Minelli Batista",
+    "birthDate": "1970-05-16",
+    "birthCity": "Olímpia",
+    "birthState": "SP",
+    "birthCountry": "Brasil",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.transfermarkt.pt/gilmar-batista/profil/trainer/124067",
+      "https://www.ogol.com.br/treinador/gilmar-batista/30334"
+    ],
+    "confidence": "high"
+  }
+]
