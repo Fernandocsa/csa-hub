@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1625,
+    "name": "Maxwell",
+    "fullName": "Maxwell da Rocha Silva",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1992-12-28",
+    "heightCm": 185,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": ["user-provided"],
+    "confidence": "high",
+    "notes": "CSA 2012–2013 (user)"
+  },
+  {
+    "id": 1623,
+    "name": "Pedrinho",
+    "fullName": "Pedro Henrique de Morais Cota",
+    "position": "Atacante",
+    "preferredFoot": null,
+    "birthDate": "1994-05-15",
+    "nationality": "Brasil",
+    "sources": ["user-provided"],
+    "confidence": "high",
+    "notes": "Possível duplicata de Henrique #1607 (mesmo civil)."
+  }
+]

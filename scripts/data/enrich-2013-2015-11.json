@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1568,
+    "name": "Alves",
+    "fullName": "Alysson Alves dos Santos",
+    "position": "Zagueiro",
+    "preferredFoot": null,
+    "birthDate": "1991-02-07",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/alves/profil/spieler/1375144",
+      "https://www.footballdatabase.eu/en/club/team/7444-csa/2013"
+    ],
+    "confidence": "high",
+    "notes": "FDB lista como Alysson DOB 07/02/1991 no elenco CSA 2013"
+  },
+  {
+    "id": 1580,
+    "name": "Edgard",
+    "fullName": "Edgard Lima de Melo",
+    "position": "Centroavante",
+    "preferredFoot": null,
+    "birthDate": "1980-06-10",
+    "birthCity": "Santos",
+    "birthState": "SP",
+    "heightCm": 185,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/edgard/profil/spieler/767172"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1624,
+    "name": "Cassiano",
+    "fullName": "Cassiano Juvêncio da Silva",
+    "position": "Meia Ofensivo",
+    "preferredFoot": null,
+    "birthDate": "1993-07-20",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/cassiano/profil/spieler/1372696"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1583,
+    "name": "Leandro",
+    "fullName": "Leandro Carlos dos Santos",
+    "position": "Zagueiro",
+    "preferredFoot": null,
+    "birthDate": "1974-04-12",
+    "heightCm": 182,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/leandro/profil/spieler/1316104",
+      "https://www.scottishfootballrecords.com/player/leandro-carlos-dos-santos",
+      "https://www.footballdatabase.eu/en/club/team/7444-csa/2013"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1214,
+    "name": "Pilar",
+    "fullName": "Luis Carlos Rocha da Silva",
+    "position": "Centroavante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1997-05-24",
+    "birthCity": "Pilar",
+    "birthState": "AL",
+    "heightCm": 185,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/pilar/profil/spieler/476334"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1213,
+    "name": "Romarinho",
+    "fullName": "Romário Santos de Oliveira",
+    "position": "Atacante",
+    "preferredFoot": null,
+    "birthDate": "1994-10-09",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/romarinho/profil/spieler/1483721"
+    ],
+    "confidence": "high"
+  }
+]

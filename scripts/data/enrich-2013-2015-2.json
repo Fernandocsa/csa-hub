@@ -1,0 +1,219 @@
+[
+  {
+    "id": 1584,
+    "name": "Adalberto",
+    "fullName": "Adalberto dos Santos Rodrigues",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1987-11-16",
+    "birthCity": "São Miguel do Gostoso",
+    "birthState": "RN",
+    "heightCm": 185,
+    "weightKg": 81,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/adalberto/profil/spieler/56062"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1608,
+    "name": "Aderlan",
+    "fullName": "Aderlan de Lima Silva",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1990-08-18",
+    "birthCity": "Campina Grande",
+    "birthState": "PB",
+    "heightCm": 180,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Aderlan_Silva",
+      "https://www.footballdatabase.eu/es/club/equipo/7444-csa/2013"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1617,
+    "name": "Brida",
+    "fullName": "Luiz Carlos de Brida Júnior",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1984-11-18",
+    "birthCity": "Paulo Lopes",
+    "birthState": "SC",
+    "heightCm": 170,
+    "weightKg": 68,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/brida/profil/spieler/175246"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1615,
+    "name": "Igor Bosel",
+    "fullName": "Igor Bosel Dias",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1992-09-08",
+    "birthCity": "Pelotas",
+    "birthState": "RS",
+    "heightCm": 185,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/igor-bosel/profil/spieler/347252"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1575,
+    "name": "Léo Bahia",
+    "fullName": "Leonardo Matos de Oliveira",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1986-01-07",
+    "birthCity": "Santo Antônio de Barcelona",
+    "heightCm": 187,
+    "weightKg": 78,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/leo-bahia/profil/spieler/130942"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1569,
+    "name": "Tiago Garça",
+    "fullName": "Tiago Henrique da Silva",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1985-05-23",
+    "birthCity": "Fernandópolis",
+    "birthState": "SP",
+    "heightCm": 194,
+    "weightKg": 90,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/tiago-garca/profil/spieler/175376"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1566,
+    "name": "Wanderson Cafu",
+    "fullName": "Wanderson Gustavo da Silva",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1986-03-18",
+    "birthCity": "José Bonifácio",
+    "birthState": "SP",
+    "heightCm": 180,
+    "weightKg": 69,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Wanderson_Cafu",
+      "https://www.transfermarkt.com/wanderson-cafu/profil/spieler/162948"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1594,
+    "name": "Rodriguinho",
+    "fullName": "Rodrigo Donizette Moraes",
+    "position": "Meia",
+    "preferredFoot": null,
+    "birthDate": "1978-10-03",
+    "birthCity": "Goiatuba",
+    "birthState": "GO",
+    "heightCm": 176,
+    "nationality": "Brasil",
+    "sources": [
+      "http://csa-azulao.blogspot.com/2013/01/csa-apresenta-mais-um-reforco-o-meia.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1192,
+    "name": "Samuel",
+    "fullName": "Samuel Teram",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1984-11-30",
+    "birthCity": "São Bernardo do Campo",
+    "birthState": "SP",
+    "heightCm": 191,
+    "weightKg": 86,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/samuel-teram/profil/spieler/981361",
+      "https://www.futeboldegoyaz.com.br/jogadores/4990/jogador"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1619,
+    "name": "Tiago Bernardini",
+    "fullName": "Tiago Henrique Bernardini Consoni",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1979-12-02",
+    "birthCity": "Araras",
+    "birthState": "SP",
+    "heightCm": 186,
+    "weightKg": 79,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/tiago-bernardi/profil/spieler/32439",
+      "https://en.wikipedia.org/wiki/Tiago_Bernardini"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1561,
+    "name": "Uéderson",
+    "fullName": "Uederson Ferreira Paulino",
+    "position": "Ponta Direita",
+    "preferredFoot": "destro",
+    "birthDate": "1985-08-01",
+    "birthCity": "São João d'Aliança",
+    "birthState": "GO",
+    "heightCm": 178,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/uederson/profil/spieler/126160"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1570,
+    "name": "Eduardo Castro",
+    "fullName": "Eduardo Alves de Castro",
+    "position": "Goleiro",
+    "preferredFoot": null,
+    "birthDate": "1981-09-15",
+    "birthCity": "Itu",
+    "birthState": "SP",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.livescore724.com/footballer/eduardo-alves-de-castro/2iklkmd8o/",
+      "https://www.footballdatabase.eu/es/club/equipo/7444-csa/2014"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1212,
+    "name": "Remerson",
+    "fullName": "Remerson César dos Santos",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1989-02-07",
+    "heightCm": 188,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/remerson/profil/spieler/544668"
+    ],
+    "confidence": "high"
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "id": 666,
+    "name": "Álisson Gaúcho",
+    "fullName": "Álisson Kelvin Schmitt",
+    "position": "Zagueiro",
+    "preferredFoot": "canhoto",
+    "birthDate": "1992-04-30",
+    "birthCity": "Igrejinha",
+    "birthState": "RS",
+    "heightCm": 191,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.pt/alisson-gaucho/profil/spieler/1170131"
+    ],
+    "confidence": "high"
+  }
+]

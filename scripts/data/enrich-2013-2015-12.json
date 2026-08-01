@@ -1,0 +1,113 @@
+[
+  {
+    "id": 1612,
+    "name": "Cecel",
+    "fullName": "Marcel Maciel de Paula",
+    "position": "Ponta Direita",
+    "preferredFoot": null,
+    "birthDate": "1989-08-28",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/cecel/profil/spieler/1286251",
+      "https://www.transfermarkt.com.br/centro-sportivo-alagoano-al-/kader/verein/18545/saison_id/2012"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1626,
+    "name": "Jamyson",
+    "fullName": "Jamyson Fagundes Cavalcante",
+    "position": "Zagueiro",
+    "preferredFoot": null,
+    "birthDate": "1992-11-14",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/jamyson/profil/spieler/1491522"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1605,
+    "name": "Kel",
+    "fullName": "José Clebson Augustinho",
+    "position": "Meia",
+    "preferredFoot": null,
+    "birthDate": "1980-03-20",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/keltm/profil/spieler/1344423"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1627,
+    "name": "Robson Jr",
+    "fullName": "Robson de Amorim Gato Junior",
+    "position": "Meia",
+    "preferredFoot": null,
+    "birthDate": "1993-02-27",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/robson-junior/profil/spieler/1490811"
+    ],
+    "confidence": "high",
+    "notes": "CSA Série D 2013 (sub vs Juazeirense). Distinto de Robson Lima e de Robson Campos Júnior #1325265."
+  },
+  {
+    "id": 1606,
+    "name": "Marcinho",
+    "fullName": "Marcio Pereira da Silva Santos",
+    "position": "Meia Ofensivo",
+    "preferredFoot": null,
+    "birthDate": "1984-06-10",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/marcinho/profil/spieler/1232386"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1630,
+    "name": "Paulo Jr",
+    "fullName": "Paulo da Silva Santos Júnior",
+    "position": "Volante",
+    "preferredFoot": null,
+    "birthDate": "1993-11-23",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/paulo-santos/profil/spieler/1491542"
+    ],
+    "confidence": "high",
+    "notes": "TM lista como Paulo Santos no plantel CSA 2013; sheets usam Paulo Jr."
+  },
+  {
+    "id": 1607,
+    "name": "Henrique",
+    "fullName": "Pedro Henrique de Morais Cota",
+    "position": "Atacante",
+    "preferredFoot": null,
+    "birthDate": "1994-05-15",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/pedro-henrique/profil/spieler/1491523"
+    ],
+    "confidence": "medium",
+    "notes": "TM Pedro Henrique no plantel CSA 2013 (base); sheets usam Henrique. Confirmar se não for outro Henrique."
+  },
+  {
+    "id": 1614,
+    "name": "Wilson Jr",
+    "fullName": "Wilson dos Santos Januário",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1993-11-04",
+    "birthState": "AL",
+    "heightCm": 178,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/wilson-santos/profil/spieler/547445"
+    ],
+    "confidence": "high",
+    "notes": "TM Wilson Santos no elenco CSA 2013 / Série D; FDB Wilson DOB 04/11/1993."
+  }
+]

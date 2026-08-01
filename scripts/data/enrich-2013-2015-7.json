@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1560,
+    "name": "Lucas",
+    "fullName": "Lucas Rodrigues Martins",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1984-02-21",
+    "birthCity": "Guarantã",
+    "birthState": "SP",
+    "heightCm": 176,
+    "weightKg": 78,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/lucas/profil/spieler/103623",
+      "https://www.footballdatabase.eu/es/club/equipo/7444-csa/2014"
+    ],
+    "confidence": "high"
+  }
+]

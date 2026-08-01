@@ -1,0 +1,79 @@
+[
+  {
+    "id": 1600,
+    "name": "Cléberson",
+    "fullName": "Cleberson Silva Andrade",
+    "position": "Zagueiro",
+    "preferredFoot": null,
+    "birthDate": "1988-09-30",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 178,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Cleberson_Silva_Andrade",
+      "http://www.soccerpunter.com/player/224104/Cleberson"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1581,
+    "name": "Maicon Baggio",
+    "fullName": "Maicon Junior Baggio",
+    "position": "Zagueiro",
+    "preferredFoot": null,
+    "birthDate": "1982-02-11",
+    "birthCity": "Xanxerê",
+    "birthState": "SC",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.espn.com/soccer/player/_/id/198502/maicon-junior-baggio",
+      "https://www.transfermarkt.com/baggio/profil/spieler/58068"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1193,
+    "name": "Thiago Conceição",
+    "fullName": "Thiago de Freitas da Conceição",
+    "position": "Volante",
+    "preferredFoot": null,
+    "birthDate": "1985-04-01",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.co.uk/thiago-conceicao/profil/spieler/1410006",
+      "https://www.besoccer.com/player/thiago-conceicao-617458"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1629,
+    "name": "Marcos Batinga",
+    "fullName": "Marcos Batinga dos Santos Filho",
+    "position": "Goleiro",
+    "preferredFoot": null,
+    "birthDate": "1996-02-27",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/batinga/profil/spieler/1170319"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1589,
+    "name": "Gilmar Couto",
+    "fullName": "Gilmar Serafim de Couto",
+    "position": "Centroavante",
+    "preferredFoot": null,
+    "birthDate": "1982-01-03",
+    "birthCity": "Umuarama",
+    "birthState": "PR",
+    "heightCm": 190,
+    "weightKg": 86,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/gilmar-alagoano/profil/spieler/90699"
+    ],
+    "confidence": "high"
+  }
+]

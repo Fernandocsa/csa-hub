@@ -1,0 +1,412 @@
+[
+  {
+    "id": 1571,
+    "name": "Acácio",
+    "fullName": "Cícero Acácio Araújo Lima Filho",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1993-09-02",
+    "birthCity": "Palmeira dos Índios",
+    "birthState": "AL",
+    "heightCm": 179,
+    "weightKg": 70,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/acacio/profil/spieler/340558",
+      "https://www.ferroviario.com.br/2019/09/03/lateral-esquerdo-acacio-e-novo-reforco-do-ferroviario/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1565,
+    "name": "Diego Clementino",
+    "fullName": "Diego José Clementino",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1984-03-18",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 175,
+    "weightKg": 67,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/diego-clementino/profil/spieler/48209"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1557,
+    "name": "Roberto Dias",
+    "fullName": "Roberto Dias Correia Filho",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1988-08-08",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 188,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/roberto-dias/profil/spieler/279923"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1556,
+    "name": "Pedro Silva",
+    "fullName": "Pedro Alves da Silva",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1981-04-25",
+    "birthCity": "Brasília",
+    "birthState": "DF",
+    "heightCm": 181,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/pedro-silva/profil/spieler/34408"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1559,
+    "name": "Charles Vagner",
+    "fullName": "Charles Vágner Souza de Lima",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1982-05-19",
+    "birthCity": "Camaçari",
+    "birthState": "BA",
+    "heightCm": 182,
+    "weightKg": 81,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/charles-vagner/profil/spieler/101507"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1206,
+    "name": "Anderson Paraíba",
+    "fullName": "Anderson da Silva",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1991-01-25",
+    "birthCity": "João Pessoa",
+    "birthState": "PB",
+    "heightCm": 170,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/anderson-paraiba/profil/spieler/186207"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1205,
+    "name": "Marco Tiago",
+    "fullName": "Marco Tiago Faustino",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1984-03-23",
+    "birthCity": "Belo Horizonte",
+    "birthState": "MG",
+    "heightCm": 187,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/marco-tiago/profil/spieler/86294"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1195,
+    "name": "Elyeser",
+    "fullName": "Elyeser Maciel da Silva",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1990-06-25",
+    "birthCity": "Abaetetuba",
+    "birthState": "PA",
+    "heightCm": 181,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/elyeser/profil/spieler/520092"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1197,
+    "name": "Afonso",
+    "fullName": "Manoel Afonso Júnior",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1991-11-14",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": 172,
+    "weightKg": 70,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/afonso/profil/spieler/149244"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1558,
+    "name": "Mineiro",
+    "fullName": "Huenes Marcelo Lemos",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1981-12-05",
+    "birthCity": "Iguatama",
+    "birthState": "MG",
+    "heightCm": 184,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/mineiro/profil/spieler/55258"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1576,
+    "name": "Jean Carioca",
+    "fullName": "Jean Agostinho da Silva",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1988-06-01",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 176,
+    "weightKg": 71,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/jean-carioca/profil/spieler/97506"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1574,
+    "name": "Thiago Furtuoso",
+    "fullName": "Thiago Furtuoso dos Santos",
+    "position": "Centroavante",
+    "preferredFoot": null,
+    "birthDate": "1987-06-08",
+    "birthCity": "Carapicuíba",
+    "birthState": "SP",
+    "heightCm": 185,
+    "weightKg": 74,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/thiago-furtuoso/profil/spieler/506340"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1577,
+    "name": "Dinei",
+    "fullName": "Valdinei Eberton Borges Correia",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1983-12-21",
+    "birthCity": "Barros Cassal",
+    "birthState": "RS",
+    "heightCm": 183,
+    "weightKg": 82,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/dinei/profil/spieler/109157"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1201,
+    "name": "William Thuram",
+    "fullName": "William Celestino da Silva",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1989-05-25",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 187,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/william-thuram/profil/spieler/239005"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1196,
+    "name": "Zé Paulo",
+    "fullName": "José Paulo dos Santos Ferreira",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1987-05-16",
+    "birthCity": "Recife",
+    "birthState": "PE",
+    "heightCm": 172,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/ze-paulo/profil/spieler/179035"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1198,
+    "name": "Rafael Granja",
+    "fullName": "Rafael Menezes da Cruz",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1984-01-07",
+    "birthCity": "Vitória da Conquista",
+    "birthState": "BA",
+    "heightCm": 172,
+    "weightKg": 73,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/rafael-granja/profil/spieler/77134"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1203,
+    "name": "Élvis",
+    "fullName": "Élvis Gustavo Oliveira de Sá",
+    "position": "Meia Central",
+    "preferredFoot": "destro",
+    "birthDate": "1979-03-30",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": 172,
+    "weightKg": 70,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/elvis/profil/spieler/99649"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1191,
+    "name": "Breno",
+    "fullName": "Breno Thiago Gadelha Silva",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1986-11-01",
+    "birthCity": "Recife",
+    "birthState": "PE",
+    "heightCm": 186,
+    "weightKg": 78,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/breno/profil/spieler/54910"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1210,
+    "name": "Leandro Teixeira",
+    "fullName": "Leandro Teixeira Dantas",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1987-08-17",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 179,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/leandro-teixeira/profil/spieler/101541"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1207,
+    "name": "Nêgo",
+    "fullName": "Lindembergh Francisco da Silva",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1985-05-23",
+    "birthCity": "Ceará-Mirim",
+    "birthState": "RN",
+    "heightCm": 168,
+    "weightKg": 64,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/nego/profil/spieler/65211"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1208,
+    "name": "Danilinho",
+    "fullName": "Danilo Caçador",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1985-04-01",
+    "birthCity": "Bauru",
+    "birthState": "SP",
+    "heightCm": 178,
+    "nationality": "Brasil",
+    "isDeceased": true,
+    "sources": [
+      "https://www.transfermarkt.com/danilinho/profil/spieler/226698"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1578,
+    "name": "Anderson Ataíde",
+    "fullName": "Anderson de Siqueira Ataíde",
+    "position": "Centroavante",
+    "preferredFoot": null,
+    "birthDate": "1985-12-12",
+    "heightCm": 181,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/anderson-ataide/profil/spieler/56390"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1572,
+    "name": "Claudio Allax",
+    "fullName": "Cláudio Allax Marques Guimarães Silva",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1991-01-07",
+    "birthCity": "Belém",
+    "birthState": "PA",
+    "heightCm": 171,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/claudio-allax/profil/spieler/211252"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1579,
+    "name": "Léo Maceió",
+    "fullName": "Leonardo de Magalhães Visgueiro Pereira",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1987-08-11",
+    "heightCm": 179,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/leo-maceio/profil/spieler/214198"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1562,
+    "name": "Robson",
+    "fullName": "Robson Martinho de Lima",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1982-04-20",
+    "birthCity": "Recife",
+    "birthState": "PE",
+    "heightCm": 175,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/robson-lima/profil/spieler/145569"
+    ],
+    "confidence": "high"
+  }
+]

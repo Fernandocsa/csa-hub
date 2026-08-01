@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1607,
+    "name": "Henrique",
+    "fullName": "Carlos Henrique da Silva Lima",
+    "position": "Zagueiro",
+    "preferredFoot": "ambidestro",
+    "birthDate": "1981-03-09",
+    "birthCity": "Crato",
+    "birthState": "CE",
+    "heightCm": 182,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": ["user-provided"],
+    "confidence": "high",
+    "notes": "Corrige atribuição errada a Pedro Henrique de Morais Cota (esse é Pedrinho #1623). Henrique sheet 2013 = zagueiro."
+  }
+]

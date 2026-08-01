@@ -1,0 +1,104 @@
+[
+  {
+    "id": 1564,
+    "name": "Alisson",
+    "fullName": "Alisson Francisco Pereira da Silva",
+    "position": "Meia Ofensivo",
+    "preferredFoot": null,
+    "birthDate": "1990-07-01",
+    "heightCm": 175,
+    "weightKg": 70,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/alisson/profil/spieler/638933",
+      "https://www.footballdatabase.eu/es/club/equipo/7444-csa/2013"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1596,
+    "name": "Jucemar Gaúcho",
+    "fullName": "Jucemar Décio Ribeiro da Silva",
+    "position": "Volante",
+    "preferredFoot": "destro",
+    "birthDate": "1986-08-10",
+    "birthCity": "Caxias do Sul",
+    "birthState": "RS",
+    "heightCm": 174,
+    "weightKg": 73,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/jucemar/profil/spieler/99952"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1618,
+    "name": "Rone Dias",
+    "fullName": "Rone Silis Dias",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1984-05-20",
+    "birthCity": "Mirassol d'Oeste",
+    "birthState": "MT",
+    "heightCm": 174,
+    "weightKg": 73,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/rone-dias/profil/spieler/126477"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1620,
+    "name": "Vavá",
+    "fullName": "Vagner Paulo da Silva",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1982-07-18",
+    "birthCity": "Fortaleza",
+    "birthState": "CE",
+    "heightCm": 175,
+    "weightKg": 72,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/vava/profil/spieler/76475"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1597,
+    "name": "Everaldo",
+    "fullName": "Everaldo Stum",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1991-07-05",
+    "birthCity": "Garibaldi",
+    "birthState": "RS",
+    "heightCm": 181,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Everaldo_Stum",
+      "https://en.wikipedia.org/wiki/Everaldo_(footballer,_born_1991)"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1567,
+    "name": "Jerson",
+    "fullName": "Jerson da Silva Soares",
+    "position": "Meia Central",
+    "preferredFoot": "destro",
+    "birthDate": "1986-11-23",
+    "birthCity": "Fortaleza",
+    "birthState": "CE",
+    "heightCm": 176,
+    "weightKg": 66,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/jerson/profil/spieler/171387"
+    ],
+    "confidence": "high"
+  }
+]

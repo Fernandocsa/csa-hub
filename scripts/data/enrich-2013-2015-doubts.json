@@ -1,0 +1,76 @@
+[
+  {
+    "id": 1586,
+    "name": "Celico",
+    "reason": "RESOLVED: Marcelo Batista (TM #1229282)"
+  },
+  {
+    "id": 1590,
+    "name": "Claudinho",
+    "reason": "RESOLVED: Claudio Wanderley Sarmento Neto (ogol #130941)"
+  },
+  {
+    "id": 1591,
+    "name": "Felipe Garopaba",
+    "seasons": ["2013"],
+    "reason": "Ex-Al-Tadamon (Kuwait) per reportersports Dec/2012; sheets also Fellipe Garopaba. Full civil name / DOB not found on TM/ogol."
+  },
+  {
+    "id": 1604,
+    "name": "Jean Luca",
+    "reason": "RESOLVED: Jean Lucca dos Santos / Monga (TM #1277543)"
+  },
+  {
+    "id": 1625,
+    "name": "Maxwell",
+    "seasons": ["2013"],
+    "reason": "Meia-atacante base CSA; entrevista Dec/2013 diz 20 anos (~1993) sem nome completo. Passagens base CRB/Inter/Ceará."
+  },
+  {
+    "id": 1623,
+    "name": "Pedrinho",
+    "seasons": ["2013"],
+    "reason": "Apelido comum; sem perfil TM/ogol confiável ligado ao CSA 2013."
+  },
+  {
+    "id": 1585,
+    "name": "Rhenan Ramos",
+    "seasons": ["2013"],
+    "reason": "Zagueiro listado como Rhenan (ex-Inter-SP) no elenco Dec/2012; nome civil e DOB não confirmados."
+  },
+  {
+    "id": 1603,
+    "name": "Rogerinho",
+    "seasons": ["2013"],
+    "reason": "Apelido comum; identidade ambígua para CSA 2013."
+  },
+  {
+    "id": 1199,
+    "name": "Sérgio",
+    "seasons": ["2015"],
+    "reason": "Só 2015 (1 jogo banco 28/01/2015). Nada em 2013. TM #1542468 José Sérgio Alves do Bonfim Junior — falta DOB real para aplicar."
+  },
+  {
+    "id": 1607,
+    "name": "Henrique",
+    "reason": "RESOLVED (user): Carlos Henrique da Silva Lima, zagueiro 09/03/1981 Crato-CE — distinto de Pedrinho #1623 (Pedro Henrique de Morais Cota)."
+  },
+  {
+    "id": 1601,
+    "name": "Washington",
+    "seasons": ["2013"],
+    "reason": "Atacante base CSA (~21 em 2013 / ~34 em 2026 GE). Crédito de foto GE: Washington Anderson. Nome civil completo e DOB exata não confirmados."
+  },
+  {
+    "id": 1595,
+    "name": "Patrick Borges",
+    "seasons": ["2013"],
+    "reason": "Mesmo que Turuçu #1140 (Patrick Hartwig Borges) — considerar merge de duplicatas."
+  },
+  {
+    "id": 1622,
+    "name": "Patrick",
+    "seasons": ["2013"],
+    "reason": "Provável duplicata de Patrick Borges / Turuçu #1140."
+  }
+]

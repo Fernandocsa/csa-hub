@@ -1,0 +1,69 @@
+[
+  {
+    "id": 1591,
+    "name": "Felipe Garopaba",
+    "fullName": "Fellipe Cardoso",
+    "position": "Atacante",
+    "preferredFoot": null,
+    "birthDate": "1982-10-19",
+    "heightCm": 179,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": ["user-provided"],
+    "confidence": "high"
+  },
+  {
+    "id": 1607,
+    "name": "Henrique",
+    "fullName": "Pedro Henrique de Morais Cota",
+    "position": "Atacante",
+    "preferredFoot": null,
+    "birthDate": "1994-05-15",
+    "nationality": "Brasil",
+    "sources": ["user-provided", "https://www.transfermarkt.com.br/pedro-henrique/profil/spieler/1491523"],
+    "confidence": "high"
+  },
+  {
+    "id": 1585,
+    "name": "Rhenan Ramos",
+    "fullName": "Rhenan Silva Ramos Nunes",
+    "position": "Zagueiro",
+    "preferredFoot": null,
+    "birthDate": "1988-09-03",
+    "birthCity": "Cachoeiro de Itapemirim",
+    "birthState": "ES",
+    "nationality": "Brasil",
+    "sources": ["user-provided"],
+    "confidence": "high"
+  },
+  {
+    "id": 1603,
+    "name": "Rogerinho",
+    "fullName": "Rosinaldo Bento da Silva",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1979-07-16",
+    "birthCity": "São José de Mipibu",
+    "birthState": "RN",
+    "heightCm": 165,
+    "weightKg": 67,
+    "nationality": "Brasil",
+    "sources": ["user-provided"],
+    "confidence": "high"
+  },
+  {
+    "id": 1601,
+    "name": "Washington",
+    "fullName": "Washington Martins de Lemos",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1981-04-26",
+    "birthCity": "São Gonçalo",
+    "birthState": "RN",
+    "heightCm": 165,
+    "weightKg": 72,
+    "nationality": "Brasil",
+    "sources": ["user-provided"],
+    "confidence": "high"
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1593,
+    "name": "Levi",
+    "fullName": "Levi Nepomuceno da Silva",
+    "position": "Volante",
+    "preferredFoot": null,
+    "birthDate": "1990-05-22",
+    "birthCity": "Olinda",
+    "birthState": "PE",
+    "heightCm": 181,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/levi/profil/spieler/215834",
+      "https://footballty.com/player/levi-215834/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1611,
+    "name": "Léo Medeiros",
+    "fullName": "Leandro Ferreira Medeiros",
+    "position": "Volante",
+    "preferredFoot": null,
+    "birthDate": "1981-05-14",
+    "birthCity": "Recreio",
+    "birthState": "MG",
+    "heightCm": 186,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/L%C3%A9o_Medeiros",
+      "https://www.cidadeesportes.com.br/v1/2013/06/03/a-cinco-dias-da-estreia-na-serie-d-csa-ainda-corre-para-fechar-o-elenco/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1599,
+    "name": "Hudson",
+    "fullName": "Hudson Roberto da Silva",
+    "position": "Goleiro",
+    "preferredFoot": null,
+    "birthDate": "1977-05-21",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/hudson/183736",
+      "https://www.transfermarkt.co.uk/hudson/profil/spieler/1330664"
+    ],
+    "confidence": "high"
+  }
+]

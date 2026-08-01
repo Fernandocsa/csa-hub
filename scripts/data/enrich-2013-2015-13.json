@@ -1,0 +1,51 @@
+[
+  {
+    "id": 1586,
+    "name": "Celico",
+    "fullName": "Marcelo Batista",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": null,
+    "birthDate": "1982-11-24",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/celico/profil/spieler/1229282"
+    ],
+    "confidence": "high",
+    "notes": "Sheets 2013 listam Celico entre laterais (com Fabiano)."
+  },
+  {
+    "id": 1590,
+    "name": "Claudinho",
+    "fullName": "Claudio Wanderley Sarmento Neto",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1982-11-03",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": 179,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/claudinho/130941"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1604,
+    "name": "Jean Luca",
+    "fullName": "Jean Lucca dos Santos",
+    "position": "Centroavante",
+    "preferredFoot": "ambidestro",
+    "birthDate": "1991-09-18",
+    "birthCity": "Sumaré",
+    "birthState": "SP",
+    "heightCm": 178,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/monga/profil/spieler/1277543",
+      "http://reportersports.blogspot.com/2012/12/csa-traz-lateral-do-futebol-paulista.html"
+    ],
+    "confidence": "high",
+    "notes": "TM nickname Monga; elenco CSA 2013 citado como Jean Lucca (ex-Primavera-SP)."
+  }
+]

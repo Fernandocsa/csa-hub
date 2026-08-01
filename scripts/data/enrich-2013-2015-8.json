@@ -1,0 +1,144 @@
+[
+  {
+    "id": 1587,
+    "name": "Marielson",
+    "fullName": "Marielson Paulo Tavares da Silva",
+    "position": "Volante",
+    "preferredFoot": null,
+    "birthDate": "1985-03-30",
+    "birthCity": "Açu",
+    "birthState": "RN",
+    "heightCm": 168,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.meutimenarede.com.br/jogadores/1268/marielson",
+      "https://www.livescore724.com/footballer/marielson-paulo-tavares-da-silva/2iadjvxvk/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1628,
+    "name": "Manoel",
+    "fullName": "José Manoel da Cruz Marques",
+    "position": "Goleiro",
+    "preferredFoot": null,
+    "birthDate": "1992-06-15",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/manoel/profil/spieler/1450814"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1610,
+    "name": "Alexandre",
+    "fullName": "Alexandre Henrique Rodrigues de Araújo",
+    "position": "Zagueiro",
+    "preferredFoot": null,
+    "birthDate": "1987-12-11",
+    "birthCity": "Natal",
+    "birthState": "RN",
+    "heightCm": 182,
+    "nationality": "Brasil",
+    "sources": [
+      "https://sportbaseline.com/player/alexandre-103382",
+      "https://www.ogol.com.br/jogador/alexandre/95107"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1588,
+    "name": "Robério",
+    "fullName": "Robério do Nascimento Santos",
+    "position": "Centroavante",
+    "preferredFoot": null,
+    "birthDate": "1994-09-16",
+    "birthCity": "Murici",
+    "birthState": "AL",
+    "heightCm": 175,
+    "weightKg": 76,
+    "nationality": "Brasil",
+    "sources": [
+      "http://lucianogondimce.blogspot.com/2013/07/ceara-apresenta-atacante-roberio.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1609,
+    "name": "Odair Lucas",
+    "fullName": "Odair Lucas Rodrigues Quirino da Silva",
+    "position": "Zagueiro",
+    "preferredFoot": null,
+    "birthDate": "1989-12-17",
+    "birthCity": "Cândido Mota",
+    "birthState": "SP",
+    "heightCm": 187,
+    "weightKg": 82,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.us/odair-lucas/profil/spieler/186588"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1573,
+    "name": "Williams Vassoura",
+    "fullName": "Williams Oliveira do Nascimento",
+    "position": "Meia",
+    "preferredFoot": null,
+    "birthDate": "1985-04-26",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.us/vassoura/profil/spieler/1229126"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1613,
+    "name": "Rogélio Ávila",
+    "fullName": "Rogélio António Van Horn Ávila Filho",
+    "position": "Centroavante",
+    "preferredFoot": null,
+    "birthDate": "1987-07-07",
+    "birthCity": "Campina Grande",
+    "birthState": "PB",
+    "heightCm": 190,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/rogelio-balotelli/profil/spieler/56395"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1595,
+    "name": "Patrick Borges",
+    "fullName": "Patrick Hartwig Borges",
+    "position": "Lateral Direito",
+    "preferredFoot": null,
+    "birthDate": "1992-08-07",
+    "birthCity": "São Lourenço do Sul",
+    "birthState": "RS",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.footballdatabase.eu/es/club/equipo/7444-csa/2013"
+    ],
+    "confidence": "high",
+    "note": "Same person as Turuçu #1140 — consider merge later"
+  },
+  {
+    "id": 1622,
+    "name": "Patrick",
+    "fullName": "Patrick Hartwig Borges",
+    "position": "Lateral Direito",
+    "preferredFoot": null,
+    "birthDate": "1992-08-07",
+    "birthCity": "São Lourenço do Sul",
+    "birthState": "RS",
+    "nationality": "Brasil",
+    "sources": [
+      "http://csa-azulao.blogspot.com/2013/01/csa-apresenta-mais-um-reforco-o-meia.html"
+    ],
+    "confidence": "high",
+    "note": "Grêmio partnership zagueiro/lateral mentioned as Patrick; same as Turuçu/Patrick Borges"
+  }
+]

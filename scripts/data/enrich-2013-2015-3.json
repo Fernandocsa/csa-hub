@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1211,
+    "name": "Rafael Aidar",
+    "fullName": "Rafael José Leite Aidar",
+    "position": "Ponta Direita",
+    "preferredFoot": null,
+    "birthDate": "1982-12-29",
+    "heightCm": 174,
+    "weightKg": 72,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/rafael-aidar/profil/spieler/1211993",
+      "https://www.footballdatabase.eu/es/club/equipo/7444-csa/2015"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1194,
+    "name": "Fabiano",
+    "fullName": "Fabiano da Silva",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1985-12-18",
+    "heightCm": 171,
+    "weightKg": 68,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/fabiano/profil/spieler/871625",
+      "https://www.footballdatabase.eu/es/club/equipo/7444-csa/2013"
+    ],
+    "confidence": "high"
+  }
+]

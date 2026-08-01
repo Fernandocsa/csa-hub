@@ -1,0 +1,152 @@
+[
+  {
+    "id": 1209,
+    "name": "Diego Neves",
+    "fullName": "Diego Neves de Jesus",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1986-06-13",
+    "birthCity": "Serra",
+    "birthState": "ES",
+    "heightCm": 180,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.us/diego-neves/profil/spieler/275054"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1204,
+    "name": "Márcio Lima",
+    "fullName": "Márcio Lima da Silva",
+    "position": "Lateral Direito",
+    "preferredFoot": null,
+    "birthDate": "1988-03-28",
+    "nationality": "Brasil",
+    "sources": [
+      "https://foot.be/equipe/csa/transferts/",
+      "https://www.footballdatabase.eu/es/club/equipo/7444-csa/2015",
+      "https://www.transfermarkt.com/marcio-lima/profil/spieler/297058"
+    ],
+    "confidence": "high",
+    "note": "Birth date from TM squad age 25 in 2015 season (~1989/88); confirm 28/03/1988 vs FDB listing"
+  },
+  {
+    "id": 1200,
+    "name": "Pierre",
+    "fullName": "Pierre Veiga Sodré",
+    "position": "Zagueiro",
+    "preferredFoot": null,
+    "birthDate": "1987-05-31",
+    "nationality": "Brasil",
+    "sources": [
+      "https://foot.be/equipe/csa/transferts/",
+      "https://www.footballdatabase.eu/es/club/equipo/7444-csa/2015"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1616,
+    "name": "Wagner Silva",
+    "fullName": "Wagner da Silva",
+    "position": "Zagueiro",
+    "preferredFoot": null,
+    "birthDate": "1989-09-24",
+    "birthCity": "Esteio",
+    "birthState": "RS",
+    "heightCm": 183,
+    "weightKg": 85,
+    "nationality": "Brasil",
+    "sources": [
+      "https://footballinfo.net/Players/Details/55278",
+      "https://www.footballdatabase.eu/es/club/equipo/7444-csa/2013"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1563,
+    "name": "Santos",
+    "fullName": "Paulo Pimentel dos Santos",
+    "position": "Lateral Esquerdo",
+    "preferredFoot": "canhoto",
+    "birthDate": "1986-03-09",
+    "birthCity": "Santo Antônio de Jesus",
+    "birthState": "BA",
+    "heightCm": 173,
+    "weightKg": 67,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/santos/profil/spieler/115390"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1598,
+    "name": "Mithyuê",
+    "fullName": "Mithyuê de Linhares",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1989-10-16",
+    "birthCity": "Chapecó",
+    "birthState": "SC",
+    "heightCm": 173,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/mithyue/profil/spieler/99511"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1602,
+    "name": "Jorge Miguel",
+    "fullName": "Jorge Miguel Lopes",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1988-02-16",
+    "birthCity": "São José do Rio Preto",
+    "birthState": "SP",
+    "heightCm": 182,
+    "weightKg": 75,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/jorge-miguel/profil/spieler/52826"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1582,
+    "name": "Leandrinho",
+    "fullName": "Leandro Eleutério de Souza",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1985-02-22",
+    "birthCity": "Araruama",
+    "birthState": "RJ",
+    "heightCm": 188,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Leandrinho_(footballer,_born_1985)",
+      "https://www.transfermarkt.com/leandrinho/profil/spieler/267339"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1592,
+    "name": "Rodolfo",
+    "fullName": "Rodolfo Américo Rodrigues",
+    "position": "Meia",
+    "preferredFoot": null,
+    "birthDate": "1985-04-04",
+    "birthCity": "Monte Azul Paulista",
+    "birthState": "SP",
+    "heightCm": 175,
+    "weightKg": 72,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.footballdatabase.eu/id/pemain/detail/236414--rodolfo",
+      "https://abseits.at/spieler/rodolfo-americo-rodrigues/"
+    ],
+    "confidence": "high"
+  }
+]
