@@ -1,0 +1,48 @@
+[
+  {
+    "id": 1700,
+    "name": "Carlinhos",
+    "fullName": "José Carlos de Oliveira",
+    "position": "Lateral Direito",
+    "preferredFoot": null,
+    "birthDate": "1962-03-04",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.pt/carlinhos-marechal/profil/spieler/1569494"
+    ],
+    "confidence": "high",
+    "notes": "Carlinhos Marechal; also played meia/zaga in some CSA lineups — TM lists RB as main position"
+  },
+  {
+    "id": 1031,
+    "name": "Mug",
+    "fullName": "Édson Cuici",
+    "position": "Ponta Esquerda",
+    "preferredFoot": null,
+    "birthDate": "1955-08-07",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "nationality": "Brasil",
+    "sources": [
+      "https://terceirotempo.uol.com.br/que-fim-levou/mug-3449",
+      "https://en.wikipedia.org/wiki/Mug_(footballer)",
+      "http://jogadorestricolores.blogspot.com/2013/02/mug.html"
+    ],
+    "confidence": "high",
+    "notes": "Deceased 2017-08-01; wiki spelling Cuicci — keeping DB Cuici; foot not sourced"
+  },
+  {
+    "id": 1704,
+    "name": "Ademir",
+    "fullName": "Ademir Ferreira da Silva",
+    "position": "Volante",
+    "preferredFoot": null,
+    "birthDate": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://cruzeiroalmanaque.blogspot.com/2022/10/ademir-mineiro-meio-campista-do.html"
+    ],
+    "confidence": "medium",
+    "notes": "Ademir Mineiro from Cruzeiro Jun/1981 — DOB still missing, will not apply until birthDate found"
+  }
+]

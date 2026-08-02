@@ -1,0 +1,197 @@
+[
+  {
+    "id": 907,
+    "name": "Jacozinho",
+    "fullName": "Givaldo Santos Vasconcelos",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "canhoto",
+    "birthDate": "1956-02-02",
+    "birthCity": "Gararu",
+    "birthState": "SE",
+    "heightCm": 162,
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Jacozinho",
+      "https://www.ogol.com.br/jogador/jacozinho/438225"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 778,
+    "name": "Dentinho",
+    "fullName": "Sebastião do Socorro Araújo de Oliveira",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1956-09-28",
+    "birthCity": "Manaus",
+    "birthState": "AM",
+    "heightCm": 185,
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Dentinho_Guerreiro",
+      "https://www.ogol.com.br/jogador/dentinho/759284"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1689,
+    "name": "Zé Luiz",
+    "position": "Goleiro",
+    "birthCity": "Itabaiana",
+    "birthState": "SE",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "http://baudotremendao.blogspot.com/2022/01/ha-35-anos-o-goleiro-ze-luiz-voltava.html",
+      "http://varjotaesportes.blogspot.com/2023/12/olimpica-de-itabaiana-itabaiana-sergipe.html"
+    ],
+    "confidence": "medium",
+    "notes": "Aka Requeijão; CSA ~1980-86; revealed by Itabaiana (pro debut 1973 age 22 → ~1951). NOT Palmeiras José Luiz Esteves. Full civil name not found."
+  },
+  {
+    "id": 494,
+    "name": "Ênio Oliveira",
+    "position": "Ponta Esquerda",
+    "birthCity": "Porto Alegre",
+    "birthState": "RS",
+    "nationality": "Brasil",
+    "isDeceased": true,
+    "sources": [
+      "https://www.futebolinterior.com.br/luto-morre-ex-atacante-gaucho-que-fez-sucesso-em-alagoas-como-jogador-e-tecnico/"
+    ],
+    "confidence": "high",
+    "notes": "Died 2022-10-11 in Maceió at age 72 (pancreatic cancer); CSA 1974-79, titles 1974-75. Exact birthDate not sourced."
+  },
+  {
+    "id": 1700,
+    "name": "Carlinhos",
+    "fullName": "José Carlos de Oliveira",
+    "position": "Lateral Direito",
+    "birthDate": "1962-03-04",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.transfermarkt.pt/carlinhos-marechal/profil/spieler/1569494",
+      "http://futebol80.com.br/links/times/csa/csaft.htm"
+    ],
+    "confidence": "medium",
+    "notes": "Aka Carlinhos Marechal; TM main club CSA. Lineups place him as full-back; DB had Meia."
+  },
+  {
+    "id": 1690,
+    "name": "Carlos Alberto",
+    "fullName": "Carlos Alberto Rocha Cunha",
+    "position": "Lateral Esquerdo",
+    "birthDate": "1955-05-28",
+    "birthCity": "Salvador",
+    "birthState": "BA",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://terceirotempo.uol.com.br/que-fim-levou/carlos-alberto-rocha-656",
+      "https://historiascoperas.blogspot.com/2022/08/csa-centro-sportivo-alagoano.html"
+    ],
+    "confidence": "high",
+    "notes": "Aka Carlos Alberto Rocha; CSA Bi-Campeão Alagoano 1985 confirmed. Also CRB/Náutico/Coritiba."
+  },
+  {
+    "id": 1704,
+    "name": "Ademir",
+    "fullName": "Ademir Ferreira da Silva",
+    "position": "Volante",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://cruzeiroalmanaque.blogspot.com/2022/10/ademir-mineiro-meio-campista-do.html",
+      "http://sosumulas.blogspot.com/2008/07/csa.html"
+    ],
+    "confidence": "high",
+    "notes": "Aka Ademir Mineiro; from Cruzeiro juvenil/pro 1981, to CSA 12/6/1981 with Zé Luiz in Remi deal; played with Felipão."
+  },
+  {
+    "id": 531,
+    "name": "Hélio",
+    "fullName": "Hélio Soares da Silva",
+    "position": "Atacante",
+    "preferredFoot": "ambidestro",
+    "birthDate": "1954-07-11",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.ogol.com.br/jogador/helio-sururu/438252",
+      "http://www.futebol80.com.br/links/artilheiros/atualart.html"
+    ],
+    "confidence": "high",
+    "notes": "Aka Hélio Sururu; CSA 1975/78/86 on ogol (also 1976 in futebol80)."
+  },
+  {
+    "id": 1776,
+    "name": "Jaminho",
+    "fullName": "Jamesson Alves da Paixão",
+    "position": "Lateral Esquerdo",
+    "birthDate": "1948-07-21",
+    "birthCity": "Recife",
+    "birthState": "PE",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "http://blogdomequinha.blogspot.com/2018/10/americas-old-players-o-lateral-jaiminho.html",
+      "https://www.blog-do-sorrentino.com/news/1972/"
+    ],
+    "confidence": "high",
+    "notes": "From América-PE; CSA from ~1972 (lineups also list 1971). Contract ended after 1974 concentration incident."
+  },
+  {
+    "id": 1783,
+    "name": "Zé Luiz",
+    "fullName": "José Luiz Albuquerque Silva",
+    "position": "Goleiro",
+    "birthDate": "1948-09-13",
+    "birthCity": "Águas Belas",
+    "birthState": "PE",
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://obaheanahistoria.blogspot.com/2014/09/ze-luis.html"
+    ],
+    "confidence": "medium",
+    "notes": "Distinct from 1689 Requeijão. CRB base → CSA → Bahia early 1973 (Evaristo de Macedo). Source locality written Águas Bela-PE (Águas Belas)."
+  },
+  {
+    "id": 1769,
+    "name": "Espinoza",
+    "fullName": "Valdir Atahualpa Ramires Espinosa",
+    "position": "Lateral Direito",
+    "birthDate": "1947-10-17",
+    "birthCity": "Porto Alegre",
+    "birthState": "RS",
+    "nationality": "Brasil",
+    "isDeceased": true,
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Valdir_Espinosa",
+      "https://www.blog-do-sorrentino.com/news/1975/",
+      "http://futebol80.com.br/links/times/csa/csaft.htm"
+    ],
+    "confidence": "high",
+    "notes": "Died 2020-02-27 Rio de Janeiro. CSA Alagoano 1974. Likely same person as id 818 Espinosa (0 apps duplicate)."
+  },
+  {
+    "id": 551,
+    "name": "Chico",
+    "fullName": "Francisco dos Santos Ângelo",
+    "position": "Atacante",
+    "birthDate": "1967-03-03",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": 180,
+    "nationality": "Brasil",
+    "isDeceased": false,
+    "sources": [
+      "https://www.ogol.com.br/jogador/chico/246438"
+    ],
+    "confidence": "high",
+    "notes": "Brother of Jorge Siri and Peu (ogol parentescos). CSA 1986-1992 on ogol; preferredFoot not listed."
+  }
+]

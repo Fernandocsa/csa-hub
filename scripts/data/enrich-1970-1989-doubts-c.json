@@ -1,0 +1,177 @@
+[
+  {
+    "id": 1689,
+    "name": "Zé Luiz",
+    "seasons": ["1980", "1981", "1982", "1983", "1984", "1985"],
+    "apps": 135,
+    "reason": "Enriched as José Luiz de Jesus (Itabaianinha-SE, 1950-07-13) via sumulastche CBF career Itabaiana/Confiança/CSA 1980-86. Fan blogs call him itabaianense/Requeijão and say Itabaiana; locality may be Itabaiana club vs Itabaianinha birth — confirm against civil registry if possible."
+  },
+  {
+    "id": 1704,
+    "name": "Ademir",
+    "seasons": ["1982", "1983"],
+    "apps": 41,
+    "reason": "Cruzeiro Almanaque writes Ademir Ferreira da Silva (Ademir Mineiro); sumulastche CBF card for the Cruzeiro-1981→CSA-1982/84 volante is Ademir Pereira da Silva (1955-09-08, Nova Lima-MG). Likely same athlete with middle-name conflict — batch-c uses Pereira (CBF). Also overlaps id 652 Ademir Pereira shell."
+  },
+  {
+    "id": 1760,
+    "name": "Milano",
+    "seasons": ["1977"],
+    "apps": 16,
+    "reason": "Linked to Expedito José Milano (Milani, 1952-10-11, Maceió) but sumulastche career lists CSA only 1975-76 then Sergipe 1977-78; DB season is 1977. Likely same keeper with season mislabel vs id 1020 Milani (0 apps 1975-76) — verify before merge."
+  },
+  {
+    "id": 1698,
+    "name": "Ditinho",
+    "seasons": ["1985"],
+    "apps": 15,
+    "reason": "Treated as Ditinho Souza (Benedito Luiz Souza e Silva); Sorrentino 1985 lineups list Ditinho, but ogol/sumulastche career start CSA at 1986-87. Likely duplicate of id 789 Ditinho Souza — confirm single identity before merge."
+  },
+  {
+    "id": 1761,
+    "name": "Ulisses",
+    "seasons": ["1977"],
+    "apps": 16,
+    "reason": "Ulisses Ribeiro da Silva (Sertânia-PE, 1952-01-20) fits CRB-1976→CSA-1977 timeline and sosumulas lineup, but Memorial BEC club list omits CSA (lists Ferroviário-AL next)."
+  },
+  {
+    "id": 1777,
+    "name": "Dudu",
+    "seasons": ["1971", "1972", "1973"],
+    "apps": 34,
+    "reason": "Meia in 1971-73 title photos/lineups; sumulastche Dudu Vladimir Vieira Carvalho is 1990s — no civil name/DOB for 1970s Dudu."
+  },
+  {
+    "id": 1715,
+    "name": "Zé Carlos",
+    "seasons": ["1984"],
+    "apps": 34,
+    "reason": "Meia CSA 1984 (futebol80/Sorrentino). Zé Carlos Baiano (José Carlos Barros Mendes, 1954-02-07) is CSA 1982-83 and 1985 on sumulastche (Brasília 1984) — year gap makes 1984 identity uncertain."
+  },
+  {
+    "id": 1739,
+    "name": "Nílson",
+    "seasons": ["1980"],
+    "apps": 22,
+    "reason": "Atacante in 1980 CSA lineups (futebol80); no CBF/sumulastche civil identity found."
+  },
+  {
+    "id": 1720,
+    "name": "Luiz Augusto",
+    "seasons": ["1984"],
+    "apps": 22,
+    "reason": "Zagueiro/Luís Augusto in 1984 CSA lineups; no full civil name or DOB sourced."
+  },
+  {
+    "id": 1746,
+    "name": "Evaristo",
+    "seasons": ["1979"],
+    "apps": 19,
+    "reason": "Lateral in CSA vs Cruzeiro 25/11/1979 (futebol80); not coach Evaristo de Macedo; civil name/DOB not found."
+  },
+  {
+    "id": 1708,
+    "name": "Édson Silva",
+    "seasons": ["1983"],
+    "apps": 19,
+    "reason": "Volante in 1983-84 lineups. Sumulastche Édson de Souza Silva (1953-04-04, Salvador) lists CSA only 1985 after Vitória 1977-83 — year mismatch for id 1708."
+  },
+  {
+    "id": 1709,
+    "name": "Falcão",
+    "seasons": ["1983"],
+    "apps": 19,
+    "reason": "Meia CSA 1983; not Paulo Roberto Falcão; no reliable civil identity."
+  },
+  {
+    "id": 1692,
+    "name": "Gílson",
+    "seasons": ["1985"],
+    "apps": 16,
+    "reason": "Atacante with goals in Sorrentino 1985 lineups; not Gílson Pantera (1982) or Gílson Santana (1977-78 LD); Baiano card has empty career — identity open."
+  },
+  {
+    "id": 1793,
+    "name": "Dida",
+    "seasons": ["1970"],
+    "apps": 15,
+    "reason": "Zagueiro CSA ~1970-73 photos (distinct from GK Rosildo Domingos dos Santos and from 1950s Dida Santa Rosa); civil name/DOB not found."
+  },
+  {
+    "id": 1710,
+    "name": "Ney Vagner",
+    "seasons": ["1983"],
+    "apps": 15,
+    "reason": "Atacante CSA 1983; no sourced civil name or DOB."
+  },
+  {
+    "id": 931,
+    "name": "Jorge Siri",
+    "seasons": ["1974", "1975", "1976", "1977", "1978", "1979", "1980", "1981", "1982", "1983", "1984"],
+    "apps": 172,
+    "reason": "ONLY-FOOT: ogol has name/DOB/parentescos but no Pé preferencial."
+  },
+  {
+    "id": 547,
+    "name": "Café",
+    "seasons": ["1981", "1982", "1983", "1984", "1985", "1988"],
+    "apps": 110,
+    "reason": "ONLY-FOOT: ogol/TM confirm bio; no preferredFoot."
+  },
+  {
+    "id": 537,
+    "name": "Soareste",
+    "seasons": ["1971", "1972", "1973", "1974", "1975", "1976", "1977", "1978", "1979"],
+    "apps": 101,
+    "reason": "ONLY-FOOT: no preferredFoot sourced."
+  },
+  {
+    "id": 1183,
+    "name": "Zé Preta",
+    "seasons": ["1971", "1972", "1973", "1974", "1975", "1976", "1977", "1978"],
+    "apps": 100,
+    "reason": "ONLY-FOOT: no preferredFoot sourced."
+  },
+  {
+    "id": 1150,
+    "name": "Veiga",
+    "seasons": ["1981", "1982", "1983", "1985", "1986", "1987"],
+    "apps": 87,
+    "reason": "ONLY-FOOT: no preferredFoot sourced."
+  },
+  {
+    "id": 660,
+    "name": "Alberto",
+    "seasons": ["1977", "1978", "1979", "1980", "1981"],
+    "apps": 86,
+    "reason": "ONLY-FOOT: no preferredFoot sourced."
+  },
+  {
+    "id": 942,
+    "name": "Josenílton",
+    "seasons": ["1981", "1982", "1983", "1984", "1985"],
+    "apps": 84,
+    "reason": "ONLY-FOOT: no preferredFoot sourced."
+  },
+  {
+    "id": 868,
+    "name": "Geraldo",
+    "seasons": ["1973", "1975", "1976", "1977", "1978", "1979", "1980", "1981", "1982", "1983"],
+    "apps": 83,
+    "reason": "ONLY-FOOT: no preferredFoot sourced."
+  },
+  {
+    "id": 530,
+    "name": "Misso",
+    "seasons": ["1970", "1971", "1972", "1973", "1974", "1975", "1976", "1977", "1978"],
+    "apps": 63,
+    "reason": "ONLY-FOOT: no preferredFoot sourced."
+  },
+  {
+    "id": 782,
+    "name": "Dida",
+    "seasons": ["1971", "1973", "1974", "1975", "1976", "1979", "1980"],
+    "apps": 56,
+    "reason": "ONLY-FOOT: GK Rosildo Domingos dos Santos bio known; no preferredFoot."
+  }
+]

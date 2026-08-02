@@ -1,0 +1,34 @@
+[
+  {
+    "id": 907,
+    "name": "Jacozinho",
+    "fullName": "Givaldo Santos Vasconcelos",
+    "position": "Ponta Esquerda",
+    "preferredFoot": "canhoto",
+    "birthDate": "1956-02-02",
+    "birthCity": "Gararu",
+    "birthState": "SE",
+    "heightCm": 162,
+    "weightKg": 63,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/jacozinho/438225",
+      "https://pt.wikipedia.org/wiki/Jacozinho"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 531,
+    "name": "Hélio",
+    "fullName": "Hélio Soares da Silva",
+    "position": "Atacante",
+    "preferredFoot": "ambidestro",
+    "birthDate": "1954-07-11",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/helio-sururu/438252"
+    ],
+    "confidence": "high",
+    "notes": "Hélio Sururu"
+  }
+]

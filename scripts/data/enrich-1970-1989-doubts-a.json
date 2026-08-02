@@ -1,0 +1,107 @@
+[
+  {
+    "id": 1777,
+    "name": "Dudu",
+    "reason": "Meia CSA 1971-73 confirmed in lineups/photos; no reliable full civil name or birth data found."
+  },
+  {
+    "id": 1715,
+    "name": "Zé Carlos",
+    "reason": "Common nickname; CSA 1984 meia appears in futebol80 lineups but no sourced civil identity distinguishing him from other Zé Carlos of the era."
+  },
+  {
+    "id": 1737,
+    "name": "Paulinho",
+    "reason": "Zagueiro titular CSA Taça de Prata 1980 finals (vs Londrina) well documented; full civil name / birth data not found."
+  },
+  {
+    "id": 1762,
+    "name": "Ênio",
+    "reason": "Listed as Lateral 1975/77/78; likely overlap or mislabel of Ênio Oliveira (ponta, id 494) — no distinct lateral Ênio bio sourced."
+  },
+  {
+    "id": 1739,
+    "name": "Nílson",
+    "reason": "No reliable identity for CSA atacante 1980; not Nílson Pirulito / modern Nilson signings."
+  },
+  {
+    "id": 1720,
+    "name": "Luiz Augusto",
+    "reason": "Zagueiro in 1984 CSA lineups (futebol80); no full civil name or birth data found."
+  },
+  {
+    "id": 1770,
+    "name": "Maurício",
+    "reason": "Volante in CSA 1974-75 title photos/lineups; no verified full civil name (RS reinforcement under Laerte Dória — name only)."
+  },
+  {
+    "id": 1746,
+    "name": "Evaristo",
+    "reason": "Lateral in 1979 CSA lineups (not coach Evaristo de Macedo); full civil name / birth data not found."
+  },
+  {
+    "id": 1708,
+    "name": "Édson Silva",
+    "reason": "Volante in 1983-84 CSA lineups (futebol80); sumulastche suggests Édson de Souza Silva (1953-04-04) for 1985 but that pairing not independently verified on web for this CSA spell."
+  },
+  {
+    "id": 1709,
+    "name": "Falcão",
+    "reason": "Meia CSA 1983 in DB; not Paulo Roberto Falcão; no reliable civil identity found in lineups/sources."
+  },
+  {
+    "id": 931,
+    "name": "Jorge Siri",
+    "reason": "ONLY-FOOT: ogol confirms name/birth but no preferredFoot or heightCm sourced."
+  },
+  {
+    "id": 547,
+    "name": "Café",
+    "reason": "ONLY-FOOT: bio already known; no preferredFoot/height found on ogol/transfermarkt."
+  },
+  {
+    "id": 537,
+    "name": "Soareste",
+    "reason": "ONLY-FOOT: no preferredFoot/height sourced."
+  },
+  {
+    "id": 1183,
+    "name": "Zé Preta",
+    "reason": "ONLY-FOOT: no preferredFoot/height sourced."
+  },
+  {
+    "id": 1150,
+    "name": "Veiga",
+    "reason": "ONLY-FOOT: no preferredFoot/height sourced."
+  },
+  {
+    "id": 660,
+    "name": "Alberto",
+    "reason": "ONLY-FOOT: no preferredFoot/height sourced."
+  },
+  {
+    "id": 942,
+    "name": "Josenílton",
+    "reason": "ONLY-FOOT: no preferredFoot/height sourced."
+  },
+  {
+    "id": 868,
+    "name": "Geraldo",
+    "reason": "ONLY-FOOT: no preferredFoot/height sourced."
+  },
+  {
+    "id": 495,
+    "name": "Rommel",
+    "reason": "ONLY-FOOT: no preferredFoot/height sourced."
+  },
+  {
+    "id": 530,
+    "name": "Misso",
+    "reason": "ONLY-FOOT: no preferredFoot/height sourced."
+  },
+  {
+    "id": 782,
+    "name": "Dida",
+    "reason": "ONLY-FOOT: no preferredFoot/height for this CSA goalkeeper (ogol hits were other Didas)."
+  }
+]

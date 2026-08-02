@@ -1,0 +1,36 @@
+[
+  {
+    "id": 778,
+    "name": "Dentinho",
+    "fullName": "Sebastião do Socorro Araújo de Oliveira",
+    "position": "Centroavante",
+    "preferredFoot": "destro",
+    "birthDate": "1956-09-28",
+    "birthCity": "Manaus",
+    "birthState": "AM",
+    "heightCm": 185,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Dentinho_Guerreiro",
+      "https://www.ogol.com.br/jogador/dentinho/759284"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 1058,
+    "name": "Paranhos",
+    "fullName": "Marivaldo Paranhos Prado",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1947-12-03",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": null,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Paranhos_(futebolista)",
+      "https://terceirotempo.uol.com.br/que-fim-levou/paranhos-3249"
+    ],
+    "confidence": "medium"
+  }
+]

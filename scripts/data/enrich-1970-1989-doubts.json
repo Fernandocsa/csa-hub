@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1689,
+    "name": "Zé Luiz",
+    "reason": "Goleiro CSA 1980-86 from Itabaiana/SE (aka Requeijão). Age ~22 in 1973 / ~36 in 1987 ⇒ ~1951. Civil name not confirmed — do NOT use José Luiz Esteves (Palmeiras, DOB 1958)."
+  },
+  {
+    "id": 494,
+    "name": "Ênio Oliveira",
+    "reason": "Died 2022-10-11 age 72 in Maceió; born Porto Alegre-RS; ponta. Exact DOB and full civil name beyond Ênio Oliveira not found. Already is_deceased=true."
+  },
+  {
+    "id": 1704,
+    "name": "Ademir",
+    "reason": "Full name Ademir Ferreira da Silva (Ademir Mineiro) confirmed via Cruzeiro Almanaque; birth date not found."
+  },
+  {
+    "id": 1690,
+    "name": "Carlos Alberto",
+    "reason": "Lateral CSA 1983/1985 — common name; identity not locked to a single civil name/DOB."
+  },
+  {
+    "id": 931,
+    "name": "Jorge Siri",
+    "reason": "Bio complete except preferred_foot; ogol has no foot listed."
+  },
+  {
+    "id": 547,
+    "name": "Café",
+    "reason": "Bio complete except preferred_foot; ogol has no foot listed."
+  },
+  {
+    "id": 1031,
+    "name": "Mug",
+    "reason": "Deceased confirmed; preferred_foot not sourced (left winger — do not invent)."
+  }
+]

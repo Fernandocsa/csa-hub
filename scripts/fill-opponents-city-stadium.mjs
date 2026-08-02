@@ -262,7 +262,7 @@ try {
     {
       a: "Cruzeiro-AL",
       b: "Cruzeiro de Arapiraca-AL",
-      note: "mesmo clube de Arapiraca?",
+      note: "clubes distintos: extinção vs refundação 2019+ (pré-2020 → Arapiraca)",
     },
     { a: "Capela-AL", b: "Capelense-AL", note: "mesmo clube de Capela?" },
     { a: "Murici-AL", b: "Murici Sport-AL", note: "mesmo clube de Murici?" },

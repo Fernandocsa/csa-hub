@@ -113,10 +113,12 @@ try {
       continue;
     }
 
-    const fullName = e.fullName ?? e.full_name ?? null;
-    const position = e.position ?? null;
+    // Prefer enrichment values; fall back to existing DB fields so foot-only
+    // or partial patches work for already-partially-filled historical players.
+    const fullName = e.fullName ?? e.full_name ?? cur.full_name ?? null;
+    const position = e.position ?? cur.position ?? null;
     const preferredFoot = e.preferredFoot ?? e.preferred_foot ?? null;
-    const birthDate = e.birthDate ?? e.birth_date ?? null;
+    const birthDate = e.birthDate ?? e.birth_date ?? cur.birth_date ?? null;
     const birthCity = e.birthCity ?? e.birth_city ?? null;
     const birthState = e.birthState ?? e.birth_state ?? null;
     const nationality = e.nationality ?? null;

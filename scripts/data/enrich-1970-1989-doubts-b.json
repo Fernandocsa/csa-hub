@@ -1,0 +1,757 @@
+[
+  {
+    "id": 931,
+    "name": "Jorge Siri",
+    "seasons": [
+      "1974",
+      "1975",
+      "1976",
+      "1977",
+      "1978",
+      "1979",
+      "1980",
+      "1981",
+      "1982",
+      "1983",
+      "1984"
+    ],
+    "apps": 172,
+    "reason": "ogol https://www.ogol.com.br/jogador/jorge-siri/757393 has name/DOB/pos but no Pé/altura; Gazeta bio lacks foot"
+  },
+  {
+    "id": 907,
+    "name": "Jacozinho",
+    "seasons": [
+      "1981",
+      "1982",
+      "1983",
+      "1984",
+      "1985"
+    ],
+    "apps": 117,
+    "reason": "preferredFoot already enriched in enrich-1970-1989-1.json (canhoto/162cm); skipped duplicate in batch-b"
+  },
+  {
+    "id": 547,
+    "name": "Café",
+    "seasons": [
+      "1981",
+      "1982",
+      "1983",
+      "1984",
+      "1985",
+      "1988"
+    ],
+    "apps": 110,
+    "reason": "ogol https://www.ogol.com.br/jogador/cafe/748576 and TM 1549507 confirm identity/city; no Pé field"
+  },
+  {
+    "id": 537,
+    "name": "Soareste",
+    "seasons": [
+      "1971",
+      "1972",
+      "1973",
+      "1974",
+      "1975",
+      "1976",
+      "1977",
+      "1978",
+      "1979"
+    ],
+    "apps": 101,
+    "reason": "civil name variants circulate (Ducarmo vs Zeferino do Carmo); DOB/city claims conflict; no verified Pé"
+  },
+  {
+    "id": 1183,
+    "name": "Zé Preta",
+    "seasons": [
+      "1971",
+      "1972",
+      "1973",
+      "1974",
+      "1975",
+      "1976",
+      "1977",
+      "1978"
+    ],
+    "apps": 100,
+    "reason": "no Pé found on ogol/wikipedia/blogs"
+  },
+  {
+    "id": 1150,
+    "name": "Veiga",
+    "seasons": [
+      "1981",
+      "1982",
+      "1983",
+      "1985",
+      "1986",
+      "1987"
+    ],
+    "apps": 87,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 660,
+    "name": "Alberto",
+    "seasons": [
+      "1977",
+      "1978",
+      "1979",
+      "1980",
+      "1981"
+    ],
+    "apps": 86,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 942,
+    "name": "Josenílton",
+    "seasons": [
+      "1981",
+      "1982",
+      "1983",
+      "1984",
+      "1985"
+    ],
+    "apps": 84,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 868,
+    "name": "Geraldo",
+    "seasons": [
+      "1973",
+      "1975",
+      "1976",
+      "1977",
+      "1978",
+      "1979",
+      "1980",
+      "1981",
+      "1982",
+      "1983"
+    ],
+    "apps": 83,
+    "reason": "birth_city missing (AL only); no Pé found"
+  },
+  {
+    "id": 495,
+    "name": "Rommel",
+    "seasons": [
+      "1981",
+      "1982",
+      "1983",
+      "1988",
+      "1989"
+    ],
+    "apps": 74,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 530,
+    "name": "Misso",
+    "seasons": [
+      "1970",
+      "1971",
+      "1972",
+      "1973",
+      "1974",
+      "1975",
+      "1976",
+      "1977",
+      "1978"
+    ],
+    "apps": 63,
+    "reason": "sumulastche card has DOB/city; no Pé"
+  },
+  {
+    "id": 782,
+    "name": "Dida",
+    "seasons": [
+      "1971",
+      "1973",
+      "1974",
+      "1975",
+      "1976",
+      "1979",
+      "1980"
+    ],
+    "apps": 56,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 960,
+    "name": "Luiz Carlos",
+    "seasons": [
+      "1978",
+      "1979",
+      "1980",
+      "1981"
+    ],
+    "apps": 56,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 1031,
+    "name": "Mug",
+    "seasons": [
+      "1981",
+      "1982"
+    ],
+    "apps": 50,
+    "reason": "wiki/ogol/terceirotempo confirm career; no Pé (ponta-esquerda alone is not foot)"
+  },
+  {
+    "id": 807,
+    "name": "Edvaldo",
+    "seasons": [
+      "1983",
+      "1984",
+      "1985",
+      "1986",
+      "1987"
+    ],
+    "apps": 49,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 781,
+    "name": "Dick",
+    "seasons": [
+      "1980",
+      "1981"
+    ],
+    "apps": 47,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 877,
+    "name": "Gilmar",
+    "seasons": [
+      "1977",
+      "1978",
+      "1979"
+    ],
+    "apps": 45,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 780,
+    "name": "Dequinha",
+    "seasons": [
+      "1982",
+      "1983"
+    ],
+    "apps": 44,
+    "reason": "not the Flamengo Dequinha (1929); no Pé for Ademir Nunes Ribeiro"
+  },
+  {
+    "id": 850,
+    "name": "Frank",
+    "seasons": [
+      "1983",
+      "1984",
+      "1985",
+      "1989"
+    ],
+    "apps": 44,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 647,
+    "name": "Adeíldo",
+    "seasons": [
+      "1982",
+      "1983",
+      "1984",
+      "1985"
+    ],
+    "apps": 43,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 1095,
+    "name": "Ricardo",
+    "seasons": [
+      "1971",
+      "1972",
+      "1974",
+      "1975",
+      "1976",
+      "1977",
+      "1978"
+    ],
+    "apps": 41,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 668,
+    "name": "Almir",
+    "seasons": [
+      "1976",
+      "1977",
+      "1978",
+      "1979",
+      "1981"
+    ],
+    "apps": 41,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 1133,
+    "name": "Timbó",
+    "seasons": [
+      "1974",
+      "1975",
+      "1976",
+      "1977",
+      "1978"
+    ],
+    "apps": 40,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 804,
+    "name": "Édson Silva",
+    "seasons": [
+      "1984",
+      "1985"
+    ],
+    "apps": 40,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 968,
+    "name": "Luizão",
+    "seasons": [
+      "1984",
+      "1985"
+    ],
+    "apps": 40,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 1045,
+    "name": "Nívio",
+    "seasons": [
+      "1984",
+      "1986",
+      "1987"
+    ],
+    "apps": 40,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 658,
+    "name": "Agnaldo",
+    "seasons": [
+      "1984",
+      "1985"
+    ],
+    "apps": 39,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 965,
+    "name": "Luiz Frazão",
+    "seasons": [
+      "1984",
+      "1985"
+    ],
+    "apps": 38,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 981,
+    "name": "Manoelzinho",
+    "seasons": [
+      "1971",
+      "1972",
+      "1973",
+      "1974"
+    ],
+    "apps": 37,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 672,
+    "name": "Américo",
+    "seasons": [
+      "1982",
+      "1983",
+      "1987"
+    ],
+    "apps": 36,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 801,
+    "name": "Ednaldo",
+    "seasons": [
+      "1984",
+      "1985"
+    ],
+    "apps": 34,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 712,
+    "name": "Beto",
+    "seasons": [
+      "1977",
+      "1978",
+      "1979",
+      "1980",
+      "1981"
+    ],
+    "apps": 33,
+    "reason": "birth_city missing; no Pé found"
+  },
+  {
+    "id": 844,
+    "name": "Flávio",
+    "seasons": [
+      "1981",
+      "1982",
+      "1983"
+    ],
+    "apps": 33,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 876,
+    "name": "Gilmar",
+    "seasons": [
+      "1977",
+      "1979",
+      "1980"
+    ],
+    "apps": 32,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 1127,
+    "name": "Tadeu",
+    "seasons": [
+      "1970",
+      "1974",
+      "1975",
+      "1976"
+    ],
+    "apps": 31,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 1016,
+    "name": "Mendes",
+    "seasons": [
+      "1971",
+      "1972",
+      "1973",
+      "1974",
+      "1975"
+    ],
+    "apps": 31,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 1110,
+    "name": "Ronaldo Alves",
+    "seasons": [
+      "1980",
+      "1981"
+    ],
+    "apps": 31,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 713,
+    "name": "Bibiu",
+    "seasons": [
+      "1971",
+      "1972",
+      "1973",
+      "1976",
+      "1977"
+    ],
+    "apps": 30,
+    "reason": "birth_city missing; no Pé found"
+  },
+  {
+    "id": 970,
+    "name": "Luizinho",
+    "seasons": [
+      "1976",
+      "1977",
+      "1979",
+      "1980"
+    ],
+    "apps": 30,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 1180,
+    "name": "Zé Luiz",
+    "seasons": [
+      "1971",
+      "1972",
+      "1981"
+    ],
+    "apps": 29,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 682,
+    "name": "Antunes",
+    "seasons": [
+      "1981"
+    ],
+    "apps": 29,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 529,
+    "name": "Giraldo",
+    "seasons": [
+      "1970",
+      "1971",
+      "1972",
+      "1973",
+      "1974"
+    ],
+    "apps": 27,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 1174,
+    "name": "Zé Carlos",
+    "seasons": [
+      "1982",
+      "1983",
+      "1985",
+      "1986",
+      "1987"
+    ],
+    "apps": 25,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 943,
+    "name": "Josival",
+    "seasons": [
+      "1983",
+      "1984",
+      "1985"
+    ],
+    "apps": 25,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 1142,
+    "name": "Valdeci",
+    "seasons": [
+      "1974",
+      "1975",
+      "1976"
+    ],
+    "apps": 24,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 852,
+    "name": "Freitas",
+    "seasons": [
+      "1981",
+      "1982",
+      "1983"
+    ],
+    "apps": 23,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 1056,
+    "name": "Otávio",
+    "seasons": [
+      "1971",
+      "1972",
+      "1973",
+      "1974"
+    ],
+    "apps": 22,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 1146,
+    "name": "Valmir",
+    "seasons": [
+      "1974",
+      "1975"
+    ],
+    "apps": 22,
+    "reason": "wiki/TM as coach/player; no preferredFoot/height for playing career"
+  },
+  {
+    "id": 855,
+    "name": "Gabriel",
+    "seasons": [
+      "1977",
+      "1978"
+    ],
+    "apps": 22,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 916,
+    "name": "Jerônimo",
+    "seasons": [
+      "1981",
+      "1982"
+    ],
+    "apps": 22,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 699,
+    "name": "Batoré",
+    "seasons": [
+      "1971",
+      "1972",
+      "1973",
+      "1974",
+      "1989"
+    ],
+    "apps": 21,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 650,
+    "name": "Ademir",
+    "seasons": [
+      "1974",
+      "1975",
+      "1981"
+    ],
+    "apps": 21,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 1030,
+    "name": "Muçurica",
+    "seasons": [
+      "1974",
+      "1975",
+      "1976",
+      "1977",
+      "1978"
+    ],
+    "apps": 21,
+    "reason": "birth_city missing; no Pé found"
+  },
+  {
+    "id": 837,
+    "name": "Fernando",
+    "seasons": [
+      "1981",
+      "1982"
+    ],
+    "apps": 21,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 964,
+    "name": "Luiz Felipe",
+    "seasons": [
+      "1981"
+    ],
+    "apps": 21,
+    "reason": "EN/PT wiki height ~182-185cm as player but preferredFoot never documented; not inventing foot"
+  },
+  {
+    "id": 922,
+    "name": "João Neto",
+    "seasons": [
+      "1983",
+      "1984",
+      "1985"
+    ],
+    "apps": 20,
+    "reason": "birth city/state missing; no Pé found"
+  },
+  {
+    "id": 764,
+    "name": "Clésio",
+    "seasons": [
+      "1984",
+      "1985"
+    ],
+    "apps": 20,
+    "reason": "no Pé found"
+  },
+  {
+    "id": 757,
+    "name": "Ciro",
+    "seasons": [
+      "1970",
+      "1971",
+      "1972"
+    ],
+    "apps": 19,
+    "reason": "birth_city missing; no Pé found"
+  },
+  {
+    "id": 1063,
+    "name": "Paulo",
+    "seasons": [
+      "1979"
+    ],
+    "apps": 15,
+    "reason": "Paulo Roberto Mucciolo: DOB/city known; position still null; no reliable source for position or preferredFoot"
+  },
+  {
+    "id": 1179,
+    "name": "Zé Luiz",
+    "seasons": [
+      "1970"
+    ],
+    "apps": 13,
+    "reason": "José Luiz de Andrade (volante): birthDate not found; common name; avoid inventing DOB"
+  },
+  {
+    "id": 1674,
+    "name": "Jédson",
+    "seasons": [
+      "1989"
+    ],
+    "apps": 13,
+    "reason": "Goleiro CSA 1989 (lineups on Blog do Sorrentino); fullName/DOB/city/foot not found"
+  },
+  {
+    "id": 1750,
+    "name": "Samuel",
+    "seasons": [
+      "1979"
+    ],
+    "apps": 12,
+    "reason": "Goleiro CSA 1979; identity/DOB/foot not verified"
+  },
+  {
+    "id": 1760,
+    "name": "Milano",
+    "seasons": [
+      "1977"
+    ],
+    "apps": 16,
+    "reason": "Goleiro CSA 1977; no reliable civil name/DOB/foot"
+  },
+  {
+    "id": 1793,
+    "name": "Dida",
+    "seasons": [
+      "1970"
+    ],
+    "apps": 15,
+    "reason": "Zagueiro CSA 1970; ambiguous nickname (multiple Didas); no verified civil name/DOB/foot"
+  }
+]
