@@ -163,16 +163,93 @@ router.get("/matches/biggest-defeats", async (req, res) => {
   }
 });
 
+/** Brazilian currency families for gate revenue rankings (never mix eras). */
+type RevenueCurrency = "real" | "cruzado" | "cruzeiro";
+
+const REVENUE_CURRENCIES = new Set<RevenueCurrency>(["real", "cruzado", "cruzeiro"]);
+
+/** Strip leading quotes/spaces so `"Cr$ …` and `Cr$ …` classify the same. */
+function revenueTextNormSql() {
+  return sql`regexp_replace(coalesce(${matchesTable.grossRevenueText}, ''), '^[\\s\"]+', '')`;
+}
+
+/** Numeric sort key: stored integer, else digits parsed from historical text (ignore cents). */
+function revenueAmountSql() {
+  return sql`COALESCE(
+    ${matchesTable.grossRevenue}::bigint,
+    NULLIF(
+      regexp_replace(
+        regexp_replace(
+          regexp_replace(coalesce(${matchesTable.grossRevenueText}, ''), '[^0-9,.]', '', 'g'),
+          ',[0-9]*$',
+          ''
+        ),
+        '\\.',
+        '',
+        'g'
+      ),
+      ''
+    )::bigint
+  )`;
+}
+
+function revenueCurrencyFilterSql(currency: RevenueCurrency) {
+  const t = revenueTextNormSql();
+  if (currency === "real") {
+    return sql`(
+      ${t} ~* '^R\\$'
+      OR (
+        (${matchesTable.grossRevenueText} IS NULL OR btrim(${matchesTable.grossRevenueText}) = '')
+        AND ${matchesTable.grossRevenue} IS NOT NULL
+      )
+    )`;
+  }
+  if (currency === "cruzado") {
+    return sql`${t} ~* '^(NCz|Cz)\\$'`;
+  }
+  return sql`${t} ~* '^(NCr|CR|Cr)\\$'`;
+}
+
 router.get("/matches/biggest-attendance", async (req, res) => {
   try {
-    const { limit = "50", sort_by = "attendance" } = req.query as Record<string, string>;
+    const {
+      limit = "50",
+      sort_by = "attendance",
+      currency: currencyRaw,
+    } = req.query as Record<string, string>;
     const lim = Math.min(parseInt(limit) || 50, 200);
+
+    if (sort_by === "gross_revenue") {
+      const currency = (currencyRaw || "real") as RevenueCurrency;
+      if (!REVENUE_CURRENCIES.has(currency)) {
+        return res.status(400).json({
+          error: "currency inválida (use real, cruzado ou cruzeiro)",
+        });
+      }
+      const amount = revenueAmountSql();
+      const rows = await db
+        .select(matchSelectFields)
+        .from(matchesTable)
+        .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+        .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+        .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
+        .where(
+          and(
+            sql`${amount} IS NOT NULL`,
+            revenueCurrencyFilterSql(currency),
+            eq(matchesTable.homeAway, "home"),
+            officialPlayedMatchConditions(),
+          ),
+        )
+        .orderBy(sql`${amount} DESC`)
+        .limit(lim);
+
+      return res.json(rows.map(buildMatchRow));
+    }
 
     // Determine which column to sort/filter by
     const sortCol =
-      sort_by === "attendance_paid" ? matchesTable.attendancePaid
-      : sort_by === "gross_revenue"  ? matchesTable.grossRevenue
-      : matchesTable.attendance;
+      sort_by === "attendance_paid" ? matchesTable.attendancePaid : matchesTable.attendance;
 
     const rows = await db
       .select(matchSelectFields)

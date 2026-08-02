@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { useGetBiggestAttendance, type AttendanceSortBy } from "@workspace/api-client-react";
+import {
+  useGetBiggestAttendance,
+  type AttendanceSortBy,
+  type RevenueCurrency,
+} from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -13,10 +17,18 @@ function fmtNumber(n: number) {
 }
 
 function fmtRevenue(m: { grossRevenue: number | null; grossRevenueText?: string | null }) {
-  if (m.grossRevenueText) return m.grossRevenueText;
+  if (m.grossRevenueText) return m.grossRevenueText.replace(/^["'\s]+/, "");
   if (m.grossRevenue != null)
     return m.grossRevenue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   return null;
+}
+
+/** Numeric value for ranking ties within the same currency family. */
+function revenueRankValue(m: { grossRevenue: number | null; grossRevenueText?: string | null }) {
+  if (m.grossRevenue != null) return m.grossRevenue;
+  const raw = (m.grossRevenueText ?? "").replace(/[^0-9,.]/g, "").replace(/,[0-9]*$/, "").replace(/\./g, "");
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : null;
 }
 
 function fmtDate(d: string) {
@@ -29,6 +41,12 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "attendance",      label: "Público Total"   },
   { id: "attendance_paid", label: "Público Pagante" },
   { id: "gross_revenue",   label: "Renda"           },
+];
+
+const REVENUE_CURRENCIES: { id: RevenueCurrency; label: string; hint: string }[] = [
+  { id: "real",     label: "Real",     hint: "R$" },
+  { id: "cruzado",  label: "Cruzado",  hint: "Cz$ / NCz$" },
+  { id: "cruzeiro", label: "Cruzeiro", hint: "Cr$ / NCr$" },
 ];
 
 function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
@@ -47,14 +65,52 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
   );
 }
 
-function AttendanceTable({ sortBy }: { sortBy: Tab }) {
-  const { data: matches, isLoading } = useGetBiggestAttendance(200, sortBy as AttendanceSortBy);
+function CurrencyChip({
+  active,
+  onClick,
+  label,
+  hint,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  hint: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-md border px-3 py-1.5 text-sm transition-colors",
+        active
+          ? "border-primary bg-primary/10 text-primary font-medium"
+          : "border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground",
+      )}
+    >
+      <span>{label}</span>
+      <span className="ml-1.5 text-xs opacity-70">{hint}</span>
+    </button>
+  );
+}
+
+function AttendanceTable({
+  sortBy,
+  currency,
+}: {
+  sortBy: Tab;
+  currency: RevenueCurrency;
+}) {
+  const { data: matches, isLoading } = useGetBiggestAttendance(
+    200,
+    sortBy as AttendanceSortBy,
+    sortBy === "gross_revenue" ? currency : undefined,
+  );
   const rows = matches ?? [];
   const ranks = assignCompetitionRanks(rows, (m) =>
     sortBy === "attendance_paid"
       ? m.attendancePaid
       : sortBy === "gross_revenue"
-        ? (m.grossRevenueText ?? m.grossRevenue)
+        ? revenueRankValue(m)
         : m.attendance,
   );
   const { page, setPage, pageSize, total, slice, needsPagination, rankOffset } = useClientPage(rows);
@@ -144,18 +200,28 @@ function AttendanceTable({ sortBy }: { sortBy: Tab }) {
 
 export default function Publicos() {
   const [activeTab, setActiveTab] = useState<Tab>("attendance");
+  const [revenueCurrency, setRevenueCurrency] = useState<RevenueCurrency>("real");
 
   const descriptions: Record<Tab, string> = {
     attendance:      "Ranking histórico de partidas com maior público total (pagante + gratuito) no Estádio Rei Pelé",
     attendance_paid: "Ranking histórico de partidas com maior público pagante no Estádio Rei Pelé",
-    gross_revenue:   "Ranking histórico de partidas com maior renda bruta no Estádio Rei Pelé",
+    gross_revenue:   "Ranking de renda bruta no Estádio Rei Pelé, separado por moeda (valores de eras diferentes não são comparáveis)",
   };
+
+  const currencyHint =
+    revenueCurrency === "real"
+      ? "Real (R$) — partidas modernas e registros em real"
+      : revenueCurrency === "cruzeiro"
+        ? "Cruzeiro (Cr$ / NCr$) — não inclui Real nem Cruzado"
+        : "Cruzado (Cz$ / NCz$) — não inclui Real nem Cruzeiro";
 
   return (
     <div className="space-y-5">
       <div className="border-b pb-3">
         <h1 className="text-xl font-bold">Maiores Públicos</h1>
-        <p className="text-sm text-muted-foreground">{descriptions[activeTab]}</p>
+        <p className="text-sm text-muted-foreground">
+          {activeTab === "gross_revenue" ? `${descriptions.gross_revenue}. ${currencyHint}.` : descriptions[activeTab]}
+        </p>
       </div>
 
       {/* Tabs */}
@@ -167,7 +233,21 @@ export default function Publicos() {
         ))}
       </div>
 
-      <AttendanceTable sortBy={activeTab} />
+      {activeTab === "gross_revenue" && (
+        <div className="flex flex-wrap gap-2 pt-1">
+          {REVENUE_CURRENCIES.map((c) => (
+            <CurrencyChip
+              key={c.id}
+              active={revenueCurrency === c.id}
+              onClick={() => setRevenueCurrency(c.id)}
+              label={c.label}
+              hint={c.hint}
+            />
+          ))}
+        </div>
+      )}
+
+      <AttendanceTable sortBy={activeTab} currency={revenueCurrency} />
     </div>
   );
 }
