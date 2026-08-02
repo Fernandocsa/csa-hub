@@ -16,6 +16,7 @@ import { sql, eq, ilike, and, desc, asc, ne, or, isNull, inArray } from "drizzle
 import { loadEntityBadges } from "../lib/entity-badges";
 import {
   flooredPlayerSeasonStats,
+  flooredCareerRankings,
   sumFlooredSeasons,
 } from "../lib/player-stats-floor";
 import { csaLineupActuallyPlayedCondition } from "../lib/player-appeared";
@@ -272,40 +273,11 @@ router.get("/players/top-scorers", async (req, res) => {
   try {
     const { season, limit = "20" } = req.query as Record<string, string>;
     const lim = Math.min(parseInt(limit) || 20, 100);
-
-    let query = db
-      .select({
-        id: playersTable.id,
-        name: playersTable.name,
-        position: playersTable.position,
-        nationality: playersTable.nationality,
-        nationalityFlag: playersTable.nationalityFlag,
-        verificationStatus: playersTable.verificationStatus,
-        appearances: sql<number>`cast(sum(${playerSeasonStatsTable.appearances}) as int)`,
-        goals: sql<number>`cast(sum(${playerSeasonStatsTable.goals}) as int)`,
-        assists: sql<number>`cast(sum(${playerSeasonStatsTable.assists}) as int)`,
-        seasons: sql<number>`cast(count(distinct ${playerSeasonStatsTable.season}) as int)`,
-      })
-      .from(playerSeasonStatsTable)
-      .innerJoin(playersTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
-      .$dynamic();
-
-    if (season) {
-      query = query.where(eq(playerSeasonStatsTable.season, season));
-    }
-
-    const rows = await query
-      .groupBy(
-        playersTable.id,
-        playersTable.name,
-        playersTable.position,
-        playersTable.nationality,
-        playersTable.nationalityFlag,
-        playersTable.verificationStatus,
-      )
-      .orderBy(sql`sum(${playerSeasonStatsTable.goals}) desc`)
-      .limit(lim);
-
+    const rows = await flooredCareerRankings({
+      sort: "goals",
+      limit: lim,
+      season: season || undefined,
+    });
     res.json(rows);
   } catch (err) {
     req.log.error(err);
@@ -317,40 +289,11 @@ router.get("/players/top-appearances", async (req, res) => {
   try {
     const { season, limit = "20" } = req.query as Record<string, string>;
     const lim = Math.min(parseInt(limit) || 20, 100);
-
-    let query = db
-      .select({
-        id: playersTable.id,
-        name: playersTable.name,
-        position: playersTable.position,
-        nationality: playersTable.nationality,
-        nationalityFlag: playersTable.nationalityFlag,
-        verificationStatus: playersTable.verificationStatus,
-        appearances: sql<number>`cast(sum(${playerSeasonStatsTable.appearances}) as int)`,
-        goals: sql<number>`cast(sum(${playerSeasonStatsTable.goals}) as int)`,
-        assists: sql<number>`cast(sum(${playerSeasonStatsTable.assists}) as int)`,
-        seasons: sql<number>`cast(count(distinct ${playerSeasonStatsTable.season}) as int)`,
-      })
-      .from(playerSeasonStatsTable)
-      .innerJoin(playersTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
-      .$dynamic();
-
-    if (season) {
-      query = query.where(eq(playerSeasonStatsTable.season, season));
-    }
-
-    const rows = await query
-      .groupBy(
-        playersTable.id,
-        playersTable.name,
-        playersTable.position,
-        playersTable.nationality,
-        playersTable.nationalityFlag,
-        playersTable.verificationStatus,
-      )
-      .orderBy(sql`sum(${playerSeasonStatsTable.appearances}) desc`)
-      .limit(lim);
-
+    const rows = await flooredCareerRankings({
+      sort: "appearances",
+      limit: lim,
+      season: season || undefined,
+    });
     res.json(rows);
   } catch (err) {
     req.log.error(err);
@@ -362,43 +305,15 @@ router.get("/players/top-assists", async (req, res) => {
   try {
     const { season, limit = "50" } = req.query as Record<string, string>;
     const lim = Math.min(parseInt(limit) || 50, 200);
-
-    let query = db
-      .select({
-        id: playersTable.id,
-        name: playersTable.name,
-        position: playersTable.position,
-        nationality: playersTable.nationality,
-        nationalityFlag: playersTable.nationalityFlag,
-        verificationStatus: playersTable.verificationStatus,
-        appearances: sql<number>`cast(sum(${playerSeasonStatsTable.appearances}) as int)`,
-        goals: sql<number>`cast(sum(${playerSeasonStatsTable.goals}) as int)`,
-        assists: sql<number>`cast(sum(${playerSeasonStatsTable.assists}) as int)`,
+    const rows = (
+      await flooredCareerRankings({
+        sort: "assists",
+        limit: Math.min(lim * 3, 200),
+        season: season || undefined,
       })
-      .from(playerSeasonStatsTable)
-      .innerJoin(playersTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
-      .$dynamic();
-
-    if (season) {
-      query = query.where(eq(playerSeasonStatsTable.season, season));
-    }
-
-    const rows = await query
-      .groupBy(
-        playersTable.id,
-        playersTable.name,
-        playersTable.position,
-        playersTable.nationality,
-        playersTable.nationalityFlag,
-        playersTable.verificationStatus,
-      )
-      .having(sql`sum(${playerSeasonStatsTable.assists}) > 0`)
-      .orderBy(
-        sql`sum(${playerSeasonStatsTable.assists}) desc`,
-        sql`sum(${playerSeasonStatsTable.appearances}) desc`,
-      )
-      .limit(lim);
-
+    )
+      .filter((r) => (r.assists ?? 0) > 0)
+      .slice(0, lim);
     res.json(rows);
   } catch (err) {
     req.log.error(err);

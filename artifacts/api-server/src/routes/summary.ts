@@ -1,13 +1,9 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import {
-  matchesTable,
-  opponentsTable,
-  playersTable,
-  playerSeasonStatsTable,
-} from "@workspace/db";
-import { sql, desc, eq, count } from "drizzle-orm";
+import { matchesTable, opponentsTable } from "@workspace/db";
+import { sql, eq, count } from "drizzle-orm";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
+import { flooredCareerRankings } from "../lib/player-stats-floor";
 
 const router = Router();
 
@@ -30,35 +26,10 @@ router.get("/summary", async (req, res) => {
     const wins = stats.wins || 0;
     const winPercentage = total > 0 ? Math.round((wins / total) * 100 * 10) / 10 : 0;
 
-    const appearanceLeaderRows = await db
-      .select({
-        id: playersTable.id,
-        name: playersTable.name,
-        position: playersTable.position,
-        nationality: playersTable.nationality,
-        appearances: sql<number>`cast(sum(${playerSeasonStatsTable.appearances}) as int)`,
-        goals: sql<number>`cast(sum(${playerSeasonStatsTable.goals}) as int)`,
-      })
-      .from(playerSeasonStatsTable)
-      .innerJoin(playersTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
-      .groupBy(playersTable.id, playersTable.name, playersTable.position, playersTable.nationality)
-      .orderBy(sql`sum(${playerSeasonStatsTable.appearances}) desc`)
-      .limit(1);
-
-    const topScorerRows = await db
-      .select({
-        id: playersTable.id,
-        name: playersTable.name,
-        position: playersTable.position,
-        nationality: playersTable.nationality,
-        appearances: sql<number>`cast(sum(${playerSeasonStatsTable.appearances}) as int)`,
-        goals: sql<number>`cast(sum(${playerSeasonStatsTable.goals}) as int)`,
-      })
-      .from(playerSeasonStatsTable)
-      .innerJoin(playersTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
-      .groupBy(playersTable.id, playersTable.name, playersTable.position, playersTable.nationality)
-      .orderBy(sql`sum(${playerSeasonStatsTable.goals}) desc`)
-      .limit(1);
+    const [appearanceLeaderRows, topScorerRows] = await Promise.all([
+      flooredCareerRankings({ sort: "appearances", limit: 1 }),
+      flooredCareerRankings({ sort: "goals", limit: 1 }),
+    ]);
 
     const mostCommonOpponents = await db
       .select({
@@ -87,7 +58,12 @@ router.get("/summary", async (req, res) => {
       goalsScored: stats.goalsScored || 0,
       goalsConceded: stats.goalsConceded || 0,
       winPercentage,
-      appearanceLeader: appearanceLeaderRows[0] || { id: 0, name: "N/A", appearances: 0, goals: 0 },
+      appearanceLeader: appearanceLeaderRows[0] || {
+        id: 0,
+        name: "N/A",
+        appearances: 0,
+        goals: 0,
+      },
       topScorer: topScorerRows[0] || { id: 0, name: "N/A", appearances: 0, goals: 0 },
       mostCommonOpponents: mostCommonOpponents.map((o) => ({
         ...o,

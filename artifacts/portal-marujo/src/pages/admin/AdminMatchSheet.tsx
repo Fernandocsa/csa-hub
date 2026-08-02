@@ -1041,54 +1041,76 @@ export default function AdminMatchSheet() {
             )}
           </p>
 
-          <div className="border rounded overflow-hidden overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="border rounded overflow-x-auto">
+            {/*
+              Mobile: Tit./Res. stick to the right (OGOL-like) so checkboxes stay fully visible.
+              Desktop (md+): static columns, same layout as before.
+            */}
+            <table className="w-full text-sm border-separate border-spacing-0">
               <thead>
                 <tr className="bg-gray-100 text-left text-[11px] uppercase text-gray-500">
-                  <th className="px-2 py-2 w-14">N.</th>
-                  <th className="px-2 py-2">Jogador</th>
-                  <th className="px-2 py-2 w-16">Pos</th>
-                  <th className="px-2 py-2 w-14 text-center">Tit.</th>
-                  <th className="px-2 py-2 w-14 text-center">Res.</th>
+                  <th className="px-1.5 md:px-2 py-2 w-11 md:w-14">N.</th>
+                  <th className="px-1.5 md:px-2 py-2 min-w-0">Jogador</th>
+                  <th className="px-1.5 md:px-2 py-2 w-10 md:w-16">Pos</th>
+                  <th className="px-1.5 md:px-2 py-2 w-11 md:w-14 min-w-[2.75rem] text-center sticky right-11 md:static z-[2] bg-gray-100">
+                    Tit.
+                  </th>
+                  <th className="px-1.5 md:px-2 py-2 w-11 md:w-14 min-w-[2.75rem] text-center sticky right-0 md:static z-[2] bg-gray-100 shadow-[-6px_0_8px_-6px_rgba(0,0,0,0.18)] md:shadow-none">
+                    Res.
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {escalacaoRows.map((row, i) => (
-                  <tr key={row.playerId} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                    <td className="px-2 py-1.5">
-                      <Input
-                        className="w-14 h-8 text-center"
-                        value={shirtValueFor(row.playerId)}
-                        onChange={(e) =>
-                          setShirtNumbers((prev) => ({ ...prev, [row.playerId]: e.target.value }))
-                        }
-                      />
-                    </td>
-                    <td className="px-2 py-1.5">
-                      <PlayerFlag nationality={row.nationality} flag={row.nationalityFlag} />
-                      <span className="font-medium">{row.playerName}</span>
-                    </td>
-                    <td className="px-2 py-1.5 text-xs text-gray-500">
-                      {shortPositionCode(row.position)}
-                    </td>
-                    <td className="px-2 py-1.5 text-center">
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 accent-[#1B3A6B]"
-                        checked={starterIds.has(row.playerId)}
-                        onChange={(e) => handleTitChange(row.playerId, e.target.checked)}
-                      />
-                    </td>
-                    <td className="px-2 py-1.5 text-center">
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 accent-[#1B3A6B]"
-                        checked={benchIds.has(row.playerId)}
-                        onChange={(e) => handleResChange(row.playerId, e.target.checked)}
-                      />
-                    </td>
-                  </tr>
-                ))}
+                {escalacaoRows.map((row, i) => {
+                  const zebra = i % 2 === 0 ? "bg-white" : "bg-gray-50";
+                  return (
+                    <tr key={row.playerId} className={zebra}>
+                      <td className={`px-1.5 md:px-2 py-1.5 ${zebra}`}>
+                        <Input
+                          className="w-10 md:w-14 h-8 text-center"
+                          value={shirtValueFor(row.playerId)}
+                          onChange={(e) =>
+                            setShirtNumbers((prev) => ({
+                              ...prev,
+                              [row.playerId]: e.target.value,
+                            }))
+                          }
+                        />
+                      </td>
+                      <td className={`px-1.5 md:px-2 py-1.5 min-w-0 ${zebra}`}>
+                        <div className="flex items-center gap-1 min-w-0">
+                          <span className="shrink-0">
+                            <PlayerFlag nationality={row.nationality} flag={row.nationalityFlag} />
+                          </span>
+                          <span className="font-medium truncate min-w-0">{row.playerName}</span>
+                        </div>
+                      </td>
+                      <td className={`px-1.5 md:px-2 py-1.5 text-xs text-gray-500 ${zebra}`}>
+                        {shortPositionCode(row.position)}
+                      </td>
+                      <td
+                        className={`px-1.5 md:px-2 py-1.5 text-center sticky right-11 md:static z-[1] min-w-[2.75rem] ${zebra}`}
+                      >
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 accent-[#1B3A6B]"
+                          checked={starterIds.has(row.playerId)}
+                          onChange={(e) => handleTitChange(row.playerId, e.target.checked)}
+                        />
+                      </td>
+                      <td
+                        className={`px-1.5 md:px-2 py-1.5 text-center sticky right-0 md:static z-[1] min-w-[2.75rem] shadow-[-6px_0_8px_-6px_rgba(0,0,0,0.18)] md:shadow-none ${zebra}`}
+                      >
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 accent-[#1B3A6B]"
+                          checked={benchIds.has(row.playerId)}
+                          onChange={(e) => handleResChange(row.playerId, e.target.checked)}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
                 {escalacaoRows.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-2 py-4 text-center text-xs text-gray-400">
