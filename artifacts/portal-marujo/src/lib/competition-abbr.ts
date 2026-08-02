@@ -15,6 +15,7 @@ export function competitionAbbreviation(name?: string | null): string {
     [/s[eé]rie\s*d\b/, "SD"],
     [/ta[cç]a de ouro/, "TdO"],
     [/ta[cç]a de prata/, "TdP"],
+    [/ta[cç]a brasil/, "TB"],
     [/jo[aã]o havelange|havelange/, "CJH"],
     [/copa do brasil/, "CdB"],
     [/copa do nordeste/, "CdN"],
