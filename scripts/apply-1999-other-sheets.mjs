@@ -359,7 +359,7 @@ try {
   const fixes = [];
   for (const fix of MATCH_FIXES) {
     const cid = await competitionId(fix.competition);
-    const { rows: found } = await client.query(
+    let { rows: found } = await client.query(
       `SELECT id, match_date::date::text AS d, goals_for, goals_against, result,
               home_away, stadium_id, attendance, gross_revenue_text,
               penalties_for, penalties_against, manager_id, phase, round
@@ -368,6 +368,18 @@ try {
        LIMIT 1`,
       [SEASON, cid, fix.date],
     );
+    // Re-runs: date may already be at newDate from a previous apply.
+    if (!found[0] && fix.newDate && fix.newDate !== fix.date) {
+      ({ rows: found } = await client.query(
+        `SELECT id, match_date::date::text AS d, goals_for, goals_against, result,
+                home_away, stadium_id, attendance, gross_revenue_text,
+                penalties_for, penalties_against, manager_id, phase, round
+         FROM matches
+         WHERE season::text=$1 AND competition_id=$2 AND match_date::date::text=$3
+         LIMIT 1`,
+        [SEASON, cid, fix.newDate],
+      ));
+    }
     if (!found[0]) throw new Error(`Match not found ${fix.competition} ${fix.date}`);
     const m = found[0];
     const stadium = fix.stadium ? await ensureStadium(fix.stadium) : null;
