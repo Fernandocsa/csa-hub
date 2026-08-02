@@ -17,6 +17,8 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { GlobalSearch } from "@/components/GlobalSearch";
+import { SiteFooter } from "@/components/SiteFooter";
 
 type NavItem =
   | { name: string; href: string; icon: React.ElementType }
@@ -77,6 +79,7 @@ const navigation: NavItem[] = [
     ],
   },
 ];
+
 function NavGroup({
   item,
   location,
@@ -181,28 +184,23 @@ function NavLinks({ location, onClick }: { location: string; onClick?: () => voi
 function SidebarContent({ location, onClose }: { location: string; onClose?: () => void }) {
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-4 h-14 border-b border-sidebar-border flex-shrink-0">
-        <Link href="/" onClick={onClose}>
+      <div className="flex items-center justify-between px-3 h-16 border-b border-sidebar-border flex-shrink-0">
+        <Link href="/" onClick={onClose} className="flex items-center min-w-0">
           <img
             src="/portal-marujo-logo.png"
             alt="Portal Marujo"
-            className="h-10 w-auto cursor-pointer"
+            className="h-12 w-auto max-w-[11rem] object-contain cursor-pointer"
             data-testid="nav-logo"
           />
         </Link>
         {onClose && (
-          <button onClick={onClose} className="text-sidebar-foreground/70 hover:text-sidebar-foreground">
+          <button onClick={onClose} className="text-sidebar-foreground/70 hover:text-sidebar-foreground shrink-0 ml-2">
             <X className="h-5 w-5" />
           </button>
         )}
       </div>
       <div className="flex-1 overflow-y-auto py-3">
         <NavLinks location={location} onClick={onClose} />
-      </div>
-      <div className="px-4 py-3 border-t border-sidebar-border flex-shrink-0">
-        <p className="text-xs text-sidebar-foreground/40 leading-tight">
-          A maior base estatística do CSA.
-        </p>
       </div>
     </div>
   );
@@ -211,6 +209,7 @@ function SidebarContent({ location, onClose }: { location: string; onClose?: () 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isHome = location === "/";
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -231,24 +230,40 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       )}
 
       <div className="flex flex-col flex-1 lg:pl-56 min-w-0">
-        <header className="sticky top-0 z-20 h-12 flex items-center px-4 bg-sidebar border-b border-sidebar-border lg:hidden">
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="text-sidebar-foreground/70 hover:text-sidebar-foreground mr-3"
-            data-testid="button-mobile-menu"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-          <img
-            src="/portal-marujo-logo.png"
-            alt="Portal Marujo"
-            className="h-8 w-auto"
-          />
+        <header className="sticky top-0 z-20 flex flex-col bg-sidebar border-b border-sidebar-border lg:hidden">
+          <div className="h-12 flex items-center px-4">
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="text-sidebar-foreground/70 hover:text-sidebar-foreground mr-3"
+              data-testid="button-mobile-menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <img
+              src="/portal-marujo-logo.png"
+              alt="Portal Marujo"
+              className="h-9 w-auto"
+            />
+          </div>
+          {!isHome && (
+            <div className="px-3 pb-2.5">
+              <GlobalSearch size="sm" />
+            </div>
+          )}
         </header>
+
+        {!isHome && (
+          <div className="hidden lg:block sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+            <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-2.5">
+              <GlobalSearch size="sm" className="max-w-xl" />
+            </div>
+          </div>
+        )}
 
         <main className="flex-1 min-w-0">
           <div className="px-4 py-5 sm:px-6 lg:px-8 max-w-7xl mx-auto">
             {children}
+            <SiteFooter />
           </div>
         </main>
       </div>

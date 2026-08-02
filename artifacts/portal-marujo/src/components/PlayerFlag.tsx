@@ -11,19 +11,20 @@ interface PlayerFlagProps {
   flag?: string | null;
   nationality?: string | null;
   size?: "sm" | "md" | "lg";
-  /** When true, Brazilian nationality renders Brazil flag (default). When false, Brasil is hidden. */
+  /** When true, Brazilian nationality renders Brazil flag. Default false (only foreigners). */
   showBrazil?: boolean;
 }
 
 /**
  * Nationality marker next to player names.
  * Local SVG by nationality (or legacy emoji → same asset). Unknown → nothing.
+ * Brazilian flag is hidden by default to avoid visual noise in rankings/lists.
  */
 export function PlayerFlag({
   flag,
   nationality,
   size = "sm",
-  showBrazil = true,
+  showBrazil = false,
 }: PlayerFlagProps) {
   const brazilian =
     isBrazilianNationality(nationality) || isBrazilFlagEmoji(flag);

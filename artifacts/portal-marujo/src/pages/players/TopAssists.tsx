@@ -96,6 +96,7 @@ export default function TopAssists() {
                           <PlayerFlag
                             flag={p.nationalityFlag}
                             nationality={p.nationality}
+                            showBrazil={false}
                           />
                           {p.name}
                           <VerifiedBadge status={(p as any).verificationStatus} />

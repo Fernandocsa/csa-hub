@@ -1,14 +1,15 @@
 /**
  * CSA Alagoano 2002 — complementary sheets (CSA-only).
  * CSA e CRB entraram direto na 2ª fase (bye na 1ª).
- * CRB campeão; CSA vice (RSSSF).
+ * CRB campeão; CSA vice (jogo do título 29/06 CRB 2x0 — CSA precisava vencer).
+ * Sem técnico/árbitro/renda/público nas fontes.
  *
  * Notas:
- * - 05/05 Capela 1x2: fonte diz "Capitão (2x) e Geraldo — todos CSA",
- *   mas o placar é 1x2 → Capitão (2) CSA; Geraldo = Capela.
- * - 09/06: fonte lista "Ramon" duas vezes no XI; gravado como está
- *   (2º Ramon colide no mesmo player_id e é ignorado no insert).
+ * - 05/05 Capela 1x2: Geraldo é do Capela (não CSA); Capitão (2x) CSA.
+ * - 09/06: fonte lista "Ramon" duas vezes no XI; 2º colide no mesmo id.
  * - 24/04 gol "Goiano" → Juninho Goiano.
+ * - 08/05 Escurinho (Bom Jesus, contra) → ownGoalFor.
+ * - 16/05 Capitão (CSA, contra) → ownGoalAgainst.
  */
 export const SEASON = "2002";
 export const COMPETITION_NAME = "Campeonato Alagoano";
@@ -175,7 +176,7 @@ export const SHEETS = [
   },
   {
     date: "2002-05-11",
-    // placar only
+    stadium: "Estádio Rei Pelé (Trapichão)",
   },
   {
     date: "2002-05-16",
@@ -244,7 +245,8 @@ export const SHEETS = [
   },
   {
     date: "2002-05-30",
-    // placar only
+    stadium: "Estádio Rei Pelé (Trapichão)",
+    csaGoals: [{ name: "Cristiano Alagoano" }],
   },
   {
     date: "2002-06-02",

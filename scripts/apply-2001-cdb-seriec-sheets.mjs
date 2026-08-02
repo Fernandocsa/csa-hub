@@ -1,14 +1,16 @@
 /**
- * Apply complementary Alagoano 2002 sheets (CSA-only).
- * Usage: node scripts/apply-2002-alagoano-sheets.mjs [--dry]
+ * Apply complementary Copa do Brasil 2001 + Série C 2001 sheets (CSA-only).
+ * Usage: node scripts/apply-2001-cdb-seriec-sheets.mjs [--dry]
+ *
+ * Copa do Brasil: agregado 4x4; Sport avançou por gols fora.
  */
 import { loadEnvFromDotenv, createPgPool } from "./_load-env.mjs";
 import {
   SEASON,
-  COMPETITION_NAME,
   PHASE_BY_DATE,
   SHEETS,
-} from "./data/season-2002-alagoano-sheets.mjs";
+  RELATED_PAIRS,
+} from "./data/season-2001-cdb-seriec-sheets.mjs";
 
 loadEnvFromDotenv(".env");
 const DRY = process.argv.includes("--dry");
@@ -25,51 +27,60 @@ function norm(s) {
 }
 
 const FORCE_ID = {
-  santos: 1925,
-  "marcio pereira": 1874,
-  "alex martins": 1937,
-  capitao: 731,
-  geninho: 1915,
+  mazinho: 1013,
+  "fabio magrao": 1877,
+  "bruno alves": 1869,
+  fabinho: 828,
+  "fabinho silva": 1890,
   ramon: 1862,
-  lino: 540,
+  erivaldo: 1883,
+  edilson: 1893,
   "cristiano alagoano": 488,
-  toninho: 1909,
-  leo: 1844,
+  cristiano: 488,
   alexsandro: 489,
-  souza: 1840,
-  "da silva": 1861,
-  alisson: 1914,
-  juninho: 1916,
-  edmilson: 1920,
+  wilson: 539,
+  claudinei: 1913,
+  geninho: 1915,
+  luciano: 1866,
   leandro: 1884,
+  edmilson: 1920,
+  "alex martins": 1937,
+  "anderson la bamba": 1942,
+  anderson: 1942,
   rubiano: 1946,
   "cleiton xavier": 1947,
+  cleiton: 1947,
   "carlos alberto": 1957,
+  carlos: 1957,
+  rogerinho: 1603,
+  lino: 540,
+  santos: 1925,
 };
 
 const CREATE_META = {
-  "marco aurelio": { name: "Marco Aurélio", position: "Lateral", forceNew: true },
-  "juninho goiano": { name: "Juninho Goiano", position: "Lateral", forceNew: true },
-  goiano: { name: "Juninho Goiano", position: "Lateral", forceNew: true },
-  andre: { name: "André", position: "Atacante", forceNew: true },
-  barto: { name: "Bartô", position: "Volante", forceNew: true },
-  angelo: { name: "Ângelo", position: "Lateral", forceNew: true },
-  "capitao alagoano": {
-    name: "Capitão Alagoano",
-    position: "Atacante",
-    forceNew: true,
-  },
-  alexandre: { name: "Alexandre", position: "Meia", forceNew: true },
-  thiago: { name: "Thiago", position: "Atacante", forceNew: true },
-  carlos: { name: "Carlos", position: "Zagueiro", forceNew: true },
-  borcato: { name: "Borçato", position: "Meia", forceNew: true },
-  soares: { name: "Soares", position: "Lateral", forceNew: true },
-  jaco: { name: "Jacó", position: "Lateral", forceNew: true },
-  valdo: { name: "Valdo", position: "Meia", forceNew: true },
+  hudson: { name: "Hudson", position: "Goleiro", forceNew: true },
+  "paulo sergio": { name: "Paulo Sérgio", position: "Goleiro", forceNew: true },
+  nivaldo: { name: "Nivaldo", position: "Goleiro", forceNew: true },
+  marlon: { name: "Marlon", position: "Meia", forceNew: true },
+  eliseu: { name: "Eliseu", position: "Atacante", forceNew: true },
+  joab: { name: "Joab", position: "Meia", forceNew: true },
+  renatinho: { name: "Renatinho", position: "Atacante", forceNew: true },
+  edson: { name: "Edson", position: "Volante", forceNew: true },
+  washington: { name: "Washington", position: "Meia", forceNew: true },
+  juninho: { name: "Juninho", position: "Lateral", forceNew: true },
 };
 
 const playerCache = new Map();
 const createdPlayers = [];
+const compCache = new Map();
+
+async function competitionId(name) {
+  if (compCache.has(name)) return compCache.get(name);
+  const { rows } = await client.query(`SELECT id FROM competitions WHERE name=$1`, [name]);
+  if (!rows[0]) throw new Error(`Missing competition ${name}`);
+  compCache.set(name, rows[0].id);
+  return rows[0].id;
+}
 
 async function ensureCsaPlayer(raw) {
   const key = norm(raw);
@@ -97,23 +108,14 @@ async function ensureCsaPlayer(raw) {
   );
   if (!rows[0] && !meta.forceNew) {
     ({ rows } = await client.query(
-      `SELECT id, name FROM players WHERE name=$1 ORDER BY id LIMIT 1`,
-      [meta.name],
+      `SELECT p.id, p.name FROM players p
+       JOIN player_season_stats pss ON pss.player_id=p.id
+       WHERE p.name=$1 AND pss.season::text = ANY($2::text[])
+       ORDER BY p.id LIMIT 1`,
+      [meta.name, ["1999", "2000", "2001", "2002"]],
     ));
   }
   if (!rows[0]) {
-    ({ rows } = await client.query(
-      `SELECT p.id, p.name
-       FROM players p
-       JOIN player_season_stats pss ON pss.player_id=p.id
-       WHERE p.name=$1
-         AND coalesce(p.position,'')=$2
-         AND pss.season::text = ANY($3::text[])
-       ORDER BY p.id LIMIT 1`,
-      [meta.name, meta.position, ["2000", "2001", "2002", "2003", "2004"]],
-    ));
-  }
-  if (!rows[0] && !meta.forceNew) {
     ({ rows } = await client.query(
       `SELECT id, name FROM players
        WHERE name=$1 AND coalesce(position,'')=$2
@@ -127,7 +129,6 @@ async function ensureCsaPlayer(raw) {
       createdPlayers.push(stub);
       console.log("PLAYER_WOULD_CREATE", stub);
       playerCache.set(key, stub);
-      playerCache.set(norm(meta.name), stub);
       return stub;
     }
     const ins = await client.query(
@@ -149,6 +150,22 @@ async function ensureCsaPlayer(raw) {
   playerCache.set(key, rows[0]);
   playerCache.set(norm(rows[0].name), rows[0]);
   return rows[0];
+}
+
+async function ensureReferee(name) {
+  if (!name) return null;
+  let { rows } = await client.query(`SELECT id, name FROM referees WHERE name=$1`, [name]);
+  if (rows[0]) return rows[0];
+  const { rows: all } = await client.query(`SELECT id, name FROM referees`);
+  const hit = all.find((r) => norm(r.name) === norm(name));
+  if (hit) return hit;
+  if (DRY) return { id: -1, name };
+  const ins = await client.query(
+    `INSERT INTO referees (name) VALUES ($1) RETURNING id, name`,
+    [name],
+  );
+  console.log("REF_CREATED", ins.rows[0]);
+  return ins.rows[0];
 }
 
 async function ensureStadium(name) {
@@ -244,58 +261,65 @@ async function syncSeasonFromSheets(season) {
 try {
   if (!DRY) await client.query("BEGIN");
 
-  const { rows: comps } = await client.query(`SELECT id FROM competitions WHERE name=$1`, [
-    COMPETITION_NAME,
-  ]);
-  if (!comps[0]) throw new Error(`Missing ${COMPETITION_NAME}`);
-  const competitionId = comps[0].id;
-
-  const { rows: allMatches } = await client.query(
-    `SELECT id, match_date::date::text AS d FROM matches
-     WHERE season::text=$1 AND competition_id=$2
-     ORDER BY match_date, id`,
-    [SEASON, competitionId],
-  );
-
+  const applied = [];
   let phaseUpdated = 0;
-  for (const m of allMatches) {
-    const ph = PHASE_BY_DATE[m.d];
-    if (!ph) continue;
-    if (!DRY) {
-      await client.query(`UPDATE matches SET phase=$2, round=$3 WHERE id=$1`, [
-        m.id,
-        ph.phase,
-        ph.round,
-      ]);
+
+  for (const [date, ph] of Object.entries(PHASE_BY_DATE)) {
+    const cid = await competitionId(ph.competition);
+    const { rows } = await client.query(
+      `SELECT id FROM matches
+       WHERE season::text=$1 AND competition_id=$2 AND match_date::date::text=$3`,
+      [SEASON, cid, date],
+    );
+    for (const m of rows) {
+      if (!DRY) {
+        await client.query(`UPDATE matches SET phase=$2, round=$3 WHERE id=$1`, [
+          m.id,
+          ph.phase,
+          ph.round ?? null,
+        ]);
+      }
+      phaseUpdated++;
     }
-    phaseUpdated++;
   }
 
-  const sheetByDate = new Map(SHEETS.map((s) => [s.date, s]));
-  const applied = [];
+  for (const sheet of SHEETS) {
+    const cid = await competitionId(sheet.competition);
+    const { rows: found } = await client.query(
+      `SELECT id, match_date::date::text AS d FROM matches
+       WHERE season::text=$1 AND competition_id=$2 AND match_date::date::text=$3
+       ORDER BY id LIMIT 1`,
+      [SEASON, cid, sheet.date],
+    );
+    const m = found[0];
+    if (!m) throw new Error(`Sheet match missing ${sheet.competition} ${sheet.date}`);
 
-  for (const m of allMatches) {
-    const sheet = sheetByDate.get(m.d);
-    if (!sheet) continue;
-
+    const referee = await ensureReferee(sheet.referee ?? null);
     const stadium = await ensureStadium(sheet.stadium ?? null);
+
     const hasLineup = (sheet.starters?.length ?? 0) > 0;
     const hasGoals =
       (sheet.csaGoals?.length ?? 0) > 0 || (sheet.oppGoals?.length ?? 0) > 0;
-    const hasMeta = !!sheet.stadium;
+    const hasMeta = !!sheet.referee || !!sheet.stadium;
 
     if (!DRY) {
       await client.query(
         `UPDATE matches SET
-           stadium_id = COALESCE($2, stadium_id),
-           scorers = COALESCE($3, scorers)
+           referee_id = COALESCE($2, referee_id),
+           stadium_id = COALESCE($3, stadium_id),
+           scorers = COALESCE($4, scorers)
          WHERE id=$1`,
-        [m.id, stadium?.id ?? null, scorersText(sheet.csaGoals)],
+        [m.id, referee?.id ?? null, stadium?.id ?? null, scorersText(sheet.csaGoals)],
       );
     }
 
     if (!hasLineup && !hasGoals) {
-      applied.push({ id: m.id, date: m.d, note: hasMeta ? "meta-only" : "placar-only" });
+      applied.push({
+        id: m.id,
+        date: m.d,
+        comp: sheet.competition.slice(0, 28),
+        note: hasMeta ? "meta-only" : "phase-only",
+      });
       continue;
     }
 
@@ -311,10 +335,7 @@ try {
 
     for (const name of sheet.starters ?? []) {
       const p = await ensureCsaPlayer(name);
-      if (csaLineup.has(p.id)) {
-        console.warn("DUPLICATE_STARTER", m.d, name, p.id);
-        continue;
-      }
+      if (csaLineup.has(p.id)) continue;
       if (!DRY) {
         const { rows } = await client.query(
           `INSERT INTO match_lineups
@@ -345,7 +366,6 @@ try {
     }
 
     for (const g of sheet.csaGoals ?? []) {
-      if (g.ownGoalFor) continue;
       const p = await ensureCsaPlayer(g.name);
       if (csaLineup.has(p.id)) continue;
       const role = hasLineup ? "bench" : "starter";
@@ -384,31 +404,6 @@ try {
     }
 
     for (const g of sheet.csaGoals ?? []) {
-      if (g.ownGoalFor) {
-        if (!DRY) {
-          await client.query(
-            `INSERT INTO match_goals
-               (match_id, side, scorer_lineup_id, scorer_player_id, scorer_name,
-                minute, injury_time_minute, is_penalty, is_own_goal, own_goal_direction)
-             VALUES ($1,'csa',NULL,NULL,$2,$3,NULL,false,true,'for')`,
-            [m.id, g.name, g.minute ?? 0],
-          );
-        }
-        continue;
-      }
-      if (g.ownGoalAgainst) {
-        const p = await ensureCsaPlayer(g.name);
-        if (!DRY) {
-          await client.query(
-            `INSERT INTO match_goals
-               (match_id, side, scorer_lineup_id, scorer_player_id, scorer_name,
-                minute, injury_time_minute, is_penalty, is_own_goal, own_goal_direction)
-             VALUES ($1,'csa',$2,$3,$4,$5,NULL,false,true,'against')`,
-            [m.id, csaLineup.get(p.id) ?? null, p.id, p.name, g.minute ?? 0],
-          );
-        }
-        continue;
-      }
       const p = await ensureCsaPlayer(g.name);
       if (!DRY) {
         await client.query(
@@ -416,14 +411,7 @@ try {
              (match_id, side, scorer_lineup_id, scorer_player_id, scorer_name,
               minute, injury_time_minute, is_penalty, is_own_goal)
            VALUES ($1,'csa',$2,$3,$4,$5,NULL,$6,false)`,
-          [
-            m.id,
-            csaLineup.get(p.id) ?? null,
-            p.id,
-            p.name,
-            g.minute ?? 0,
-            !!g.penalty,
-          ],
+          [m.id, csaLineup.get(p.id) ?? null, p.id, p.name, g.minute ?? 0, !!g.penalty],
         );
       }
     }
@@ -440,24 +428,38 @@ try {
       }
     }
 
-    const ogFor = (sheet.csaGoals ?? []).filter((g) => g.ownGoalFor).length;
-    if (ogFor && !DRY) {
-      await client.query(`UPDATE matches SET own_goals_for_count=$2 WHERE id=$1`, [
-        m.id,
-        ogFor,
-      ]);
-    }
-
     applied.push({
       id: m.id,
       date: m.d,
+      comp: sheet.competition.slice(0, 28),
       starters: sheet.starters?.length ?? 0,
-      csaGoals: (sheet.csaGoals ?? []).filter((g) => !g.ownGoalAgainst && !g.ownGoalFor)
-        .length,
+      csaGoals: sheet.csaGoals?.length ?? 0,
       oppGoals: sheet.oppGoals?.length ?? 0,
-      ogFor,
-      ogAgainst: (sheet.csaGoals ?? []).filter((g) => g.ownGoalAgainst).length,
     });
+  }
+
+  if (!DRY) {
+    for (const [a, b] of RELATED_PAIRS) {
+      const cid = await competitionId("Copa do Brasil");
+      const { rows: ra } = await client.query(
+        `SELECT id FROM matches WHERE season=$1 AND competition_id=$2 AND match_date=$3`,
+        [SEASON, cid, a],
+      );
+      const { rows: rb } = await client.query(
+        `SELECT id FROM matches WHERE season=$1 AND competition_id=$2 AND match_date=$3`,
+        [SEASON, cid, b],
+      );
+      if (ra[0] && rb[0]) {
+        await client.query(`UPDATE matches SET related_match_id=$2 WHERE id=$1`, [
+          ra[0].id,
+          rb[0].id,
+        ]);
+        await client.query(`UPDATE matches SET related_match_id=$2 WHERE id=$1`, [
+          rb[0].id,
+          ra[0].id,
+        ]);
+      }
+    }
   }
 
   const sync = await syncSeasonFromSheets(SEASON);

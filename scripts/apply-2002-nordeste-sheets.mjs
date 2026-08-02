@@ -1,6 +1,6 @@
 /**
- * Apply complementary Alagoano 2002 sheets (CSA-only).
- * Usage: node scripts/apply-2002-alagoano-sheets.mjs [--dry]
+ * Apply complementary Copa do Nordeste 2002 sheets (CSA-only).
+ * Usage: node scripts/apply-2002-nordeste-sheets.mjs [--dry]
  */
 import { loadEnvFromDotenv, createPgPool } from "./_load-env.mjs";
 import {
@@ -8,7 +8,7 @@ import {
   COMPETITION_NAME,
   PHASE_BY_DATE,
   SHEETS,
-} from "./data/season-2002-alagoano-sheets.mjs";
+} from "./data/season-2002-nordeste-sheets.mjs";
 
 loadEnvFromDotenv(".env");
 const DRY = process.argv.includes("--dry");
@@ -28,44 +28,42 @@ const FORCE_ID = {
   santos: 1925,
   "marcio pereira": 1874,
   "alex martins": 1937,
+  "marco aurelio": 1944,
+  "marcos aurelio": 1944,
+  "juninho goiano": 1945,
+  "junior goiano": 1945,
+  goiano: 1945,
   capitao: 731,
   geninho: 1915,
   ramon: 1862,
   lino: 540,
   "cristiano alagoano": 488,
+  cristiano: 488,
   toninho: 1909,
   leo: 1844,
   alexsandro: 489,
-  souza: 1840,
-  "da silva": 1861,
-  alisson: 1914,
-  juninho: 1916,
-  edmilson: 1920,
-  leandro: 1884,
+  alexandro: 489,
   rubiano: 1946,
   "cleiton xavier": 1947,
-  "carlos alberto": 1957,
+  cleiton: 1947,
+  barto: 1949,
+  valdo: 1959,
+  alisson: 1914,
+  edmilson: 1920,
+  "alex gomes": 1926,
 };
 
 const CREATE_META = {
-  "marco aurelio": { name: "Marco Aurélio", position: "Lateral", forceNew: true },
-  "juninho goiano": { name: "Juninho Goiano", position: "Lateral", forceNew: true },
-  goiano: { name: "Juninho Goiano", position: "Lateral", forceNew: true },
-  andre: { name: "André", position: "Atacante", forceNew: true },
-  barto: { name: "Bartô", position: "Volante", forceNew: true },
-  angelo: { name: "Ângelo", position: "Lateral", forceNew: true },
-  "capitao alagoano": {
-    name: "Capitão Alagoano",
-    position: "Atacante",
+  "ricardo gomes": { name: "Ricardo Gomes", position: "Goleiro", forceNew: true },
+  menta: { name: "Menta", position: "Volante", forceNew: true },
+  "pedrinho maradona": {
+    name: "Pedrinho Maradona",
+    position: "Meia",
     forceNew: true,
   },
-  alexandre: { name: "Alexandre", position: "Meia", forceNew: true },
-  thiago: { name: "Thiago", position: "Atacante", forceNew: true },
-  carlos: { name: "Carlos", position: "Zagueiro", forceNew: true },
-  borcato: { name: "Borçato", position: "Meia", forceNew: true },
-  soares: { name: "Soares", position: "Lateral", forceNew: true },
-  jaco: { name: "Jacó", position: "Lateral", forceNew: true },
-  valdo: { name: "Valdo", position: "Meia", forceNew: true },
+  valdenir: { name: "Valdenir", position: "Atacante", forceNew: true },
+  eliel: { name: "Eliel", position: "Meia", forceNew: true },
+  fabiano: { name: "Fabiano", position: "Zagueiro", forceNew: true },
 };
 
 const playerCache = new Map();
@@ -151,6 +149,22 @@ async function ensureCsaPlayer(raw) {
   return rows[0];
 }
 
+async function ensureReferee(name) {
+  if (!name) return null;
+  let { rows } = await client.query(`SELECT id, name FROM referees WHERE name=$1`, [name]);
+  if (rows[0]) return rows[0];
+  const { rows: all } = await client.query(`SELECT id, name FROM referees`);
+  const hit = all.find((r) => norm(r.name) === norm(name));
+  if (hit) return hit;
+  if (DRY) return { id: -1, name };
+  const ins = await client.query(
+    `INSERT INTO referees (name) VALUES ($1) RETURNING id, name`,
+    [name],
+  );
+  console.log("REF_CREATED", ins.rows[0]);
+  return ins.rows[0];
+}
+
 async function ensureStadium(name) {
   if (!name) return null;
   let { rows } = await client.query(`SELECT id, name FROM stadiums WHERE name=$1`, [name]);
@@ -168,7 +182,6 @@ async function ensureStadium(name) {
 function scorersText(csaGoals = []) {
   const counts = new Map();
   for (const g of csaGoals) {
-    if (g.ownGoalFor || g.ownGoalAgainst) continue;
     counts.set(g.name, (counts.get(g.name) ?? 0) + 1);
   }
   const parts = [...counts.entries()].map(([n, c]) => (c > 1 ? `${n} (${c})` : n));
@@ -278,24 +291,45 @@ try {
     const sheet = sheetByDate.get(m.d);
     if (!sheet) continue;
 
+    const referee = await ensureReferee(sheet.referee ?? null);
     const stadium = await ensureStadium(sheet.stadium ?? null);
+
     const hasLineup = (sheet.starters?.length ?? 0) > 0;
     const hasGoals =
       (sheet.csaGoals?.length ?? 0) > 0 || (sheet.oppGoals?.length ?? 0) > 0;
-    const hasMeta = !!sheet.stadium;
+    const hasMeta =
+      !!sheet.referee ||
+      !!sheet.stadium ||
+      sheet.attendance != null ||
+      sheet.grossRevenueText != null ||
+      !!sheet.homeAway;
 
     if (!DRY) {
       await client.query(
         `UPDATE matches SET
-           stadium_id = COALESCE($2, stadium_id),
-           scorers = COALESCE($3, scorers)
+           referee_id = COALESCE($2, referee_id),
+           stadium_id = COALESCE($3, stadium_id),
+           attendance = COALESCE($4, attendance),
+           gross_revenue = COALESCE($5, gross_revenue),
+           gross_revenue_text = COALESCE($6, gross_revenue_text),
+           scorers = COALESCE($7, scorers),
+           home_away = COALESCE($8, home_away)
          WHERE id=$1`,
-        [m.id, stadium?.id ?? null, scorersText(sheet.csaGoals)],
+        [
+          m.id,
+          referee?.id ?? null,
+          stadium?.id ?? null,
+          sheet.attendance ?? null,
+          sheet.grossRevenue ?? null,
+          sheet.grossRevenueText ?? null,
+          scorersText(sheet.csaGoals),
+          sheet.homeAway ?? null,
+        ],
       );
     }
 
     if (!hasLineup && !hasGoals) {
-      applied.push({ id: m.id, date: m.d, note: hasMeta ? "meta-only" : "placar-only" });
+      applied.push({ id: m.id, date: m.d, note: hasMeta ? "meta-only" : "phase-only" });
       continue;
     }
 
@@ -311,10 +345,7 @@ try {
 
     for (const name of sheet.starters ?? []) {
       const p = await ensureCsaPlayer(name);
-      if (csaLineup.has(p.id)) {
-        console.warn("DUPLICATE_STARTER", m.d, name, p.id);
-        continue;
-      }
+      if (csaLineup.has(p.id)) continue;
       if (!DRY) {
         const { rows } = await client.query(
           `INSERT INTO match_lineups
@@ -345,7 +376,6 @@ try {
     }
 
     for (const g of sheet.csaGoals ?? []) {
-      if (g.ownGoalFor) continue;
       const p = await ensureCsaPlayer(g.name);
       if (csaLineup.has(p.id)) continue;
       const role = hasLineup ? "bench" : "starter";
@@ -384,31 +414,6 @@ try {
     }
 
     for (const g of sheet.csaGoals ?? []) {
-      if (g.ownGoalFor) {
-        if (!DRY) {
-          await client.query(
-            `INSERT INTO match_goals
-               (match_id, side, scorer_lineup_id, scorer_player_id, scorer_name,
-                minute, injury_time_minute, is_penalty, is_own_goal, own_goal_direction)
-             VALUES ($1,'csa',NULL,NULL,$2,$3,NULL,false,true,'for')`,
-            [m.id, g.name, g.minute ?? 0],
-          );
-        }
-        continue;
-      }
-      if (g.ownGoalAgainst) {
-        const p = await ensureCsaPlayer(g.name);
-        if (!DRY) {
-          await client.query(
-            `INSERT INTO match_goals
-               (match_id, side, scorer_lineup_id, scorer_player_id, scorer_name,
-                minute, injury_time_minute, is_penalty, is_own_goal, own_goal_direction)
-             VALUES ($1,'csa',$2,$3,$4,$5,NULL,false,true,'against')`,
-            [m.id, csaLineup.get(p.id) ?? null, p.id, p.name, g.minute ?? 0],
-          );
-        }
-        continue;
-      }
       const p = await ensureCsaPlayer(g.name);
       if (!DRY) {
         await client.query(
@@ -440,23 +445,12 @@ try {
       }
     }
 
-    const ogFor = (sheet.csaGoals ?? []).filter((g) => g.ownGoalFor).length;
-    if (ogFor && !DRY) {
-      await client.query(`UPDATE matches SET own_goals_for_count=$2 WHERE id=$1`, [
-        m.id,
-        ogFor,
-      ]);
-    }
-
     applied.push({
       id: m.id,
       date: m.d,
       starters: sheet.starters?.length ?? 0,
-      csaGoals: (sheet.csaGoals ?? []).filter((g) => !g.ownGoalAgainst && !g.ownGoalFor)
-        .length,
+      csaGoals: sheet.csaGoals?.length ?? 0,
       oppGoals: sheet.oppGoals?.length ?? 0,
-      ogFor,
-      ogAgainst: (sheet.csaGoals ?? []).filter((g) => g.ownGoalAgainst).length,
     });
   }
 

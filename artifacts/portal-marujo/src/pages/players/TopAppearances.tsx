@@ -85,6 +85,7 @@ export default function TopAppearances() {
                           <PlayerFlag
                             flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
                             nationality={p.nationality}
+                            showBrazil={false}
                           />
                           {p.name}
                           <VerifiedBadge status={(p as any).verificationStatus} />

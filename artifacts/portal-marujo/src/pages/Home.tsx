@@ -1,5 +1,13 @@
 import { Link } from "wouter";
 import {
+  Users,
+  Swords,
+  CalendarDays,
+  Shield,
+  Trophy,
+  Award,
+} from "lucide-react";
+import {
   useGetSummary,
   useGetTopScorers,
   useGetTopAppearances,
@@ -34,7 +42,9 @@ import { PlayerFlag } from "@/components/PlayerFlag";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { EntityPhoto } from "@/components/EntityPhoto";
 import { ShareButton } from "@/components/ShareButton";
+import { GlobalSearch } from "@/components/GlobalSearch";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
+import { formatInt } from "@/lib/utils";
 
 function pct(wins: number, total: number) {
   if (!total) return "0.0%";
@@ -104,9 +114,7 @@ function NextMatchCard() {
       <div className="border rounded p-4 space-y-2">
         <p className="text-xs text-muted-foreground uppercase tracking-wider">Próxima Partida</p>
         <p className="font-semibold text-sm mt-0.5 text-muted-foreground">A definir</p>
-        <p className="text-2xl font-black text-muted-foreground">
-          –<span className="text-muted-foreground font-normal text-lg mx-1">×</span>–
-        </p>
+        <p className="text-sm font-medium text-muted-foreground">Aguardando</p>
       </div>
     );
   }
@@ -136,9 +144,7 @@ function NextMatchCard() {
           />
         </p>
       </div>
-      <p className="text-2xl font-black text-muted-foreground">
-        –<span className="text-muted-foreground font-normal text-lg mx-1">×</span>–
-      </p>
+      <p className="text-sm font-semibold text-primary/80 tracking-wide">Aguardando</p>
       <p className="text-xs text-muted-foreground">{year}</p>
     </>
   );
@@ -256,20 +262,23 @@ function OnThisDaySection() {
     data != null ? formatDayMonth(data.month, data.day) : null;
 
   return (
-    <section className="space-y-3" data-testid="section-on-this-day">
+    <section
+      className="space-y-3 rounded-lg border border-primary/25 bg-gradient-to-br from-primary/10 via-background to-background p-4"
+      data-testid="section-on-this-day"
+    >
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-base font-bold tracking-tight text-primary">
           Neste dia
         </h2>
         {titleDate && (
-          <span className="text-xs text-muted-foreground/80">{titleDate}</span>
+          <span className="text-sm font-medium text-foreground/80">{titleDate}</span>
         )}
-        <span className="text-xs text-muted-foreground/70 italic">
+        <span className="text-xs text-muted-foreground italic">
           Jogos oficiais do CSA nesta data, em outros anos
         </span>
       </div>
       {isLoading ? (
-        <div className="border rounded p-3 space-y-3">
+        <div className="rounded-md border bg-background/80 p-3 space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="flex gap-3">
               <Skeleton className="h-8 w-24 shrink-0" />
@@ -281,7 +290,7 @@ function OnThisDaySection() {
           ))}
         </div>
       ) : (
-        <ul className="border rounded p-3 divide-y divide-border/60">
+        <ul className="rounded-md border bg-background/80 p-3 divide-y divide-border/60">
           {matches.map((m) => (
             <li key={m.id}>
               <OnThisDayMatchRow match={m} />
@@ -366,45 +375,119 @@ export default function Home() {
   const unbeatenStreak = streakList.find((s) => s.type === "unbeaten");
   const winStreak = streakList.find((s) => s.type === "winning");
 
+  const shortcuts = [
+    { href: "/jogadores", label: "Jogadores", icon: Users, count: null as string | null },
+    {
+      href: "/partidas",
+      label: "Partidas",
+      icon: Swords,
+      count: summary ? formatInt(summary.totalMatches) : null,
+    },
+    {
+      href: "/temporadas",
+      label: "Temporadas",
+      icon: CalendarDays,
+      count: seasonList.length ? formatInt(seasonList.length) : null,
+    },
+    {
+      href: "/adversarios",
+      label: "Adversários",
+      icon: Shield,
+      count: null,
+    },
+    { href: "/tecnicos", label: "Técnicos", icon: Trophy, count: null },
+    {
+      href: "/registros",
+      label: "Recordes",
+      icon: Award,
+      count: titles ? formatInt(titles.total) : null,
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="border-b pb-3">
-        <div className="inline-flex items-center gap-2">
-          <h1 className="text-xl font-bold text-foreground" data-testid="heading-visao-geral">Portal Marujo — Base de dados do CSA</h1>
-          <ShareButton title="Portal Marujo — Base de dados do CSA" />
+      <div className="rounded-lg border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background p-4 sm:p-5 space-y-4">
+        <div className="border-b border-primary/10 pb-3">
+          <div className="inline-flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground" data-testid="heading-visao-geral">
+              Portal Marujo — Base de dados do CSA
+            </h1>
+            <ShareButton title="Portal Marujo — Base de dados do CSA" />
+          </div>
+          <p className="text-sm text-muted-foreground mt-1">
+            O Portal Marujo está em constante atualização. O principal objetivo do projeto é catalogar todos os jogos oficiais da história do CSA. Após a conclusão dessa etapa, o foco passa a ser a validação completa das estatísticas individuais dos jogadores e, posteriormente, a inclusão dos públicos e rendas das partidas.
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Os jogadores identificados com o selo de verificação (✓) possuem suas estatísticas totalmente conferidas e validadas. Já os demais atletas podem ter seus números ampliados à medida que novas temporadas forem pesquisadas e adicionadas ao acervo.
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Os rankings históricos exibem os valores mínimos comprovados até o momento e serão atualizados continuamente conforme novas informações forem verificadas.
+          </p>
         </div>
-        <p className="text-sm text-muted-foreground">O Portal Marujo está em constante atualização. O principal objetivo do projeto é catalogar todos os jogos oficiais da história do CSA. Após a conclusão dessa etapa, o foco passa a ser a validação completa das estatísticas individuais dos jogadores e, posteriormente, a inclusão dos públicos e rendas das partidas.</p>
-        <p className="text-sm text-muted-foreground mt-1">Os jogadores identificados com o selo de verificação (✓) possuem suas estatísticas totalmente conferidas e validadas. Já os demais atletas podem ter seus números ampliados à medida que novas temporadas forem pesquisadas e adicionadas ao acervo.</p>
-        <p className="text-sm text-muted-foreground mt-1">Os rankings históricos exibem os valores mínimos comprovados até o momento e serão atualizados continuamente conforme novas informações forem verificadas.</p>
+
+        <GlobalSearch />
+
+        {/* Stat bar */}
+        {loadSum ? (
+          <div className="grid grid-cols-3 sm:grid-cols-7 gap-px bg-primary/20 rounded overflow-hidden">
+            {Array.from({ length: 7 }).map((_, i) => (
+              <div key={i} className="bg-background/90 p-3">
+                <Skeleton className="h-3 w-16 mb-1" />
+                <Skeleton className="h-6 w-12" />
+              </div>
+            ))}
+          </div>
+        ) : summary ? (
+          <div
+            className="grid grid-cols-3 sm:grid-cols-7 gap-px bg-primary/25 rounded overflow-hidden text-sm shadow-sm"
+            data-testid="stat-bar"
+          >
+            {[
+              { label: "Partidas", value: formatInt(summary.totalMatches) },
+              { label: "Vitórias", value: formatInt(summary.wins), color: "text-green-600" },
+              { label: "Empates", value: formatInt(summary.draws), color: "text-amber-600" },
+              { label: "Derrotas", value: formatInt(summary.losses), color: "text-red-600" },
+              { label: "Gols Marcados", value: formatInt(summary.goalsScored) },
+              { label: "Gols Sofridos", value: formatInt(summary.goalsConceded) },
+              {
+                label: "Aproveitamento",
+                value: `${(summary.winPercentage ?? 0).toFixed(1)}%`,
+                color: "text-primary font-bold",
+              },
+            ].map(({ label, value, color }) => (
+              <div
+                key={label}
+                className="bg-background p-3"
+                data-testid={`stat-${label.toLowerCase().replace(/\s/g, "-")}`}
+              >
+                <p className="text-xs text-muted-foreground uppercase tracking-wider leading-tight">
+                  {label}
+                </p>
+                <p className={`text-lg font-bold mt-0.5 tabular-nums ${color ?? ""}`}>{value}</p>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2" data-testid="home-shortcuts">
+          {shortcuts.map(({ href, label, icon: Icon, count }) => (
+            <Link
+              key={href}
+              href={href}
+              className="group flex flex-col items-start gap-2 rounded-md border bg-background/80 px-3 py-3 hover:border-primary/40 hover:bg-primary/5 transition-colors"
+              data-testid={`shortcut-${label.toLowerCase()}`}
+            >
+              <Icon className="h-5 w-5 text-primary" />
+              <span className="text-sm font-semibold leading-tight group-hover:text-primary">
+                {label}
+              </span>
+              {count != null && (
+                <span className="text-xs text-muted-foreground tabular-nums">{count}</span>
+              )}
+            </Link>
+          ))}
+        </div>
       </div>
-      {/* Stat bar */}
-      {loadSum ? (
-        <div className="grid grid-cols-3 sm:grid-cols-7 gap-px bg-border rounded overflow-hidden">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} className="bg-background p-3">
-              <Skeleton className="h-3 w-16 mb-1" />
-              <Skeleton className="h-6 w-12" />
-            </div>
-          ))}
-        </div>
-      ) : summary ? (
-        <div className="grid grid-cols-3 sm:grid-cols-7 gap-px bg-border rounded overflow-hidden text-sm" data-testid="stat-bar">
-          {[
-            { label: "Partidas", value: summary.totalMatches },
-            { label: "Vitórias", value: summary.wins, color: "text-green-600" },
-            { label: "Empates", value: summary.draws, color: "text-amber-600" },
-            { label: "Derrotas", value: summary.losses, color: "text-red-600" },
-            { label: "Gols Marcados", value: summary.goalsScored },
-            { label: "Gols Sofridos", value: summary.goalsConceded },
-            { label: "Aproveitamento", value: `${(summary.winPercentage ?? 0).toFixed(1)}%`, color: "text-primary font-bold" },
-          ].map(({ label, value, color }) => (
-            <div key={label} className="bg-background p-3" data-testid={`stat-${label.toLowerCase().replace(/\s/g, "-")}`}>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider leading-tight">{label}</p>
-              <p className={`text-lg font-bold mt-0.5 ${color ?? ""}`}>{value}</p>
-            </div>
-          ))}
-        </div>
-      ) : null}
 
       {/* Primeira e Última Partida */}
       <div>
@@ -474,12 +557,13 @@ export default function Home() {
                             <PlayerFlag
                               flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
                               nationality={p.nationality}
+                              showBrazil={false}
                             />
                             {p.name}
                             <VerifiedBadge status={(p as any).verificationStatus} />
                           </Link>
                         </TableCell>
-                        <TableCell className="py-1.5 text-right font-bold text-primary">{p.appearances}</TableCell>
+                        <TableCell className="py-1.5 text-right font-bold text-primary tabular-nums">{formatInt(p.appearances)}</TableCell>
                       </TableRow>
                     ))}
               </TableBody>
@@ -517,12 +601,13 @@ export default function Home() {
                             <PlayerFlag
                               flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
                               nationality={p.nationality}
+                              showBrazil={false}
                             />
                             {p.name}
                             <VerifiedBadge status={(p as any).verificationStatus} />
                           </Link>
                         </TableCell>
-                        <TableCell className="py-1.5 text-right font-bold text-primary">{p.goals}</TableCell>
+                        <TableCell className="py-1.5 text-right font-bold text-primary tabular-nums">{formatInt(p.goals)}</TableCell>
                       </TableRow>
                     ))}
               </TableBody>
@@ -560,12 +645,13 @@ export default function Home() {
                             <PlayerFlag
                               flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
                               nationality={p.nationality}
+                              showBrazil={false}
                             />
                             {p.name}
                             <VerifiedBadge status={(p as any).verificationStatus} />
                           </Link>
                         </TableCell>
-                        <TableCell className="py-1.5 text-right font-bold text-primary">{p.assists}</TableCell>
+                        <TableCell className="py-1.5 text-right font-bold text-primary tabular-nums">{formatInt(p.assists)}</TableCell>
                       </TableRow>
                     ))}
               </TableBody>
@@ -586,7 +672,7 @@ export default function Home() {
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Títulos</p>
               <p className="font-bold text-base">Campeonatos conquistados</p>
               <p className="text-2xl font-black text-primary">
-                {titles.total}{" "}
+                {formatInt(titles.total)}{" "}
                 <span className="text-sm font-normal text-muted-foreground">títulos</span>
               </p>
             </Link>
@@ -600,7 +686,7 @@ export default function Home() {
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Sequência de Vitórias</p>
               <p className="font-bold text-base">Vitórias consecutivas</p>
               <p className="text-2xl font-black text-green-600">
-                {winStreak.length}{" "}
+                {formatInt(winStreak.length)}{" "}
                 <span className="text-sm font-normal text-muted-foreground">jogos</span>
               </p>
             </Link>
@@ -614,7 +700,7 @@ export default function Home() {
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Invencibilidade</p>
               <p className="font-bold text-base">Sequência invicta</p>
               <p className="text-2xl font-black text-primary">
-                {unbeatenStreak.length}{" "}
+                {formatInt(unbeatenStreak.length)}{" "}
                 <span className="text-sm font-normal text-muted-foreground">jogos</span>
               </p>
             </Link>
@@ -681,10 +767,10 @@ export default function Home() {
                           {s.year}
                         </Link>
                       </TableCell>
-                      <TableCell className="py-1.5 text-right">{s.matches}</TableCell>
-                      <TableCell className="py-1.5 text-right text-green-600 font-medium">{s.wins}</TableCell>
-                      <TableCell className="py-1.5 text-right text-amber-600">{s.draws}</TableCell>
-                      <TableCell className="py-1.5 text-right text-red-600">{s.losses}</TableCell>
+                      <TableCell className="py-1.5 text-right tabular-nums">{formatInt(s.matches)}</TableCell>
+                      <TableCell className="py-1.5 text-right text-green-600 font-medium tabular-nums">{formatInt(s.wins)}</TableCell>
+                      <TableCell className="py-1.5 text-right text-amber-600 tabular-nums">{formatInt(s.draws)}</TableCell>
+                      <TableCell className="py-1.5 text-right text-red-600 tabular-nums">{formatInt(s.losses)}</TableCell>
                       <TableCell className="py-1.5 text-right font-medium">{pct(s.wins, s.matches)}</TableCell>
                     </TableRow>
                   ))}
@@ -730,8 +816,8 @@ export default function Home() {
                           />
                           <span className="text-xs text-muted-foreground ml-1.5">({m.season})</span>
                         </TableCell>
-                        <TableCell className="py-1.5 text-right font-bold text-primary">
-                          {m.attendance.toLocaleString("pt-BR")}
+                        <TableCell className="py-1.5 text-right font-bold text-primary tabular-nums">
+                          {formatInt(m.attendance)}
                         </TableCell>
                       </TableRow>
                     );
@@ -775,10 +861,10 @@ export default function Home() {
                         {opp.name}
                       </Link>
                     </TableCell>
-                    <TableCell className="py-1.5 text-right">{opp.matches}</TableCell>
-                    <TableCell className="py-1.5 text-right text-green-600">{opp.wins}</TableCell>
-                    <TableCell className="py-1.5 text-right text-amber-600">{opp.draws}</TableCell>
-                    <TableCell className="py-1.5 text-right text-red-600">{opp.losses}</TableCell>
+                    <TableCell className="py-1.5 text-right tabular-nums">{formatInt(opp.matches)}</TableCell>
+                    <TableCell className="py-1.5 text-right text-green-600 tabular-nums">{formatInt(opp.wins)}</TableCell>
+                    <TableCell className="py-1.5 text-right text-amber-600 tabular-nums">{formatInt(opp.draws)}</TableCell>
+                    <TableCell className="py-1.5 text-right text-red-600 tabular-nums">{formatInt(opp.losses)}</TableCell>
                     <TableCell className="py-1.5 text-right font-medium">{pct(opp.wins, opp.matches)}</TableCell>
                   </TableRow>
                 ))}

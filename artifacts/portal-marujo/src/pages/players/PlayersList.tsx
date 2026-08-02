@@ -107,6 +107,7 @@ export default function PlayersList() {
                           <PlayerFlag
                             flag={(player as { nationalityFlag?: string | null }).nationalityFlag}
                             nationality={player.nationality}
+                            showBrazil={false}
                           />
                           {player.name}
                           <VerifiedBadge status={(player as any).verificationStatus} />

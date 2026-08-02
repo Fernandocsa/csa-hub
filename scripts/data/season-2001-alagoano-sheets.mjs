@@ -1,10 +1,18 @@
 /**
  * CSA Alagoano 2001 — complementary sheets (CSA-only).
- * Dates follow the imported fixtures (see season stub).
- * User text variants noted in comments where they differ.
  *
- * ASA campeão 2001; CSA vice-campeão.
- * CSA campeão da 2ª fase; 4º na 1ª fase.
+ * Date resolutions (RSSSF / contemporary reports vs divergent sources):
+ * - CSA 3x0 Corinthians: 2001-03-29 (not 29/01) — RSSSF + jogosdocsa
+ * - Murici 0x0 CSA: 2001-04-25 (not 05/04) — RSSSF
+ * - Penedense 1x0 CSA: 2001-05-27 (not 28/05) — RSSSF Round 10
+ * - ASA 0x0 CSA (2ª fase): 2001-07-01 (not 02/07) — RSSSF
+ * Final scores (Terra/Folha): 22/07 1x1, 25/07 ASA 1x0, 29/07 ASA 2x1
+ *   (RSSSF swapped 25/07↔29/07 — ignored)
+ *
+ * Stadium: "Estádio do Mutange" = Estádio Gustavo Paiva (Mutange, Maceió).
+ * Capela 10/06: Estádio Manoel Moreira is in Capela-AL (not Maceió).
+ *
+ * ASA campeão 2001; CSA vice-campeão / campeão da 2ª fase; 4º na 1ª fase.
  */
 export const SEASON = "2001";
 export const COMPETITION_NAME = "Campeonato Alagoano";
@@ -25,7 +33,7 @@ export const PHASE_BY_DATE = {
   "2001-05-06": { phase: "1ª Fase", round: null },
   "2001-05-13": { phase: "1ª Fase", round: null },
   "2001-05-19": { phase: "1ª Fase", round: null },
-  "2001-05-28": { phase: "1ª Fase", round: null },
+  "2001-05-27": { phase: "1ª Fase", round: null },
   "2001-06-03": { phase: "1ª Fase", round: null },
   "2001-06-10": { phase: "1ª Fase", round: null },
   "2001-06-17": { phase: "1ª Fase", round: null },
@@ -186,6 +194,9 @@ export const SHEETS = [
     date: "2001-05-06",
     stadium: "Estádio Rei Pelé (Trapichão)",
     referee: "Jorge Luiz da Silva",
+    attendance: 10916,
+    grossRevenue: 33748,
+    grossRevenueText: "R$ 33.748,00",
     starters: [
       "Luís Carlos",
       "Alex",
@@ -246,9 +257,9 @@ export const SHEETS = [
       { name: "Wilson" },
     ],
   },
-  // fonte complementar: 27/05; fixture importada: 2001-05-28
+  // RSSSF Round 10 [May 27]; some sources cite 28/05
   {
-    date: "2001-05-28",
+    date: "2001-05-27",
     stadium: "Estádio Alfredo Leahy",
     starters: [
       "Luís Carlos",
@@ -301,7 +312,7 @@ export const SHEETS = [
   },
   {
     date: "2001-06-10",
-    stadium: "Manoel Moreira",
+    stadium: "Manoel Moreira", // Capela-AL (not Maceió)
     starters: [
       "Luís Carlos",
       "Mazinho",
@@ -582,6 +593,7 @@ export const SHEETS = [
     stadium: "Coaracy da Mata (Fumeirão)",
     referee: "Álvaro Azeredo Quelhas",
     manager: "Estevam Soares",
+    attendance: 12007,
     grossRevenue: 68449,
     grossRevenueText: "R$ 68.449,00",
     starters: [
