@@ -10,6 +10,7 @@ const FLAG = {
   co: "/flags/co.svg",
   cl: "/flags/cl.svg",
   ec: "/flags/ec.svg",
+  uy: "/flags/uy.svg",
 } as const;
 
 /** Normalized nationality (lowercase, accents kept on keys that need them) → local SVG. */
@@ -29,6 +30,8 @@ const BY_NATIONALITY: Record<string, string> = {
   chile: FLAG.cl,
   equador: FLAG.ec,
   ecuador: FLAG.ec,
+  uruguai: FLAG.uy,
+  uruguay: FLAG.uy,
 };
 
 const BY_EMOJI: Record<string, string> = {
@@ -38,6 +41,7 @@ const BY_EMOJI: Record<string, string> = {
   "🇨🇴": FLAG.co,
   "🇨🇱": FLAG.cl,
   "🇪🇨": FLAG.ec,
+  "🇺🇾": FLAG.uy,
 };
 
 function normNationality(nationality?: string | null): string {
