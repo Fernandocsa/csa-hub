@@ -24,7 +24,7 @@ import {
   ratingLabel,
   type RatingEntityType,
 } from "../lib/rating-labels";
-import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray, ne } from "drizzle-orm";
+import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray, ne, isNull } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard } from "../lib/match-sheet";
 import { syncRelatedMatchLink, parsePenaltyShootoutFields } from "../lib/match-links";
 import {
@@ -1086,6 +1086,99 @@ router.get("/admin/matches/unknown-results", requireAdmin, async (req, res) => {
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .where(unknownResultMatchConditions())
+      .orderBy(desc(matchesTable.matchDate), asc(matchesTable.id));
+
+    res.json({ data: rows, total: rows.length });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+const reviewMatchColumns = {
+  id: matchesTable.id,
+  matchDate: matchesTable.matchDate,
+  season: matchesTable.season,
+  goalsFor: matchesTable.goalsFor,
+  goalsAgainst: matchesTable.goalsAgainst,
+  result: matchesTable.result,
+  homeAway: matchesTable.homeAway,
+  phase: matchesTable.phase,
+  round: matchesTable.round,
+  opponentName: opponentsTable.name,
+  competitionName: competitionsTable.name,
+};
+
+/** Official played matches (known result) — base for sheet/manager gap tabs. */
+function sheetGapBaseConditions() {
+  return and(
+    eq(matchesTable.isFriendly, false),
+    eq(matchesTable.isWalkover, false),
+    ne(matchesTable.status, "scheduled"),
+    ne(matchesTable.result, "unknown"),
+  );
+}
+
+const noCsaLineupSql = sql`NOT EXISTS (
+  SELECT 1 FROM match_lineups ml
+  WHERE ml.match_id = ${matchesTable.id} AND ml.side = 'csa'
+)`;
+
+const hasGoalAttributionSql = sql`(
+  EXISTS (SELECT 1 FROM match_goals mg WHERE mg.match_id = ${matchesTable.id})
+  OR NULLIF(trim(coalesce(${matchesTable.scorers}, '')), '') IS NOT NULL
+)`;
+
+const noGoalAttributionSql = sql`(
+  NOT EXISTS (SELECT 1 FROM match_goals mg WHERE mg.match_id = ${matchesTable.id})
+  AND NULLIF(trim(coalesce(${matchesTable.scorers}, '')), '') IS NULL
+)`;
+
+/** Goals attributed (match_goals or scorers text) but no CSA lineup. */
+router.get("/admin/matches/incomplete-sheets", requireAdmin, async (req, res) => {
+  try {
+    const rows = await db
+      .select(reviewMatchColumns)
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .where(and(sheetGapBaseConditions(), noCsaLineupSql, hasGoalAttributionSql))
+      .orderBy(desc(matchesTable.matchDate), asc(matchesTable.id));
+
+    res.json({ data: rows, total: rows.length });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+/** No CSA lineup and no goal attribution at all. */
+router.get("/admin/matches/missing-sheets", requireAdmin, async (req, res) => {
+  try {
+    const rows = await db
+      .select(reviewMatchColumns)
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .where(and(sheetGapBaseConditions(), noCsaLineupSql, noGoalAttributionSql))
+      .orderBy(desc(matchesTable.matchDate), asc(matchesTable.id));
+
+    res.json({ data: rows, total: rows.length });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+/** Official played matches without a CSA manager. */
+router.get("/admin/matches/missing-managers", requireAdmin, async (req, res) => {
+  try {
+    const rows = await db
+      .select(reviewMatchColumns)
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .where(and(sheetGapBaseConditions(), isNull(matchesTable.managerId)))
       .orderBy(desc(matchesTable.matchDate), asc(matchesTable.id));
 
     res.json({ data: rows, total: rows.length });

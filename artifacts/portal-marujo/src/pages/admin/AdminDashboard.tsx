@@ -55,7 +55,7 @@ const sections = [
   { href: "/admin/adversarios", label: "Adversários", icon: Shield, desc: "Gerenciar adversários cadastrados" },
   { href: "/admin/arbitros", label: "Árbitros", icon: Scale, desc: "Cadastrar árbitros e federação (UF)" },
   { href: "/admin/jogos-futuros", label: "Jogos futuros", icon: CalendarDays, desc: "Agendar partidas futuras; o mais próximo aparece na Home" },
-  { href: "/admin/partidas-duplicadas", label: "Revisão Partidas", icon: ClipboardList, desc: "Datas duplicadas e partidas sem resultado" },
+  { href: "/admin/partidas-duplicadas", label: "Revisão Partidas", icon: ClipboardList, desc: "Sem resultado, ficha incompleta/vazia e sem técnico" },
   { href: "/admin/importar-exportar", label: "Importar / Exportar", icon: Download, desc: "Importar dados via CSV ou exportar para planilha" },
   { href: "/admin/importar-ia", label: "Importação IA", icon: Sparkles, desc: "Extrair lote de temporada com Claude e confirmar na prévia" },
   { href: "/admin/acessos", label: "Acessos", icon: BarChart3, desc: "Abrir o dashboard de Web Analytics na Vercel" },
