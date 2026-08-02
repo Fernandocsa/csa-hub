@@ -12,8 +12,10 @@ import {
   useGetTopAssists,
   useGetNextMatch,
   useGetBirthdaysToday,
+  useGetOnThisDay,
   type MilestoneMatch,
   type BirthdayPerson,
+  type OnThisDayMatch,
 } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -190,6 +192,104 @@ function BirthdayPersonLink({ person }: { person: BirthdayPerson }) {
         </p>
       </div>
     </Link>
+  );
+}
+
+function yearsAgoLabel(yearsAgo: number | null) {
+  if (yearsAgo == null || yearsAgo < 0) return null;
+  if (yearsAgo === 0) return "Neste ano";
+  if (yearsAgo === 1) return "Há 1 ano";
+  return `Há ${yearsAgo} anos`;
+}
+
+function formatDayMonth(month: number, day: number) {
+  return new Date(2000, month - 1, day).toLocaleDateString("pt-BR", {
+    day: "numeric",
+    month: "long",
+  });
+}
+
+function OnThisDayMatchRow({ match }: { match: OnThisDayMatch }) {
+  const ago = yearsAgoLabel(match.yearsAgo);
+  const scoreReady = match.goalsFor != null && match.goalsAgainst != null;
+
+  return (
+    <div
+      className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 py-2"
+      data-testid={`on-this-day-match-${match.id}`}
+    >
+      <div className="sm:w-28 shrink-0">
+        <p className="text-xs font-semibold text-primary">
+          {ago ?? match.season}
+        </p>
+        <p className="text-[11px] text-muted-foreground">{fmtDate(match.date)}</p>
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="font-medium text-sm">
+          <MatchSidesLabel
+            homeAway={match.homeAway}
+            opponent={match.opponent}
+            opponentId={match.opponentId}
+            matchId={match.id}
+            logoUrl={match.opponentLogoUrl}
+            separator={
+              scoreReady ? `${match.goalsFor}–${match.goalsAgainst}` : "×"
+            }
+          />
+        </p>
+        <p className="text-xs text-muted-foreground mt-0.5 truncate">
+          {match.competition}
+          {match.stadium ? ` · ${match.stadium}` : ""}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function OnThisDaySection() {
+  const { data, isLoading } = useGetOnThisDay();
+  const matches = data?.matches ?? [];
+
+  if (!isLoading && matches.length === 0) return null;
+
+  const titleDate =
+    data != null ? formatDayMonth(data.month, data.day) : null;
+
+  return (
+    <section className="space-y-3" data-testid="section-on-this-day">
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          Neste dia
+        </h2>
+        {titleDate && (
+          <span className="text-xs text-muted-foreground/80">{titleDate}</span>
+        )}
+        <span className="text-xs text-muted-foreground/70 italic">
+          Jogos oficiais do CSA nesta data, em outros anos
+        </span>
+      </div>
+      {isLoading ? (
+        <div className="border rounded p-3 space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex gap-3">
+              <Skeleton className="h-8 w-24 shrink-0" />
+              <div className="flex-1 space-y-1.5">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <ul className="border rounded p-3 divide-y divide-border/60">
+          {matches.map((m) => (
+            <li key={m.id}>
+              <OnThisDayMatchRow match={m} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 
@@ -544,6 +644,8 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      <OnThisDaySection />
 
       <BirthdaysTodaySection />
 

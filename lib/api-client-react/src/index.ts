@@ -21,3 +21,4 @@ export * from "./referees";
 export * from "./streak-detail";
 export * from "./titles";
 export * from "./birthdays";
+export * from "./on-this-day";

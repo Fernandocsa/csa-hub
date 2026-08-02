@@ -8,6 +8,7 @@ import {
   scoredFieldMatchConditions,
   unknownResultMatchConditions,
 } from "../lib/match-filters";
+import { formatYmd, saoPauloYmd } from "../lib/birthdays";
 
 const router = Router();
 
@@ -291,6 +292,58 @@ router.get("/matches/milestones", async (req, res) => {
     res.json({
       first: firstRows.length ? buildMatchRow(firstRows[0]) : null,
       last:  lastRows.length  ? buildMatchRow(lastRows[0])  : null,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+/**
+ * Official CSA matches played on this calendar day (month/day), any year.
+ * Default timezone: America/Sao_Paulo. Optional ?month=&day= for preview.
+ */
+router.get("/matches/on-this-day", async (req, res) => {
+  try {
+    const today = saoPauloYmd();
+    const qMonth = parseInt(String(req.query.month ?? ""), 10);
+    const qDay = parseInt(String(req.query.day ?? ""), 10);
+    const month =
+      Number.isFinite(qMonth) && qMonth >= 1 && qMonth <= 12 ? qMonth : today.month;
+    const day =
+      Number.isFinite(qDay) && qDay >= 1 && qDay <= 31 ? qDay : today.day;
+    const lim = Math.min(parseInt(String(req.query.limit ?? "20"), 10) || 20, 50);
+
+    const rows = await db
+      .select(matchSelectFields)
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
+      .where(
+        and(
+          officialPlayedMatchConditions(),
+          sql`extract(month from ${matchesTable.matchDate})::int = ${month}`,
+          sql`extract(day from ${matchesTable.matchDate})::int = ${day}`,
+        ),
+      )
+      .orderBy(desc(matchesTable.matchDate))
+      .limit(lim);
+
+    const matches = rows.map((row) => {
+      const base = buildMatchRow(row);
+      const matchYear = Number(String(base.date).slice(0, 4));
+      const yearsAgo =
+        Number.isFinite(matchYear) && matchYear > 0 ? today.year - matchYear : null;
+      return { ...base, yearsAgo };
+    });
+
+    res.json({
+      date: formatYmd({ year: today.year, month, day }),
+      month,
+      day,
+      total: matches.length,
+      matches,
     });
   } catch (err) {
     req.log.error(err);
