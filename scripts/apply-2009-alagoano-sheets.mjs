@@ -37,6 +37,8 @@ const FORCE_ID = {
   esquerdinha: 819,
   junior: 947,
   "da silva": 1861,
+  jeferson: 82,
+  jefferson: 82,
 };
 
 const CREATE_META = {
@@ -69,8 +71,6 @@ const CREATE_META = {
   valdiran: { name: "Valdiran", position: "Atacante", forceNew: true },
   "junior caicara": { name: "Júnior Caiçara", position: "Lateral", forceNew: true },
   "juninho caicara": { name: "Júnior Caiçara", position: "Lateral", forceNew: true },
-  jeferson: { name: "Jéferson", position: "Goleiro", forceNew: true },
-  jefferson: { name: "Jéferson", position: "Goleiro", forceNew: true },
   "thiago emilio": { name: "Thiago Emilio", position: "Meia", forceNew: true },
   "tiago emilio": { name: "Thiago Emilio", position: "Meia", forceNew: true },
   leandro: { name: "Leandro", position: "Volante", forceNew: true },

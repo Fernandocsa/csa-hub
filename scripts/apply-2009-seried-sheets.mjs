@@ -25,8 +25,8 @@ function norm(s) {
 }
 
 const FORCE_ID = {
-  jeferson: 2049,
-  jefferson: 2049,
+  jeferson: 82,
+  jefferson: 82,
   "junior amorim": 948,
   fagner: 2023,
   "fabio lima": 2026,
