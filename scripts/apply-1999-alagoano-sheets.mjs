@@ -465,7 +465,17 @@ try {
       if (g.ownGoalFor) continue;
       const p = await ensureCsaPlayer(g.name);
       if (csaLineup.has(p.id)) continue;
-      // goals-only: link scorer without inventing appearance as starter
+      // Full XI: scorer on bench. Goals-only: starter so profile/apps count the match.
+      const role = hasLineup ? "bench" : "starter";
+      if (!DRY) {
+        const { rows } = await client.query(
+          `INSERT INTO match_lineups
+             (match_id, side, player_id, player_name, role, shirt_number, position, sort_order)
+           VALUES ($1,'csa',$2,$3,$4,NULL,NULL,$5) RETURNING id`,
+          [m.id, p.id, p.name, role, sort++],
+        );
+        csaLineup.set(p.id, rows[0].id);
+      } else csaLineup.set(p.id, sort++);
     }
 
     let oppSort = 0;

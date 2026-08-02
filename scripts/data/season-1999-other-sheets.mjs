@@ -161,6 +161,7 @@ export const MATCH_FIXES = [
     phase: "Final",
     round: "Volta",
     stadium: "Estádio La Boutique",
+    manager: "Otávio Quadros",
   },
 
   // —— Série C ——
@@ -234,13 +235,14 @@ export const MATCH_FIXES = [
  *   date: string,
  *   referee?: string|null,
  *   refereeState?: string|null,
- *   manager?: boolean,
+ *   manager?: boolean|string,
  *   starters?: string[],
  *   subs?: Sub[],
  *   oppStarters?: string[],
  *   oppSubs?: Sub[],
  *   csaGoals?: Goal[],
  *   oppGoals?: Goal[],
+ *   cards?: { name: string, type: 'yellow'|'red'|'second_yellow', side?: 'csa'|'opponent', minute?: number }[],
  * }} Sheet
  */
 
@@ -648,10 +650,33 @@ export const SHEETS = [
   {
     competition: "Copa Conmebol",
     date: "1999-12-08",
+    manager: "Otávio Quadros",
+    starters: [
+      "Veloso",
+      "Mazinho",
+      "Márcio Pereira",
+      "Jivago",
+      "Williams",
+      "Léo",
+      "Ramon",
+      "Fábio Magrão",
+      "Bruno Alves",
+      "Missinho",
+      "Mimi",
+    ],
+    subs: [{ out: "Bruno Alves", in: "Fabinho", minute: 58 }],
+    cards: [
+      { name: "Mimi", type: "yellow", minute: 20 },
+      { name: "Mazinho", type: "yellow", minute: 37 },
+      { name: "Ramon", type: "yellow", minute: 38 },
+      { name: "Veloso", type: "yellow", minute: 56 },
+      { name: "Jivago", type: "yellow", minute: 69 },
+      { name: "Fábio Magrão", type: "yellow" },
+    ],
     oppGoals: [
-      { name: "Ricardo Silva" },
-      { name: "Darío Alberto Gigena" },
-      { name: "Julián Edgardo Maidana" },
+      { name: "Ricardo Silva", minute: 39 },
+      { name: "Darío Alberto Gigena", minute: 75 },
+      { name: "Julián Edgardo Maidana", minute: 90 },
     ],
   },
 

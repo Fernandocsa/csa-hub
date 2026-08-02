@@ -357,15 +357,14 @@ try {
       if (g.ownGoalFor) continue;
       const p = await ensureCsaPlayer(g.name);
       if (csaLineup.has(p.id)) continue;
-      if (hasLineup) {
-        const { rows } = await client.query(
-          `INSERT INTO match_lineups
-             (match_id, side, player_id, player_name, role, shirt_number, position, sort_order)
-           VALUES ($1,'csa',$2,$3,'bench',NULL,NULL,$4) RETURNING id`,
-          [m.id, p.id, p.name, sort++],
-        );
-        csaLineup.set(p.id, rows[0].id);
-      }
+      const role = hasLineup ? "bench" : "starter";
+      const { rows } = await client.query(
+        `INSERT INTO match_lineups
+           (match_id, side, player_id, player_name, role, shirt_number, position, sort_order)
+         VALUES ($1,'csa',$2,$3,$4,NULL,NULL,$5) RETURNING id`,
+        [m.id, p.id, p.name, role, sort++],
+      );
+      csaLineup.set(p.id, rows[0].id);
     }
 
     let oppSort = 0;

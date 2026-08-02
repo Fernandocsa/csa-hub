@@ -444,8 +444,11 @@ try {
     const m = { id: matchId, d: sheet.date };
 
     const referee = await ensureReferee(sheet.referee ?? null, sheet.refereeState ?? "AL");
-    const manager =
-      sheet.manager ? await ensureManager("Celso Teixeira") : null;
+    const manager = sheet.manager
+      ? await ensureManager(
+          typeof sheet.manager === "string" ? sheet.manager : "Celso Teixeira",
+        )
+      : null;
     const scorers = scorersText(sheet.csaGoals);
 
     if (!DRY) {
@@ -574,6 +577,18 @@ try {
 
     for (const g of sheet.csaGoals ?? []) {
       const p = await ensureCsaPlayer(g.name);
+      if (!csaLineup.has(p.id)) {
+        const role = hasLineup ? "bench" : "starter";
+        if (!DRY) {
+          const { rows } = await client.query(
+            `INSERT INTO match_lineups
+               (match_id, side, player_id, player_name, role, shirt_number, position, sort_order)
+             VALUES ($1,'csa',$2,$3,$4,NULL,NULL,$5) RETURNING id`,
+            [m.id, p.id, p.name, role, sort++],
+          );
+          csaLineup.set(p.id, rows[0].id);
+        } else csaLineup.set(p.id, sort++);
+      }
       if (!DRY) {
         await client.query(
           `INSERT INTO match_goals
@@ -612,6 +627,43 @@ try {
       }
     }
 
+    for (const c of sheet.cards ?? []) {
+      const side = c.side ?? "csa";
+      const minute =
+        c.minute != null && Number.isFinite(c.minute) ? c.minute : 0;
+      if (!DRY) {
+        if (side === "csa") {
+          const p = await ensureCsaPlayer(c.name);
+          await client.query(
+            `INSERT INTO match_cards
+               (match_id, side, card_type, lineup_id, player_id, player_name, minute, injury_time_minute)
+             VALUES ($1,'csa',$2,$3,$4,$5,$6,NULL)`,
+            [
+              m.id,
+              c.type,
+              csaLineup.get(p.id) ?? null,
+              p.id,
+              p.name,
+              minute,
+            ],
+          );
+        } else {
+          await client.query(
+            `INSERT INTO match_cards
+               (match_id, side, card_type, lineup_id, player_id, player_name, minute, injury_time_minute)
+             VALUES ($1,'opponent',$2,$3,NULL,$4,$5,NULL)`,
+            [
+              m.id,
+              c.type,
+              oppLineup.get(norm(c.name)) ?? null,
+              c.name,
+              minute,
+            ],
+          );
+        }
+      }
+    }
+
     applied.push({
       id: m.id,
       date: sheet.date,
@@ -619,6 +671,7 @@ try {
       starters: sheet.starters?.length ?? 0,
       csaGoals: sheet.csaGoals?.length ?? 0,
       oppGoals: sheet.oppGoals?.length ?? 0,
+      cards: sheet.cards?.length ?? 0,
     });
   }
 
