@@ -1,5 +1,6 @@
 import { ResultBadge } from "@/components/ui/result-badge";
 import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
+import { formatDateBr } from "@/lib/utils";
 
 export interface MatchRowItem {
   matchId: number;
@@ -15,7 +16,7 @@ export interface MatchRowItem {
 }
 
 function fmtDate(d: string) {
-  return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
+  return formatDateBr(d);
 }
 
 function roleLabel(role: string) {

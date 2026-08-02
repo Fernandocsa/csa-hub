@@ -2,9 +2,10 @@ import { Link } from "wouter";
 import { useGetStreaks } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RecordsLayout } from "./RecordsLayout";
+import { formatDateBr } from "@/lib/utils";
 
 function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString("pt-BR");
+  return formatDateBr(d);
 }
 
 const typeConfig = {

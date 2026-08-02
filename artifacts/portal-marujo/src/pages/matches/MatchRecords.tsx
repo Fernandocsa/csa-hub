@@ -2,9 +2,10 @@ import { Link } from "wouter";
 import { useGetBiggestVictories, useGetBiggestDefeats, useGetStreaks } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RecordMatchTable } from "@/components/RecordMatchTable";
+import { formatDateBr } from "@/lib/utils";
 
 function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString("pt-BR");
+  return formatDateBr(d);
 }
 
 export default function MatchRecords() {

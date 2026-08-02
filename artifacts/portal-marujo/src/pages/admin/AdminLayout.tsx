@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Users, Trophy, Shield, Download, LogOut, ChevronLeft, CalendarDays, UserCog, CalendarRange, Landmark, MessageSquare, Flag, Scale, ClipboardList, BarChart3, Sparkles, Medal, Cake, Crown, Award, Star } from "lucide-react";
+import { LayoutDashboard, Users, Trophy, Shield, Download, LogOut, ChevronLeft, CalendarDays, UserCog, CalendarRange, Landmark, MessageSquare, Flag, Scale, ClipboardList, BarChart3, Sparkles, Medal, Cake, Crown, Award, Star, ArrowLeftRight, Building2 } from "lucide-react";
 
 interface Props {
   children: React.ReactNode;
@@ -15,6 +15,8 @@ const navItems = [
   { href: "/admin/partidas", label: "Partidas", icon: Trophy },
   { href: "/admin/recordes", label: "Recordes", icon: Award },
   { href: "/admin/titulos", label: "Títulos", icon: Crown },
+  { href: "/admin/transferencias", label: "Transferências", icon: ArrowLeftRight },
+  { href: "/admin/presidentes", label: "Presidentes", icon: Building2 },
   { href: "/admin/competicoes", label: "Competições", icon: Medal },
   { href: "/admin/adversarios", label: "Adversários", icon: Shield },
   { href: "/admin/arbitros", label: "Árbitros", icon: Scale },

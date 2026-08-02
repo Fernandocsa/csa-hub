@@ -47,6 +47,10 @@ import StreakUnbeaten from "./pages/records/StreakUnbeaten";
 import StreakLosing from "./pages/records/StreakLosing";
 import Titles from "./pages/records/Titles";
 import HomeAway from "./pages/records/HomeAway";
+import TransfersList from "./pages/transfers/TransfersList";
+import PresidentsList from "./pages/presidents/PresidentsList";
+import AboutCsa from "./pages/club/AboutCsa";
+import ClassicoPage from "./pages/club/Classico";
 import AdminRoot from "./pages/admin/AdminRoot";
 import NotFound from "./pages/not-found";
 
@@ -107,6 +111,12 @@ export default function AppRouter() {
         <Route path="/registros/sequencias/derrotas" component={StreakLosing} />
         <Route path="/registros/sequencias" component={Streaks} />
         <Route path="/registros/mando" component={HomeAway} />
+        <Route path="/transferencias" component={TransfersList} />
+        <Route path="/presidentes" component={PresidentsList} />
+        <Route path="/sobre" component={AboutCsa} />
+        <Route path="/sobre-o-csa" component={AboutCsa} />
+        <Route path="/classico" component={ClassicoPage} />
+        <Route path="/csa-x-crb" component={ClassicoPage} />
         <Route component={NotFound} />
       </Switch>
     </MainLayout>

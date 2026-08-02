@@ -44,7 +44,7 @@ import { EntityPhoto } from "@/components/EntityPhoto";
 import { ShareButton } from "@/components/ShareButton";
 import { GlobalSearch } from "@/components/GlobalSearch";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
-import { formatInt } from "@/lib/utils";
+import { formatInt, formatDateBr } from "@/lib/utils";
 
 function pct(wins: number, total: number) {
   if (!total) return "0.0%";
@@ -52,7 +52,7 @@ function pct(wins: number, total: number) {
 }
 
 function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString("pt-BR");
+  return formatDateBr(d);
 }
 
 const resultColor: Record<string, string> = {
@@ -120,7 +120,7 @@ function NextMatchCard() {
   }
 
   const isHome = nextMatch.homeAway === "home";
-  const year = new Date(nextMatch.matchDate + "T12:00:00").getFullYear();
+  const year = Number(String(nextMatch.matchDate).slice(0, 4));
   const href =
     nextMatch.matchId != null
       ? `/partidas/${nextMatch.matchId}`
@@ -209,7 +209,8 @@ function yearsAgoLabel(yearsAgo: number | null) {
 }
 
 function formatDayMonth(month: number, day: number) {
-  return new Date(2000, month - 1, day).toLocaleDateString("pt-BR", {
+  return new Date(Date.UTC(2000, month - 1, day, 15, 0, 0)).toLocaleDateString("pt-BR", {
+    timeZone: "America/Sao_Paulo",
     day: "numeric",
     month: "long",
   });

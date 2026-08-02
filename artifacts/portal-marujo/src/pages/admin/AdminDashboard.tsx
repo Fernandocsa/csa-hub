@@ -18,6 +18,8 @@ import {
   RefreshCw,
   ExternalLink,
   AlertTriangle,
+  ArrowLeftRight,
+  Building2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -51,6 +53,8 @@ const sections = [
   { href: "/admin/aniversariantes", label: "Aniversariantes", icon: Cake, desc: "Jogadores e técnicos que fazem aniversário no dia" },
   { href: "/admin/temporadas", label: "Temporadas", icon: CalendarRange, desc: "Verificação de stats e badges Artilheiro/Garçom" },
   { href: "/admin/partidas", label: "Partidas", icon: Trophy, desc: "Adicionar e editar partidas do histórico" },
+  { href: "/admin/transferencias", label: "Transferências", icon: ArrowLeftRight, desc: "Chegadas e saídas por temporada" },
+  { href: "/admin/presidentes", label: "Presidentes", icon: Building2, desc: "Mandatos e fotos dos presidentes do clube" },
   { href: "/admin/competicoes", label: "Competições", icon: Medal, desc: "Criar, editar, excluir e mesclar competições" },
   { href: "/admin/adversarios", label: "Adversários", icon: Shield, desc: "Gerenciar adversários cadastrados" },
   { href: "/admin/arbitros", label: "Árbitros", icon: Scale, desc: "Cadastrar árbitros e federação (UF)" },

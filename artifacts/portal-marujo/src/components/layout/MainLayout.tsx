@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GlobalSearch } from "@/components/GlobalSearch";
@@ -76,6 +77,16 @@ const navigation: NavItem[] = [
       { name: "Por Década", href: "/registros/decada" },
       { name: "Sequências", href: "/registros/sequencias" },
       { name: "Mando de Campo", href: "/registros/mando" },
+    ],
+  },
+  {
+    name: "Clube",
+    icon: BookOpen,
+    children: [
+      { name: "Sobre o CSA", href: "/sobre" },
+      { name: "Clássico CSA × CRB", href: "/classico" },
+      { name: "Transferências", href: "/transferencias" },
+      { name: "Presidentes", href: "/presidentes" },
     ],
   },
 ];

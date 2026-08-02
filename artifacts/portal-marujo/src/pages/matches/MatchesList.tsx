@@ -8,14 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
 import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
-import { cn } from "@/lib/utils";
+import { cn, formatDateBr } from "@/lib/utils";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
 import { ListPagination } from "@/components/ListPagination";
 import { LIST_PAGE_SIZE } from "@/lib/list-page";
 
 function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString("pt-BR");
+  return formatDateBr(d);
 }
 
 export default function MatchesList() {

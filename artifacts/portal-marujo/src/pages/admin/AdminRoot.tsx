@@ -31,6 +31,10 @@ import AdminSuggestions from "./AdminSuggestions";
 import AdminBirthdays from "./AdminBirthdays";
 import AdminRecords from "./AdminRecords";
 import AdminTitles from "./AdminTitles";
+import AdminTransfers from "./AdminTransfers";
+import AdminTransferDetail from "./AdminTransferDetail";
+import AdminPresidents from "./AdminPresidents";
+import AdminPresidentDetail from "./AdminPresidentDetail";
 
 export default function AdminRoot() {
   const { checked, authenticated, login, logout } = useAdminAuth();
@@ -78,6 +82,12 @@ export default function AdminRoot() {
         <Route path="/admin/aniversariantes" component={AdminBirthdays} />
         <Route path="/admin/recordes" component={AdminRecords} />
         <Route path="/admin/titulos" component={AdminTitles} />
+        <Route path="/admin/transferencias/novo" component={AdminTransferDetail} />
+        <Route path="/admin/transferencias/:id" component={AdminTransferDetail} />
+        <Route path="/admin/transferencias" component={AdminTransfers} />
+        <Route path="/admin/presidentes/novo" component={AdminPresidentDetail} />
+        <Route path="/admin/presidentes/:id" component={AdminPresidentDetail} />
+        <Route path="/admin/presidentes" component={AdminPresidents} />
         <Route path="/admin/proximo-jogo" component={AdminUpcomingMatches} />
         <Route path="/admin/jogos-futuros" component={AdminUpcomingMatches} />
         <Route path="/admin/comentarios" component={AdminComments} />

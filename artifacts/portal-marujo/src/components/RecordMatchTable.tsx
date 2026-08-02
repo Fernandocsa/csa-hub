@@ -3,8 +3,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
+import { formatDateBr } from "@/lib/utils";
+
 function fmtDate(d: string) {
-  return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
+  return formatDateBr(d);
 }
 
 /** Vitória: gols marcados, depois saldo | Derrota: gols sofridos, depois saldo. */

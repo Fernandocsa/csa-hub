@@ -1,18 +1,13 @@
 import { Link } from "wouter";
 import { useGetMatchMilestones } from "@workspace/api-client-react";
+import { formatDateBr } from "@/lib/utils";
 
 export function SiteFooter() {
   const { data: milestones } = useGetMatchMilestones();
   const year = new Date().getFullYear();
   const lastMatchDate = milestones?.last?.date ?? null;
   const lastLabel = lastMatchDate
-    ? new Date(
-        lastMatchDate.includes("T") ? lastMatchDate : `${lastMatchDate}T12:00:00`,
-      ).toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      })
+    ? formatDateBr(lastMatchDate, { day: "2-digit", month: "long", year: "numeric" })
     : null;
 
   return (

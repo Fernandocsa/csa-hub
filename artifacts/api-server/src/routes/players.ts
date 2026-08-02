@@ -11,6 +11,7 @@ import {
   opponentsTable,
   competitionsTable,
   managersTable,
+  transfersTable,
 } from "@workspace/db";
 import { sql, eq, ilike, and, desc, asc, ne, or, isNull, inArray } from "drizzle-orm";
 import { loadEntityBadges } from "../lib/entity-badges";
@@ -625,6 +626,20 @@ router.get("/players/:id", async (req, res) => {
       .where(eq(managersTable.playerId, id))
       .limit(1);
 
+    const transfers = await db
+      .select({
+        id: transfersTable.id,
+        direction: transfersTable.direction,
+        club: transfersTable.club,
+        transferDate: transfersTable.transferDate,
+        season: transfersTable.season,
+        transferType: transfersTable.transferType,
+        notes: transfersTable.notes,
+      })
+      .from(transfersTable)
+      .where(eq(transfersTable.playerId, id))
+      .orderBy(desc(transfersTable.season), desc(transfersTable.transferDate));
+
     res.json({
       id: player.id,
       name: player.name,
@@ -655,6 +670,15 @@ router.get("/players/:id", async (req, res) => {
       recentMatches,
       badges,
       linkedManager: linkedMgr ?? null,
+      transfers: transfers.map((t) => ({
+        id: t.id,
+        direction: t.direction === "out" ? "out" : "in",
+        club: t.club ?? null,
+        transferDate: t.transferDate ?? null,
+        season: t.season,
+        transferType: t.transferType ?? null,
+        notes: t.notes ?? null,
+      })),
     });
   } catch (err) {
     req.log.error(err);

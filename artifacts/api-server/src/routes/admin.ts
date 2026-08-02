@@ -18,6 +18,8 @@ import {
   suggestionsTable,
   ratingsTable,
   seasonCompetitionStatsTable,
+  transfersTable,
+  presidentsTable,
 } from "@workspace/db";
 import {
   isRatingEntityType,
@@ -6143,6 +6145,311 @@ router.delete("/admin/ratings/:id", requireAdmin, async (req, res) => {
       .returning({ id: ratingsTable.id });
     if (deleted.length === 0) {
       return res.status(404).json({ error: "Avaliação não encontrada" });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+// ── Transfers ─────────────────────────────────────────────────────────────────
+
+function parseTransferDirection(
+  raw: unknown,
+): { ok: true; value: "in" | "out" } | { ok: false; error: string } {
+  const v = String(raw ?? "").trim().toLowerCase();
+  if (v === "in" || v === "out") return { ok: true, value: v };
+  return { ok: false, error: "Direção inválida (use in ou out)" };
+}
+
+function parseOptionalYmd(raw: unknown): string | null {
+  if (raw == null || String(raw).trim() === "") return null;
+  const s = String(raw).trim().slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+  return s;
+}
+
+router.get("/admin/transfers", requireAdmin, async (req, res) => {
+  try {
+    const rows = await db
+      .select({
+        id: transfersTable.id,
+        playerId: transfersTable.playerId,
+        playerName: playersTable.name,
+        direction: transfersTable.direction,
+        club: transfersTable.club,
+        transferDate: transfersTable.transferDate,
+        season: transfersTable.season,
+        transferType: transfersTable.transferType,
+        notes: transfersTable.notes,
+      })
+      .from(transfersTable)
+      .innerJoin(playersTable, eq(transfersTable.playerId, playersTable.id))
+      .orderBy(desc(transfersTable.season), desc(transfersTable.transferDate), asc(playersTable.name));
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.get("/admin/transfers/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [row] = await db
+      .select({
+        id: transfersTable.id,
+        playerId: transfersTable.playerId,
+        playerName: playersTable.name,
+        direction: transfersTable.direction,
+        club: transfersTable.club,
+        transferDate: transfersTable.transferDate,
+        season: transfersTable.season,
+        transferType: transfersTable.transferType,
+        notes: transfersTable.notes,
+      })
+      .from(transfersTable)
+      .innerJoin(playersTable, eq(transfersTable.playerId, playersTable.id))
+      .where(eq(transfersTable.id, id));
+    if (!row) return res.status(404).json({ error: "Transferência não encontrada" });
+    res.json(row);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.post("/admin/transfers", requireAdmin, async (req, res) => {
+  try {
+    const body = req.body as {
+      playerId?: number;
+      direction?: string;
+      club?: string | null;
+      transferDate?: string | null;
+      season?: string;
+      transferType?: string | null;
+      notes?: string | null;
+    };
+    const playerId = Number(body.playerId);
+    if (!Number.isFinite(playerId) || playerId < 1) {
+      return res.status(400).json({ error: "Jogador obrigatório" });
+    }
+    const [player] = await db
+      .select({ id: playersTable.id })
+      .from(playersTable)
+      .where(eq(playersTable.id, playerId));
+    if (!player) return res.status(400).json({ error: "Jogador não encontrado" });
+
+    const dir = parseTransferDirection(body.direction);
+    if (!dir.ok) return res.status(400).json({ error: dir.error });
+
+    const season = body.season?.trim();
+    if (!season) return res.status(400).json({ error: "Temporada obrigatória" });
+
+    const [created] = await db
+      .insert(transfersTable)
+      .values({
+        playerId,
+        direction: dir.value,
+        club: body.club?.trim() || null,
+        transferDate: parseOptionalYmd(body.transferDate),
+        season,
+        transferType: body.transferType?.trim() || null,
+        notes: body.notes?.trim() || null,
+      })
+      .returning();
+    res.status(201).json(created);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put("/admin/transfers/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [current] = await db.select().from(transfersTable).where(eq(transfersTable.id, id));
+    if (!current) return res.status(404).json({ error: "Transferência não encontrada" });
+
+    const body = req.body as {
+      playerId?: number;
+      direction?: string;
+      club?: string | null;
+      transferDate?: string | null;
+      season?: string;
+      transferType?: string | null;
+      notes?: string | null;
+    };
+
+    const values: Partial<typeof transfersTable.$inferInsert> = {};
+    if (body.playerId !== undefined) {
+      const playerId = Number(body.playerId);
+      if (!Number.isFinite(playerId) || playerId < 1) {
+        return res.status(400).json({ error: "Jogador inválido" });
+      }
+      const [player] = await db
+        .select({ id: playersTable.id })
+        .from(playersTable)
+        .where(eq(playersTable.id, playerId));
+      if (!player) return res.status(400).json({ error: "Jogador não encontrado" });
+      values.playerId = playerId;
+    }
+    if (body.direction !== undefined) {
+      const dir = parseTransferDirection(body.direction);
+      if (!dir.ok) return res.status(400).json({ error: dir.error });
+      values.direction = dir.value;
+    }
+    if (body.club !== undefined) values.club = body.club?.trim() || null;
+    if (body.transferDate !== undefined) {
+      values.transferDate = parseOptionalYmd(body.transferDate);
+    }
+    if (body.season !== undefined) {
+      const season = body.season?.trim();
+      if (!season) return res.status(400).json({ error: "Temporada obrigatória" });
+      values.season = season;
+    }
+    if (body.transferType !== undefined) {
+      values.transferType = body.transferType?.trim() || null;
+    }
+    if (body.notes !== undefined) values.notes = body.notes?.trim() || null;
+
+    const [updated] = await db
+      .update(transfersTable)
+      .set(values)
+      .where(eq(transfersTable.id, id))
+      .returning();
+    res.json(updated);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.delete("/admin/transfers/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const deleted = await db
+      .delete(transfersTable)
+      .where(eq(transfersTable.id, id))
+      .returning({ id: transfersTable.id });
+    if (deleted.length === 0) {
+      return res.status(404).json({ error: "Transferência não encontrada" });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+// ── Presidents ────────────────────────────────────────────────────────────────
+
+router.get("/admin/presidents", requireAdmin, async (req, res) => {
+  try {
+    const rows = await db
+      .select()
+      .from(presidentsTable)
+      .orderBy(
+        sql`${presidentsTable.termStart} ASC NULLS LAST`,
+        asc(presidentsTable.name),
+      );
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.get("/admin/presidents/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [row] = await db.select().from(presidentsTable).where(eq(presidentsTable.id, id));
+    if (!row) return res.status(404).json({ error: "Presidente não encontrado" });
+    res.json(row);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.post("/admin/presidents", requireAdmin, async (req, res) => {
+  try {
+    const body = req.body as {
+      name?: string;
+      photoUrl?: string | null;
+      termStart?: string | null;
+      termEnd?: string | null;
+      notes?: string | null;
+    };
+    if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+    const [created] = await db
+      .insert(presidentsTable)
+      .values({
+        name: body.name.trim(),
+        photoUrl: parseOptionalUrl(body.photoUrl),
+        termStart: parseOptionalYmd(body.termStart),
+        termEnd: parseOptionalYmd(body.termEnd),
+        notes: body.notes?.trim() || null,
+      })
+      .returning();
+    res.status(201).json(created);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put("/admin/presidents/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [current] = await db.select().from(presidentsTable).where(eq(presidentsTable.id, id));
+    if (!current) return res.status(404).json({ error: "Presidente não encontrado" });
+
+    const body = req.body as {
+      name?: string;
+      photoUrl?: string | null;
+      termStart?: string | null;
+      termEnd?: string | null;
+      notes?: string | null;
+    };
+    const values: Partial<typeof presidentsTable.$inferInsert> = {};
+    if (body.name !== undefined) {
+      if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+      values.name = body.name.trim();
+    }
+    if (body.photoUrl !== undefined) values.photoUrl = parseOptionalUrl(body.photoUrl);
+    if (body.termStart !== undefined) values.termStart = parseOptionalYmd(body.termStart);
+    if (body.termEnd !== undefined) values.termEnd = parseOptionalYmd(body.termEnd);
+    if (body.notes !== undefined) values.notes = body.notes?.trim() || null;
+
+    const [updated] = await db
+      .update(presidentsTable)
+      .set(values)
+      .where(eq(presidentsTable.id, id))
+      .returning();
+    res.json(updated);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.delete("/admin/presidents/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const deleted = await db
+      .delete(presidentsTable)
+      .where(eq(presidentsTable.id, id))
+      .returning({ id: presidentsTable.id });
+    if (deleted.length === 0) {
+      return res.status(404).json({ error: "Presidente não encontrado" });
     }
     res.json({ ok: true });
   } catch (err) {

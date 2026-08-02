@@ -5,10 +5,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
 import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
 import { RecordsLayout } from "./RecordsLayout";
-import { cn } from "@/lib/utils";
+import { cn, formatDateBr } from "@/lib/utils";
 
 function fmtDate(d: string) {
-  return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
+  return formatDateBr(d);
 }
 
 const META: Record<

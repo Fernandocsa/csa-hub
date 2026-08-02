@@ -13,6 +13,7 @@ import { EntityBadges } from "@/components/EntityBadges";
 import { PlayerFlag } from "@/components/PlayerFlag";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { ShareButton } from "@/components/ShareButton";
+import { formatDateBr } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 type PlayerProfile = {
@@ -56,6 +57,15 @@ type PlayerProfile = {
     seasonYear?: number | null;
   }[];
   linkedManager?: { id: number; name: string } | null;
+  transfers?: {
+    id: number;
+    direction: "in" | "out";
+    club: string | null;
+    transferDate: string | null;
+    season: string;
+    transferType: string | null;
+    notes: string | null;
+  }[];
 };
 
 function calcAge(birthDate?: string | null, birthYear?: number | null): number | null {
@@ -323,6 +333,47 @@ export default function PlayerDetail() {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {(player.transfers?.length ?? 0) > 0 && (
+        <div data-testid="player-transfers">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            Transferências
+          </h2>
+          <ul className="space-y-1.5 text-sm">
+            {player.transfers!.map((t) => (
+              <li key={t.id} className="flex flex-wrap items-baseline gap-x-2">
+                <span
+                  className={`text-xs font-semibold uppercase ${
+                    t.direction === "in" ? "text-green-700" : "text-red-700"
+                  }`}
+                >
+                  {t.direction === "in" ? "Chegada" : "Saída"}
+                </span>
+                <span className="tabular-nums text-muted-foreground">{t.season}</span>
+                {t.club && (
+                  <span>
+                    {t.direction === "in" ? "de" : "para"} {t.club}
+                  </span>
+                )}
+                {t.transferType && (
+                  <span className="text-xs text-muted-foreground">· {t.transferType}</span>
+                )}
+                {t.transferDate && (
+                  <span className="text-xs text-muted-foreground ml-auto tabular-nums">
+                    {formatDateBr(t.transferDate)}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+          <Link
+            href="/transferencias"
+            className="text-xs text-primary hover:underline mt-2 inline-block"
+          >
+            Ver todas as transferências →
+          </Link>
         </div>
       )}
 

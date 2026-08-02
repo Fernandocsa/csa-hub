@@ -22,3 +22,6 @@ export * from "./streak-detail";
 export * from "./titles";
 export * from "./birthdays";
 export * from "./on-this-day";
+export * from "./transfers";
+export * from "./presidents";
+export * from "./classico";

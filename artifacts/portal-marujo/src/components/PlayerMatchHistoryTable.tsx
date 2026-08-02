@@ -20,11 +20,10 @@ import {
   isUnknownEventMinute,
   UNKNOWN_EVENT_MINUTE_LABEL,
 } from "@/lib/event-minute";
+import { formatDateBr } from "@/lib/utils";
 
 function fmtDate(d: string) {
-  return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString(
-    "pt-BR",
-  );
+  return formatDateBr(d);
 }
 
 function fmtMinute(minute: number, injury?: number | null) {

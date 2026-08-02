@@ -15,6 +15,9 @@ import aiImportRouter from "./ai-import";
 import ratingsRouter from "./ratings";
 import commentsRouter from "./comments";
 import suggestionsRouter from "./suggestions";
+import transfersRouter from "./transfers";
+import presidentsRouter from "./presidents";
+import classicoRouter from "./classico";
 
 const router: IRouter = Router();
 
@@ -32,6 +35,9 @@ router.use(birthdaysRouter);
 router.use(ratingsRouter);
 router.use(commentsRouter);
 router.use(suggestionsRouter);
+router.use(transfersRouter);
+router.use(presidentsRouter);
+router.use(classicoRouter);
 router.use(adminRouter);
 router.use(aiImportRouter);
 

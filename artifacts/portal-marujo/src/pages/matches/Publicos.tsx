@@ -6,7 +6,7 @@ import {
 } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { cn, formatDateBr } from "@/lib/utils";
 import { MatchSidesLabel } from "@/components/MatchSidesLabel";
 import { ListPagination } from "@/components/ListPagination";
 import { useClientPage } from "@/hooks/useClientPage";
@@ -32,7 +32,7 @@ function revenueRankValue(m: { grossRevenue: number | null; grossRevenueText?: s
 }
 
 function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString("pt-BR");
+  return formatDateBr(d);
 }
 
 type Tab = "attendance" | "attendance_paid" | "gross_revenue";

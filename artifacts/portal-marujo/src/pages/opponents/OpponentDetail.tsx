@@ -19,6 +19,7 @@ import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
 import { ShareButton } from "@/components/ShareButton";
 
 import { LIST_PAGE_SIZE } from "@/lib/list-page";
+import { formatDateBr } from "@/lib/utils";
 
 const PAGE_SIZE = LIST_PAGE_SIZE;
 
@@ -28,7 +29,7 @@ function pct(wins: number, total: number) {
 }
 
 function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString("pt-BR");
+  return formatDateBr(d);
 }
 
 function MiniRecord({ label, data: d }: { label: string; data: { matches: number; wins: number; draws: number; losses: number } }) {

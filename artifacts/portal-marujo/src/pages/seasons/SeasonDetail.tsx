@@ -19,11 +19,11 @@ import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { EntityPhoto } from "@/components/EntityPhoto";
 import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
 import { groupPlayersByPosition } from "@/lib/position-groups";
-import { cn } from "@/lib/utils";
+import { cn, formatDateBr } from "@/lib/utils";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 
 function fmtDate(d: string) {
-  return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
+  return formatDateBr(d);
 }
 
 function pct(wins: number, total: number) {

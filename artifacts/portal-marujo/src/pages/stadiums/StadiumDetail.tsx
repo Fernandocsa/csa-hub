@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 import { ShareButton } from "@/components/ShareButton";
 import { EntityPhoto } from "@/components/EntityPhoto";
+import { formatDateBr } from "@/lib/utils";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -11,7 +12,7 @@ function pct(wins: number, total: number) {
 }
 
 function fmtDate(d: string) {
-  return new Date(d.includes("T") ? d : d + "T12:00:00").toLocaleDateString("pt-BR");
+  return formatDateBr(d);
 }
 
 export default function StadiumDetail() {

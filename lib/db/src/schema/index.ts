@@ -12,3 +12,5 @@ export * from "./entity_badges";
 export * from "./comments";
 export * from "./suggestions";
 export * from "./ai_import_sessions";
+export * from "./transfers";
+export * from "./presidents";
