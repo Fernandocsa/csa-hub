@@ -81,6 +81,8 @@ export interface MatchDetailSheet {
   stadium: string | null;
   managerId: number | null;
   manager: string | null;
+  /** @nullable */
+  managerPhotoUrl?: string | null;
   refereeId: number | null;
   referee: string | null;
   scorers: string[];

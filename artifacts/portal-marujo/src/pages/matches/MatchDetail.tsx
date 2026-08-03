@@ -17,6 +17,7 @@ import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
 import { PlayerFlag } from "@/components/PlayerFlag";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
+import { EntityPhoto } from "@/components/EntityPhoto";
 import { ShareButton } from "@/components/ShareButton";
 import {
   isUnknownEventMinute,
@@ -379,20 +380,38 @@ export default function MatchDetail() {
 
   const trainerBlock =
     match.manager && match.managerId != null ? (
-      <p className="text-sm">
-        <span className="text-muted-foreground">Treinador:</span>{" "}
-        <Link
-          href={`/tecnicos/${match.managerId}`}
-          className="font-medium hover:text-primary hover:underline"
-        >
-          {match.manager}
-        </Link>
-      </p>
+      <div className="flex items-center gap-2 text-sm">
+        <EntityPhoto
+          url={match.managerPhotoUrl}
+          name={match.manager}
+          size="sm"
+          shape="circle"
+          label={`Foto de ${match.manager}`}
+        />
+        <p>
+          <span className="text-muted-foreground">Treinador:</span>{" "}
+          <Link
+            href={`/tecnicos/${match.managerId}`}
+            className="font-medium hover:text-primary hover:underline"
+          >
+            {match.manager}
+          </Link>
+        </p>
+      </div>
     ) : match.manager ? (
-      <p className="text-sm">
-        <span className="text-muted-foreground">Treinador:</span>{" "}
-        <span className="font-medium">{match.manager}</span>
-      </p>
+      <div className="flex items-center gap-2 text-sm">
+        <EntityPhoto
+          url={match.managerPhotoUrl}
+          name={match.manager}
+          size="sm"
+          shape="circle"
+          label={`Foto de ${match.manager}`}
+        />
+        <p>
+          <span className="text-muted-foreground">Treinador:</span>{" "}
+          <span className="font-medium">{match.manager}</span>
+        </p>
+      </div>
     ) : null;
 
   const refereeBlock =
