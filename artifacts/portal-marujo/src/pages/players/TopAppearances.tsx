@@ -31,10 +31,10 @@ export default function TopAppearances() {
       <div className="border-b pb-3 flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-xl font-bold" data-testid="heading-presencas">Mais Jogos</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground max-w-xl">
             {season === "all"
-              ? "Ranking de jogadores com mais partidas pelo CSA"
-              : `Mais jogos da temporada ${season}`}
+              ? "Ranking de jogadores com mais partidas pelo CSA na base do Portal Marujo — não é o ranking absoluto da história do clube."
+              : `Mais jogos da temporada ${season} na base do Portal Marujo.`}
           </p>
         </div>
         <div className="flex items-center gap-2">

@@ -31,10 +31,10 @@ export default function TopAssists() {
       <div className="border-b pb-3 flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-xl font-bold">Mais Assistências</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground max-w-xl">
             {season === "all"
-              ? "Ranking histórico de jogadores com mais assistências pelo CSA"
-              : `Assistências da temporada ${season}`}
+              ? "Assistências pelo CSA na base do Portal Marujo. O período contabilizado começa em 2008; jogadores mais antigos podem ter algumas assistências se houver confirmação."
+              : `Assistências da temporada ${season} na base do Portal Marujo.`}
           </p>
         </div>
         <div className="flex items-center gap-2">

@@ -31,10 +31,10 @@ export default function TopScorers() {
       <div className="border-b pb-3 flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-xl font-bold" data-testid="heading-artilheiros">Artilheiros Históricos</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground max-w-xl">
             {season === "all"
-              ? "Ranking de goleadores do CSA em toda a história"
-              : `Artilheiros da temporada ${season}`}
+              ? "Goleadores do CSA segundo a base do Portal Marujo — não é o ranking absoluto de toda a história do clube."
+              : `Artilheiros da temporada ${season} na base do Portal Marujo.`}
           </p>
         </div>
         <div className="flex items-center gap-2">
