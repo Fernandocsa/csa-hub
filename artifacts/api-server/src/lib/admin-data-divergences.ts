@@ -91,12 +91,23 @@ function demonymSet() {
   return new Set(DEMONYM_NATIONALITIES.map((d) => d.toLowerCase()));
 }
 
+function hasCompleteFullName(fullName: string | null | undefined): boolean {
+  return Boolean(fullName && fullName.trim());
+}
+
 async function playerDuplicateNames(): Promise<DivergenceGroup> {
   const rows = await db
-    .select({ id: playersTable.id, name: playersTable.name })
+    .select({
+      id: playersTable.id,
+      name: playersTable.name,
+      fullName: playersTable.fullName,
+    })
     .from(playersTable);
 
-  const byKey = new Map<string, { id: number; name: string }[]>();
+  const byKey = new Map<
+    string,
+    { id: number; name: string; fullName: string | null }[]
+  >();
   for (const r of rows) {
     const key = normalizeNameKey(r.name);
     if (!key) continue;
@@ -108,14 +119,27 @@ async function playerDuplicateNames(): Promise<DivergenceGroup> {
   const items: DivergenceItem[] = [];
   for (const [, list] of byKey) {
     if (list.length < 2) continue;
+    const withFull = list.filter((p) => hasCompleteFullName(p.fullName));
+    const withoutFull = list.filter((p) => !hasCompleteFullName(p.fullName));
+    // Só alerta quando há mistura: um(s) com nome completo e outro(s) sem.
+    // Dois (ou mais) com nome completo = homônimos OK; todos sem = não entra aqui.
+    if (withFull.length === 0 || withoutFull.length === 0) continue;
+
     const ids = list.map((x) => x.id).sort((a, b) => a - b);
     for (const p of list) {
+      const complete = hasCompleteFullName(p.fullName);
       items.push({
         id: p.id,
         name: p.name,
         href: `/admin/jogadores/${p.id}`,
-        summary: `${list.length} cadastros com o mesmo nome · IDs ${ids.join(", ")}`,
-        meta: { duplicates: list.length },
+        summary: complete
+          ? `Com nome completo · ${withoutFull.length} cadastro(s) só com apelido no mesmo nome · IDs ${ids.join(", ")}`
+          : `Sem nome completo · ${withFull.length} com nome completo no mesmo apelido · IDs ${ids.join(", ")}`,
+        meta: {
+          duplicates: list.length,
+          withFullName: withFull.length,
+          withoutFullName: withoutFull.length,
+        },
       });
     }
   }
@@ -126,7 +150,7 @@ async function playerDuplicateNames(): Promise<DivergenceGroup> {
     entityType: "player",
     title: "Jogadores com nome duplicado",
     description:
-      "Dois ou mais cadastros com o mesmo nome (ignorando maiúsculas/acentos). Podem ser homônimos ou duplicatas a mesclar.",
+      "Mesmo apelido em mais de um cadastro, com pelo menos um com nome completo e outro sem. Homônimos em que todos já têm nome completo não entram.",
     count: items.length,
     items,
   };
