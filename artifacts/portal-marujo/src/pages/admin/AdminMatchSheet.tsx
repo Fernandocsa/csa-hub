@@ -1002,9 +1002,19 @@ export default function AdminMatchSheet() {
           <ChevronLeft size={13} /> Partidas
         </Link>
         <h1 className="text-xl font-bold text-gray-900">
-          {isNew
-            ? "Nova partida"
-            : `CSA ${match!.goalsFor ?? "-"}–${match!.goalsAgainst ?? "-"} ${match!.opponentName}`}
+          {isNew ? (
+            "Nova partida"
+          ) : (
+            <a
+              href={`/partidas/${match!.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#1B3A6B] hover:underline underline-offset-2"
+              title="Abrir página pública da partida"
+            >
+              CSA {match!.goalsFor ?? "–"}–{match!.goalsAgainst ?? "–"} {match!.opponentName}
+            </a>
+          )}
         </h1>
         {!isNew && match && (
           <p className="text-sm text-gray-500 mt-1">
@@ -1013,6 +1023,15 @@ export default function AdminMatchSheet() {
               ? ` · ${matchPhaseRoundLabel(match.phase, match.round)}`
               : ""}
             {" · "}temp. {match.season}
+            {" · "}
+            <a
+              href={`/partidas/${match.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#1B3A6B] hover:underline"
+            >
+              Ver no site →
+            </a>
           </p>
         )}
         <p className="text-xs text-gray-400 mt-1">
