@@ -6,6 +6,71 @@ import { Input } from "@/components/ui/input";
 import { ChevronLeft } from "lucide-react";
 import { EntityPhoto } from "@/components/EntityPhoto";
 import type { AdminPresident } from "./AdminPresidents";
+import {
+  inferTermEndMode,
+  inferTermStartMode,
+  serializeTermDate,
+  type TermDateMode,
+} from "@/lib/president-term";
+
+function TermDateFields({
+  label,
+  mode,
+  year,
+  exact,
+  allowOngoing,
+  onModeChange,
+  onYearChange,
+  onExactChange,
+  hint,
+}: {
+  label: string;
+  mode: TermDateMode;
+  year: string;
+  exact: string;
+  allowOngoing?: boolean;
+  onModeChange: (m: TermDateMode) => void;
+  onYearChange: (v: string) => void;
+  onExactChange: (v: string) => void;
+  hint?: string;
+}) {
+  const sel = "w-full border rounded px-3 py-2 text-sm bg-white";
+  return (
+    <div className="space-y-2">
+      <label className="text-xs font-semibold text-gray-500 uppercase block">
+        {label}
+      </label>
+      <select
+        className={sel}
+        value={mode}
+        onChange={(e) => onModeChange(e.target.value as TermDateMode)}
+      >
+        <option value="unknown">Desconhecido</option>
+        {allowOngoing ? <option value="ongoing">Em andamento</option> : null}
+        <option value="year">Só o ano</option>
+        <option value="exact">Data completa</option>
+      </select>
+      {mode === "year" ? (
+        <Input
+          type="number"
+          value={year}
+          onChange={(e) => onYearChange(e.target.value)}
+          placeholder="1973"
+          min={1850}
+          max={2100}
+        />
+      ) : null}
+      {mode === "exact" ? (
+        <Input
+          type="date"
+          value={exact}
+          onChange={(e) => onExactChange(e.target.value)}
+        />
+      ) : null}
+      {hint ? <p className="text-xs text-gray-400">{hint}</p> : null}
+    </div>
+  );
+}
 
 export default function AdminPresidentDetail() {
   const params = useParams<{ id?: string }>();
@@ -15,11 +80,17 @@ export default function AdminPresidentDetail() {
 
   const [name, setName] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
-  const [termStart, setTermStart] = useState("");
-  const [termEnd, setTermEnd] = useState("");
+  const [startMode, setStartMode] = useState<TermDateMode>("unknown");
+  const [startYear, setStartYear] = useState("");
+  const [startExact, setStartExact] = useState("");
+  const [endMode, setEndMode] = useState<TermDateMode>("unknown");
+  const [endYear, setEndYear] = useState("");
+  const [endExact, setEndExact] = useState("");
   const [notes, setNotes] = useState("");
   const [linkedPlayerId, setLinkedPlayerId] = useState("");
   const [linkedManagerId, setLinkedManagerId] = useState("");
+  const [samePersonAsId, setSamePersonAsId] = useState("");
+  const [allPresidents, setAllPresidents] = useState<AdminPresident[]>([]);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -27,8 +98,14 @@ export default function AdminPresidentDetail() {
   const applySaved = (data: AdminPresident) => {
     setName(data.name);
     setPhotoUrl(data.photoUrl ?? "");
-    setTermStart(data.termStart ?? "");
-    setTermEnd(data.termEnd ?? "");
+    const sm = inferTermStartMode(data.termStart);
+    setStartMode(sm);
+    setStartYear(data.termStart ? data.termStart.slice(0, 4) : "");
+    setStartExact(sm === "exact" && data.termStart ? data.termStart : "");
+    const em = inferTermEndMode(data.termEnd, !!data.isCurrent);
+    setEndMode(em);
+    setEndYear(data.termEnd ? data.termEnd.slice(0, 4) : "");
+    setEndExact(em === "exact" && data.termEnd ? data.termEnd : "");
     setNotes(data.notes ?? "");
     setLinkedPlayerId(
       data.linkedPlayerId != null ? String(data.linkedPlayerId) : "",
@@ -36,7 +113,18 @@ export default function AdminPresidentDetail() {
     setLinkedManagerId(
       data.linkedManagerId != null ? String(data.linkedManagerId) : "",
     );
+    // Prefer a sibling in the same person group (not self) for the select value.
+    if (data.personKey != null) {
+      setSamePersonAsId(String(data.personKey === data.id ? "" : data.personKey));
+    } else {
+      setSamePersonAsId("");
+    }
   };
+
+  const loadList = useCallback(async () => {
+    const r = await adminFetch("/admin/presidents");
+    if (r.ok) setAllPresidents((await r.json()) as AdminPresident[]);
+  }, []);
 
   const load = useCallback(async () => {
     if (isNew || Number.isNaN(presidentId)) return;
@@ -54,18 +142,50 @@ export default function AdminPresidentDetail() {
 
   useEffect(() => {
     load();
-  }, [load]);
+    loadList();
+  }, [load, loadList]);
+
+  // After list loads, pick a sibling id if personKey points at self (canonical).
+  useEffect(() => {
+    if (isNew || Number.isNaN(presidentId) || allPresidents.length === 0) return;
+    const self = allPresidents.find((p) => p.id === presidentId);
+    if (!self?.personKey) return;
+    const sibling = allPresidents.find(
+      (p) => p.id !== presidentId && (p.personKey ?? p.id) === self.personKey,
+    );
+    if (sibling) setSamePersonAsId(String(sibling.id));
+  }, [allPresidents, isNew, presidentId]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError("");
     try {
+      if (startMode === "year" && !/^\d{4}$/.test(startYear.trim())) {
+        throw new Error("Informe o ano de início do mandato");
+      }
+      if (startMode === "exact" && !startExact.trim()) {
+        throw new Error("Informe a data de início do mandato");
+      }
+      if (endMode === "year" && !/^\d{4}$/.test(endYear.trim())) {
+        throw new Error("Informe o ano de fim do mandato");
+      }
+      if (endMode === "exact" && !endExact.trim()) {
+        throw new Error("Informe a data de fim do mandato");
+      }
+
+      const start = serializeTermDate(startMode, startYear, startExact);
+      const end = serializeTermDate(endMode, endYear, endExact);
+
       const body = {
         name: name.trim(),
         photoUrl: photoUrl.trim() || null,
-        termStart: termStart.trim() || null,
-        termEnd: termEnd.trim() || null,
+        termStart: start.date,
+        termEnd: end.isCurrent ? null : end.date,
+        isCurrent: end.isCurrent,
+        samePersonAsId: samePersonAsId.trim()
+          ? Number(samePersonAsId.trim())
+          : null,
         notes: notes.trim() || null,
         linkedPlayerId: linkedPlayerId.trim()
           ? Number(linkedPlayerId.trim())
@@ -87,7 +207,10 @@ export default function AdminPresidentDetail() {
       }
       const saved = (await r.json()) as AdminPresident;
       if (isNew) setLocation(`/admin/presidentes/${saved.id}`);
-      else applySaved(saved);
+      else {
+        applySaved(saved);
+        await loadList();
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro ao salvar");
     }
@@ -172,28 +295,52 @@ export default function AdminPresidentDetail() {
           <Input value={name} onChange={(e) => setName(e.target.value)} required />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
-              Início do mandato
-            </label>
-            <Input
-              type="date"
-              value={termStart}
-              onChange={(e) => setTermStart(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
-              Fim do mandato
-            </label>
-            <Input
-              type="date"
-              value={termEnd}
-              onChange={(e) => setTermEnd(e.target.value)}
-            />
-            <p className="text-xs text-gray-400 mt-1">Em branco = em andamento</p>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <TermDateFields
+            label="Início do mandato"
+            mode={startMode}
+            year={startYear}
+            exact={startExact}
+            onModeChange={setStartMode}
+            onYearChange={setStartYear}
+            onExactChange={setStartExact}
+          />
+          <TermDateFields
+            label="Fim do mandato"
+            mode={endMode}
+            year={endYear}
+            exact={endExact}
+            allowOngoing
+            onModeChange={setEndMode}
+            onYearChange={setEndYear}
+            onExactChange={setEndExact}
+            hint="Desconhecido ≠ em andamento"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Mesma pessoa que
+          </label>
+          <select
+            className={sel}
+            value={samePersonAsId}
+            onChange={(e) => setSamePersonAsId(e.target.value)}
+          >
+            <option value="">— Pessoa única / outro mandato —</option>
+            {allPresidents
+              .filter((p) => p.id !== presidentId)
+              .map((p) => (
+                <option key={p.id} value={p.id}>
+                  #{p.id} {p.name}
+                  {p.termStart ? ` (${p.termStart.slice(0, 4)})` : ""}
+                </option>
+              ))}
+          </select>
+          <p className="text-xs text-gray-400 mt-1">
+            Use para vincular passagens distintas da mesma pessoa (ex.: Rafael
+            Tenório). A lista pública continua em ordem de mandato.
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-3">

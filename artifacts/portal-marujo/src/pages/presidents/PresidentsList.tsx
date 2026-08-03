@@ -4,21 +4,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EntityPhoto } from "@/components/EntityPhoto";
 import { ListPagination } from "@/components/ListPagination";
 import { useClientPage } from "@/hooks/useClientPage";
-import { formatDateBr } from "@/lib/utils";
-
-function termLabel(start: string | null, end: string | null) {
-  const fmt = (d: string | null) => {
-    if (!d) return null;
-    if (/^\d{4}-01-01$/.test(d)) return d.slice(0, 4);
-    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return formatDateBr(d);
-    return d;
-  };
-  const a = fmt(start);
-  const b = end ? fmt(end) : "atual";
-  if (!a && !end) return "Período não informado";
-  if (!a) return `até ${b}`;
-  return `${a} — ${b}`;
-}
+import {
+  presidentPassageOrdinalLabel,
+  presidentTermLabel,
+} from "@/lib/president-term";
 
 export default function PresidentsList() {
   const { data, isLoading } = useGetPresidents();
@@ -49,56 +38,80 @@ export default function PresidentsList() {
       ) : (
         <>
           <ul className="space-y-4">
-            {slice.map((p) => (
-              <li
-                key={p.id}
-                className="flex gap-4 border-b pb-4 last:border-0"
-                data-testid={`president-${p.id}`}
-              >
-                <EntityPhoto
-                  url={p.photoUrl}
-                  name={p.name}
-                  size="lg"
-                  label={`Foto de ${p.name}`}
-                />
-                <div className="min-w-0 flex-1">
-                  <h2 className="font-semibold text-lg leading-tight">{p.name}</h2>
-                  <p className="text-sm text-primary font-medium mt-0.5">
-                    {termLabel(p.termStart, p.termEnd)}
-                  </p>
-                  {(p.linkedPlayerId || p.linkedManagerId) && (
-                    <p className="text-xs text-muted-foreground mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
-                      {p.linkedPlayerId ? (
-                        <Link
-                          href={`/jogadores/${p.linkedPlayerId}`}
-                          className="text-primary hover:underline"
-                        >
-                          Ver como jogador
-                          {p.linkedPlayerName ? ` (${p.linkedPlayerName})` : ""} →
-                        </Link>
-                      ) : null}
-                      {p.linkedManagerId ? (
-                        <Link
-                          href={`/tecnicos/${p.linkedManagerId}`}
-                          className="text-primary hover:underline"
-                        >
-                          Ver como técnico
-                          {p.linkedManagerName
-                            ? ` (${p.linkedManagerName})`
-                            : ""}{" "}
-                          →
-                        </Link>
+            {slice.map((p) => {
+              const passageLabel =
+                p.passageIndex != null && p.passageCount != null
+                  ? presidentPassageOrdinalLabel(p.passageIndex, p.passageCount)
+                  : null;
+              const otherTerms = p.otherTerms ?? [];
+              return (
+                <li
+                  key={p.id}
+                  className="flex gap-4 border-b pb-4 last:border-0"
+                  data-testid={`president-${p.id}`}
+                >
+                  <EntityPhoto
+                    url={p.photoUrl}
+                    name={p.name}
+                    size="lg"
+                    label={`Foto de ${p.name}`}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <h2 className="font-semibold text-lg leading-tight">{p.name}</h2>
+                    <p className="text-sm text-primary font-medium mt-0.5">
+                      {presidentTermLabel(p.termStart, p.termEnd, !!p.isCurrent)}
+                      {passageLabel ? (
+                        <span className="text-muted-foreground font-normal">
+                          {" "}
+                          · {passageLabel}
+                        </span>
                       ) : null}
                     </p>
-                  )}
-                  {p.notes && (
-                    <p className="text-sm text-muted-foreground mt-2 whitespace-pre-line">
-                      {p.notes}
-                    </p>
-                  )}
-                </div>
-              </li>
-            ))}
+                    {otherTerms.length > 0 ? (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Outras passagens:{" "}
+                        {otherTerms.map((t, i) => (
+                          <span key={t.id}>
+                            {i > 0 ? " · " : null}
+                            {presidentTermLabel(t.termStart, t.termEnd, t.isCurrent)}
+                          </span>
+                        ))}
+                      </p>
+                    ) : null}
+                    {(p.linkedPlayerId || p.linkedManagerId) && (
+                      <p className="text-xs text-muted-foreground mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
+                        {p.linkedPlayerId ? (
+                          <Link
+                            href={`/jogadores/${p.linkedPlayerId}`}
+                            className="text-primary hover:underline"
+                          >
+                            Ver como jogador
+                            {p.linkedPlayerName ? ` (${p.linkedPlayerName})` : ""} →
+                          </Link>
+                        ) : null}
+                        {p.linkedManagerId ? (
+                          <Link
+                            href={`/tecnicos/${p.linkedManagerId}`}
+                            className="text-primary hover:underline"
+                          >
+                            Ver como técnico
+                            {p.linkedManagerName
+                              ? ` (${p.linkedManagerName})`
+                              : ""}{" "}
+                            →
+                          </Link>
+                        ) : null}
+                      </p>
+                    )}
+                    {p.notes && (
+                      <p className="text-sm text-muted-foreground mt-2 whitespace-pre-line">
+                        {p.notes}
+                      </p>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
           {needsPagination && (
             <ListPagination

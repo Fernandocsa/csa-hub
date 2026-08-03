@@ -6461,6 +6461,8 @@ router.post("/admin/presidents", requireAdmin, async (req, res) => {
       photoUrl?: string | null;
       termStart?: string | null;
       termEnd?: string | null;
+      isCurrent?: boolean;
+      samePersonAsId?: number | null;
       notes?: string | null;
       linkedPlayerId?: number | null;
       linkedManagerId?: number | null;
@@ -6489,13 +6491,33 @@ router.post("/admin/presidents", requireAdmin, async (req, res) => {
       linkedManagerId = n;
     }
 
+    let personKey: number | null = null;
+    if (body.samePersonAsId != null && body.samePersonAsId !== ("" as unknown)) {
+      const n = Number(body.samePersonAsId);
+      if (!Number.isInteger(n) || n < 1) {
+        return res.status(400).json({ error: "samePersonAsId inválido" });
+      }
+      const [other] = await db.select().from(presidentsTable).where(eq(presidentsTable.id, n)).limit(1);
+      if (!other) return res.status(400).json({ error: "Presidente vinculado não encontrado" });
+      personKey = other.personKey ?? other.id;
+      if (other.personKey == null) {
+        await db
+          .update(presidentsTable)
+          .set({ personKey })
+          .where(eq(presidentsTable.id, other.id));
+      }
+    }
+
+    const isCurrent = !!body.isCurrent;
     const [created] = await db
       .insert(presidentsTable)
       .values({
         name: body.name.trim(),
         photoUrl: parseOptionalUrl(body.photoUrl),
         termStart: parseOptionalYmd(body.termStart),
-        termEnd: parseOptionalYmd(body.termEnd),
+        termEnd: isCurrent ? null : parseOptionalYmd(body.termEnd),
+        isCurrent,
+        personKey,
         notes: body.notes?.trim() || null,
         linkedPlayerId,
         linkedManagerId,
@@ -6520,6 +6542,8 @@ router.put("/admin/presidents/:id", requireAdmin, async (req, res) => {
       photoUrl?: string | null;
       termStart?: string | null;
       termEnd?: string | null;
+      isCurrent?: boolean;
+      samePersonAsId?: number | null;
       notes?: string | null;
       linkedPlayerId?: number | null;
       linkedManagerId?: number | null;
@@ -6531,8 +6555,39 @@ router.put("/admin/presidents/:id", requireAdmin, async (req, res) => {
     }
     if (body.photoUrl !== undefined) values.photoUrl = parseOptionalUrl(body.photoUrl);
     if (body.termStart !== undefined) values.termStart = parseOptionalYmd(body.termStart);
-    if (body.termEnd !== undefined) values.termEnd = parseOptionalYmd(body.termEnd);
+    if (body.isCurrent !== undefined) values.isCurrent = !!body.isCurrent;
+    if (body.termEnd !== undefined || body.isCurrent !== undefined) {
+      const isCurrent =
+        body.isCurrent !== undefined ? !!body.isCurrent : !!current.isCurrent;
+      values.isCurrent = isCurrent;
+      values.termEnd = isCurrent ? null : parseOptionalYmd(body.termEnd);
+    }
     if (body.notes !== undefined) values.notes = body.notes?.trim() || null;
+
+    if (Object.prototype.hasOwnProperty.call(body, "samePersonAsId")) {
+      const raw = body.samePersonAsId;
+      if (raw == null || raw === ("" as unknown)) {
+        values.personKey = null;
+      } else {
+        const n = Number(raw);
+        if (!Number.isInteger(n) || n < 1) {
+          return res.status(400).json({ error: "samePersonAsId inválido" });
+        }
+        if (n === id) {
+          return res.status(400).json({ error: "Não é possível vincular o mandato a si mesmo" });
+        }
+        const [other] = await db.select().from(presidentsTable).where(eq(presidentsTable.id, n)).limit(1);
+        if (!other) return res.status(400).json({ error: "Presidente vinculado não encontrado" });
+        const personKey = other.personKey ?? other.id;
+        values.personKey = personKey;
+        if (other.personKey == null) {
+          await db
+            .update(presidentsTable)
+            .set({ personKey })
+            .where(eq(presidentsTable.id, other.id));
+        }
+      }
+    }
 
     if (Object.prototype.hasOwnProperty.call(body, "linkedPlayerId")) {
       const raw = body.linkedPlayerId;

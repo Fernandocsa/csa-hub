@@ -4,7 +4,7 @@ import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
-import { formatDateBr } from "@/lib/utils";
+import { presidentTermLabel } from "@/lib/president-term";
 
 export type AdminPresident = {
   id: number;
@@ -12,15 +12,15 @@ export type AdminPresident = {
   photoUrl: string | null;
   termStart: string | null;
   termEnd: string | null;
+  isCurrent?: boolean;
+  personKey?: number | null;
   notes: string | null;
   linkedPlayerId?: number | null;
   linkedManagerId?: number | null;
 };
 
 function termShort(p: AdminPresident) {
-  const a = p.termStart ? p.termStart.slice(0, 4) : "?";
-  const b = p.termEnd ? p.termEnd.slice(0, 4) : "atual";
-  return `${a}–${b}`;
+  return presidentTermLabel(p.termStart, p.termEnd, !!p.isCurrent);
 }
 
 export default function AdminPresidents() {
@@ -108,9 +108,7 @@ export default function AdminPresidents() {
                     </Link>
                   </td>
                   <td className="px-4 py-2 text-gray-600">
-                    {p.termStart ? formatDateBr(p.termStart) : "—"}
-                    {" → "}
-                    {p.termEnd ? formatDateBr(p.termEnd) : "atual"}
+                    {presidentTermLabel(p.termStart, p.termEnd, !!p.isCurrent)}
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex justify-end">
