@@ -95,7 +95,9 @@ function PlayerProfileForm({
   );
   const [birthCity, setBirthCity] = useState(initial?.birthCity ?? "");
   const [birthState, setBirthState] = useState(initial?.birthState ?? "");
-  const [birthCountry, setBirthCountry] = useState(initial?.birthCountry ?? "");
+  const [birthCountry, setBirthCountry] = useState(
+    initial?.birthCountry ?? (isNew ? "Brasil" : ""),
+  );
   const [preferredFoot, setPreferredFoot] = useState(initial?.preferredFoot ?? "");
   const [heightCm, setHeightCm] = useState(
     initial?.heightCm != null ? String(initial.heightCm) : "",
@@ -126,7 +128,7 @@ function PlayerProfileForm({
     setBirthMode(initial?.birthDate ? "exact" : initial?.birthYear != null ? "year" : "exact");
     setBirthCity(initial?.birthCity ?? "");
     setBirthState(initial?.birthState ?? "");
-    setBirthCountry(initial?.birthCountry ?? "");
+    setBirthCountry(initial?.birthCountry ?? (isNew ? "Brasil" : ""));
     setPreferredFoot(initial?.preferredFoot ?? "");
     setHeightCm(initial?.heightCm != null ? String(initial.heightCm) : "");
     setWeightKg(initial?.weightKg != null ? String(initial.weightKg) : "");
