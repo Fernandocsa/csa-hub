@@ -3,7 +3,7 @@ import { Link, useLocation, useParams } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronLeft, Trash2 } from "lucide-react";
+import { ChevronLeft, Pencil, Trash2, X } from "lucide-react";
 import { PlayerFlag } from "@/components/PlayerFlag";
 import {
   compareByPositionGroupThenName,
@@ -287,6 +287,12 @@ export default function AdminMatchSheet() {
   const [sheetCards, setSheetCards] = useState<SheetCard[]>([]);
   const [sheetManagerCards, setSheetManagerCards] = useState<SheetManagerCard[]>([]);
   const [captainPlayerId, setCaptainPlayerId] = useState<number | null>(null);
+  const [editingGoalId, setEditingGoalId] = useState<number | null>(null);
+  const [editGoalMinute, setEditGoalMinute] = useState("");
+  const [editGoalInjury, setEditGoalInjury] = useState("");
+  const [editGoalPenalty, setEditGoalPenalty] = useState(false);
+  const [editGoalFreeKick, setEditGoalFreeKick] = useState(false);
+  const [savingGoalEdit, setSavingGoalEdit] = useState(false);
 
   // Substituições
   const [subRows, setSubRows] = useState<SubRow[]>(() =>
@@ -834,10 +840,53 @@ export default function AdminMatchSheet() {
     const r = await adminFetch(`/admin/matches/${matchId}/sheet/goals/${id}`, { method: "DELETE" });
     if (r.ok) {
       applySheetEvents((await r.json()) as SheetResponse);
+      if (editingGoalId === id) setEditingGoalId(null);
     } else {
       const err = await r.json().catch(() => ({}));
       setError((err as { error?: string }).error ?? "Erro ao excluir gol");
     }
+  }
+
+  function startEditGoal(g: SheetGoal) {
+    setEditingGoalId(g.id);
+    setEditGoalMinute(eventMinuteToFormValue(g.minute));
+    setEditGoalInjury(
+      g.injuryTimeMinute != null && g.injuryTimeMinute > 0
+        ? String(g.injuryTimeMinute)
+        : "",
+    );
+    setEditGoalPenalty(!!g.isPenalty);
+    setEditGoalFreeKick(!!g.isFreeKick);
+    setError("");
+    setSavedMsg("");
+  }
+
+  async function saveGoalEdit(goalId: number) {
+    if (matchId == null) return;
+    setSavingGoalEdit(true);
+    setError("");
+    setSavedMsg("");
+    try {
+      const r = await adminFetch(`/admin/matches/${matchId}/sheet/goals/${goalId}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          minute: editGoalMinute,
+          injuryTimeMinute: editGoalInjury.trim() === "" ? null : editGoalInjury,
+          isPenalty: editGoalPenalty,
+          isFreeKick: editGoalFreeKick && !editGoalPenalty,
+        }),
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error((err as { error?: string }).error ?? "Erro ao editar gol");
+      }
+      applySheetEvents((await r.json()) as SheetResponse);
+      setEditingGoalId(null);
+      setSavedMsg("Gol atualizado.");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Erro ao editar gol");
+    }
+    setSavingGoalEdit(false);
   }
 
   async function deleteCard(id: number) {
@@ -1651,32 +1700,127 @@ export default function AdminMatchSheet() {
               </h3>
               <ul className="divide-y border rounded">
                 {sheetGoals.map((g) => (
-                  <li key={g.id} className="flex items-center justify-between gap-2 px-3 py-2 text-sm">
-                    <span>
-                      {formatSavedMinute(g.minute, g.injuryTimeMinute)}{" "}
-                      {g.isOwnGoal ? "Gol contra" : (g.scorerName ?? "—")}
-                      {g.isPenalty && (
-                        <span className="ml-1 text-[10px] uppercase text-gray-400">(Pênalti)</span>
-                      )}
-                      {g.isFreeKick && (
-                        <span className="ml-1 text-[10px] uppercase text-gray-400">(Falta)</span>
-                      )}
-                      {g.isOwnGoal && (
-                        <span className="ml-1 text-[10px] uppercase text-gray-400">
-                          ({g.ownGoalDirection === "for" ? "a favor" : "contra"})
+                  <li key={g.id} className="px-3 py-2 text-sm">
+                    {editingGoalId === g.id ? (
+                      <div className="space-y-2">
+                        <p className="font-medium">
+                          {g.isOwnGoal ? "Gol contra" : (g.scorerName ?? "—")}
+                          {g.assistName ? (
+                            <span className="ml-1 text-xs text-gray-400 font-normal">
+                              assist.: {g.assistName}
+                            </span>
+                          ) : null}
+                        </p>
+                        <div className="flex flex-wrap items-end gap-3">
+                          <div>
+                            <label className="text-[10px] uppercase text-gray-400 block mb-0.5">
+                              Min
+                            </label>
+                            <Input
+                              className="h-8 w-20"
+                              value={editGoalMinute}
+                              onChange={(e) => setEditGoalMinute(e.target.value)}
+                              placeholder="n/d"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] uppercase text-gray-400 block mb-0.5">
+                              Acrésc.
+                            </label>
+                            <Input
+                              className="h-8 w-20"
+                              value={editGoalInjury}
+                              onChange={(e) => setEditGoalInjury(e.target.value)}
+                              placeholder="—"
+                            />
+                          </div>
+                          {!g.isOwnGoal && (
+                            <>
+                              <label className="inline-flex items-center gap-1.5 text-xs text-gray-700 pb-1.5">
+                                <input
+                                  type="checkbox"
+                                  checked={editGoalPenalty}
+                                  onChange={(e) => {
+                                    setEditGoalPenalty(e.target.checked);
+                                    if (e.target.checked) setEditGoalFreeKick(false);
+                                  }}
+                                />
+                                Pênalti
+                              </label>
+                              <label className="inline-flex items-center gap-1.5 text-xs text-gray-700 pb-1.5">
+                                <input
+                                  type="checkbox"
+                                  checked={editGoalFreeKick}
+                                  onChange={(e) => {
+                                    setEditGoalFreeKick(e.target.checked);
+                                    if (e.target.checked) setEditGoalPenalty(false);
+                                  }}
+                                />
+                                Falta
+                              </label>
+                            </>
+                          )}
+                          <div className="flex gap-1.5 pb-0.5">
+                            <Button
+                              type="button"
+                              size="sm"
+                              className="h-8 bg-[#1B3A6B]"
+                              disabled={savingGoalEdit}
+                              onClick={() => saveGoalEdit(g.id)}
+                            >
+                              {savingGoalEdit ? "…" : "Salvar"}
+                            </Button>
+                            <button
+                              type="button"
+                              className="p-1.5 text-gray-400 hover:text-gray-700"
+                              onClick={() => setEditingGoalId(null)}
+                              title="Cancelar"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between gap-2">
+                        <span>
+                          {formatSavedMinute(g.minute, g.injuryTimeMinute)}{" "}
+                          {g.isOwnGoal ? "Gol contra" : (g.scorerName ?? "—")}
+                          {g.isPenalty && (
+                            <span className="ml-1 text-[10px] uppercase text-gray-400">(Pênalti)</span>
+                          )}
+                          {g.isFreeKick && (
+                            <span className="ml-1 text-[10px] uppercase text-gray-400">(Falta)</span>
+                          )}
+                          {g.isOwnGoal && (
+                            <span className="ml-1 text-[10px] uppercase text-gray-400">
+                              ({g.ownGoalDirection === "for" ? "a favor" : "contra"})
+                            </span>
+                          )}
+                          {g.assistName && (
+                            <span className="ml-1 text-xs text-gray-400">assist.: {g.assistName}</span>
+                          )}
                         </span>
-                      )}
-                      {g.assistName && (
-                        <span className="ml-1 text-xs text-gray-400">assist.: {g.assistName}</span>
-                      )}
-                    </span>
-                    <button
-                      type="button"
-                      className="p-1 text-gray-400 hover:text-red-600 shrink-0"
-                      onClick={() => deleteGoal(g.id)}
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                        <div className="flex items-center gap-0.5 shrink-0">
+                          <button
+                            type="button"
+                            className="p-1 text-gray-400 hover:text-[#1B3A6B]"
+                            onClick={() => startEditGoal(g)}
+                            title="Editar"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="p-1 text-gray-400 hover:text-red-600"
+                            onClick={() => deleteGoal(g.id)}
+                            title="Excluir"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </li>
                 ))}
                 {sheetGoals.length === 0 && (

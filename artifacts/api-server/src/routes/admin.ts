@@ -34,7 +34,7 @@ import {
   replaceDailyPlayer,
 } from "../lib/guess-player";
 import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray, ne, isNull } from "drizzle-orm";
-import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard } from "../lib/match-sheet";
+import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard, updateMatchGoal } from "../lib/match-sheet";
 import { syncRelatedMatchLink, parsePenaltyShootoutFields } from "../lib/match-links";
 import {
   buildAndWriteCsaSheet,
@@ -1659,6 +1659,26 @@ router.delete("/admin/matches/:id/sheet/goals/:goalId", requireAdmin, async (req
     res.json(await deleteMatchGoal(id, goalId));
   } catch (err: any) {
     if (err?.status === 404) return res.status(404).json({ error: err.message });
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put("/admin/matches/:id/sheet/goals/:goalId", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const goalId = parseInt(req.params.goalId);
+    if (isNaN(id) || isNaN(goalId)) return res.status(400).json({ error: "ID inválido" });
+    const body = req.body as {
+      minute?: unknown;
+      injuryTimeMinute?: unknown;
+      isPenalty?: boolean;
+      isFreeKick?: boolean;
+    };
+    res.json(await updateMatchGoal(id, goalId, body));
+  } catch (err: any) {
+    if (err?.status === 404) return res.status(404).json({ error: err.message });
+    if (err?.status === 400) return res.status(400).json({ error: err.message });
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
   }

@@ -234,17 +234,32 @@ export async function loadMatchSheet(matchId: number) {
       db
         .select()
         .from(matchGoalsTable)
-        .where(eq(matchGoalsTable.matchId, matchId))
+        .where(
+          and(
+            eq(matchGoalsTable.matchId, matchId),
+            eq(matchGoalsTable.side, "csa"),
+          ),
+        )
         .orderBy(asc(matchGoalsTable.minute), asc(matchGoalsTable.id)),
       db
         .select()
         .from(matchCardsTable)
-        .where(eq(matchCardsTable.matchId, matchId))
+        .where(
+          and(
+            eq(matchCardsTable.matchId, matchId),
+            eq(matchCardsTable.side, "csa"),
+          ),
+        )
         .orderBy(asc(matchCardsTable.minute), asc(matchCardsTable.id)),
       db
         .select()
         .from(matchSubstitutionsTable)
-        .where(eq(matchSubstitutionsTable.matchId, matchId))
+        .where(
+          and(
+            eq(matchSubstitutionsTable.matchId, matchId),
+            eq(matchSubstitutionsTable.side, "csa"),
+          ),
+        )
         .orderBy(
           asc(matchSubstitutionsTable.minute),
           asc(matchSubstitutionsTable.id),
@@ -719,6 +734,74 @@ export async function deleteMatchGoal(matchId: number, goalId: number) {
     throw Object.assign(new Error("Gol não encontrado"), { status: 404 });
   }
   await syncOwnGoalsForCount(matchId);
+  return loadMatchSheet(matchId);
+}
+
+/** Patch CSA goal flags / minute without deleting and recreating. */
+export async function updateMatchGoal(
+  matchId: number,
+  goalId: number,
+  patch: {
+    minute?: unknown;
+    injuryTimeMinute?: unknown;
+    isPenalty?: boolean;
+    isFreeKick?: boolean;
+  },
+) {
+  const [existing] = await db
+    .select()
+    .from(matchGoalsTable)
+    .where(
+      and(eq(matchGoalsTable.id, goalId), eq(matchGoalsTable.matchId, matchId)),
+    )
+    .limit(1);
+  if (!existing) {
+    throw Object.assign(new Error("Gol não encontrado"), { status: 404 });
+  }
+
+  const values: Partial<typeof matchGoalsTable.$inferInsert> = {};
+
+  if (patch.minute !== undefined) {
+    values.minute = normalizeEventMinute(patch.minute);
+  }
+
+  if (patch.injuryTimeMinute !== undefined) {
+    const raw = patch.injuryTimeMinute;
+    if (raw == null || raw === "") {
+      values.injuryTimeMinute = null;
+    } else {
+      const n = typeof raw === "number" ? raw : Number(String(raw).trim());
+      values.injuryTimeMinute =
+        Number.isFinite(n) && !Number.isNaN(n) ? Math.trunc(n) : null;
+    }
+  }
+
+  if (patch.isPenalty !== undefined || patch.isFreeKick !== undefined) {
+    if (existing.isOwnGoal) {
+      values.isPenalty = false;
+      values.isFreeKick = false;
+    } else {
+      const isPenalty =
+        patch.isPenalty !== undefined ? Boolean(patch.isPenalty) : existing.isPenalty;
+      let isFreeKick =
+        patch.isFreeKick !== undefined ? Boolean(patch.isFreeKick) : existing.isFreeKick;
+      if (isPenalty) isFreeKick = false;
+      values.isPenalty = isPenalty;
+      values.isFreeKick = isFreeKick;
+    }
+  }
+
+  if (Object.keys(values).length === 0) {
+    return loadMatchSheet(matchId);
+  }
+
+  await db
+    .update(matchGoalsTable)
+    .set(values)
+    .where(
+      and(eq(matchGoalsTable.id, goalId), eq(matchGoalsTable.matchId, matchId)),
+    );
+
   return loadMatchSheet(matchId);
 }
 
