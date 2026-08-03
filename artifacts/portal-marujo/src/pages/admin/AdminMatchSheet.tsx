@@ -995,6 +995,22 @@ export default function AdminMatchSheet() {
         { id: "subs", label: "Substituições" },
       ];
 
+  const isHome = match?.homeAway === "home";
+  const opponentLogo =
+    match?.opponentLogoUrl ??
+    lookup.opponents.find((o) => o.id === match?.opponentId)?.logoUrl ??
+    null;
+  const titleLeftGoals = match
+    ? isHome
+      ? match.goalsFor
+      : match.goalsAgainst
+    : null;
+  const titleRightGoals = match
+    ? isHome
+      ? match.goalsAgainst
+      : match.goalsFor
+    : null;
+
   return (
     <div className="space-y-4 pb-10">
       <div>
@@ -1005,42 +1021,65 @@ export default function AdminMatchSheet() {
           <ChevronLeft size={13} /> Partidas
         </Link>
         <h1 className="text-xl font-bold text-gray-900">
-          {isNew ? (
+          {isNew || !match ? (
             "Nova partida"
           ) : (
             <span className="inline-flex items-center gap-2 flex-wrap">
-              <span className="inline-flex items-center gap-1.5">
-                <CsaCrest size="md" />
-                <span>CSA</span>
-              </span>
+              {isHome ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <CsaCrest size="md" />
+                  <span>CSA</span>
+                </span>
+              ) : (
+                <Link
+                  href={withAdminFrom(
+                    `/admin/adversarios/${match.opponentId}`,
+                    `/admin/partidas/${match.id}`,
+                  )}
+                  className="inline-flex items-center gap-1.5 hover:text-[#1B3A6B] hover:underline underline-offset-2"
+                  title="Editar adversário"
+                >
+                  <OpponentCrest
+                    url={opponentLogo}
+                    name={match.opponentName}
+                    size="md"
+                    fallback
+                  />
+                  <span>{match.opponentName}</span>
+                </Link>
+              )}
               <a
-                href={`/partidas/${match!.id}`}
+                href={`/partidas/${match.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="tabular-nums text-[#1B3A6B] hover:underline underline-offset-2"
                 title="Abrir página pública da partida"
               >
-                {match!.goalsFor ?? "–"}–{match!.goalsAgainst ?? "–"}
+                {titleLeftGoals ?? "–"}–{titleRightGoals ?? "–"}
               </a>
-              <Link
-                href={withAdminFrom(
-                  `/admin/adversarios/${match!.opponentId}`,
-                  `/admin/partidas/${match!.id}`,
-                )}
-                className="inline-flex items-center gap-1.5 hover:text-[#1B3A6B] hover:underline underline-offset-2"
-                title="Editar adversário"
-              >
-                <OpponentCrest
-                  url={
-                    match!.opponentLogoUrl ??
-                    lookup?.opponents.find((o) => o.id === match!.opponentId)?.logoUrl
-                  }
-                  name={match!.opponentName}
-                  size="md"
-                  fallback
-                />
-                <span>{match!.opponentName}</span>
-              </Link>
+              {isHome ? (
+                <Link
+                  href={withAdminFrom(
+                    `/admin/adversarios/${match.opponentId}`,
+                    `/admin/partidas/${match.id}`,
+                  )}
+                  className="inline-flex items-center gap-1.5 hover:text-[#1B3A6B] hover:underline underline-offset-2"
+                  title="Editar adversário"
+                >
+                  <span>{match.opponentName}</span>
+                  <OpponentCrest
+                    url={opponentLogo}
+                    name={match.opponentName}
+                    size="md"
+                    fallback
+                  />
+                </Link>
+              ) : (
+                <span className="inline-flex items-center gap-1.5">
+                  <span>CSA</span>
+                  <CsaCrest size="md" />
+                </span>
+              )}
             </span>
           )}
         </h1>
