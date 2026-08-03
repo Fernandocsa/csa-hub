@@ -287,27 +287,35 @@ function TeamName({
   isCsa,
   opponentId,
   logoUrl,
+  crestAfter = false,
 }: {
   name: string;
   isCsa: boolean;
   opponentId: number;
   logoUrl?: string | null;
+  /** When true, crest sits after the name (right/visitor side). */
+  crestAfter?: boolean;
 }) {
-  if (isCsa) {
-    return (
-      <span className="inline-flex items-center gap-2">
-        <CsaCrest size="md" />
-        {name}
-      </span>
-    );
-  }
+  const crest = isCsa ? (
+    <CsaCrest size="md" />
+  ) : (
+    <OpponentCrest url={logoUrl} name={name} size="md" />
+  );
+  const label = <span>{name}</span>;
+  const inner = (
+    <span className="inline-flex items-center gap-2">
+      {!crestAfter && crest}
+      {label}
+      {crestAfter && crest}
+    </span>
+  );
+  if (isCsa) return inner;
   return (
     <Link
       href={`/adversarios/${opponentId}`}
       className="inline-flex items-center gap-2 hover:text-primary hover:underline"
     >
-      {name}
-      <OpponentCrest url={logoUrl} name={name} size="md" />
+      {inner}
     </Link>
   );
 }
@@ -447,6 +455,7 @@ export default function MatchDetail() {
               isCsa={leftIsCsa}
               opponentId={match.opponentId}
               logoUrl={match.opponentLogoUrl}
+              crestAfter={false}
             />{" "}
             <span className="font-mono tabular-nums mx-1">
               {scoreLeft}
@@ -458,6 +467,7 @@ export default function MatchDetail() {
               isCsa={rightIsCsa}
               opponentId={match.opponentId}
               logoUrl={match.opponentLogoUrl}
+              crestAfter
             />
           </h1>
           <ShareButton
