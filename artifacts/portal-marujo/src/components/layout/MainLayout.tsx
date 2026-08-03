@@ -16,10 +16,13 @@ import {
   Menu,
   X,
   BookOpen,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GlobalSearch } from "@/components/GlobalSearch";
 import { SiteFooter } from "@/components/SiteFooter";
+import { useSiteTheme } from "@/hooks/useSiteTheme";
 
 type NavItem =
   | { name: string; href: string; icon: React.ElementType }
@@ -193,7 +196,15 @@ function NavLinks({ location, onClick }: { location: string; onClick?: () => voi
   );
 }
 
-function SidebarContent({ location, onClose }: { location: string; onClose?: () => void }) {
+function SidebarContent({
+  location,
+  onClose,
+  themeToggle,
+}: {
+  location: string;
+  onClose?: () => void;
+  themeToggle?: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between px-3 h-16 border-b border-sidebar-border flex-shrink-0">
@@ -214,6 +225,11 @@ function SidebarContent({ location, onClose }: { location: string; onClose?: () 
       <div className="flex-1 overflow-y-auto py-3">
         <NavLinks location={location} onClick={onClose} />
       </div>
+      {themeToggle && (
+        <div className="flex-shrink-0 border-t border-sidebar-border p-3">
+          {themeToggle}
+        </div>
+      )}
     </div>
   );
 }
@@ -222,11 +238,25 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const isHome = location === "/";
+  const { isDark, toggleTheme } = useSiteTheme();
+
+  const themeToggle = (
+    <button
+      type="button"
+      onClick={toggleTheme}
+      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+      title={isDark ? "Usar tema claro" : "Usar tema escuro"}
+      data-testid="button-theme-toggle"
+    >
+      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      {isDark ? "Tema claro" : "Tema escuro"}
+    </button>
+  );
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className={cn("min-h-screen bg-background flex", isDark && "dark")}>
       <aside className="hidden lg:flex lg:flex-col lg:w-56 lg:fixed lg:inset-y-0 bg-sidebar border-r border-sidebar-border z-30">
-        <SidebarContent location={location} />
+        <SidebarContent location={location} themeToggle={themeToggle} />
       </aside>
 
       {mobileOpen && (
@@ -236,17 +266,21 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             onClick={() => setMobileOpen(false)}
           />
           <aside className="relative z-50 flex flex-col w-64 h-full bg-sidebar border-r border-sidebar-border">
-            <SidebarContent location={location} onClose={() => setMobileOpen(false)} />
+            <SidebarContent
+              location={location}
+              onClose={() => setMobileOpen(false)}
+              themeToggle={themeToggle}
+            />
           </aside>
         </div>
       )}
 
       <div className="flex flex-col flex-1 lg:pl-56 min-w-0">
         <header className="sticky top-0 z-20 flex flex-col bg-sidebar border-b border-sidebar-border lg:hidden">
-          <div className="h-12 flex items-center px-4">
+          <div className="h-12 flex items-center px-4 gap-2">
             <button
               onClick={() => setMobileOpen(true)}
-              className="text-sidebar-foreground/70 hover:text-sidebar-foreground mr-3"
+              className="text-sidebar-foreground/70 hover:text-sidebar-foreground mr-1"
               data-testid="button-mobile-menu"
             >
               <Menu className="h-5 w-5" />
@@ -256,6 +290,15 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
               alt="Portal Marujo"
               className="h-9 w-auto"
             />
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="ml-auto text-sidebar-foreground/70 hover:text-sidebar-foreground p-1.5"
+              title={isDark ? "Tema claro" : "Tema escuro"}
+              data-testid="button-theme-toggle-mobile"
+            >
+              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
           </div>
           {!isHome && (
             <div className="px-3 pb-2.5">

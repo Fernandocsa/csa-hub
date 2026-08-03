@@ -30,7 +30,7 @@ import {
   Moon,
   Sun,
 } from "lucide-react";
-import { useAdminTheme } from "@/hooks/useAdminTheme";
+import { useAdminTheme } from "@/hooks/useSiteTheme";
 import "./admin-theme.css";
 
 interface Props {
