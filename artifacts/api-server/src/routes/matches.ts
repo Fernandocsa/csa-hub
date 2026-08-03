@@ -526,6 +526,7 @@ router.get("/matches/:id", async (req, res) => {
       goals: sheet.goals,
       cards: sheet.cards,
       substitutions: sheet.substitutions,
+      penaltyEvents: sheet.penaltyEvents ?? [],
     });
   } catch (err) {
     req.log.error(err);

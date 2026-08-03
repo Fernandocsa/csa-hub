@@ -63,6 +63,18 @@ export interface MatchSubstitutionRow {
   injuryTimeMinute: number | null;
 }
 
+/** Missed / saved penalties — never count as goals. */
+export interface MatchPenaltyEventRow {
+  id: number;
+  matchId: number;
+  side: string;
+  eventType: "missed" | "saved" | string;
+  playerId: number | null;
+  playerName: string;
+  minute: number;
+  injuryTimeMinute: number | null;
+}
+
 export interface MatchDetailSheet {
   id: number;
   date: string;
@@ -133,6 +145,8 @@ export interface MatchDetailSheet {
   goals: MatchGoalRow[];
   cards: MatchCardRow[];
   substitutions: MatchSubstitutionRow[];
+  /** Missed/saved penalties — separate from goals. */
+  penaltyEvents?: MatchPenaltyEventRow[];
 }
 
 export const getMatchDetail = (id: number) =>

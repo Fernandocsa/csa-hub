@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import {
   matchGoalsTable,
   matchLineupsTable,
+  matchPenaltyEventsTable,
   matchesTable,
 } from "@workspace/db";
 import { officialPlayedMatchConditions } from "./match-filters";
@@ -13,6 +14,10 @@ export type PlayerSeasonFloor = {
   appearances: number;
   goals: number;
   assists: number;
+  /** Missed penalties as taker — never counted as goals. */
+  penaltiesMissed: number;
+  /** Saved penalties as goalkeeper — never counted as goals. */
+  penaltiesSaved: number;
   /** @deprecated Always 0 — manual floors removed; kept for API shape. */
   manualAppearances: number;
   /** @deprecated Always 0 */
@@ -76,25 +81,76 @@ export async function linkedPlayerSeasonStats(playerId: number) {
     )
     .groupBy(matchesTable.season);
 
-  const map = new Map<
-    string,
-    { appearances: number; goals: number; assists: number }
-  >();
+  const penaltiesMissed = await db
+    .select({
+      season: matchesTable.season,
+      count: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchPenaltyEventsTable)
+    .innerJoin(matchesTable, eq(matchPenaltyEventsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        eq(matchPenaltyEventsTable.playerId, playerId),
+        eq(matchPenaltyEventsTable.side, "csa"),
+        eq(matchPenaltyEventsTable.eventType, "missed"),
+        officialPlayedMatchConditions(),
+      ),
+    )
+    .groupBy(matchesTable.season);
+
+  const penaltiesSaved = await db
+    .select({
+      season: matchesTable.season,
+      count: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchPenaltyEventsTable)
+    .innerJoin(matchesTable, eq(matchPenaltyEventsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        eq(matchPenaltyEventsTable.playerId, playerId),
+        eq(matchPenaltyEventsTable.side, "csa"),
+        eq(matchPenaltyEventsTable.eventType, "saved"),
+        officialPlayedMatchConditions(),
+      ),
+    )
+    .groupBy(matchesTable.season);
+
+  type SeasonAgg = {
+    appearances: number;
+    goals: number;
+    assists: number;
+    penaltiesMissed: number;
+    penaltiesSaved: number;
+  };
+  const empty = (): SeasonAgg => ({
+    appearances: 0,
+    goals: 0,
+    assists: 0,
+    penaltiesMissed: 0,
+    penaltiesSaved: 0,
+  });
+  const map = new Map<string, SeasonAgg>();
   for (const r of apps) {
-    map.set(r.season, {
-      appearances: r.appearances ?? 0,
-      goals: 0,
-      assists: 0,
-    });
+    map.set(r.season, { ...empty(), appearances: r.appearances ?? 0 });
   }
   for (const r of goals) {
-    const cur = map.get(r.season) ?? { appearances: 0, goals: 0, assists: 0 };
+    const cur = map.get(r.season) ?? empty();
     cur.goals = r.goals ?? 0;
     map.set(r.season, cur);
   }
   for (const r of assists) {
-    const cur = map.get(r.season) ?? { appearances: 0, goals: 0, assists: 0 };
+    const cur = map.get(r.season) ?? empty();
     cur.assists = r.assists ?? 0;
+    map.set(r.season, cur);
+  }
+  for (const r of penaltiesMissed) {
+    const cur = map.get(r.season) ?? empty();
+    cur.penaltiesMissed = r.count ?? 0;
+    map.set(r.season, cur);
+  }
+  for (const r of penaltiesSaved) {
+    const cur = map.get(r.season) ?? empty();
+    cur.penaltiesSaved = r.count ?? 0;
     map.set(r.season, cur);
   }
   return map;
@@ -122,6 +178,8 @@ export async function flooredPlayerSeasonStats(
       appearances: link.appearances,
       goals: link.goals,
       assists: link.assists,
+      penaltiesMissed: link.penaltiesMissed,
+      penaltiesSaved: link.penaltiesSaved,
     }));
 }
 
@@ -131,8 +189,10 @@ export function sumFlooredSeasons(rows: PlayerSeasonFloor[]) {
       appearances: acc.appearances + r.appearances,
       goals: acc.goals + r.goals,
       assists: acc.assists + r.assists,
+      penaltiesMissed: acc.penaltiesMissed + r.penaltiesMissed,
+      penaltiesSaved: acc.penaltiesSaved + r.penaltiesSaved,
     }),
-    { appearances: 0, goals: 0, assists: 0 },
+    { appearances: 0, goals: 0, assists: 0, penaltiesMissed: 0, penaltiesSaved: 0 },
   );
 }
 

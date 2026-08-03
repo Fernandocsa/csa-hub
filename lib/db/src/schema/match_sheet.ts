@@ -116,6 +116,24 @@ export const matchManagerCardsTable = pgTable("match_manager_cards", {
   injuryTimeMinute: integer("injury_time_minute"),
 });
 
+/**
+ * Missed / saved penalties — NOT goals.
+ * Must never feed scorer, goals-against, or W/D/L aggregates.
+ */
+export const matchPenaltyEventsTable = pgTable("match_penalty_events", {
+  id: serial("id").primaryKey(),
+  matchId: integer("match_id")
+    .notNull()
+    .references(() => matchesTable.id, { onDelete: "cascade" }),
+  side: text("side").notNull().default("csa"), // csa | opponent
+  /** missed = A (bater); saved = C (goleiro defendeu) */
+  eventType: text("event_type").notNull(), // missed | saved
+  playerId: integer("player_id").references(() => playersTable.id),
+  playerName: text("player_name").notNull(),
+  minute: integer("minute").notNull(),
+  injuryTimeMinute: integer("injury_time_minute"),
+});
+
 export const insertMatchLineupSchema = createInsertSchema(matchLineupsTable).omit({
   id: true,
 });
@@ -145,3 +163,9 @@ export const insertMatchManagerCardSchema = createInsertSchema(
 ).omit({ id: true });
 export type InsertMatchManagerCard = z.infer<typeof insertMatchManagerCardSchema>;
 export type MatchManagerCard = typeof matchManagerCardsTable.$inferSelect;
+
+export const insertMatchPenaltyEventSchema = createInsertSchema(
+  matchPenaltyEventsTable,
+).omit({ id: true });
+export type InsertMatchPenaltyEvent = z.infer<typeof insertMatchPenaltyEventSchema>;
+export type MatchPenaltyEvent = typeof matchPenaltyEventsTable.$inferSelect;

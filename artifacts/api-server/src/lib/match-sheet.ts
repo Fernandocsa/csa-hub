@@ -5,6 +5,7 @@ import {
   matchCardsTable,
   matchSubstitutionsTable,
   matchManagerCardsTable,
+  matchPenaltyEventsTable,
   matchesTable,
   playersTable,
 } from "@workspace/db";
@@ -62,6 +63,15 @@ export type ManagerCardInput = {
   cardType: "yellow" | "red" | string;
   minute?: number | null | string;
   injuryTimeMinute?: number | null;
+};
+
+export type PenaltyEventInput = {
+  eventType: "missed" | "saved" | string;
+  playerId?: number | null;
+  playerName?: string | null;
+  minute?: number | null | string;
+  injuryTimeMinute?: number | null;
+  side?: MatchSheetSide;
 };
 
 export type SubstitutionInput = {
@@ -148,6 +158,21 @@ export function serializeManagerCard(
   };
 }
 
+export function serializePenaltyEvent(
+  row: typeof matchPenaltyEventsTable.$inferSelect,
+) {
+  return {
+    id: row.id,
+    matchId: row.matchId,
+    side: row.side,
+    eventType: row.eventType as "missed" | "saved",
+    playerId: row.playerId,
+    playerName: row.playerName,
+    minute: row.minute,
+    injuryTimeMinute: row.injuryTimeMinute,
+  };
+}
+
 export function serializeSubstitution(
   row: typeof matchSubstitutionsTable.$inferSelect,
 ) {
@@ -217,8 +242,15 @@ export async function syncOwnGoalsForCount(matchId: number) {
 }
 
 export async function loadMatchSheet(matchId: number) {
-  const [lineupRows, goals, cards, substitutions, managerCards, matchRow] =
-    await Promise.all([
+  const [
+    lineupRows,
+    goals,
+    cards,
+    substitutions,
+    managerCards,
+    penaltyEvents,
+    matchRow,
+  ] = await Promise.all([
       db
         .select({
           lineup: matchLineupsTable,
@@ -273,6 +305,19 @@ export async function loadMatchSheet(matchId: number) {
           asc(matchManagerCardsTable.id),
         ),
       db
+        .select()
+        .from(matchPenaltyEventsTable)
+        .where(
+          and(
+            eq(matchPenaltyEventsTable.matchId, matchId),
+            eq(matchPenaltyEventsTable.side, "csa"),
+          ),
+        )
+        .orderBy(
+          asc(matchPenaltyEventsTable.minute),
+          asc(matchPenaltyEventsTable.id),
+        ),
+      db
         .select({
           captainPlayerId: matchesTable.captainPlayerId,
           managerId: matchesTable.managerId,
@@ -296,6 +341,7 @@ export async function loadMatchSheet(matchId: number) {
     cards: cards.map(serializeCard),
     substitutions: substitutions.map(serializeSubstitution),
     managerCards: managerCards.map(serializeManagerCard),
+    penaltyEvents: penaltyEvents.map(serializePenaltyEvent),
     captainPlayerId: matchRow[0]?.captainPlayerId ?? null,
     managerId: matchRow[0]?.managerId ?? null,
     ownGoalsForCount: matchRow[0]?.ownGoalsForCount ?? 0,
@@ -643,6 +689,7 @@ export async function appendCsaEvents(
     assists?: AssistInput[];
     cards?: CardInput[];
     managerCards?: ManagerCardInput[];
+    penaltyEvents?: PenaltyEventInput[];
     captainPlayerId?: number | null;
   },
 ) {
@@ -693,8 +740,6 @@ export async function appendCsaEvents(
         status: 400,
       });
     }
-    // Manager card rows are minute-driven in the form; empty = skip at client.
-    // Still accept 200 / empty as unavailable when sent.
     await db.insert(matchManagerCardsTable).values({
       matchId,
       cardType: mc.cardType,
@@ -703,6 +748,37 @@ export async function appendCsaEvents(
         mc.injuryTimeMinute == null || String(mc.injuryTimeMinute).trim() === ""
           ? null
           : Number(mc.injuryTimeMinute),
+    });
+  }
+
+  for (const pe of input.penaltyEvents ?? []) {
+    if (pe.eventType !== "missed" && pe.eventType !== "saved") {
+      throw Object.assign(
+        new Error("eventType de pênalti deve ser missed ou saved"),
+        { status: 400 },
+      );
+    }
+    const playerId = pe.playerId ?? null;
+    if (!playerId || !lineupIdByPlayer.has(playerId)) {
+      throw Object.assign(
+        new Error("Evento de pênalti precisa ser de jogador escalado na CSA"),
+        { status: 400 },
+      );
+    }
+    const playerName =
+      (await resolvePlayerName(playerId, pe.playerName)) ??
+      `Jogador #${playerId}`;
+    await db.insert(matchPenaltyEventsTable).values({
+      matchId,
+      side: "csa",
+      eventType: pe.eventType,
+      playerId,
+      playerName,
+      minute: normalizeEventMinute(pe.minute),
+      injuryTimeMinute:
+        pe.injuryTimeMinute == null || String(pe.injuryTimeMinute).trim() === ""
+          ? null
+          : Number(pe.injuryTimeMinute),
     });
   }
 
@@ -830,6 +906,24 @@ export async function deleteMatchManagerCard(matchId: number, cardId: number) {
     .returning({ id: matchManagerCardsTable.id });
   if (!deleted[0]) {
     throw Object.assign(new Error("Cartão do técnico não encontrado"), {
+      status: 404,
+    });
+  }
+  return loadMatchSheet(matchId);
+}
+
+export async function deleteMatchPenaltyEvent(matchId: number, eventId: number) {
+  const deleted = await db
+    .delete(matchPenaltyEventsTable)
+    .where(
+      and(
+        eq(matchPenaltyEventsTable.id, eventId),
+        eq(matchPenaltyEventsTable.matchId, matchId),
+      ),
+    )
+    .returning({ id: matchPenaltyEventsTable.id });
+  if (!deleted[0]) {
+    throw Object.assign(new Error("Evento de pênalti não encontrado"), {
       status: 404,
     });
   }

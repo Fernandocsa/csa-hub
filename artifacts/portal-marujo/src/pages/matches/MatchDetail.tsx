@@ -4,6 +4,7 @@ import {
   type MatchCardRow,
   type MatchGoalRow,
   type MatchLineupRow,
+  type MatchPenaltyEventRow,
   type MatchSubstitutionRow,
 } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -53,7 +54,15 @@ function EventMinute({
 }
 
 type PlayerEvent = {
-  kind: "goal" | "assist" | "yellow" | "red" | "sub_out" | "sub_in";
+  kind:
+    | "goal"
+    | "assist"
+    | "yellow"
+    | "red"
+    | "sub_out"
+    | "sub_in"
+    | "penalty_missed"
+    | "penalty_saved";
   minute: number;
   injuryTimeMinute: number | null;
   isPenalty?: boolean;
@@ -66,13 +75,15 @@ function eventsForPlayer(
   goals: MatchGoalRow[],
   cards: MatchCardRow[],
   substitutions: MatchSubstitutionRow[],
+  penaltyEvents: MatchPenaltyEventRow[],
 ): PlayerEvent[] {
   const events: PlayerEvent[] = [];
+  const matchesPlayer = (pid: number | null, pname: string | null | undefined) =>
+    (playerId != null && pid === playerId) ||
+    (!playerId && pname === playerName);
+
   for (const g of goals) {
-    if (
-      (playerId != null && g.scorerPlayerId === playerId) ||
-      (!playerId && g.scorerName === playerName)
-    ) {
+    if (matchesPlayer(g.scorerPlayerId, g.scorerName)) {
       events.push({
         kind: "goal",
         minute: g.minute,
@@ -83,8 +94,7 @@ function eventsForPlayer(
     }
     if (
       g.assistPlayerId != null &&
-      ((playerId != null && g.assistPlayerId === playerId) ||
-        (!playerId && g.assistName === playerName))
+      matchesPlayer(g.assistPlayerId, g.assistName)
     ) {
       events.push({
         kind: "assist",
@@ -94,10 +104,7 @@ function eventsForPlayer(
     }
   }
   for (const c of cards) {
-    if (
-      (playerId != null && c.playerId === playerId) ||
-      (!playerId && c.playerName === playerName)
-    ) {
+    if (matchesPlayer(c.playerId, c.playerName)) {
       events.push({
         kind: c.cardType === "red" ? "red" : "yellow",
         minute: c.minute,
@@ -106,24 +113,27 @@ function eventsForPlayer(
     }
   }
   for (const s of substitutions) {
-    if (
-      (playerId != null && s.playerOutId === playerId) ||
-      (!playerId && s.playerOutName === playerName)
-    ) {
+    if (matchesPlayer(s.playerOutId, s.playerOutName)) {
       events.push({
         kind: "sub_out",
         minute: s.minute,
         injuryTimeMinute: s.injuryTimeMinute,
       });
     }
-    if (
-      (playerId != null && s.playerInId === playerId) ||
-      (!playerId && s.playerInName === playerName)
-    ) {
+    if (matchesPlayer(s.playerInId, s.playerInName)) {
       events.push({
         kind: "sub_in",
         minute: s.minute,
         injuryTimeMinute: s.injuryTimeMinute,
+      });
+    }
+  }
+  for (const pe of penaltyEvents) {
+    if (matchesPlayer(pe.playerId, pe.playerName)) {
+      events.push({
+        kind: pe.eventType === "saved" ? "penalty_saved" : "penalty_missed",
+        minute: pe.minute,
+        injuryTimeMinute: pe.injuryTimeMinute,
       });
     }
   }
@@ -152,6 +162,10 @@ function eventTitle(e: PlayerEvent) {
       return "Saiu";
     case "sub_in":
       return "Entrou";
+    case "penalty_missed":
+      return "Pênalti perdido";
+    case "penalty_saved":
+      return "Pênalti defendido";
   }
 }
 
@@ -203,6 +217,22 @@ function EventIcons({ events }: { events: PlayerEvent[] }) {
               ↑
             </span>
           )}
+          {e.kind === "penalty_missed" && (
+            <span
+              aria-hidden
+              className="font-bold text-[9px] text-orange-700 border border-orange-300 rounded px-0.5 leading-none"
+            >
+              PP
+            </span>
+          )}
+          {e.kind === "penalty_saved" && (
+            <span
+              aria-hidden
+              className="font-bold text-[9px] text-sky-700 border border-sky-300 rounded px-0.5 leading-none"
+            >
+              PD
+            </span>
+          )}
           <EventMinute minute={e.minute} injury={e.injuryTimeMinute} />
         </span>
       ))}
@@ -216,6 +246,7 @@ function LineupList({
   goals,
   cards,
   substitutions,
+  penaltyEvents,
   captainPlayerId,
 }: {
   title: string;
@@ -223,6 +254,7 @@ function LineupList({
   goals: MatchGoalRow[];
   cards: MatchCardRow[];
   substitutions: MatchSubstitutionRow[];
+  penaltyEvents: MatchPenaltyEventRow[];
   captainPlayerId?: number | null;
 }) {
   if (players.length === 0) return null;
@@ -240,6 +272,7 @@ function LineupList({
             goals,
             cards,
             substitutions,
+            penaltyEvents,
           );
           const isCaptain =
             captainPlayerId != null &&
@@ -372,12 +405,16 @@ export default function MatchDetail() {
   const substitutions = (match.substitutions ?? []).filter(
     (s) => s.side === "csa",
   );
+  const penaltyEvents = (match.penaltyEvents ?? []).filter(
+    (pe) => !pe.side || pe.side === "csa",
+  );
   const hasLineup = csaLineups.length > 0;
   const hasAnySheet =
     csaLineups.length > 0 ||
     goals.length > 0 ||
     cards.length > 0 ||
-    substitutions.length > 0;
+    substitutions.length > 0 ||
+    penaltyEvents.length > 0;
   const scorersText = Array.isArray(match.scorers) ? match.scorers : [];
 
   const isHome = match.homeAway === "home";
@@ -660,6 +697,7 @@ export default function MatchDetail() {
               goals={goals}
               cards={cards}
               substitutions={substitutions}
+              penaltyEvents={penaltyEvents}
               captainPlayerId={match.captainPlayerId}
             />
             <LineupList
@@ -668,6 +706,7 @@ export default function MatchDetail() {
               goals={goals}
               cards={cards}
               substitutions={substitutions}
+              penaltyEvents={penaltyEvents}
               captainPlayerId={match.captainPlayerId}
             />
           </div>
@@ -675,8 +714,9 @@ export default function MatchDetail() {
           {refereeBlock}
           <p className="text-xs text-muted-foreground">
             <span className="font-medium text-foreground/80">Legenda:</span>{" "}
-            ⚽ gol · P pênalti · F gol de falta · A assistência · C capitão · retângulo
-            amarelo/vermelho cartão · ↓ saiu · ↑ entrou · minuto ao lado
+            ⚽ gol · P pênalti · F gol de falta · A assistência · PP pênalti perdido · PD
+            pênalti defendido · C capitão · retângulo amarelo/vermelho cartão · ↓ saiu · ↑
+            entrou · minuto ao lado
           </p>
         </section>
       )}

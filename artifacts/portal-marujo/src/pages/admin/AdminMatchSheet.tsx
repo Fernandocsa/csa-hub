@@ -3,7 +3,7 @@ import { Link, useLocation, useParams } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronLeft, Pencil, Trash2, X } from "lucide-react";
+import { ChevronLeft, Pencil, Trash2, X, ClipboardPaste } from "lucide-react";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { EntityPhoto } from "@/components/EntityPhoto";
 import {
@@ -26,6 +26,10 @@ import {
   UNKNOWN_EVENT_MINUTE_LABEL,
   UNKNOWN_EVENT_MINUTE_TITLE,
 } from "@/lib/event-minute";
+import {
+  OgolPasteDialog,
+  type OgolApplyPayload,
+} from "@/components/admin/OgolPasteDialog";
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -97,6 +101,15 @@ type SheetManagerCard = {
   injuryTimeMinute: number | null;
 };
 
+type SheetPenaltyEvent = {
+  id: number;
+  eventType: "missed" | "saved" | string;
+  playerId: number | null;
+  playerName: string | null;
+  minute: number;
+  injuryTimeMinute: number | null;
+};
+
 type SheetSubstitution = {
   id: number;
   playerOutId: number | null;
@@ -113,6 +126,7 @@ type SheetResponse = {
   cards: SheetCard[];
   substitutions: SheetSubstitution[];
   managerCards: SheetManagerCard[];
+  penaltyEvents?: SheetPenaltyEvent[];
   captainPlayerId: number | null;
   managerId: number | null;
   ownGoalsForCount: number;
@@ -236,6 +250,22 @@ const YELLOW_ROWS_COUNT = 5;
 const ASSIST_ROWS_COUNT = 5;
 const SUB_ROWS_COUNT = 10;
 
+type OgolSnapshot = {
+  starterIds: number[];
+  benchIds: number[];
+  shirtNumbers: Record<number, string>;
+  managerIdDraft: string;
+  captainDraft: string;
+  playerInfo: [number, PlayerInfo][];
+  goalRows: EventRow[];
+  redRows: EventRow[];
+  yellowRows: EventRow[];
+  assistRows: EventRow[];
+  penaltyMissedRows: EventRow[];
+  penaltySavedRows: EventRow[];
+  subRows: SubRow[];
+};
+
 const selectCls = "w-full border rounded px-2 py-1.5 text-sm bg-white";
 
 export default function AdminMatchSheet() {
@@ -283,6 +313,12 @@ export default function AdminMatchSheet() {
   const [assistRows, setAssistRows] = useState<EventRow[]>(() =>
     Array.from({ length: ASSIST_ROWS_COUNT }, emptyEventRow),
   );
+  const [penaltyMissedRows, setPenaltyMissedRows] = useState<EventRow[]>(() =>
+    Array.from({ length: 3 }, emptyEventRow),
+  );
+  const [penaltySavedRows, setPenaltySavedRows] = useState<EventRow[]>(() =>
+    Array.from({ length: 3 }, emptyEventRow),
+  );
   const [gpdRow, setGpdRow] = useState<EventRow>(emptyEventRow);
   const [gpfRow, setGpfRow] = useState<EventRow>(emptyEventRow);
   const [captainDraft, setCaptainDraft] = useState("");
@@ -293,6 +329,7 @@ export default function AdminMatchSheet() {
   const [sheetGoals, setSheetGoals] = useState<SheetGoal[]>([]);
   const [sheetCards, setSheetCards] = useState<SheetCard[]>([]);
   const [sheetManagerCards, setSheetManagerCards] = useState<SheetManagerCard[]>([]);
+  const [sheetPenaltyEvents, setSheetPenaltyEvents] = useState<SheetPenaltyEvent[]>([]);
   const [captainPlayerId, setCaptainPlayerId] = useState<number | null>(null);
   const [editingGoalId, setEditingGoalId] = useState<number | null>(null);
   const [editGoalMinute, setEditGoalMinute] = useState("");
@@ -300,6 +337,10 @@ export default function AdminMatchSheet() {
   const [editGoalPenalty, setEditGoalPenalty] = useState(false);
   const [editGoalFreeKick, setEditGoalFreeKick] = useState(false);
   const [savingGoalEdit, setSavingGoalEdit] = useState(false);
+
+  const [ogolOpen, setOgolOpen] = useState(false);
+  const [ogolCanRevert, setOgolCanRevert] = useState(false);
+  const [ogolSnapshot, setOgolSnapshot] = useState<OgolSnapshot | null>(null);
 
   // Substituições
   const [subRows, setSubRows] = useState<SubRow[]>(() =>
@@ -313,10 +354,192 @@ export default function AdminMatchSheet() {
     setRedRows(Array.from({ length: RED_ROWS_COUNT }, emptyEventRow));
     setYellowRows(Array.from({ length: YELLOW_ROWS_COUNT }, emptyEventRow));
     setAssistRows(Array.from({ length: ASSIST_ROWS_COUNT }, emptyEventRow));
+    setPenaltyMissedRows(Array.from({ length: 3 }, emptyEventRow));
+    setPenaltySavedRows(Array.from({ length: 3 }, emptyEventRow));
     setGpdRow(emptyEventRow());
     setGpfRow(emptyEventRow());
     setCaptainDraft("");
     setManagerCardRows(defaultManagerCardRows());
+  }
+
+  function fillEventSlots(
+    current: EventRow[],
+    incoming: { playerId: number; minute: string }[],
+    minRows: number,
+  ): EventRow[] {
+    const next = current.map((r) => ({ ...r }));
+    let cursor = 0;
+    for (const item of incoming) {
+      while (cursor < next.length && next[cursor].playerId) cursor += 1;
+      if (cursor >= next.length) {
+        next.push({
+          ...emptyEventRow(),
+          playerId: String(item.playerId),
+          minute: item.minute,
+        });
+      } else {
+        next[cursor] = {
+          ...next[cursor],
+          playerId: String(item.playerId),
+          minute: item.minute,
+        };
+      }
+      cursor += 1;
+    }
+    while (next.length < minRows) next.push(emptyEventRow());
+    return next;
+  }
+
+  function takeOgolSnapshot(): OgolSnapshot {
+    return {
+      starterIds: [...starterIds],
+      benchIds: [...benchIds],
+      shirtNumbers: { ...shirtNumbers },
+      managerIdDraft,
+      captainDraft,
+      playerInfo: [...playerInfo.entries()],
+      goalRows: goalRows.map((r) => ({ ...r })),
+      redRows: redRows.map((r) => ({ ...r })),
+      yellowRows: yellowRows.map((r) => ({ ...r })),
+      assistRows: assistRows.map((r) => ({ ...r })),
+      penaltyMissedRows: penaltyMissedRows.map((r) => ({ ...r })),
+      penaltySavedRows: penaltySavedRows.map((r) => ({ ...r })),
+      subRows: subRows.map((r) => ({ ...r })),
+    };
+  }
+
+  function revertOgol() {
+    if (!ogolSnapshot) return;
+    const s = ogolSnapshot;
+    setStarterIds(new Set(s.starterIds));
+    setBenchIds(new Set(s.benchIds));
+    setShirtNumbers(s.shirtNumbers);
+    setManagerIdDraft(s.managerIdDraft);
+    setCaptainDraft(s.captainDraft);
+    setPlayerInfo(new Map(s.playerInfo));
+    setGoalRows(s.goalRows);
+    setRedRows(s.redRows);
+    setYellowRows(s.yellowRows);
+    setAssistRows(s.assistRows);
+    setPenaltyMissedRows(s.penaltyMissedRows);
+    setPenaltySavedRows(s.penaltySavedRows);
+    setSubRows(s.subRows);
+    setOgolSnapshot(null);
+    setOgolCanRevert(false);
+    setSavedMsg("Aplicação do Ogol revertida.");
+  }
+
+  function applyOgolPayload(payload: OgolApplyPayload) {
+    setOgolSnapshot(takeOgolSnapshot());
+    setOgolCanRevert(true);
+    setSavedMsg("");
+
+    setPlayerInfo((prev) => {
+      const next = new Map(prev);
+      for (const p of payload.extraPlayers) {
+        next.set(p.id, {
+          name: p.name,
+          position: p.position,
+          photoUrl: p.photoUrl ?? null,
+        });
+      }
+      for (const p of [...payload.starters, ...payload.bench]) {
+        if (!next.has(p.playerId)) {
+          next.set(p.playerId, {
+            name: p.playerName,
+            position: p.position,
+            photoUrl: null,
+          });
+        }
+      }
+      return next;
+    });
+
+    setStarterIds((prev) => {
+      const next = new Set(prev);
+      for (const p of payload.starters) {
+        if (!next.has(p.playerId) && !benchIds.has(p.playerId)) {
+          next.add(p.playerId);
+        }
+      }
+      return next;
+    });
+    setBenchIds((prev) => {
+      const next = new Set(prev);
+      for (const p of payload.bench) {
+        if (!next.has(p.playerId) && !starterIds.has(p.playerId)) {
+          next.add(p.playerId);
+        }
+      }
+      return next;
+    });
+
+    if (!managerIdDraft && payload.managerId != null) {
+      setManagerIdDraft(String(payload.managerId));
+    }
+    if (payload.captainPlayerId != null) {
+      setCaptainDraft(String(payload.captainPlayerId));
+    }
+
+    setShirtNumbers((prev) => {
+      const next = { ...prev };
+      for (const p of [...payload.starters, ...payload.bench]) {
+        if (p.shirtNumber != null) {
+          next[p.playerId] = String(p.shirtNumber);
+        }
+      }
+      return next;
+    });
+
+    setGoalRows((rows) => fillEventSlots(rows, payload.goals, GOAL_ROWS_COUNT));
+    setAssistRows((rows) => fillEventSlots(rows, payload.assists, ASSIST_ROWS_COUNT));
+    setYellowRows((rows) => fillEventSlots(rows, payload.yellows, YELLOW_ROWS_COUNT));
+    setRedRows((rows) => fillEventSlots(rows, payload.reds, RED_ROWS_COUNT));
+    setPenaltyMissedRows((rows) =>
+      fillEventSlots(
+        rows,
+        payload.penalties
+          .filter((p) => p.eventType === "missed")
+          .map((p) => ({ playerId: p.playerId, minute: p.minute })),
+        3,
+      ),
+    );
+    setPenaltySavedRows((rows) =>
+      fillEventSlots(
+        rows,
+        payload.penalties
+          .filter((p) => p.eventType === "saved")
+          .map((p) => ({ playerId: p.playerId, minute: p.minute })),
+        3,
+      ),
+    );
+
+    setSubRows((rows) => {
+      const next = rows.map((r) => ({ ...r }));
+      let cursor = 0;
+      for (const s of payload.substitutions) {
+        if (!s.playerOutId && !s.playerInId) continue;
+        while (
+          cursor < next.length &&
+          (next[cursor].playerOutId || next[cursor].playerInId)
+        ) {
+          cursor += 1;
+        }
+        const row: SubRow = {
+          playerOutId: s.playerOutId != null ? String(s.playerOutId) : "",
+          playerInId: s.playerInId != null ? String(s.playerInId) : "",
+          minute: s.minute,
+          injuryTimeMinute: "",
+        };
+        if (cursor >= next.length) next.push(row);
+        else next[cursor] = row;
+        cursor += 1;
+      }
+      while (next.length < SUB_ROWS_COUNT) next.push(emptySubRow());
+      return next;
+    });
+
+    setSavedMsg("Dados do Ogol aplicados à ficha.");
   }
 
   function applySheetLineups(sheet: SheetResponse, fallbackManagerId?: number | null) {
@@ -357,6 +580,7 @@ export default function AdminMatchSheet() {
     setSheetGoals(sheet.goals ?? []);
     setSheetCards(sheet.cards ?? []);
     setSheetManagerCards(sheet.managerCards ?? []);
+    setSheetPenaltyEvents(sheet.penaltyEvents ?? []);
     setCaptainPlayerId(sheet.captainPlayerId ?? null);
   }
 
@@ -725,6 +949,8 @@ export default function AdminMatchSheet() {
       const sheet = (await r.json()) as SheetResponse;
       applySheetLineups(sheet, sheet.managerId);
       if (match) setMatch({ ...match, managerId: sheet.managerId });
+      setOgolCanRevert(false);
+      setOgolSnapshot(null);
       setSavedMsg("Escalação salva.");
     } catch (e: any) {
       setError(e.message ?? "Erro ao salvar escalação");
@@ -791,6 +1017,27 @@ export default function AdminMatchSheet() {
           injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
         });
       }
+
+      const penaltyEvents: Record<string, unknown>[] = [];
+      for (const row of penaltyMissedRows) {
+        if (!row.playerId) continue;
+        penaltyEvents.push({
+          eventType: "missed",
+          playerId: Number(row.playerId),
+          minute: normalizeEventMinute(row.minute),
+          injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
+        });
+      }
+      for (const row of penaltySavedRows) {
+        if (!row.playerId) continue;
+        penaltyEvents.push({
+          eventType: "saved",
+          playerId: Number(row.playerId),
+          minute: normalizeEventMinute(row.minute),
+          injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
+        });
+      }
+
       if (gpdRow.playerId) {
         goals.push({
           scorerPlayerId: Number(gpdRow.playerId),
@@ -823,6 +1070,7 @@ export default function AdminMatchSheet() {
         assists,
         cards,
         managerCards: managerCardsPayload,
+        penaltyEvents,
       };
       // Only send captainPlayerId when the C field was actually filled in this
       // batch — the field always starts blank, so leaving it blank must never
@@ -840,6 +1088,8 @@ export default function AdminMatchSheet() {
       const sheet = (await r.json()) as SheetResponse;
       applySheetEvents(sheet);
       resetEventForms();
+      setOgolCanRevert(false);
+      setOgolSnapshot(null);
       setSavedMsg("Eventos gravados.");
     } catch (e: any) {
       setError(e.message ?? "Erro ao gravar eventos");
@@ -928,6 +1178,20 @@ export default function AdminMatchSheet() {
     }
   }
 
+  async function deletePenaltyEvent(id: number) {
+    if (matchId == null) return;
+    setError("");
+    const r = await adminFetch(`/admin/matches/${matchId}/sheet/penalty-events/${id}`, {
+      method: "DELETE",
+    });
+    if (r.ok) {
+      applySheetEvents((await r.json()) as SheetResponse);
+    } else {
+      const err = await r.json().catch(() => ({}));
+      setError((err as { error?: string }).error ?? "Erro ao excluir pênalti");
+    }
+  }
+
   async function saveSubs() {
     if (matchId == null) return;
     setSavingSubs(true);
@@ -959,6 +1223,8 @@ export default function AdminMatchSheet() {
       }
       const sheet = (await r.json()) as SheetResponse;
       setSubRows(buildSubRows(sheet.substitutions ?? []));
+      setOgolCanRevert(false);
+      setOgolSnapshot(null);
       setSavedMsg("Substituições salvas.");
     } catch (e: any) {
       setError(e.message ?? "Erro ao salvar substituições");
@@ -1166,9 +1432,26 @@ export default function AdminMatchSheet() {
 
       {tab === "lineup" && match && (
         <section className="bg-white border rounded-lg p-4 space-y-4">
+          {ogolCanRevert && (
+            <div className="flex flex-wrap items-center justify-between gap-2 bg-green-50 border border-green-100 rounded-md px-3 py-2 text-sm text-green-800">
+              <span>✓ Dados do Ogol aplicados à ficha.</span>
+              <Button type="button" size="sm" variant="outline" onClick={revertOgol}>
+                ↩ Reverter
+              </Button>
+            </div>
+          )}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">CSA</h2>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setOgolOpen(true)}
+              >
+                <ClipboardPaste className="h-3.5 w-3.5 mr-1" />
+                Colar do Ogol
+              </Button>
               <label className="text-xs font-semibold text-gray-500 uppercase">
                 Temporada do elenco
               </label>
@@ -1359,10 +1642,29 @@ export default function AdminMatchSheet() {
 
       {tab === "events" && match && (
         <div className="space-y-6">
+          {ogolCanRevert && (
+            <div className="flex flex-wrap items-center justify-between gap-2 bg-green-50 border border-green-100 rounded-md px-3 py-2 text-sm text-green-800">
+              <span>✓ Dados do Ogol aplicados à ficha.</span>
+              <Button type="button" size="sm" variant="outline" onClick={revertOgol}>
+                ↩ Reverter
+              </Button>
+            </div>
+          )}
           <section className="bg-white border rounded-lg p-4 space-y-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-              Eventos - CSA
-            </h2>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+                Eventos - CSA
+              </h2>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setOgolOpen(true)}
+              >
+                <ClipboardPaste className="h-3.5 w-3.5 mr-1" />
+                Colar do Ogol
+              </Button>
+            </div>
             <p className="text-xs text-gray-400">
               Minuto é opcional: deixe em branco ou use 200 para “não disponível” (aparece como n/d).
               Assistências ainda precisam do minuto do gol para vincular.
@@ -1617,6 +1919,108 @@ export default function AdminMatchSheet() {
                     </tr>
                   ))}
 
+                  {penaltyMissedRows.map((row, i) => (
+                    <tr key={`pen-miss-${i}`} className="border-t bg-orange-50/40">
+                      <td className="px-2 py-1.5 text-center text-[10px] font-semibold text-orange-700">
+                        A:
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <select
+                          className={selectCls}
+                          value={row.playerId}
+                          onChange={(e) =>
+                            setPenaltyMissedRows((rows) =>
+                              patchAt(rows, i, { playerId: e.target.value }),
+                            )
+                          }
+                        >
+                          <option value="">(Nenhum)</option>
+                          {lineupOptions.map((p) => (
+                            <option key={p.playerId} value={p.playerId}>
+                              {p.playerName}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.minute}
+                          onChange={(e) =>
+                            setPenaltyMissedRows((rows) =>
+                              patchAt(rows, i, { minute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.injuryTimeMinute}
+                          onChange={(e) =>
+                            setPenaltyMissedRows((rows) =>
+                              patchAt(rows, i, { injuryTimeMinute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5 text-[10px] text-orange-600" colSpan={3}>
+                        Pênalti perdido (não conta gol)
+                      </td>
+                    </tr>
+                  ))}
+
+                  {penaltySavedRows.map((row, i) => (
+                    <tr key={`pen-save-${i}`} className="border-t bg-sky-50/40">
+                      <td className="px-2 py-1.5 text-center text-[10px] font-semibold text-sky-700">
+                        C:
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <select
+                          className={selectCls}
+                          value={row.playerId}
+                          onChange={(e) =>
+                            setPenaltySavedRows((rows) =>
+                              patchAt(rows, i, { playerId: e.target.value }),
+                            )
+                          }
+                        >
+                          <option value="">(Nenhum)</option>
+                          {lineupOptions.map((p) => (
+                            <option key={p.playerId} value={p.playerId}>
+                              {p.playerName}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.minute}
+                          onChange={(e) =>
+                            setPenaltySavedRows((rows) =>
+                              patchAt(rows, i, { minute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.injuryTimeMinute}
+                          onChange={(e) =>
+                            setPenaltySavedRows((rows) =>
+                              patchAt(rows, i, { injuryTimeMinute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5 text-[10px] text-sky-700" colSpan={3}>
+                        Pênalti defendido (goleiro; não conta gol)
+                      </td>
+                    </tr>
+                  ))}
+
                   <tr className="border-t">
                     <td className="px-2 py-1.5 text-center text-[10px] font-semibold text-gray-500">
                       GPD:
@@ -1697,7 +2101,7 @@ export default function AdminMatchSheet() {
 
                   <tr className="border-t">
                     <td className="px-2 py-1.5 text-center text-[10px] font-semibold text-gray-500">
-                      C:
+                      CAP:
                     </td>
                     <td className="px-2 py-1.5">
                       <select
@@ -2015,6 +2419,47 @@ export default function AdminMatchSheet() {
                 )}
               </ul>
             </div>
+
+            <div>
+              <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">
+                Pênaltis perdidos / defendidos ({sheetPenaltyEvents.length})
+              </h3>
+              <ul className="divide-y border rounded">
+                {sheetPenaltyEvents.map((pe) => (
+                  <li
+                    key={pe.id}
+                    className="flex items-center justify-between gap-2 px-3 py-2 text-sm"
+                  >
+                    <span>
+                      {formatSavedMinute(pe.minute, pe.injuryTimeMinute)}{" "}
+                      <span
+                        className={`inline-block text-[10px] font-bold uppercase mr-1 ${
+                          pe.eventType === "saved" ? "text-sky-700" : "text-orange-700"
+                        }`}
+                      >
+                        {pe.eventType === "saved" ? "C" : "A"}
+                      </span>
+                      {pe.playerName ?? "—"}
+                      <span className="ml-1 text-xs text-gray-400">
+                        {pe.eventType === "saved" ? "(defendidos)" : "(perdido)"}
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      className="p-1 text-gray-400 hover:text-red-600 shrink-0"
+                      onClick={() => deletePenaltyEvent(pe.id)}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </li>
+                ))}
+                {sheetPenaltyEvents.length === 0 && (
+                  <li className="px-3 py-2 text-xs text-gray-400">
+                    Nenhum pênalti perdido/defendidos registrado
+                  </li>
+                )}
+              </ul>
+            </div>
           </section>
         </div>
       )}
@@ -2110,6 +2555,33 @@ export default function AdminMatchSheet() {
 
       {error && <p className="text-sm text-red-600">{error}</p>}
       {savedMsg && <p className="text-sm text-green-700">{savedMsg}</p>}
+
+      <OgolPasteDialog
+        open={ogolOpen}
+        onClose={() => setOgolOpen(false)}
+        roster={roster.map((p) => ({
+          id: p.id,
+          name: p.name,
+          position: p.position,
+          photoUrl: p.photoUrl ?? null,
+        }))}
+        managers={managerRows.map((m) => ({ id: m.id, name: m.name }))}
+        allManagers={allManagers.map((m) => ({ id: m.id, name: m.name }))}
+        current={{
+          shirtByPlayerId: shirtNumbers,
+          starterIds,
+          benchIds,
+          captainPlayerId:
+            captainDraft.trim() !== ""
+              ? Number(captainDraft)
+              : captainPlayerId,
+          managerId: managerIdDraft.trim() !== "" ? Number(managerIdDraft) : null,
+        }}
+        onApply={(payload) => {
+          applyOgolPayload(payload);
+          setOgolOpen(false);
+        }}
+      />
     </div>
   );
 }

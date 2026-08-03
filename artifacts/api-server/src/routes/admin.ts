@@ -34,7 +34,7 @@ import {
   replaceDailyPlayer,
 } from "../lib/guess-player";
 import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray, ne, isNull } from "drizzle-orm";
-import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard, updateMatchGoal } from "../lib/match-sheet";
+import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard, deleteMatchPenaltyEvent, updateMatchGoal } from "../lib/match-sheet";
 import { syncRelatedMatchLink, parsePenaltyShootoutFields } from "../lib/match-links";
 import { findDuplicateNameCandidates } from "../lib/admin-name-check";
 import {
@@ -1734,6 +1734,19 @@ router.delete("/admin/matches/:id/sheet/manager-cards/:cardId", requireAdmin, as
     const cardId = parseInt(req.params.cardId);
     if (isNaN(id) || isNaN(cardId)) return res.status(400).json({ error: "ID inválido" });
     res.json(await deleteMatchManagerCard(id, cardId));
+  } catch (err: any) {
+    if (err?.status === 404) return res.status(404).json({ error: err.message });
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.delete("/admin/matches/:id/sheet/penalty-events/:eventId", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const eventId = parseInt(req.params.eventId);
+    if (isNaN(id) || isNaN(eventId)) return res.status(400).json({ error: "ID inválido" });
+    res.json(await deleteMatchPenaltyEvent(id, eventId));
   } catch (err: any) {
     if (err?.status === 404) return res.status(404).json({ error: err.message });
     req.log.error(err);

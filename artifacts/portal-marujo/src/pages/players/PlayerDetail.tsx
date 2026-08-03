@@ -41,6 +41,8 @@ type PlayerProfile = {
   totalAppearances: number;
   totalGoals: number;
   totalAssists?: number | null;
+  totalPenaltiesMissed?: number;
+  totalPenaltiesSaved?: number;
   titleCount?: number;
   titles?: { season: string; competitionId: number; competitionName: string }[];
   seasonStats: {
@@ -48,6 +50,8 @@ type PlayerProfile = {
     appearances: number;
     goals: number;
     assists?: number | null;
+    penaltiesMissed?: number;
+    penaltiesSaved?: number;
   }[];
   recentMatches?: PlayerSheetMatch[];
   badges?: {
@@ -151,6 +155,13 @@ export default function PlayerDetail() {
     player.totalAppearances > 0
       ? (player.totalGoals / player.totalAppearances).toFixed(2)
       : "–";
+  const showPenaltiesMissed =
+    (player.totalPenaltiesMissed ?? 0) > 0 ||
+    player.seasonStats.some((s) => (s.penaltiesMissed ?? 0) > 0);
+  const showPenaltiesSaved =
+    (player.totalPenaltiesSaved ?? 0) > 0 ||
+    player.seasonStats.some((s) => (s.penaltiesSaved ?? 0) > 0);
+  const showPenaltyCols = showPenaltiesMissed || showPenaltiesSaved;
 
   const age = player.isDeceased ? null : calcAge(player.birthDate, player.birthYear);
   const showFullName =
@@ -312,6 +323,27 @@ export default function PlayerDetail() {
         ))}
       </div>
 
+      {showPenaltyCols && (
+        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+          {showPenaltiesMissed && (
+            <p>
+              Pênaltis perdidos:{" "}
+              <span className="font-semibold text-foreground tabular-nums">
+                {player.totalPenaltiesMissed ?? 0}
+              </span>
+            </p>
+          )}
+          {showPenaltiesSaved && (
+            <p>
+              Pênaltis defendidos:{" "}
+              <span className="font-semibold text-foreground tabular-nums">
+                {player.totalPenaltiesSaved ?? 0}
+              </span>
+            </p>
+          )}
+        </div>
+      )}
+
       {(player.titles?.length ?? 0) > 0 && (
         <div data-testid="player-titles">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">
@@ -420,13 +452,26 @@ export default function PlayerDetail() {
                 <TableHead className="py-2 text-right">Jogos</TableHead>
                 <TableHead className="py-2 text-right">Gols</TableHead>
                 <TableHead className="py-2 text-right">Assistências</TableHead>
+                {showPenaltiesMissed && (
+                  <TableHead className="py-2 text-right" title="Pênaltis perdidos">
+                    Pên. perd.
+                  </TableHead>
+                )}
+                {showPenaltiesSaved && (
+                  <TableHead className="py-2 text-right" title="Pênaltis defendidos">
+                    Pên. def.
+                  </TableHead>
+                )}
                 <TableHead className="py-2 text-right">Média</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {player.seasonStats.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-16 text-center text-muted-foreground">
+                  <TableCell
+                    colSpan={5 + (showPenaltiesMissed ? 1 : 0) + (showPenaltiesSaved ? 1 : 0)}
+                    className="h-16 text-center text-muted-foreground"
+                  >
                     Sem estatísticas por temporada.
                   </TableCell>
                 </TableRow>
@@ -448,6 +493,16 @@ export default function PlayerDetail() {
                     <TableCell className="py-2 text-right">{stat.appearances}</TableCell>
                     <TableCell className="py-2 text-right font-medium">{stat.goals}</TableCell>
                     <TableCell className="py-2 text-right">{stat.assists ?? "–"}</TableCell>
+                    {showPenaltiesMissed && (
+                      <TableCell className="py-2 text-right">
+                        {stat.penaltiesMissed ?? 0}
+                      </TableCell>
+                    )}
+                    {showPenaltiesSaved && (
+                      <TableCell className="py-2 text-right">
+                        {stat.penaltiesSaved ?? 0}
+                      </TableCell>
+                    )}
                     <TableCell className="py-2 text-right text-muted-foreground text-xs">
                       {stat.appearances > 0
                         ? (stat.goals / stat.appearances).toFixed(2)
