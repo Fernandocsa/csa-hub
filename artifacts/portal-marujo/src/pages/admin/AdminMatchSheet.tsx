@@ -1160,7 +1160,15 @@ export default function AdminMatchSheet() {
                           <span className="shrink-0">
                             <PlayerFlag nationality={row.nationality} flag={row.nationalityFlag} />
                           </span>
-                          <span className="font-medium truncate min-w-0">{row.playerName}</span>
+                          <a
+                            href={`/admin/jogadores/${row.playerId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium truncate min-w-0 text-[#1B3A6B] hover:underline"
+                            title="Abrir perfil do jogador"
+                          >
+                            {row.playerName}
+                          </a>
                         </div>
                       </td>
                       <td className={`px-1.5 md:px-2 py-1.5 text-xs text-gray-500 ${zebra}`}>
@@ -1218,7 +1226,17 @@ export default function AdminMatchSheet() {
                     const selected = managerIdDraft === String(m.id);
                     return (
                       <tr key={m.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                        <td className="px-2 py-1.5 font-medium">{m.name}</td>
+                        <td className="px-2 py-1.5 font-medium">
+                          <a
+                            href={`/admin/tecnicos/${m.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#1B3A6B] hover:underline"
+                            title="Abrir perfil do técnico"
+                          >
+                            {m.name}
+                          </a>
+                        </td>
                         <td className="px-2 py-1.5 text-center">
                           <input
                             type="checkbox"
