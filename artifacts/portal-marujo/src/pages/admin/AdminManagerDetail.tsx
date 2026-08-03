@@ -274,6 +274,7 @@ function ManagerProfileForm({
             ? {
                 keepId: initial.id,
                 keepName: name.trim() || initial.name || `Técnico #${initial.id}`,
+                keepPhotoUrl: photoUrl.trim() || initial.photoUrl || null,
                 endpoint: "/admin/managers/merge",
                 onMerged,
               }

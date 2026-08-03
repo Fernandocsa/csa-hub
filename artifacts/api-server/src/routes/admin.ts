@@ -342,6 +342,7 @@ router.get("/admin/players/name-check", requireAdmin, async (req, res) => {
         id: playersTable.id,
         name: playersTable.name,
         fullName: playersTable.fullName,
+        photoUrl: playersTable.photoUrl,
       })
       .from(playersTable);
     const matches = findDuplicateNameCandidates(
@@ -2702,6 +2703,7 @@ router.get("/admin/managers/name-check", requireAdmin, async (req, res) => {
         id: managersTable.id,
         name: managersTable.name,
         fullName: managersTable.fullName,
+        photoUrl: managersTable.photoUrl,
       })
       .from(managersTable);
     const matches = findDuplicateNameCandidates(

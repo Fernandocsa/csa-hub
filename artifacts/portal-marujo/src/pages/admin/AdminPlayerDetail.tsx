@@ -292,6 +292,7 @@ function PlayerProfileForm({
             ? {
                 keepId: initial.id,
                 keepName: name.trim() || initial.name || `Jogador #${initial.id}`,
+                keepPhotoUrl: photoUrl.trim() || initial.photoUrl || null,
                 endpoint: "/admin/players/merge",
                 onMerged,
               }

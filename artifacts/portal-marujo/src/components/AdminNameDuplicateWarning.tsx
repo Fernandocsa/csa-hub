@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
+import { EntityPhoto } from "@/components/EntityPhoto";
 
 export type NameCheckMatch = {
   id: number;
   name: string;
   fullName: string | null;
+  photoUrl?: string | null;
   match: "exact" | "similar";
   matchedOn: "name" | "fullName";
 };
@@ -13,14 +15,20 @@ export type NameCheckMatch = {
 type MergeConfig = {
   keepId: number;
   keepName: string;
+  keepPhotoUrl?: string | null;
   endpoint: string;
   onMerged: (result: { keptId: number; removedId: number }) => void;
 };
 
+function hasPhoto(url: string | null | undefined): boolean {
+  return Boolean(url?.trim());
+}
+
 /**
  * Debounced duplicate-name warning for player/manager create & edit forms.
  * Exact full-name matches block saving via onBlockChange(true).
- * When editing, offers merge into this profile or into the other one.
+ * When editing, offers merge into this profile or into the other one,
+ * prioritizing the side that already has a photo.
  */
 export function AdminNameDuplicateWarning({
   kind,
@@ -111,41 +119,112 @@ export function AdminNameDuplicateWarning({
     setMergingId(null);
   }
 
-  function MatchActions({ m }: { m: NameCheckMatch }) {
-    if (!merge) return null;
+  function MatchRow({ m, strong }: { m: NameCheckMatch; strong?: boolean }) {
+    const otherHasPhoto = hasPhoto(m.photoUrl);
+    const currentHasPhoto = hasPhoto(merge?.keepPhotoUrl);
+    // Prefer keeping the profile that already has a photo.
+    const preferOther = Boolean(merge && otherHasPhoto && !currentHasPhoto);
+    const preferCurrent = Boolean(merge && currentHasPhoto && !otherHasPhoto);
     const busy = mergingId != null;
+
+    const absorbHere = merge ? (
+      <button
+        type="button"
+        disabled={busy}
+        className={`text-xs font-semibold hover:underline disabled:opacity-50 ${
+          preferCurrent ? "text-emerald-800" : "text-[#1B3A6B]"
+        }`}
+        onClick={() =>
+          void runMerge(
+            merge.keepId,
+            m.id,
+            `Absorver #${m.id} ${m.name} neste perfil (#${merge.keepId} ${merge.keepName})?\n\nO registro #${m.id} será excluído e os vínculos passam para #${merge.keepId}.${
+              preferCurrent ? "\n\nRecomendado: este perfil já tem foto." : ""
+            }`,
+          )
+        }
+      >
+        {mergingId === m.id
+          ? "Mesclando…"
+          : preferCurrent
+            ? "Mesclar neste (recomendado — tem foto)"
+            : "Mesclar neste"}
+      </button>
+    ) : null;
+
+    const absorbOther = merge ? (
+      <button
+        type="button"
+        disabled={busy}
+        className={`text-xs font-semibold hover:underline disabled:opacity-50 ${
+          preferOther ? "text-emerald-800" : "text-amber-800"
+        }`}
+        onClick={() =>
+          void runMerge(
+            m.id,
+            merge.keepId,
+            `Absorver este perfil (#${merge.keepId} ${merge.keepName}) em #${m.id} ${m.name}?\n\nO registro atual (#${merge.keepId}) será excluído e os vínculos passam para #${m.id}.${
+              preferOther ? "\n\nRecomendado: o outro perfil já tem foto." : ""
+            }`,
+          )
+        }
+      >
+        {preferOther
+          ? "Mesclar no outro (recomendado — tem foto)"
+          : "Mesclar no outro"}
+      </button>
+    ) : null;
+
     return (
-      <span className="inline-flex flex-wrap items-center gap-2 mt-1">
-        <button
-          type="button"
-          disabled={busy}
-          className="text-xs font-semibold text-[#1B3A6B] hover:underline disabled:opacity-50"
-          onClick={() =>
-            void runMerge(
-              merge.keepId,
-              m.id,
-              `Absorver #${m.id} ${m.name} neste perfil (#${merge.keepId} ${merge.keepName})?\n\nO registro #${m.id} será excluído e os vínculos passam para #${merge.keepId}.`,
-            )
-          }
-        >
-          {mergingId === m.id ? "Mesclando…" : "Mesclar neste"}
-        </button>
-        <span className="text-gray-300">·</span>
-        <button
-          type="button"
-          disabled={busy}
-          className="text-xs font-semibold text-amber-800 hover:underline disabled:opacity-50"
-          onClick={() =>
-            void runMerge(
-              m.id,
-              merge.keepId,
-              `Absorver este perfil (#${merge.keepId} ${merge.keepName}) em #${m.id} ${m.name}?\n\nO registro atual (#${merge.keepId}) será excluído e os vínculos passam para #${m.id}.`,
-            )
-          }
-        >
-          Mesclar no outro
-        </button>
-      </span>
+      <li className={strong ? "text-sm" : "text-xs"}>
+        <div className="flex items-start gap-2 min-w-0">
+          <EntityPhoto
+            url={m.photoUrl}
+            name={m.name}
+            size="sm"
+            shape="circle"
+            label={`Foto de ${m.name}`}
+          />
+          <div className="min-w-0 flex-1">
+            <Link
+              href={hrefForId(m.id)}
+              className={`inline-flex flex-wrap items-center gap-1.5 font-semibold text-[#1B3A6B] hover:underline ${
+                strong ? "" : "font-medium"
+              }`}
+            >
+              <span>
+                #{m.id} {m.name}
+                {m.fullName ? (strong ? ` (${m.fullName})` : ` · ${m.fullName}`) : ""}
+              </span>
+              {otherHasPhoto ? (
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1 py-0.5">
+                  com foto
+                </span>
+              ) : (
+                <span className="text-[10px] font-medium text-gray-400">sem foto</span>
+              )}
+              <span aria-hidden>→</span>
+            </Link>
+            {merge ? (
+              <span className="flex flex-wrap items-center gap-2 mt-1">
+                {preferOther ? (
+                  <>
+                    {absorbOther}
+                    <span className="text-gray-300">·</span>
+                    {absorbHere}
+                  </>
+                ) : (
+                  <>
+                    {absorbHere}
+                    <span className="text-gray-300">·</span>
+                    {absorbOther}
+                  </>
+                )}
+              </span>
+            ) : null}
+          </div>
+        </div>
+      </li>
     );
   }
 
@@ -169,19 +248,11 @@ export function AdminNameDuplicateWarning({
           <p className="font-medium">
             Já existe {label} com esse nome completo no cadastro. Salvamento
             bloqueado — abra o perfil existente, ou mescle se for a mesma pessoa.
+            Quem tem foto aparece primeiro.
           </p>
-          <ul className="mt-2 space-y-2">
+          <ul className="mt-2 space-y-2.5">
             {exactMatches.map((m) => (
-              <li key={m.id} className="text-sm">
-                <Link
-                  href={hrefForId(m.id)}
-                  className="inline-flex items-center gap-1 font-semibold text-[#1B3A6B] hover:underline"
-                >
-                  #{m.id} {m.name}
-                  {m.fullName ? ` (${m.fullName})` : ""} →
-                </Link>
-                <MatchActions m={m} />
-              </li>
+              <MatchRow key={m.id} m={m} strong />
             ))}
           </ul>
           {similarMatches.length > 0 ? (
@@ -189,18 +260,9 @@ export function AdminNameDuplicateWarning({
               <p className="text-xs font-medium text-red-800/80 mb-1.5">
                 Também há nomes parecidos:
               </p>
-              <ul className="space-y-2">
+              <ul className="space-y-2.5">
                 {similarMatches.map((m) => (
-                  <li key={m.id} className="text-xs">
-                    <Link
-                      href={hrefForId(m.id)}
-                      className="font-medium text-[#1B3A6B] hover:underline"
-                    >
-                      #{m.id} {m.name}
-                      {m.fullName ? ` · ${m.fullName}` : ""} →
-                    </Link>
-                    <MatchActions m={m} />
-                  </li>
+                  <MatchRow key={m.id} m={m} />
                 ))}
               </ul>
             </div>
@@ -210,21 +272,12 @@ export function AdminNameDuplicateWarning({
         <>
           <p className="font-medium">
             {merge
-              ? `Há ${label}(es) com nome parecido — confira se é a mesma pessoa e mescle se for o caso.`
+              ? `Há ${label}(es) com nome parecido — confira se é a mesma pessoa e mescle se for o caso. Quem tem foto aparece primeiro.`
               : `Há ${label}(es) com nome parecido — confira antes de criar outro.`}
           </p>
-          <ul className="mt-1.5 space-y-2">
+          <ul className="mt-1.5 space-y-2.5">
             {similarMatches.map((m) => (
-              <li key={m.id} className="text-xs">
-                <Link
-                  href={hrefForId(m.id)}
-                  className="font-medium text-[#1B3A6B] hover:underline"
-                >
-                  Abrir #{m.id} {m.name}
-                  {m.fullName ? ` · ${m.fullName}` : ""} →
-                </Link>
-                <MatchActions m={m} />
-              </li>
+              <MatchRow key={m.id} m={m} />
             ))}
           </ul>
         </>
