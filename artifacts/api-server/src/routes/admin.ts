@@ -3936,6 +3936,7 @@ function serializeSeasonPlayerStat(row: {
   playerId: number;
   playerName: string;
   position: string | null;
+  photoUrl?: string | null;
   season: string;
   appearances: number;
   goals: number;
@@ -3947,6 +3948,7 @@ function serializeSeasonPlayerStat(row: {
     playerId: row.playerId,
     playerName: row.playerName,
     position: row.position,
+    photoUrl: row.photoUrl ?? null,
     season: row.season,
     appearances: row.appearances,
     goals: row.goals,
@@ -3962,6 +3964,7 @@ async function listSeasonPlayerStats(season: string) {
       playerId: playerSeasonStatsTable.playerId,
       playerName: playersTable.name,
       position: playersTable.position,
+      photoUrl: playersTable.photoUrl,
       season: playerSeasonStatsTable.season,
       appearances: playerSeasonStatsTable.appearances,
       goals: playerSeasonStatsTable.goals,
@@ -4162,6 +4165,7 @@ function serializeSeasonManagerStat(row: {
   id: number;
   managerId: number;
   managerName: string;
+  photoUrl?: string | null;
   season: string;
   games: number;
   wins: number;
@@ -4176,6 +4180,7 @@ function serializeSeasonManagerStat(row: {
     id: row.id,
     managerId: row.managerId,
     managerName: row.managerName,
+    photoUrl: row.photoUrl ?? null,
     season: row.season,
     games: row.games,
     wins: row.wins,
@@ -4197,6 +4202,7 @@ async function listSeasonManagerStats(season: string) {
       id: managerSeasonStatsTable.id,
       managerId: managerSeasonStatsTable.managerId,
       managerName: managersTable.name,
+      photoUrl: managersTable.photoUrl,
       season: managerSeasonStatsTable.season,
       games: managerSeasonStatsTable.games,
       wins: managerSeasonStatsTable.wins,

@@ -10,6 +10,8 @@ import {
   shortPositionCode,
 } from "@/lib/position-groups";
 import { withAdminFrom } from "@/hooks/useAdminReturnTo";
+import { PlayerPhoto } from "@/components/PlayerPhoto";
+import { EntityPhoto } from "@/components/EntityPhoto";
 
 type CompStat = {
   id: number;
@@ -46,6 +48,7 @@ type RosterRow = {
   playerId: number;
   playerName: string;
   position: string | null;
+  photoUrl?: string | null;
   season: string;
   appearances: number;
   goals: number;
@@ -64,6 +67,7 @@ type ManagerRow = {
   id: number;
   managerId: number;
   managerName: string;
+  photoUrl?: string | null;
   season: string;
   games: number;
   wins: number;
@@ -1329,15 +1333,22 @@ export default function AdminSeasonDetail() {
                       return (
                         <tr key={row.id} className="border-b border-gray-100">
                           <td className="py-2 pr-2">
-                            <Link
-                              href={withAdminFrom(
-                                `/admin/jogadores/${row.playerId}`,
-                                `/admin/temporadas/${season}`,
-                              )}
-                              className="font-medium text-[#1B3A6B] hover:underline"
-                            >
-                              {row.playerName}
-                            </Link>
+                            <div className="flex items-center gap-2 min-w-0">
+                              <PlayerPhoto
+                                url={row.photoUrl}
+                                name={row.playerName}
+                                size="sm"
+                              />
+                              <Link
+                                href={withAdminFrom(
+                                  `/admin/jogadores/${row.playerId}`,
+                                  `/admin/temporadas/${season}`,
+                                )}
+                                className="font-medium text-[#1B3A6B] hover:underline truncate"
+                              >
+                                {row.playerName}
+                              </Link>
+                            </div>
                           </td>
                           <td className="py-2 pr-2 text-xs text-gray-500">
                             {shortPositionCode(row.position)}
@@ -1490,15 +1501,24 @@ export default function AdminSeasonDetail() {
                       return (
                         <tr key={row.id} className="border-b border-gray-100">
                           <td className="py-2 pr-2">
-                            <Link
-                              href={withAdminFrom(
-                                `/admin/tecnicos/${row.managerId}`,
-                                `/admin/temporadas/${season}`,
-                              )}
-                              className="font-medium text-[#1B3A6B] hover:underline"
-                            >
-                              {row.managerName}
-                            </Link>
+                            <div className="flex items-center gap-2 min-w-0">
+                              <EntityPhoto
+                                url={row.photoUrl}
+                                name={row.managerName}
+                                size="sm"
+                                shape="circle"
+                                label={`Foto de ${row.managerName}`}
+                              />
+                              <Link
+                                href={withAdminFrom(
+                                  `/admin/tecnicos/${row.managerId}`,
+                                  `/admin/temporadas/${season}`,
+                                )}
+                                className="font-medium text-[#1B3A6B] hover:underline truncate"
+                              >
+                                {row.managerName}
+                              </Link>
+                            </div>
                           </td>
                           {(
                             [
