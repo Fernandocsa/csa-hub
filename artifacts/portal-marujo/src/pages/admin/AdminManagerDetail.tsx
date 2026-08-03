@@ -14,6 +14,7 @@ import {
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { AdminEntityBadges } from "@/components/AdminEntityBadges";
 import { EntityPhoto } from "@/components/EntityPhoto";
+import { AdminNameDuplicateWarning } from "@/components/AdminNameDuplicateWarning";
 
 export interface Manager {
   id: number;
@@ -254,6 +255,13 @@ function ManagerProfileForm({
           placeholder="Se diferente do nome de exibição"
         />
       </div>
+      <AdminNameDuplicateWarning
+        kind="manager"
+        name={name}
+        fullName={fullName}
+        excludeId={initial?.id ?? null}
+        hrefForId={(id) => `/admin/tecnicos/${id}`}
+      />
       <div>
         <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
           Nacionalidade

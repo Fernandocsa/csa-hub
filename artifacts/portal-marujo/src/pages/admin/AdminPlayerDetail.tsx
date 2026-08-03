@@ -14,6 +14,7 @@ import {
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { AdminEntityBadges } from "@/components/AdminEntityBadges";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
+import { AdminNameDuplicateWarning } from "@/components/AdminNameDuplicateWarning";
 import { PLAYER_POSITIONS } from "@/lib/position-groups";
 
 export interface Player {
@@ -272,6 +273,13 @@ function PlayerProfileForm({
           placeholder="Se diferente do nome de exibição"
         />
       </div>
+      <AdminNameDuplicateWarning
+        kind="player"
+        name={name}
+        fullName={fullName}
+        excludeId={initial?.id ?? null}
+        hrefForId={(id) => `/admin/jogadores/${id}`}
+      />
       <div>
         <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
           Posição principal

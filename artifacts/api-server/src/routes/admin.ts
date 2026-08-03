@@ -36,6 +36,7 @@ import {
 import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray, ne, isNull } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard, updateMatchGoal } from "../lib/match-sheet";
 import { syncRelatedMatchLink, parsePenaltyShootoutFields } from "../lib/match-links";
+import { findDuplicateNameCandidates } from "../lib/admin-name-check";
 import {
   buildAndWriteCsaSheet,
   computeOwnGoalsForCount,
@@ -321,6 +322,34 @@ router.get("/admin/players", requireAdmin, async (req, res) => {
   try {
     const rows = await db.select().from(playersTable).orderBy(asc(playersTable.name));
     res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.get("/admin/players/name-check", requireAdmin, async (req, res) => {
+  try {
+    const q = String((req.query as { q?: string }).q ?? "").trim();
+    const fullName = String((req.query as { fullName?: string }).fullName ?? "").trim();
+    const excludeRaw = (req.query as { excludeId?: string }).excludeId;
+    const excludeId = excludeRaw != null && excludeRaw !== "" ? parseInt(excludeRaw, 10) : null;
+    if (!q && !fullName) {
+      return res.json({ matches: [] });
+    }
+    const rows = await db
+      .select({
+        id: playersTable.id,
+        name: playersTable.name,
+        fullName: playersTable.fullName,
+      })
+      .from(playersTable);
+    const matches = findDuplicateNameCandidates(
+      [q, fullName],
+      rows,
+      Number.isInteger(excludeId) ? excludeId : null,
+    ).slice(0, 8);
+    res.json({ matches });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -2653,6 +2682,34 @@ router.get("/admin/managers", requireAdmin, async (req, res) => {
         serializeManagerAdmin(withDerivedPeriod(r, seasonsMap.get(r.id) ?? [])),
       ),
     );
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.get("/admin/managers/name-check", requireAdmin, async (req, res) => {
+  try {
+    const q = String((req.query as { q?: string }).q ?? "").trim();
+    const fullName = String((req.query as { fullName?: string }).fullName ?? "").trim();
+    const excludeRaw = (req.query as { excludeId?: string }).excludeId;
+    const excludeId = excludeRaw != null && excludeRaw !== "" ? parseInt(excludeRaw, 10) : null;
+    if (!q && !fullName) {
+      return res.json({ matches: [] });
+    }
+    const rows = await db
+      .select({
+        id: managersTable.id,
+        name: managersTable.name,
+        fullName: managersTable.fullName,
+      })
+      .from(managersTable);
+    const matches = findDuplicateNameCandidates(
+      [q, fullName],
+      rows,
+      Number.isInteger(excludeId) ? excludeId : null,
+    ).slice(0, 8);
+    res.json({ matches });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
