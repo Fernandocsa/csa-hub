@@ -6,7 +6,6 @@ import {
   Shield,
   Trophy,
   Award,
-  Puzzle,
 } from "lucide-react";
 import {
   useGetSummary,
@@ -587,12 +586,6 @@ export default function Home() {
       icon: Award,
       count: titles ? formatInt(titles.total) : null,
     },
-    {
-      href: "/quem-e-o-jogador",
-      label: "Quem é o Jogador?",
-      icon: Puzzle,
-      count: null,
-    },
   ];
 
   return (
@@ -617,7 +610,7 @@ export default function Home() {
         </div>
         <GlobalSearch />
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2" data-testid="home-shortcuts">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2" data-testid="home-shortcuts">
           {shortcuts.map(({ href, label, icon: Icon, count }) => (
             <Link
               key={href}

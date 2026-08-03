@@ -46,10 +46,6 @@ export function SiteFooter() {
               Recordes
             </Link>
             {" · "}
-            <Link href="/quem-e-o-jogador" className="hover:text-primary hover:underline">
-              Quem é o Jogador?
-            </Link>
-            {" · "}
             <Link href="/sugestoes" className="hover:text-primary hover:underline">
               Contribua
             </Link>
