@@ -631,12 +631,18 @@ router.get("/players/:id", async (req, res) => {
         id: transfersTable.id,
         direction: transfersTable.direction,
         club: transfersTable.club,
+        opponentId: transfersTable.opponentId,
+        clubLogoUrl: opponentsTable.logoUrl,
         transferDate: transfersTable.transferDate,
         season: transfersTable.season,
         transferType: transfersTable.transferType,
         notes: transfersTable.notes,
       })
       .from(transfersTable)
+      .leftJoin(
+        opponentsTable,
+        eq(transfersTable.opponentId, opponentsTable.id),
+      )
       .where(eq(transfersTable.playerId, id))
       .orderBy(desc(transfersTable.season), desc(transfersTable.transferDate));
 
@@ -674,6 +680,8 @@ router.get("/players/:id", async (req, res) => {
         id: t.id,
         direction: t.direction === "out" ? "out" : "in",
         club: t.club ?? null,
+        opponentId: t.opponentId ?? null,
+        clubLogoUrl: t.clubLogoUrl ?? null,
         transferDate: t.transferDate ?? null,
         season: t.season,
         transferType: t.transferType ?? null,

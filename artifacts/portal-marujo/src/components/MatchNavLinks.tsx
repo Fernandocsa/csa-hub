@@ -15,6 +15,7 @@ export function OpponentHistoryLink({
   className,
   showCrest = true,
   crestAfter = true,
+  crestFallback = false,
   onClick,
 }: {
   opponentId?: number | null;
@@ -24,10 +25,12 @@ export function OpponentHistoryLink({
   showCrest?: boolean;
   /** Crest after the name (match lists). */
   crestAfter?: boolean;
+  /** Show initials when logo is missing (transfer rows). */
+  crestFallback?: boolean;
   onClick?: (e: MouseEvent) => void;
 }) {
   const crest = showCrest ? (
-    <OpponentCrest url={logoUrl} name={name} size="sm" />
+    <OpponentCrest url={logoUrl} name={name} size="sm" fallback={crestFallback} />
   ) : null;
   const inner = (
     <span className={cn("inline-flex items-center gap-1.5 min-w-0", className)}>

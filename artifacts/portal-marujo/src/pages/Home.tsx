@@ -24,7 +24,6 @@ import {
   type MilestoneMatch,
   type BirthdayPerson,
   type OnThisDayMatch,
-  type TransferItem,
 } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -334,43 +333,55 @@ function BirthdaysTodaySection() {
   );
 }
 
-function latestTransferLabel(t: TransferItem) {
-  const club = t.club?.trim();
-  if (t.direction === "out") {
-    return club
-      ? `${t.playerName} — Saída → ${club}`
-      : `${t.playerName} — Saída`;
-  }
-  return club
-    ? `${t.playerName} — Chegada ← ${club}`
-    : `${t.playerName} — Chegada`;
-}
-
 function LatestTransferSection() {
   const { data, isLoading } = useGetLatestTransfer();
 
   if (isLoading || !data) return null;
 
+  const club = data.club?.trim();
+
   return (
     <section data-testid="section-latest-transfer">
-      <Link
-        href="/transferencias"
-        className="block border rounded p-4 hover:bg-muted/40 transition-colors group"
-      >
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-          Última transferência
-        </p>
-        <p className="text-sm font-semibold group-hover:text-primary">
-          {latestTransferLabel(data)}
-        </p>
-        {(data.transferDate || data.season) && (
-          <p className="text-xs text-muted-foreground mt-1">
-            {data.transferDate ? fmtDate(data.transferDate) : null}
-            {data.transferDate && data.season ? " · " : null}
-            {data.season ? `Temporada ${data.season}` : null}
-          </p>
-        )}
-      </Link>
+      <div className="flex items-center gap-3 border rounded p-4 hover:bg-muted/40 transition-colors group">
+        <Link href="/transferencias" className="shrink-0" aria-label={data.playerName}>
+          <PlayerPhoto
+            url={data.playerPhotoUrl}
+            name={data.playerName}
+            size="md"
+          />
+        </Link>
+        <div className="min-w-0 flex-1">
+          <Link href="/transferencias" className="block">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Última transferência
+            </p>
+            <p className="text-sm font-semibold group-hover:text-primary">
+              {data.playerName}
+              {" — "}
+              {data.direction === "out" ? "Saída" : "Chegada"}
+              {!club ? null : data.direction === "out" ? " → " : " ← "}
+            </p>
+          </Link>
+          {club && (
+            <div className="mt-0.5">
+              <OpponentHistoryLink
+                opponentId={data.opponentId}
+                name={club}
+                logoUrl={data.clubLogoUrl}
+                crestAfter={false}
+                crestFallback
+              />
+            </div>
+          )}
+          {(data.transferDate || data.season) && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {data.transferDate ? fmtDate(data.transferDate) : null}
+              {data.transferDate && data.season ? " · " : null}
+              {data.season ? `Temporada ${data.season}` : null}
+            </p>
+          )}
+        </div>
+      </div>
     </section>
   );
 }

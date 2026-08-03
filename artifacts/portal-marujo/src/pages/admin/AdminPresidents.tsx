@@ -13,6 +13,8 @@ export type AdminPresident = {
   termStart: string | null;
   termEnd: string | null;
   notes: string | null;
+  linkedPlayerId?: number | null;
+  linkedManagerId?: number | null;
 };
 
 function termShort(p: AdminPresident) {

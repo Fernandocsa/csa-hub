@@ -6385,8 +6385,33 @@ router.post("/admin/presidents", requireAdmin, async (req, res) => {
       termStart?: string | null;
       termEnd?: string | null;
       notes?: string | null;
+      linkedPlayerId?: number | null;
+      linkedManagerId?: number | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+
+    let linkedPlayerId: number | null = null;
+    if (body.linkedPlayerId != null && body.linkedPlayerId !== ("" as unknown)) {
+      const n = Number(body.linkedPlayerId);
+      if (!Number.isInteger(n) || n < 1) {
+        return res.status(400).json({ error: "linkedPlayerId inválido" });
+      }
+      const [p] = await db.select({ id: playersTable.id }).from(playersTable).where(eq(playersTable.id, n)).limit(1);
+      if (!p) return res.status(400).json({ error: "Jogador vinculado não encontrado" });
+      linkedPlayerId = n;
+    }
+
+    let linkedManagerId: number | null = null;
+    if (body.linkedManagerId != null && body.linkedManagerId !== ("" as unknown)) {
+      const n = Number(body.linkedManagerId);
+      if (!Number.isInteger(n) || n < 1) {
+        return res.status(400).json({ error: "linkedManagerId inválido" });
+      }
+      const [m] = await db.select({ id: managersTable.id }).from(managersTable).where(eq(managersTable.id, n)).limit(1);
+      if (!m) return res.status(400).json({ error: "Técnico vinculado não encontrado" });
+      linkedManagerId = n;
+    }
+
     const [created] = await db
       .insert(presidentsTable)
       .values({
@@ -6395,6 +6420,8 @@ router.post("/admin/presidents", requireAdmin, async (req, res) => {
         termStart: parseOptionalYmd(body.termStart),
         termEnd: parseOptionalYmd(body.termEnd),
         notes: body.notes?.trim() || null,
+        linkedPlayerId,
+        linkedManagerId,
       })
       .returning();
     res.status(201).json(created);
@@ -6417,6 +6444,8 @@ router.put("/admin/presidents/:id", requireAdmin, async (req, res) => {
       termStart?: string | null;
       termEnd?: string | null;
       notes?: string | null;
+      linkedPlayerId?: number | null;
+      linkedManagerId?: number | null;
     };
     const values: Partial<typeof presidentsTable.$inferInsert> = {};
     if (body.name !== undefined) {
@@ -6427,6 +6456,36 @@ router.put("/admin/presidents/:id", requireAdmin, async (req, res) => {
     if (body.termStart !== undefined) values.termStart = parseOptionalYmd(body.termStart);
     if (body.termEnd !== undefined) values.termEnd = parseOptionalYmd(body.termEnd);
     if (body.notes !== undefined) values.notes = body.notes?.trim() || null;
+
+    if (Object.prototype.hasOwnProperty.call(body, "linkedPlayerId")) {
+      const raw = body.linkedPlayerId;
+      if (raw == null || raw === ("" as unknown)) {
+        values.linkedPlayerId = null;
+      } else {
+        const n = Number(raw);
+        if (!Number.isInteger(n) || n < 1) {
+          return res.status(400).json({ error: "linkedPlayerId inválido" });
+        }
+        const [p] = await db.select({ id: playersTable.id }).from(playersTable).where(eq(playersTable.id, n)).limit(1);
+        if (!p) return res.status(400).json({ error: "Jogador vinculado não encontrado" });
+        values.linkedPlayerId = n;
+      }
+    }
+
+    if (Object.prototype.hasOwnProperty.call(body, "linkedManagerId")) {
+      const raw = body.linkedManagerId;
+      if (raw == null || raw === ("" as unknown)) {
+        values.linkedManagerId = null;
+      } else {
+        const n = Number(raw);
+        if (!Number.isInteger(n) || n < 1) {
+          return res.status(400).json({ error: "linkedManagerId inválido" });
+        }
+        const [m] = await db.select({ id: managersTable.id }).from(managersTable).where(eq(managersTable.id, n)).limit(1);
+        if (!m) return res.status(400).json({ error: "Técnico vinculado não encontrado" });
+        values.linkedManagerId = n;
+      }
+    }
 
     const [updated] = await db
       .update(presidentsTable)

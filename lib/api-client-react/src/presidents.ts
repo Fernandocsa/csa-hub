@@ -8,6 +8,10 @@ export interface PresidentItem {
   termStart: string | null;
   termEnd: string | null;
   notes: string | null;
+  linkedPlayerId?: number | null;
+  linkedPlayerName?: string | null;
+  linkedManagerId?: number | null;
+  linkedManagerName?: string | null;
 }
 
 export const getPresidents = async (): Promise<PresidentItem[]> =>

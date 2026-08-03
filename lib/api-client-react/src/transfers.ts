@@ -10,6 +10,9 @@ export interface TransferItem {
   playerPhotoUrl: string | null;
   direction: TransferDirection;
   club: string | null;
+  /** Linked adversary id when available — opens /adversarios/:id */
+  opponentId?: number | null;
+  clubLogoUrl?: string | null;
   transferDate: string | null;
   season: string;
   transferType: string | null;

@@ -12,6 +12,7 @@ import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { EntityBadges } from "@/components/EntityBadges";
 import { PlayerFlag } from "@/components/PlayerFlag";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
+import { OpponentHistoryLink } from "@/components/MatchNavLinks";
 import { ShareButton } from "@/components/ShareButton";
 import { formatDateBr } from "@/lib/utils";
 import type { ReactNode } from "react";
@@ -61,6 +62,8 @@ type PlayerProfile = {
     id: number;
     direction: "in" | "out";
     club: string | null;
+    opponentId?: number | null;
+    clubLogoUrl?: string | null;
     transferDate: string | null;
     season: string;
     transferType: string | null;
@@ -343,7 +346,7 @@ export default function PlayerDetail() {
           </h2>
           <ul className="space-y-1.5 text-sm">
             {player.transfers!.map((t) => (
-              <li key={t.id} className="flex flex-wrap items-baseline gap-x-2">
+              <li key={t.id} className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <span
                   className={`text-xs font-semibold uppercase ${
                     t.direction === "in" ? "text-green-700" : "text-red-700"
@@ -353,8 +356,17 @@ export default function PlayerDetail() {
                 </span>
                 <span className="tabular-nums text-muted-foreground">{t.season}</span>
                 {t.club && (
-                  <span>
-                    {t.direction === "in" ? "de" : "para"} {t.club}
+                  <span className="inline-flex items-center gap-1.5 min-w-0">
+                    <span className="text-muted-foreground">
+                      {t.direction === "in" ? "de" : "para"}
+                    </span>
+                    <OpponentHistoryLink
+                      opponentId={t.opponentId}
+                      name={t.club}
+                      logoUrl={t.clubLogoUrl}
+                      crestAfter={false}
+                      crestFallback
+                    />
                   </span>
                 )}
                 {t.transferType && (

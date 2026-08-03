@@ -1,3 +1,4 @@
+import { Link } from "wouter";
 import { useGetPresidents } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EntityPhoto } from "@/components/EntityPhoto";
@@ -65,6 +66,31 @@ export default function PresidentsList() {
                   <p className="text-sm text-primary font-medium mt-0.5">
                     {termLabel(p.termStart, p.termEnd)}
                   </p>
+                  {(p.linkedPlayerId || p.linkedManagerId) && (
+                    <p className="text-xs text-muted-foreground mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
+                      {p.linkedPlayerId ? (
+                        <Link
+                          href={`/jogadores/${p.linkedPlayerId}`}
+                          className="text-primary hover:underline"
+                        >
+                          Ver como jogador
+                          {p.linkedPlayerName ? ` (${p.linkedPlayerName})` : ""} →
+                        </Link>
+                      ) : null}
+                      {p.linkedManagerId ? (
+                        <Link
+                          href={`/tecnicos/${p.linkedManagerId}`}
+                          className="text-primary hover:underline"
+                        >
+                          Ver como técnico
+                          {p.linkedManagerName
+                            ? ` (${p.linkedManagerName})`
+                            : ""}{" "}
+                          →
+                        </Link>
+                      ) : null}
+                    </p>
+                  )}
                   {p.notes && (
                     <p className="text-sm text-muted-foreground mt-2 whitespace-pre-line">
                       {p.notes}

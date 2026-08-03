@@ -4,6 +4,8 @@ import { useGetTransfers, type TransferDirection } from "@workspace/api-client-r
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ListPagination } from "@/components/ListPagination";
+import { PlayerPhoto } from "@/components/PlayerPhoto";
+import { OpponentHistoryLink } from "@/components/MatchNavLinks";
 import { useClientPage } from "@/hooks/useClientPage";
 import { formatDateBr } from "@/lib/utils";
 
@@ -11,9 +13,9 @@ function directionLabel(d: TransferDirection) {
   return d === "in" ? "No CSA (chegado por empréstimo)" : "Emprestado pelo CSA";
 }
 
-function clubPhrase(direction: TransferDirection, club: string | null) {
+function clubPrep(direction: TransferDirection, club: string | null) {
   if (!club) return null;
-  return direction === "in" ? `vindo de ${club}` : `no ${club}`;
+  return direction === "in" ? "vindo de" : "no";
 }
 
 export default function LoanedPlayers() {
@@ -123,38 +125,61 @@ export default function LoanedPlayers() {
                 </h2>
                 <ul className="border rounded divide-y">
                   {rows.map((t) => {
-                    const club = clubPhrase(t.direction, t.club);
+                    const prep = clubPrep(t.direction, t.club);
                     return (
                       <li
                         key={t.id}
-                        className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-3 py-2.5 text-sm"
+                        className="flex items-center gap-3 px-3 py-2.5 text-sm"
                       >
-                        <span
-                          className={`text-xs font-semibold uppercase tracking-wide shrink-0 ${
-                            t.direction === "in"
-                              ? "text-green-700"
-                              : "text-amber-700"
-                          }`}
-                        >
-                          {t.direction === "out" ? "Saída" : "Chegada"}
-                        </span>
                         <Link
                           href={`/jogadores/${t.playerId}`}
-                          className="font-medium hover:text-primary hover:underline"
+                          className="shrink-0"
+                          aria-label={t.playerName}
                         >
-                          {t.playerName}
+                          <PlayerPhoto
+                            url={t.playerPhotoUrl}
+                            name={t.playerName}
+                            size="sm"
+                          />
                         </Link>
-                        {club && (
-                          <span className="text-muted-foreground">{club}</span>
-                        )}
-                        <span className="text-xs text-muted-foreground hidden sm:inline">
-                          · {directionLabel(t.direction)}
-                        </span>
-                        {t.transferDate && (
-                          <span className="text-xs text-muted-foreground ml-auto tabular-nums">
-                            {formatDateBr(t.transferDate)}
+                        <div className="min-w-0 flex-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <span
+                            className={`text-xs font-semibold uppercase tracking-wide shrink-0 ${
+                              t.direction === "in"
+                                ? "text-green-700"
+                                : "text-amber-700"
+                            }`}
+                          >
+                            {t.direction === "out" ? "Saída" : "Chegada"}
                           </span>
-                        )}
+                          <Link
+                            href={`/jogadores/${t.playerId}`}
+                            className="font-medium hover:text-primary hover:underline"
+                          >
+                            {t.playerName}
+                          </Link>
+                          {t.club && prep && (
+                            <span className="inline-flex items-center gap-1.5 text-muted-foreground min-w-0">
+                              <span>{prep}</span>
+                              <OpponentHistoryLink
+                                opponentId={t.opponentId}
+                                name={t.club}
+                                logoUrl={t.clubLogoUrl}
+                                crestAfter={false}
+                                crestFallback
+                                className="text-foreground"
+                              />
+                            </span>
+                          )}
+                          <span className="text-xs text-muted-foreground hidden sm:inline">
+                            · {directionLabel(t.direction)}
+                          </span>
+                          {t.transferDate && (
+                            <span className="text-xs text-muted-foreground ml-auto tabular-nums">
+                              {formatDateBr(t.transferDate)}
+                            </span>
+                          )}
+                        </div>
                       </li>
                     );
                   })}

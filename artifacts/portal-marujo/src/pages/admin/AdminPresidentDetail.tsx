@@ -18,9 +18,25 @@ export default function AdminPresidentDetail() {
   const [termStart, setTermStart] = useState("");
   const [termEnd, setTermEnd] = useState("");
   const [notes, setNotes] = useState("");
+  const [linkedPlayerId, setLinkedPlayerId] = useState("");
+  const [linkedManagerId, setLinkedManagerId] = useState("");
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const applySaved = (data: AdminPresident) => {
+    setName(data.name);
+    setPhotoUrl(data.photoUrl ?? "");
+    setTermStart(data.termStart ?? "");
+    setTermEnd(data.termEnd ?? "");
+    setNotes(data.notes ?? "");
+    setLinkedPlayerId(
+      data.linkedPlayerId != null ? String(data.linkedPlayerId) : "",
+    );
+    setLinkedManagerId(
+      data.linkedManagerId != null ? String(data.linkedManagerId) : "",
+    );
+  };
 
   const load = useCallback(async () => {
     if (isNew || Number.isNaN(presidentId)) return;
@@ -32,12 +48,7 @@ export default function AdminPresidentDetail() {
       setLoading(false);
       return;
     }
-    const data = (await r.json()) as AdminPresident;
-    setName(data.name);
-    setPhotoUrl(data.photoUrl ?? "");
-    setTermStart(data.termStart ?? "");
-    setTermEnd(data.termEnd ?? "");
-    setNotes(data.notes ?? "");
+    applySaved((await r.json()) as AdminPresident);
     setLoading(false);
   }, [isNew, presidentId]);
 
@@ -56,6 +67,12 @@ export default function AdminPresidentDetail() {
         termStart: termStart.trim() || null,
         termEnd: termEnd.trim() || null,
         notes: notes.trim() || null,
+        linkedPlayerId: linkedPlayerId.trim()
+          ? Number(linkedPlayerId.trim())
+          : null,
+        linkedManagerId: linkedManagerId.trim()
+          ? Number(linkedManagerId.trim())
+          : null,
       };
       const r = await adminFetch(
         isNew ? "/admin/presidents" : `/admin/presidents/${presidentId}`,
@@ -70,13 +87,7 @@ export default function AdminPresidentDetail() {
       }
       const saved = (await r.json()) as AdminPresident;
       if (isNew) setLocation(`/admin/presidentes/${saved.id}`);
-      else {
-        setName(saved.name);
-        setPhotoUrl(saved.photoUrl ?? "");
-        setTermStart(saved.termStart ?? "");
-        setTermEnd(saved.termEnd ?? "");
-        setNotes(saved.notes ?? "");
-      }
+      else applySaved(saved);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro ao salvar");
     }
@@ -182,6 +193,42 @@ export default function AdminPresidentDetail() {
               onChange={(e) => setTermEnd(e.target.value)}
             />
             <p className="text-xs text-gray-400 mt-1">Em branco = em andamento</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+              Jogador vinculado (ID)
+            </label>
+            <Input
+              type="number"
+              min={1}
+              value={linkedPlayerId}
+              onChange={(e) => setLinkedPlayerId(e.target.value)}
+              placeholder="ex.: 1101"
+            />
+            {linkedPlayerId.trim() && (
+              <Link
+                href={`/jogadores/${linkedPlayerId.trim()}`}
+                className="text-xs text-[#1B3A6B] hover:underline mt-1 inline-block"
+                target="_blank"
+              >
+                Ver perfil do jogador →
+              </Link>
+            )}
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+              Técnico vinculado (ID)
+            </label>
+            <Input
+              type="number"
+              min={1}
+              value={linkedManagerId}
+              onChange={(e) => setLinkedManagerId(e.target.value)}
+              placeholder="opcional"
+            />
           </div>
         </div>
 
