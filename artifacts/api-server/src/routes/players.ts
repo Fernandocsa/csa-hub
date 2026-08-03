@@ -712,10 +712,13 @@ router.get("/players/:id/matches", async (req, res) => {
     if (!player) return res.status(404).json({ error: "Jogador não encontrado" });
 
     const matches = await loadPlayerSheetMatches(id);
+    const floors = await flooredPlayerSeasonStats(id);
+    const career = sumFlooredSeasons(floors);
     res.json({
       playerId: player.id,
       playerName: player.name,
       total: matches.length,
+      careerAppearances: career.appearances,
       matches,
     });
   } catch (err) {

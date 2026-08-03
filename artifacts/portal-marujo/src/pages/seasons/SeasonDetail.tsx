@@ -14,7 +14,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ShareButton } from "@/components/ShareButton";
-import { PlayerFlag } from "@/components/PlayerFlag";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { EntityPhoto } from "@/components/EntityPhoto";
 import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
@@ -187,16 +186,9 @@ function RosterByPosition({ players }: { players: PlayerStat[] }) {
                 >
                   <PlayerPhoto url={player.photoUrl} name={player.name} size="md" />
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <PlayerFlag
-                        flag={player.nationalityFlag}
-                        nationality={player.nationality}
-                        size="sm"
-                      />
-                      <span className="font-medium text-sm truncate group-hover:text-primary">
-                        {player.name}
-                      </span>
-                    </div>
+                    <span className="font-medium text-sm truncate block group-hover:text-primary">
+                      {player.name}
+                    </span>
                     {player.seasonAge != null ? (
                       <p className="mt-0.5 text-xs text-muted-foreground">{player.seasonAge} anos</p>
                     ) : null}

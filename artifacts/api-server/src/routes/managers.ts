@@ -35,7 +35,7 @@ async function loadManagerMatches(managerId: number, limit?: number) {
     })
     .from(matchesTable)
     .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
-    .where(eq(matchesTable.managerId, managerId))
+    .where(and(eq(matchesTable.managerId, managerId), officialPlayedMatchConditions()))
     .orderBy(desc(matchesTable.matchDate), desc(matchesTable.id))
     .$dynamic();
 
@@ -175,20 +175,6 @@ router.get("/managers/:id", async (req, res) => {
       .from(matchesTable)
       .where(and(eq(matchesTable.managerId, id), officialPlayedMatchConditions()));
 
-    const seasonRows = await db
-      .select({
-        season: managerSeasonStatsTable.season,
-        matches: managerSeasonStatsTable.games,
-        wins: managerSeasonStatsTable.wins,
-        draws: managerSeasonStatsTable.draws,
-        losses: managerSeasonStatsTable.losses,
-        goalsScored: managerSeasonStatsTable.goalsFor,
-        goalsConceded: managerSeasonStatsTable.goalsAgainst,
-      })
-      .from(managerSeasonStatsTable)
-      .where(eq(managerSeasonStatsTable.managerId, id))
-      .orderBy(desc(managerSeasonStatsTable.season));
-
     const computed = overall[0] ?? {
       matches: 0,
       wins: 0,
@@ -203,22 +189,12 @@ router.get("/managers/:id", async (req, res) => {
       countManagerTitles(id),
       listManagerTitles(id),
     ]);
-    const preferManual =
-      manager.statsSource === "manual" && seasonRows.length > 0;
-    const linkedSeasons = preferManual
-      ? []
-      : await computeManagerSeasonStatsFromMatches(id);
+    const linkedSeasons = await computeManagerSeasonStatsFromMatches(id);
     const flooredSeasons = resolveManagerSeasonStatsPublic({
-      statsSource: manager.statsSource,
-      seasonRows,
       linkedSeasons,
     });
     const period = periodFromSeasons(flooredSeasons.map((r) => r.year));
-    // Hide recent linked matches when curated totals disagree with polluted links
-    const recentMatches =
-      preferManual && computed.matches > (manager.storedGames ?? 0)
-        ? []
-        : await loadManagerMatches(id, 5);
+    const recentMatches = await loadManagerMatches(id, 5);
 
     let linkedPlayer: { id: number; name: string } | null = null;
     if (manager.playerId != null) {
@@ -287,25 +263,12 @@ router.get("/managers/:id/matches", async (req, res) => {
       .where(and(eq(matchesTable.managerId, id), officialPlayedMatchConditions()));
 
     const linkedCount = linked?.matches ?? 0;
-    // Curated career with noisy/incorrect links: don't expose the polluted match list
-    if (
-      manager.statsSource === "manual" &&
-      manager.storedGames != null &&
-      linkedCount > manager.storedGames
-    ) {
-      return res.json({
-        managerId: manager.id,
-        managerName: manager.name,
-        total: 0,
-        matches: [],
-      });
-    }
-
     const matches = await loadManagerMatches(id);
     res.json({
       managerId: manager.id,
       managerName: manager.name,
       total: matches.length,
+      careerMatches: linkedCount,
       matches,
     });
   } catch (err) {

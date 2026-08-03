@@ -1,0 +1,271 @@
+[
+  {
+    "id": 2030,
+    "name": "Eridon",
+    "fullName": "Eridon Souza de Oliveira",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1978-03-06",
+    "birthCity": "Fortaleza",
+    "birthState": "CE",
+    "heightCm": 178,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/eridon/profil/spieler/179027",
+      "http://csa-azulao.blogspot.com/2009/01/capelense-1-x-1-csa-empate-com-gosto-de.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2036,
+    "name": "Ânderson",
+    "fullName": "Anderson José dos Santos",
+    "position": "Volante",
+    "birthDate": "1980-04-08",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/anderson-canhao/profil/spieler/1278982",
+      "https://www.ogol.com.br/jogador/anderson-canhao/5067"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2038,
+    "name": "Augusto",
+    "fullName": "Augusto Cesar Santos Lima",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1979-11-14",
+    "heightCm": 185,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.pt/augusto-cesar-santos-lima/profil/spieler/9542"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2040,
+    "name": "Neto",
+    "fullName": "Carlos Hermano Pereira Loureiro",
+    "position": "Atacante",
+    "birthDate": "1982-04-29",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.pt/neto-alagoano/profil/spieler/1231921",
+      "http://csa-azulao.blogspot.com/2008/12/azulo-contrata-o-atacante-neto-que.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2045,
+    "name": "Camilo",
+    "fullName": "Camilo Nogueira Rezende",
+    "position": "Meia",
+    "birthDate": "1978-02-13",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 172,
+    "weightKg": 68,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Camilo_Nogueira_Rezende",
+      "https://www.transfermarkt.com/camilo-resende/profil/spieler/1278985"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2047,
+    "name": "Valdiran",
+    "fullName": "Valdiram Caetano de Morais",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1982-10-30",
+    "birthCity": "Canhotinho",
+    "birthState": "PE",
+    "heightCm": 175,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Valdiram",
+      "https://www.transfermarkt.pt/valdiram/profil/spieler/14210"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 82,
+    "name": "Jéferson",
+    "fullName": "Jeferson Gomes do Nascimento",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1986-01-09",
+    "birthCity": "Caratinga",
+    "birthState": "MG",
+    "heightCm": 182,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/J%C3%A9ferson_(footballer,_born_1986)",
+      "https://www.transfermarkt.com.br/jeferson/profil/spieler/242893"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2054,
+    "name": "Celso",
+    "fullName": "Jose Celso de Oliveira Nunes",
+    "position": "Lateral",
+    "preferredFoot": "destro",
+    "birthDate": "1981-07-30",
+    "heightCm": 170,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/celso/profil/spieler/101350",
+      "http://csa-azulao.blogspot.com/2010/12/csa-pre-temporada-2011.html"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": 2058,
+    "name": "Josuel",
+    "fullName": "Josuel Rodrigues dos Santos",
+    "position": "Lateral",
+    "birthDate": "1986-02-27",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/josuel/profil/spieler/1426590"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2066,
+    "name": "Rafael",
+    "fullName": "Rafael Ricardo dos Santos Simões",
+    "position": "Lateral",
+    "birthDate": "1983-10-06",
+    "birthCity": "Nilópolis",
+    "birthState": "RJ",
+    "heightCm": 191,
+    "weightKg": 66,
+    "nationality": "Brasil",
+    "sources": [
+      "http://csa-azulao.blogspot.com/2010/12/csa-anuncia-mais-uma-contratacao-para.html",
+      "https://footballinfo.net/Players/Details/106413"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2067,
+    "name": "Marcelo",
+    "fullName": "Marcelo Augusto Conceição da Silva",
+    "position": "Volante",
+    "birthDate": "1989-07-10",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/marcelo-silva/347087"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2068,
+    "name": "Adriano Silva",
+    "fullName": "Adriano Barbosa da Silva",
+    "position": "Meia",
+    "birthDate": "1987-02-10",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 172,
+    "weightKg": 68,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/adrianinho/profil/spieler/1469590",
+      "https://www.supervasco.com/noticias/adrianinho-ex-atleta-da-base-vascaina-vai-jogar-no-csa-al-86851.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2074,
+    "name": "Jefferson Lopes",
+    "fullName": "Jefferson Francisco Marques Lopes",
+    "position": "Volante",
+    "birthDate": "1989-10-27",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "nationality": "Brasil",
+    "sources": [
+      "http://esportecomjustino.blogspot.com/2011/01/depois-de-vitooria-csa-anuncia-duas.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2076,
+    "name": "Eduardo Eré",
+    "fullName": "Eduardo Bruno Marinho Gomes",
+    "position": "Lateral",
+    "birthDate": "1988-03-12",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": 179,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.meutimenarede.com.br/jogadores/1530/eduardo-ere"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2077,
+    "name": "Fernando Romão",
+    "fullName": "Luiz Fernando Borges Romão",
+    "position": "Atacante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1989-07-31",
+    "birthCity": "Jaú",
+    "birthState": "SP",
+    "heightCm": 189,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/romao/profil/spieler/221629",
+      "https://en.wikipedia.org/wiki/Rom%C3%A3o"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2081,
+    "name": "Neílson",
+    "fullName": "Neílson Santos Souza",
+    "position": "Meia",
+    "birthDate": "1988-02-28",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/neilson/profil/spieler/1232003"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2089,
+    "name": "Álisson",
+    "fullName": "Alisson Francisco Pereira da Silva",
+    "position": "Atacante",
+    "birthDate": "1990-07-01",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/alisson/profil/spieler/638933"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2090,
+    "name": "Ânderson Canhoto",
+    "fullName": "Anderson Pereira dos Santos",
+    "position": "Atacante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1988-09-29",
+    "heightCm": 178,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/anderson-canhoto/profil/spieler/77123"
+    ],
+    "confidence": "high"
+  }
+]

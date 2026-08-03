@@ -215,8 +215,8 @@ export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind })
                 )
               : data?.data.map((match) => {
                   const isUnknown =
-                    (match as { isUnknownResult?: boolean }).isUnknownResult === true ||
-                    match.result === "unknown";
+                    match.result === "unknown" ||
+                    (match as { isUnknownResult?: boolean }).isUnknownResult === true;
                   const openMatch = () =>
                     setLocation(
                       kind === "unknown"
@@ -241,9 +241,9 @@ export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind })
                       </TableCell>
                       <TableCell className="py-2">
                         <OpponentHistoryLink
-                          opponentId={(match as { opponentId?: number }).opponentId}
+                          opponentId={match.opponentId}
                           name={match.opponent}
-                          showCrest={false}
+                          logoUrl={match.opponentLogoUrl}
                         />
                         <span
                           className={cn(
@@ -302,15 +302,9 @@ export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind })
                       )}
                       <TableCell className="py-2 text-muted-foreground text-xs">
                         <div>{match.competition}</div>
-                        {matchPhaseRoundLabel(
-                          (match as { phase?: string | null }).phase,
-                          (match as { round?: string | null }).round,
-                        ) && (
+                        {matchPhaseRoundLabel(match.phase, match.round) && (
                           <div className="text-[11px] text-muted-foreground/80 mt-0.5">
-                            {matchPhaseRoundLabel(
-                              (match as { phase?: string | null }).phase,
-                              (match as { round?: string | null }).round,
-                            )}
+                            {matchPhaseRoundLabel(match.phase, match.round)}
                           </div>
                         )}
                       </TableCell>

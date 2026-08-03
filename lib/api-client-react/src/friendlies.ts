@@ -4,7 +4,9 @@ import { customFetch } from "./custom-fetch";
 export interface FriendlyMatch {
   id: number;
   date: string;
+  opponentId?: number;
   opponent: string;
+  opponentLogoUrl?: string | null;
   goalsFor: number | null;
   goalsAgainst: number | null;
   result: string;
@@ -13,6 +15,8 @@ export interface FriendlyMatch {
   season: string;
   stadium: string | null;
   isFriendly: boolean;
+  phase?: string | null;
+  round?: string | null;
 }
 
 export interface ListFriendliesParams {

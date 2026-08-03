@@ -92,7 +92,6 @@ export async function syncManagerCareerFromSeasonRows(managerId: number) {
       losses: sql<number>`cast(coalesce(sum(${managerSeasonStatsTable.losses}), 0) as int)`,
       goalsFor: sql<number>`cast(coalesce(sum(${managerSeasonStatsTable.goalsFor}), 0) as int)`,
       goalsAgainst: sql<number>`cast(coalesce(sum(${managerSeasonStatsTable.goalsAgainst}), 0) as int)`,
-      manualCount: sql<number>`cast(coalesce(sum(case when ${managerSeasonStatsTable.statsSource} = 'manual' then 1 else 0 end), 0) as int)`,
       rowCount: sql<number>`cast(count(*) as int)`,
     })
     .from(managerSeasonStatsTable)
@@ -100,10 +99,6 @@ export async function syncManagerCareerFromSeasonRows(managerId: number) {
 
   const rowCount = agg?.rowCount ?? 0;
   const now = new Date();
-  let statsSource: string | null = null;
-  if (rowCount > 0) {
-    statsSource = (agg?.manualCount ?? 0) > 0 ? "manual" : "calculated";
-  }
 
   const [updated] = await db
     .update(managersTable)
@@ -114,7 +109,7 @@ export async function syncManagerCareerFromSeasonRows(managerId: number) {
       storedLosses: rowCount > 0 ? (agg?.losses ?? 0) : null,
       storedGoalsFor: rowCount > 0 ? (agg?.goalsFor ?? 0) : null,
       storedGoalsAgainst: rowCount > 0 ? (agg?.goalsAgainst ?? 0) : null,
-      statsSource,
+      statsSource: rowCount > 0 ? "calculated" : null,
       statsRecalculatedAt: rowCount > 0 ? now : null,
     })
     .where(eq(managersTable.id, managerId))
@@ -124,9 +119,9 @@ export async function syncManagerCareerFromSeasonRows(managerId: number) {
 }
 
 /**
- * Recalculate per-season rows from matches.
- * Preserves rows with stats_source = 'manual'.
- * Removes calculated rows whose season no longer appears in matches.
+ * Recalculate per-season rows from linked matches only.
+ * Overwrites any previous manual season rows.
+ * Removes seasons that no longer appear in official matches.
  * Syncs managers.stored_* from the sum of season rows.
  */
 export async function recalculateManagerSeasonStats(managerId: number) {
@@ -148,14 +143,9 @@ export async function recalculateManagerSeasonStats(managerId: number) {
   const bySeason = new Map(existingRows.map((r) => [r.season, r]));
 
   let upserted = 0;
-  let preservedManual = 0;
 
   for (const c of computedSeasons) {
     const current = bySeason.get(c.season);
-    if (current?.statsSource === "manual") {
-      preservedManual += 1;
-      continue;
-    }
     if (current) {
       await db
         .update(managerSeasonStatsTable)
@@ -187,35 +177,21 @@ export async function recalculateManagerSeasonStats(managerId: number) {
     upserted += 1;
   }
 
-  let removedCalculated = 0;
-  if (computedSeasonKeys.length === 0) {
+  let removed = 0;
+  const orphans = existingRows.filter(
+    (r) => !computedSeasonKeys.includes(r.season),
+  );
+  if (orphans.length > 0) {
     const deleted = await db
       .delete(managerSeasonStatsTable)
       .where(
-        and(
-          eq(managerSeasonStatsTable.managerId, managerId),
-          eq(managerSeasonStatsTable.statsSource, "calculated"),
+        inArray(
+          managerSeasonStatsTable.id,
+          orphans.map((r) => r.id),
         ),
       )
       .returning({ id: managerSeasonStatsTable.id });
-    removedCalculated = deleted.length;
-  } else {
-    const orphanCalculated = existingRows.filter(
-      (r) =>
-        r.statsSource === "calculated" && !computedSeasonKeys.includes(r.season),
-    );
-    if (orphanCalculated.length > 0) {
-      const deleted = await db
-        .delete(managerSeasonStatsTable)
-        .where(
-          inArray(
-            managerSeasonStatsTable.id,
-            orphanCalculated.map((r) => r.id),
-          ),
-        )
-        .returning({ id: managerSeasonStatsTable.id });
-      removedCalculated = deleted.length;
-    }
+    removed = deleted.length;
   }
 
   const manager = await syncManagerCareerFromSeasonRows(managerId);
@@ -229,13 +205,13 @@ export async function recalculateManagerSeasonStats(managerId: number) {
     matchCount: computedSeasons.reduce((n, s) => n + s.games, 0),
     seasonsFromMatches: computedSeasons.length,
     upserted,
-    preservedManual,
-    removedCalculated,
+    preservedManual: 0,
+    removedCalculated: removed,
     seasonRows,
   };
 }
 
-/** Legacy career-only recalc — delegates to season recalc (preserves manuals). */
+/** Legacy career-only recalc — delegates to season recalc from linked matches. */
 export async function recalculateManagerStoredStats(managerId: number) {
   const result = await recalculateManagerSeasonStats(managerId);
   if (!result) return null;
@@ -270,10 +246,8 @@ export function hasAnyStoredStat(
 }
 
 /**
- * Resolve public career totals.
- * Manual curated totals (`stats_source = 'manual'`) always win — linked matches can be
- * incomplete or incorrectly attributed (e.g. wrong manager_id on many rows).
- * Otherwise stored acts as a floor until linked count exceeds it.
+ * Public career totals = linked official matches only.
+ * Manual stored floors are ignored.
  */
 export function resolveManagerCareerStats(
   computed: {
@@ -284,7 +258,7 @@ export function resolveManagerCareerStats(
     goalsScored: number;
     goalsConceded: number;
   },
-  stored: {
+  _stored?: {
     storedGames: number | null;
     storedWins: number | null;
     storedDraws: number | null;
@@ -294,26 +268,12 @@ export function resolveManagerCareerStats(
     statsSource?: string | null;
   },
 ) {
-  const floor = stored.storedGames;
-  if (floor == null) return computed;
-
-  const fromStored = {
-    matches: floor,
-    wins: stored.storedWins ?? 0,
-    draws: stored.storedDraws ?? 0,
-    losses: stored.storedLosses ?? 0,
-    goalsScored: stored.storedGoalsFor ?? 0,
-    goalsConceded: stored.storedGoalsAgainst ?? 0,
-  };
-
-  if (stored.statsSource === "manual") return fromStored;
-  if (computed.matches > floor) return computed;
-  return fromStored;
+  return computed;
 }
 
-/** Per-season: if linked games exceed manual season row, show linked; else keep manual. */
+/** @deprecated Prefer linked seasons only — kept for callers; always returns linked. */
 export function floorManagerSeasonRow(
-  manual: {
+  _manual: {
     matches: number;
     wins: number;
     draws: number;
@@ -330,25 +290,16 @@ export function floorManagerSeasonRow(
     goalsConceded: number;
   } | null,
 ) {
-  const m = manual ?? {
-    matches: 0,
-    wins: 0,
-    draws: 0,
-    losses: 0,
-    goalsScored: 0,
-    goalsConceded: 0,
-  };
-  const l = linked ?? {
-    matches: 0,
-    wins: 0,
-    draws: 0,
-    losses: 0,
-    goalsScored: 0,
-    goalsConceded: 0,
-  };
-  if (l.matches > m.matches) return l;
-  if (m.matches > 0 || !linked) return m;
-  return l;
+  return (
+    linked ?? {
+      matches: 0,
+      wins: 0,
+      draws: 0,
+      losses: 0,
+      goalsScored: 0,
+      goalsConceded: 0,
+    }
+  );
 }
 
 function mapManagerSeasonPublicRow(row: {
@@ -375,10 +326,10 @@ function mapManagerSeasonPublicRow(row: {
   };
 }
 
-/** Build public season table: curated rows only when career is manual. */
+/** Public season table from linked matches only. */
 export function resolveManagerSeasonStatsPublic(args: {
-  statsSource: string | null | undefined;
-  seasonRows: Array<{
+  statsSource?: string | null | undefined;
+  seasonRows?: Array<{
     season: string;
     matches: number;
     wins: number;
@@ -389,48 +340,21 @@ export function resolveManagerSeasonStatsPublic(args: {
   }>;
   linkedSeasons: ManagerSeasonComputed[];
 }) {
-  const { statsSource, seasonRows, linkedSeasons } = args;
-  if (statsSource === "manual" && seasonRows.length > 0) {
-    return seasonRows
-      .slice()
-      .sort((a, b) => b.season.localeCompare(a.season))
-      .map(mapManagerSeasonPublicRow);
-  }
-
-  const linkedBySeason = new Map(linkedSeasons.map((r) => [r.season, r]));
-  const seasonKeys = new Set([
-    ...seasonRows.map((r) => r.season),
-    ...linkedSeasons.map((r) => r.season),
-  ]);
-  return [...seasonKeys]
-    .sort((a, b) => b.localeCompare(a))
-    .map((season) => {
-      const manualRow = seasonRows.find((r) => r.season === season);
-      const linked = linkedBySeason.get(season);
-      const floored = floorManagerSeasonRow(
-        manualRow
-          ? {
-              matches: manualRow.matches,
-              wins: manualRow.wins,
-              draws: manualRow.draws,
-              losses: manualRow.losses,
-              goalsScored: manualRow.goalsScored,
-              goalsConceded: manualRow.goalsConceded,
-            }
-          : null,
-        linked
-          ? {
-              matches: linked.games,
-              wins: linked.wins,
-              draws: linked.draws,
-              losses: linked.losses,
-              goalsScored: linked.goalsFor,
-              goalsConceded: linked.goalsAgainst,
-            }
-          : null,
-      );
-      return mapManagerSeasonPublicRow({ season, ...floored });
-    });
+  const { linkedSeasons } = args;
+  return linkedSeasons
+    .slice()
+    .sort((a, b) => b.season.localeCompare(a.season))
+    .map((linked) =>
+      mapManagerSeasonPublicRow({
+        season: linked.season,
+        matches: linked.games,
+        wins: linked.wins,
+        draws: linked.draws,
+        losses: linked.losses,
+        goalsScored: linked.goalsFor,
+        goalsConceded: linked.goalsAgainst,
+      }),
+    );
 }
 
 /** Derive tenure from season labels (YYYY-friendly text min/max). */

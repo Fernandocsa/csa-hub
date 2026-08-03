@@ -4,7 +4,6 @@ import {
   matchGoalsTable,
   matchLineupsTable,
   matchesTable,
-  playerSeasonStatsTable,
 } from "@workspace/db";
 import { officialPlayedMatchConditions } from "./match-filters";
 import { csaLineupActuallyPlayedCondition } from "./player-appeared";
@@ -14,17 +13,16 @@ export type PlayerSeasonFloor = {
   appearances: number;
   goals: number;
   assists: number;
+  /** @deprecated Always 0 — manual floors removed; kept for API shape. */
   manualAppearances: number;
+  /** @deprecated Always 0 */
   manualGoals: number;
+  /** @deprecated Always 0 */
   manualAssists: number;
   linkedAppearances: number;
   linkedGoals: number;
   linkedAssists: number;
 };
-
-function maxNum(a: number, b: number) {
-  return a >= b ? a : b;
-}
 
 /** Count CSA sheet stats for a player, grouped by match season. */
 export async function linkedPlayerSeasonStats(playerId: number) {
@@ -103,65 +101,28 @@ export async function linkedPlayerSeasonStats(playerId: number) {
 }
 
 /**
- * Displayed season stats = GREATEST(manual season row, linked sheet counts).
- * Manual values act as a floor until linked matches exceed them.
+ * Season stats from linked match sheets only (lineups / goals / assists).
+ * Manual `player_season_stats` floors are no longer applied.
  */
 export async function flooredPlayerSeasonStats(
   playerId: number,
 ): Promise<PlayerSeasonFloor[]> {
-  const manualRows = await db
-    .select({
-      season: playerSeasonStatsTable.season,
-      appearances: playerSeasonStatsTable.appearances,
-      goals: playerSeasonStatsTable.goals,
-      assists: playerSeasonStatsTable.assists,
-    })
-    .from(playerSeasonStatsTable)
-    .where(eq(playerSeasonStatsTable.playerId, playerId));
-
   const linked = await linkedPlayerSeasonStats(playerId);
-  const seasons = new Set<string>([
-    ...manualRows.map((r) => r.season),
-    ...linked.keys(),
-  ]);
 
-  const manualBySeason = new Map(
-    manualRows.map((r) => [
-      r.season,
-      {
-        appearances: r.appearances ?? 0,
-        goals: r.goals ?? 0,
-        assists: r.assists ?? 0,
-      },
-    ]),
-  );
-
-  return [...seasons]
-    .sort((a, b) => b.localeCompare(a))
-    .map((season) => {
-      const manual = manualBySeason.get(season) ?? {
-        appearances: 0,
-        goals: 0,
-        assists: 0,
-      };
-      const link = linked.get(season) ?? {
-        appearances: 0,
-        goals: 0,
-        assists: 0,
-      };
-      return {
-        season,
-        manualAppearances: manual.appearances,
-        manualGoals: manual.goals,
-        manualAssists: manual.assists,
-        linkedAppearances: link.appearances,
-        linkedGoals: link.goals,
-        linkedAssists: link.assists,
-        appearances: maxNum(manual.appearances, link.appearances),
-        goals: maxNum(manual.goals, link.goals),
-        assists: maxNum(manual.assists, link.assists),
-      };
-    });
+  return [...linked.entries()]
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([season, link]) => ({
+      season,
+      manualAppearances: 0,
+      manualGoals: 0,
+      manualAssists: 0,
+      linkedAppearances: link.appearances,
+      linkedGoals: link.goals,
+      linkedAssists: link.assists,
+      appearances: link.appearances,
+      goals: link.goals,
+      assists: link.assists,
+    }));
 }
 
 export function sumFlooredSeasons(rows: PlayerSeasonFloor[]) {
@@ -189,9 +150,7 @@ export type FlooredCareerRankRow = {
 };
 
 /**
- * Career rankings using the same floor as player pages:
- * per season, GREATEST(manual player_season_stats, live sheet counts), then sum.
- * Updates as soon as lineups/goals are linked — no sync required.
+ * Career rankings from linked sheets only (no manual player_season_stats floor).
  */
 export async function flooredCareerRankings(opts: {
   sort: "appearances" | "goals" | "assists";
@@ -199,9 +158,6 @@ export async function flooredCareerRankings(opts: {
   season?: string;
 }): Promise<FlooredCareerRankRow[]> {
   const lim = Math.min(Math.max(opts.limit ?? 20, 1), 200);
-  const seasonFilter = opts.season
-    ? sql`AND season::text = ${opts.season}`
-    : sql``;
   const orderExpr =
     opts.sort === "goals"
       ? sql`goals DESC, appearances DESC, name ASC`
@@ -269,36 +225,21 @@ export async function flooredCareerRankings(opts: {
         ${opts.season ? sql`AND m.season::text = ${opts.season}` : sql``}
       GROUP BY mg.assist_player_id, m.season::text
     ),
-    manual AS (
-      SELECT
-        player_id,
-        season::text AS season,
-        coalesce(appearances, 0)::int AS appearances,
-        coalesce(goals, 0)::int AS goals,
-        coalesce(assists, 0)::int AS assists
-      FROM player_season_stats
-      WHERE TRUE
-        ${seasonFilter}
-    ),
     seasons AS (
-      SELECT player_id, season FROM manual
-      UNION
       SELECT player_id, season FROM linked_apps
       UNION
       SELECT player_id, season FROM linked_goals
       UNION
       SELECT player_id, season FROM linked_assists
     ),
-    floored AS (
+    linked AS (
       SELECT
         s.player_id,
         s.season,
-        greatest(coalesce(m.appearances, 0), coalesce(la.appearances, 0)) AS appearances,
-        greatest(coalesce(m.goals, 0), coalesce(lg.goals, 0)) AS goals,
-        greatest(coalesce(m.assists, 0), coalesce(las.assists, 0)) AS assists
+        coalesce(la.appearances, 0) AS appearances,
+        coalesce(lg.goals, 0) AS goals,
+        coalesce(las.assists, 0) AS assists
       FROM seasons s
-      LEFT JOIN manual m
-        ON m.player_id = s.player_id AND m.season = s.season
       LEFT JOIN linked_apps la
         ON la.player_id = s.player_id AND la.season = s.season
       LEFT JOIN linked_goals lg
@@ -313,7 +254,7 @@ export async function flooredCareerRankings(opts: {
         cast(sum(goals) as int) AS goals,
         cast(sum(assists) as int) AS assists,
         cast(count(DISTINCT season) as int) AS seasons
-      FROM floored
+      FROM linked
       GROUP BY player_id
     )
     SELECT
@@ -348,4 +289,3 @@ export async function flooredCareerRankings(opts: {
     seasons: Number(r.seasons) || 0,
   }));
 }
-

@@ -1,0 +1,196 @@
+[
+  {
+    "id": 2113,
+    "name": "Tozim",
+    "fullName": "Welliton de Moraes Coimbra",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1984-11-10",
+    "birthCity": "Gurupi",
+    "birthState": "TO",
+    "heightCm": 179,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/tozin/profil/spieler/131868",
+      "https://en.wikipedia.org/wiki/Tozin"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2092,
+    "name": "Jorginho",
+    "fullName": "Jorge Jeferson do Nascimento",
+    "position": "Lateral",
+    "birthDate": "1980-05-21",
+    "birthCity": "Aracaju",
+    "birthState": "SE",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com/jorginho/profil/spieler/1352468",
+      "http://csa-azulao.blogspot.com/2009/06/csa-apresenta-sua-nova-equipe-com-26.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2093,
+    "name": "Thiago Messias",
+    "fullName": "Tiago Messias de Jesus",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1981-07-08",
+    "birthCity": "Nova Iguaçu",
+    "birthState": "RJ",
+    "heightCm": 182,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/tiago-messias/profil/spieler/103383",
+      "http://opolemicodotrairi.blogspot.com/2012/12/zagueiro-tiago-messias-e-anunciado-como.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2094,
+    "name": "Selmo Lima",
+    "fullName": "Selmo Lima",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1976-07-17",
+    "birthCity": "Mirandópolis",
+    "birthState": "SP",
+    "heightCm": 184,
+    "weightKg": 72,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/selmo-lima/20345",
+      "http://csa-azulao.blogspot.com/2009/05/csa-contrata-quatro-jogadores-do.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2100,
+    "name": "Marcílio",
+    "fullName": "Marcílio da Silva Lucena",
+    "position": "Volante",
+    "birthDate": "1984-01-01",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/marcilio/profil/spieler/1326382",
+      "http://csa-azulao.blogspot.com/2009/06/csa-apresenta-sua-nova-equipe-com-26.html"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": 2105,
+    "name": "Anderson Alagoano",
+    "fullName": "Anderson José dos Santos",
+    "position": "Volante",
+    "birthDate": "1980-04-08",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/anderson-canhao/5067",
+      "https://www.transfermarkt.com.br/anderson-canhao/profil/spieler/1278982"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2109,
+    "name": "Piá",
+    "fullName": "Reginaldo Rivelino Jandoso",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1973-11-28",
+    "birthCity": "Cornélio Procópio",
+    "birthState": "PR",
+    "heightCm": 183,
+    "weightKg": 76,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/pia/199638",
+      "http://csa-azulao.blogspot.com/2009/07/csa-anuncia-tres-novas-contratacoes.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2112,
+    "name": "Emílio",
+    "fullName": "Emílio Cláudio Nazatto",
+    "position": "Atacante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1982-08-06",
+    "birthCity": "Santa Bárbara d'Oeste",
+    "birthState": "SP",
+    "heightCm": 185,
+    "weightKg": 82,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/emilio/149034",
+      "https://www.transfermarkt.com.br/emilio/profil/spieler/198806",
+      "http://csa-azulao.blogspot.com/2009/07/csa-anuncia-tres-novas-contratacoes.html"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": 2115,
+    "name": "Anderson Lobão",
+    "fullName": "Anderson Medeiros Silva",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1979-05-25",
+    "birthCity": "Tubarão",
+    "birthState": "SC",
+    "heightCm": 182,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/anderson-lobao/profil/spieler/158393",
+      "https://www.blog-do-sorrentino.com/news/a20081/"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": 2118,
+    "name": "Tiago Laranjeira",
+    "fullName": "Thiago Laranjeira Silva",
+    "position": "Meia",
+    "preferredFoot": "canhoto",
+    "birthDate": "1987-11-05",
+    "birthCity": "Sertânia",
+    "birthState": "PE",
+    "heightCm": 168,
+    "weightKg": 57,
+    "nationality": "Brasil",
+    "sources": [
+      "https://futeboldegoyaz.com.br/jogadores/2126/jogador"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": 2119,
+    "name": "Jonatas Vieira",
+    "fullName": "Jonatas Vieira de Lima",
+    "position": "Lateral",
+    "birthDate": "1991-02-07",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/jonatas-vieira/profil/spieler/1217564",
+      "http://soaresfutebol10.blogspot.com/2012/11/corinthians-alagoano-acerta-com-jonatas.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2120,
+    "name": "Gilson Costa",
+    "fullName": "Gilson da Costa Silva",
+    "position": "Atacante",
+    "birthDate": "1979-08-07",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/gilson-costa/175658",
+      "https://tribunadonorte.com.br/esportes/marciano-troca-o-abc-pelo-csa/"
+    ],
+    "confidence": "medium"
+  }
+]

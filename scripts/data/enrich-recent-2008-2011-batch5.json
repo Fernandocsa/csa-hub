@@ -1,0 +1,51 @@
+[
+  {
+    "id": 2085,
+    "name": "Sassá",
+    "fullName": "Johnny dos Santos",
+    "position": "Zagueiro",
+    "birthDate": "1987-10-07",
+    "heightCm": 190,
+    "weightKg": 81,
+    "nationality": "Brasil",
+    "sources": [
+      "http://csa-azulao.blogspot.com/2011/03/",
+      "https://www.blog-do-sorrentino.com/news/2011/",
+      "http://www.soccerpunter.com/player/440342/Sasa"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2086,
+    "name": "Ígor",
+    "fullName": "Igor César Cunha Santos",
+    "position": "Zagueiro",
+    "preferredFoot": "destro",
+    "birthDate": "1990-01-23",
+    "heightCm": 182,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": [
+      "http://csa-azulao.blogspot.com/2011/03/",
+      "https://www.ogol.com.br/jogador/igor-maranhao/134113",
+      "https://www.transfermarkt.co.uk/igor-maranhao/profil/spieler/134584"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2087,
+    "name": "Éder Bira",
+    "fullName": "Eder Junio Zili",
+    "position": "Volante",
+    "birthDate": "1982-11-30",
+    "birthCity": "São José do Rio Preto",
+    "birthState": "SP",
+    "nationality": "Brasil",
+    "sources": [
+      "http://csa-azulao.blogspot.com/2011/02/",
+      "https://www.transfermarkt.com/bira/profil/spieler/1336402",
+      "https://www.soccerpunter.com/players/111599-Eder-Junio-Zili"
+    ],
+    "confidence": "medium"
+  }
+]

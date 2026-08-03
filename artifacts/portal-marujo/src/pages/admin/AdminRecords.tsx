@@ -27,7 +27,12 @@ type PlayerStreak = Streak & { playerId: number; playerName: string };
 type ManagerStreak = Streak & { managerId: number; managerName: string };
 
 type RecordsPayload = {
-  rules: { matches: string; appearances: string; titles: string };
+  rules: {
+    matches: string;
+    appearances: string;
+    titles: string;
+    cleanSheets?: string;
+  };
   players: {
     topScorers: PlayerRow[];
     topAssists: PlayerRow[];
@@ -41,8 +46,10 @@ type RecordsPayload = {
     topWins: PlayerRow[];
     topGoalsAsSubstitute: PlayerRow[];
     topAppearancesAsSubstitute: PlayerRow[];
+    topCleanSheets: PlayerRow[];
     topTitles: PlayerRow[];
     consecutiveStarts: { historical: PlayerStreak[]; active: PlayerStreak[] };
+    cleanSheetStreak: { historical: PlayerStreak[]; active: PlayerStreak[] };
   };
   managers: {
     topWins: ManagerRow[];
@@ -272,6 +279,7 @@ export default function AdminRecords() {
             <p>{data.rules.matches}</p>
             <p>{data.rules.appearances}</p>
             <p>{data.rules.titles}</p>
+            {data.rules.cleanSheets ? <p>{data.rules.cleanSheets}</p> : null}
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
@@ -301,6 +309,9 @@ export default function AdminRecords() {
             </Card>
             <Card title="Mais títulos (jogador)">
               <PlayerList rows={data.players.topTitles} />
+            </Card>
+            <Card title="Mais clean sheets (goleiros)">
+              <PlayerList rows={data.players.topCleanSheets ?? []} />
             </Card>
             <Card title="Mais vitórias (técnico)">
               <ManagerList rows={data.managers.topWins} />
@@ -450,6 +461,67 @@ export default function AdminRecords() {
                   {data.players.consecutiveStarts.active.map((r, i) => (
                     <li
                       key={`${r.playerId}-active`}
+                      className="flex items-baseline justify-between gap-3 text-sm"
+                    >
+                      <span className="min-w-0 truncate">
+                        <span className="text-gray-400 tabular-nums mr-2">{i + 1}.</span>
+                        <Link
+                          href={`/admin/jogadores/${r.playerId}`}
+                          className="text-[#1B3A6B] hover:underline font-medium"
+                        >
+                          {r.playerName}
+                        </Link>
+                        <span className="text-xs text-gray-400 ml-2">
+                          desde {fmtDate(r.startDate)}
+                        </span>
+                      </span>
+                      <span className="tabular-nums font-semibold shrink-0 text-[#F5A623]">
+                        {r.length}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </Card>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card title="Mais clean sheets em sequência (histórico)">
+              {(data.players.cleanSheetStreak?.historical ?? []).length === 0 ? (
+                <p className="text-sm text-gray-400">Sem dados ainda.</p>
+              ) : (
+                <ol className="space-y-1.5">
+                  {data.players.cleanSheetStreak.historical.map((r, i) => (
+                    <li
+                      key={`${r.playerId}-${r.startMatchId}`}
+                      className="flex items-baseline justify-between gap-3 text-sm"
+                    >
+                      <span className="min-w-0 truncate">
+                        <span className="text-gray-400 tabular-nums mr-2">{i + 1}.</span>
+                        <Link
+                          href={`/admin/jogadores/${r.playerId}`}
+                          className="text-[#1B3A6B] hover:underline font-medium"
+                        >
+                          {r.playerName}
+                        </Link>
+                        <span className="text-xs text-gray-400 ml-2">
+                          {fmtDate(r.startDate)} → {fmtDate(r.endDate)}
+                        </span>
+                      </span>
+                      <span className="tabular-nums font-semibold shrink-0">{r.length}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </Card>
+            <Card title="Mais clean sheets em sequência (em andamento)">
+              {(data.players.cleanSheetStreak?.active ?? []).length === 0 ? (
+                <p className="text-sm text-gray-400">Nenhuma sequência ativa.</p>
+              ) : (
+                <ol className="space-y-1.5">
+                  {data.players.cleanSheetStreak.active.map((r, i) => (
+                    <li
+                      key={`${r.playerId}-cs-active`}
                       className="flex items-baseline justify-between gap-3 text-sm"
                     >
                       <span className="min-w-0 truncate">

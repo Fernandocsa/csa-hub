@@ -31,7 +31,10 @@ export interface PlayerSheetMatch {
 export interface PlayerMatchesResponse {
   playerId: number;
   playerName: string;
+  /** Matches with sheet participation (starter or sub who entered). */
   total: number;
+  /** Career total using season floors (may exceed `total` when sheets are incomplete). */
+  careerAppearances?: number;
   matches: PlayerSheetMatch[];
 }
 

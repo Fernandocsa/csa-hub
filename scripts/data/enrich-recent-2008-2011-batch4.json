@@ -1,0 +1,58 @@
+[
+  {
+    "id": 2029,
+    "name": "Coelho",
+    "fullName": "Francisco Gilcivanio Costa de Abreu",
+    "position": "Lateral",
+    "preferredFoot": "destro",
+    "birthDate": "1984-08-03",
+    "birthCity": "Fortaleza",
+    "birthState": "CE",
+    "heightCm": 170,
+    "weightKg": 74,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/coelho/165847",
+      "https://www.transfermarkt.com/coelho/profil/spieler/1290667",
+      "http://csa-azulao.blogspot.com/2009/01/capelense-1-x-1-csa-empate-com-gosto-de.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2032,
+    "name": "Kempes",
+    "fullName": "Wander Kemps de Oliveira",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1981-07-16",
+    "birthCity": "Mozarlândia",
+    "birthState": "GO",
+    "heightCm": 180,
+    "weightKg": 80,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/kemps/221902",
+      "https://www.transfermarkt.com/kemps/profil/spieler/1493646",
+      "https://www.blog-do-sorrentino.com/news/2009/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2041,
+    "name": "Eduardo",
+    "fullName": "Carlos Eduardo Santos Oliveira",
+    "position": "Lateral",
+    "preferredFoot": "destro",
+    "birthDate": "1986-11-20",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": 173,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Eduardo_(footballer,_born_20_November_1986)",
+      "https://www.transfermarkt.pt/eduardo/profil/spieler/53999",
+      "https://www.blog-do-sorrentino.com/news/2009/"
+    ],
+    "confidence": "high"
+  }
+]

@@ -47,7 +47,7 @@ export default function PlayerMatches() {
         <p className="text-sm text-muted-foreground mt-1">
           {data.total === 0
             ? "Nenhum jogo com participação em campo disponível"
-            : `${data.total} ${data.total === 1 ? "jogo" : "jogos"} em que atuou`}
+            : `${data.total} ${data.total === 1 ? "jogo" : "jogos"} em que atuou (titular ou reserva que entrou)`}
         </p>
       </div>
 

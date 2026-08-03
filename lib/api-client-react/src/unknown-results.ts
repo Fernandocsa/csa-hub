@@ -4,7 +4,9 @@ import { customFetch } from "./custom-fetch";
 export interface UnknownResultMatch {
   id: number;
   date: string;
+  opponentId?: number;
   opponent: string;
+  opponentLogoUrl?: string | null;
   goalsFor: number | null;
   goalsAgainst: number | null;
   result: string;
@@ -13,6 +15,8 @@ export interface UnknownResultMatch {
   season: string;
   stadium: string | null;
   isUnknownResult: boolean;
+  phase?: string | null;
+  round?: string | null;
 }
 
 export interface ListUnknownResultsParams {

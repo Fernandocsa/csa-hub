@@ -49,6 +49,7 @@ try {
         WHERE m.season::text = $1
           AND coalesce(m.is_friendly, false) = false
           AND coalesce(m.status, 'played') <> 'scheduled'
+          AND coalesce(m.result, '') <> 'unknown'
           AND lower(coalesce(m.phase, '')) NOT LIKE '%anulad%'
           AND ml.side = 'csa'
           AND ml.player_id IS NOT NULL
@@ -70,6 +71,7 @@ try {
         WHERE m.season::text = $1
           AND coalesce(m.is_friendly, false) = false
           AND coalesce(m.status, 'played') <> 'scheduled'
+          AND coalesce(m.result, '') <> 'unknown'
           AND lower(coalesce(m.phase, '')) NOT LIKE '%anulad%'
           AND mg.side = 'csa'
           AND coalesce(mg.is_own_goal, false) = false
@@ -140,14 +142,20 @@ try {
 
     for (const r of roster) {
       if (touched.has(r.player_id)) continue;
-      // Keep assists; zero manual apps/goals with no linked sheet activity
+      // No linked sheet activity: drop manual apps/goals (or the whole row if no assists)
       if ((r.appearances ?? 0) === 0 && (r.goals ?? 0) === 0) continue;
       if (!DRY) {
-        await client.query(
-          `UPDATE player_season_stats
-           SET appearances = 0, goals = 0 WHERE id = $1`,
-          [r.id],
-        );
+        if ((r.assists ?? 0) > 0) {
+          await client.query(
+            `UPDATE player_season_stats
+             SET appearances = 0, goals = 0 WHERE id = $1`,
+            [r.id],
+          );
+        } else {
+          await client.query(`DELETE FROM player_season_stats WHERE id = $1`, [
+            r.id,
+          ]);
+        }
       }
       zeroed += 1;
     }
@@ -164,8 +172,19 @@ try {
     }
   }
 
+  // Drop fully empty season rows (no apps/goals/assists)
+  let emptyDeleted = 0;
+  if (!DRY) {
+    const del = await client.query(
+      `DELETE FROM player_season_stats
+       WHERE coalesce(appearances,0)=0 AND coalesce(goals,0)=0 AND coalesce(assists,0)=0
+       RETURNING id`,
+    );
+    emptyDeleted = del.rowCount ?? 0;
+  }
+
   console.log(
-    `\nTOTAL updated=${totalUpdated} inserted=${totalInserted} zeroed=${totalZeroed} seasons=${TARGETS.length}`,
+    `\nTOTAL updated=${totalUpdated} inserted=${totalInserted} zeroed=${totalZeroed} emptyDeleted=${emptyDeleted} seasons=${TARGETS.length}`,
   );
 
   if (DRY) {

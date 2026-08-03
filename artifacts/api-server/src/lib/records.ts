@@ -9,7 +9,7 @@ import {
   opponentsTable,
   competitionsTable,
 } from "@workspace/db";
-import { and, asc, desc, eq, sql, isNotNull, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, or, sql, isNotNull, inArray } from "drizzle-orm";
 import { recordsMatchConditions, scoredFieldMatchConditions } from "./match-filters";
 import {
   csaLineupActuallyPlayedCondition,
@@ -19,6 +19,19 @@ import {
   topManagersByTitles,
   topPlayersByTitles,
 } from "./titles";
+
+/** Starting CSA goalkeeper: lineup position or player profile marked as Goleiro. */
+function csaStartingGoalkeeperCondition() {
+  return and(
+    eq(matchLineupsTable.side, "csa"),
+    eq(matchLineupsTable.role, "starter"),
+    isNotNull(matchLineupsTable.playerId),
+    or(
+      eq(matchLineupsTable.position, "Goleiro"),
+      eq(playersTable.position, "Goleiro"),
+    ),
+  );
+}
 
 export type PlayerRecordHolder = {
   playerId: number;
@@ -583,6 +596,159 @@ async function biggestWins(limit = 10): Promise<MatchRecordHolder[]> {
 }
 
 /**
+ * Goalkeepers with the most clean sheets (started as GK, team conceded 0).
+ */
+async function topCleanSheets(limit = 10): Promise<PlayerRecordHolder[]> {
+  const rows = await db
+    .select({
+      playerId: matchLineupsTable.playerId,
+      playerName: playersTable.name,
+      value: sql<number>`cast(count(distinct ${matchLineupsTable.matchId}) as int)`,
+    })
+    .from(matchLineupsTable)
+    .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
+    .innerJoin(playersTable, eq(matchLineupsTable.playerId, playersTable.id))
+    .where(
+      and(
+        recordsMatchConditions(),
+        csaStartingGoalkeeperCondition(),
+        eq(matchesTable.goalsAgainst, 0),
+      ),
+    )
+    .groupBy(matchLineupsTable.playerId, playersTable.name)
+    .orderBy(desc(sql`count(distinct ${matchLineupsTable.matchId})`), asc(playersTable.name))
+    .limit(limit);
+
+  return rows.map((r) => ({
+    playerId: r.playerId!,
+    playerName: r.playerName,
+    value: r.value,
+  }));
+}
+
+/**
+ * Consecutive clean sheets for starting goalkeepers across the club calendar.
+ * Missing a match, not starting as GK, or conceding breaks the streak.
+ */
+async function goalkeeperCleanSheetStreaks(): Promise<{
+  historical: PlayerStreakRecord[];
+  active: PlayerStreakRecord[];
+}> {
+  const matches = await loadRecordsMatches();
+  if (matches.length === 0) {
+    return { historical: [], active: [] };
+  }
+
+  const gkStarters = await db
+    .select({
+      matchId: matchLineupsTable.matchId,
+      playerId: matchLineupsTable.playerId,
+    })
+    .from(matchLineupsTable)
+    .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
+    .innerJoin(playersTable, eq(matchLineupsTable.playerId, playersTable.id))
+    .where(and(recordsMatchConditions(), csaStartingGoalkeeperCondition()));
+
+  const gkByMatch = new Map<number, Set<number>>();
+  const allPlayerIds = new Set<number>();
+  for (const s of gkStarters) {
+    if (s.playerId == null) continue;
+    allPlayerIds.add(s.playerId);
+    let set = gkByMatch.get(s.matchId);
+    if (!set) {
+      set = new Set();
+      gkByMatch.set(s.matchId, set);
+    }
+    set.add(s.playerId);
+  }
+
+  if (allPlayerIds.size === 0) return { historical: [], active: [] };
+
+  const players = await db
+    .select({ id: playersTable.id, name: playersTable.name })
+    .from(playersTable)
+    .where(inArray(playersTable.id, [...allPlayerIds]));
+  const nameById = new Map(players.map((p) => [p.id, p.name]));
+
+  type Acc = {
+    bestLen: number;
+    bestStart: MatchRow | null;
+    bestEnd: MatchRow | null;
+    curLen: number;
+    curStart: MatchRow | null;
+    curEnd: MatchRow | null;
+  };
+  const acc = new Map<number, Acc>();
+  for (const id of allPlayerIds) {
+    acc.set(id, {
+      bestLen: 0,
+      bestStart: null,
+      bestEnd: null,
+      curLen: 0,
+      curStart: null,
+      curEnd: null,
+    });
+  }
+
+  for (const m of matches) {
+    const startedAsGk = gkByMatch.get(m.id) ?? new Set<number>();
+    const isCleanSheet = m.goalsAgainst != null && m.goalsAgainst === 0;
+    for (const playerId of allPlayerIds) {
+      const a = acc.get(playerId)!;
+      if (startedAsGk.has(playerId) && isCleanSheet) {
+        if (a.curLen === 0) a.curStart = m;
+        a.curLen += 1;
+        a.curEnd = m;
+        if (a.curLen > a.bestLen) {
+          a.bestLen = a.curLen;
+          a.bestStart = a.curStart;
+          a.bestEnd = a.curEnd;
+        }
+      } else {
+        a.curLen = 0;
+        a.curStart = null;
+        a.curEnd = null;
+      }
+    }
+  }
+
+  const historical: PlayerStreakRecord[] = [];
+  const active: PlayerStreakRecord[] = [];
+  for (const [playerId, a] of acc) {
+    if (a.bestLen > 0 && a.bestStart && a.bestEnd) {
+      historical.push({
+        playerId,
+        playerName: nameById.get(playerId) ?? `#${playerId}`,
+        length: a.bestLen,
+        startDate: a.bestStart.matchDate,
+        endDate: a.bestEnd.matchDate,
+        startMatchId: a.bestStart.id,
+        endMatchId: a.bestEnd.id,
+      });
+    }
+    if (a.curLen > 0 && a.curStart && a.curEnd) {
+      active.push({
+        playerId,
+        playerName: nameById.get(playerId) ?? `#${playerId}`,
+        length: a.curLen,
+        startDate: a.curStart.matchDate,
+        endDate: a.curEnd.matchDate,
+        startMatchId: a.curStart.id,
+        endMatchId: a.curEnd.id,
+      });
+    }
+  }
+
+  historical.sort((a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName));
+  active.sort((a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName));
+
+  return {
+    historical: historical.slice(0, 10),
+    active: active.slice(0, 10),
+  };
+}
+
+/**
  * Consecutive starts across the club's official match calendar.
  * Missing a match or not starting breaks the streak.
  */
@@ -831,9 +997,11 @@ export async function computeClubRecords() {
     playerWins,
     goalsAsSub,
     appsAsSub,
+    cleanSheets,
     managerWins,
     thrashings,
     starts,
+    gkCleanSheetStreaks,
     playerTitles,
     managerTitles,
     managerWinStreaks,
@@ -850,9 +1018,11 @@ export async function computeClubRecords() {
     topPlayerWins(),
     topGoalsAsSubstitute(),
     topAppearancesAsSubstitute(),
+    topCleanSheets(),
     topManagerWins(),
     biggestWins(),
     consecutiveStartsRecords(),
+    goalkeeperCleanSheetStreaks(),
     topPlayersByTitles(10),
     topManagersByTitles(10),
     managerStreakRecords(matches, (m) => m.result === "win"),
@@ -871,6 +1041,8 @@ export async function computeClubRecords() {
       appearances: "Titular ou reserva que entrou",
       titles:
         "Jogador: relacionado em qualquer ficha da campanha campeã (banco incluso). Técnico: apenas o último jogo oficial da campanha",
+      cleanSheets:
+        "Clean sheet: goleiro titular em partida oficial sem gol sofrido (posição Goleiro na ficha ou no cadastro)",
     },
     players: {
       topScorers: goals,
@@ -887,12 +1059,14 @@ export async function computeClubRecords() {
       topWins: playerWins,
       topGoalsAsSubstitute: goalsAsSub,
       topAppearancesAsSubstitute: appsAsSub,
+      topCleanSheets: cleanSheets,
       topTitles: playerTitles.map((r) => ({
         playerId: r.id,
         playerName: r.name,
         value: r.titleCount,
       })),
       consecutiveStarts: starts,
+      cleanSheetStreak: gkCleanSheetStreaks,
     },
     managers: {
       topWins: managerWins,

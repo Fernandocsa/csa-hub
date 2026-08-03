@@ -1,0 +1,56 @@
+[
+  {
+    "id": 2098,
+    "name": "Gustavo",
+    "fullName": "Gustavo Salgueiro de Almeida Correia",
+    "position": "Meia",
+    "preferredFoot": "destro",
+    "birthDate": "1984-07-07",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": 181,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Gustavo_Salgueiro_de_Almeida_Correia",
+      "https://www.transfermarkt.com/gustavo/profil/spieler/69824",
+      "http://csa-azulao.blogspot.com/2009/06/csa-apresenta-sua-nova-equipe-com-26.html",
+      "http://terrainteressados.blogspot.com/2011/12/por-tras-do-gol-lembrando-do-csa.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2110,
+    "name": "Harley",
+    "fullName": "Harley Alberto Santos Ferreira",
+    "position": "Atacante",
+    "birthDate": "1979-03-09",
+    "birthCity": "Nazaré",
+    "birthState": "BA",
+    "heightCm": 187,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/harley/136032",
+      "http://csa-azulao.blogspot.com/2009/07/csa-anuncia-tres-novas-contratacoes.html",
+      "http://baudotremendao.blogspot.com/2020/12/atacante-harley-assina-contrato-com-o.html",
+      "https://www.transfermarkt.com.br/harley/profil/spieler/1325703"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2117,
+    "name": "Rodrigues",
+    "fullName": "Idalecio Rodrigues da Silva",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1977-12-16",
+    "birthCity": "Ouro Branco",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.ogol.com.br/jogador/rodrigues/136231",
+      "https://www.transfermarkt.com.br/rodrigues/profil/spieler/1324140",
+      "http://csa-azulao.blogspot.com/2009/06/csa-apresenta-sua-nova-equipe-com-26.html",
+      "http://csa-azulao.blogspot.com/2009/02/azulao-continua-os-treinamentos-na.html"
+    ],
+    "confidence": "high"
+  }
+]

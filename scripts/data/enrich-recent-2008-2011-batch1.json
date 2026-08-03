@@ -1,0 +1,197 @@
+[
+  {
+    "id": 2048,
+    "name": "Júnior Caiçara",
+    "fullName": "Uilson de Souza Paula Júnior",
+    "position": "Lateral Direito",
+    "preferredFoot": "destro",
+    "birthDate": "1989-04-27",
+    "birthCity": "Santos",
+    "birthState": "SP",
+    "heightCm": 172,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/J%C3%BAnior_Cai%C3%A7ara",
+      "https://www.dgabc.com.br/Noticia/935156/caicara-ganha-vaga-no-sto-andre"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2037,
+    "name": "Fábio Lopes",
+    "fullName": "Fábio Rogério Correa Lopes",
+    "position": "Atacante",
+    "birthDate": "1985-05-24",
+    "birthCity": "São Luís",
+    "birthState": "MA",
+    "heightCm": 181,
+    "weightKg": 70,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/F%C3%A1bio_Lopes_(footballer,_born_1985)",
+      "https://chicomaia.com.br/2012/01/23/fisionomia-do-novo-contratado-do-cruzeiro-faz-lembrar-ronaldinho-gaucho/"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2031,
+    "name": "Thiago Potiguar",
+    "fullName": "Thiago Jefferson da Silva",
+    "position": "Meia Ofensivo",
+    "preferredFoot": "destro",
+    "birthDate": "1985-05-27",
+    "birthCity": "Currais Novos",
+    "birthState": "RN",
+    "heightCm": 169,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/thiago-potiguar/profil/spieler/211176",
+      "https://www.ogol.com.br/jogador/thiago-potiguar/135753"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2051,
+    "name": "Marco Brito",
+    "fullName": "Marco Luiz Brito",
+    "position": "Atacante",
+    "birthDate": "1977-08-04",
+    "birthCity": "Rio de Janeiro",
+    "birthState": "RJ",
+    "heightCm": 180,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/marco-brito/profil/spieler/617104",
+      "http://csa-azulao.blogspot.com/2009/02/csa-com-caras-novas-no-mutange.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2053,
+    "name": "Ânderson Paraíba",
+    "fullName": "Anderson da Silva Gibin",
+    "position": "Goleiro",
+    "preferredFoot": "destro",
+    "birthDate": "1979-07-21",
+    "birthCity": "São Paulo",
+    "birthState": "SP",
+    "heightCm": 194,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Anderson_da_Silva_Gibin",
+      "https://www.transfermarkt.pt/anderson-paraiba/profil/spieler/1324499"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2061,
+    "name": "Tico Mineiro",
+    "fullName": "Dilmar dos Santos Machado",
+    "position": "Atacante",
+    "preferredFoot": "destro",
+    "birthDate": "1976-01-26",
+    "birthCity": "Belmonte",
+    "birthState": "BA",
+    "heightCm": 177,
+    "nationality": "Brasil",
+    "sources": [
+      "https://pt.wikipedia.org/wiki/Tico_Mineiro",
+      "https://www.ogol.com.br/jogador/tico-mineiro/312843"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2055,
+    "name": "La Bamba",
+    "fullName": "Anderson da Silva Santos",
+    "position": "Volante",
+    "birthDate": "1983-09-08",
+    "birthCity": "Maceió",
+    "birthState": "AL",
+    "heightCm": 180,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/anderson-la-bamba/profil/spieler/34948",
+      "https://www.cadaminuto.com.br/noticia/2010/08/02/lino-pode-ter-tres-desfalques-diante-do-nautico-nesta-quarta"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2065,
+    "name": "Fabrício Tocha",
+    "fullName": "Fabrício Freitas",
+    "position": "Zagueiro",
+    "birthDate": "1986-05-30",
+    "heightCm": 184,
+    "weightKg": 79,
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.pt/fabricio-tocha/profil/spieler/1009056",
+      "http://blogmarlonaraujo.blogspot.com/2010/12/conheca-o-mais-novo-reforco-do-csa.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2113,
+    "name": "Tozim",
+    "fullName": "Welliton de Moraes Coimbra",
+    "position": "Atacante",
+    "birthDate": "1984-11-10",
+    "birthCity": "Gurupi",
+    "birthState": "TO",
+    "heightCm": 179,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Tozin",
+      "http://blogmarlonaraujo.blogspot.com/2010/12/destaque-no-futebol-de-alagoas-tozim.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2057,
+    "name": "Dio",
+    "fullName": "Diouzer da Cruz dos Santos",
+    "position": "Meia",
+    "preferredFoot": "canhoto",
+    "birthDate": "1986-09-26",
+    "birthCity": "Dom Pedrito",
+    "birthState": "RS",
+    "heightCm": 168,
+    "weightKg": 66,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Dio_(footballer)",
+      "https://www.transfermarkt.com/diotm/profil/spieler/264270"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2099,
+    "name": "Etinho",
+    "fullName": "Weliton Sebastião dos Santos",
+    "position": "Atacante",
+    "preferredFoot": "canhoto",
+    "birthDate": "1984-11-29",
+    "nationality": "Brasil",
+    "sources": [
+      "https://www.transfermarkt.com.br/etinho/profil/spieler/867540",
+      "http://csa-azulao.blogspot.com/2009/05/junta-diretiva-contrata-junior-amorim-e.html"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": 2101,
+    "name": "Heverton",
+    "fullName": "Heverton Santos de Oliveira",
+    "position": "Goleiro",
+    "birthDate": "1978-04-15",
+    "birthCity": "Cuiabá",
+    "birthState": "MT",
+    "heightCm": 181,
+    "nationality": "Brasil",
+    "sources": [
+      "https://en.wikipedia.org/wiki/Heverton_Perereca"
+    ],
+    "confidence": "high"
+  }
+]

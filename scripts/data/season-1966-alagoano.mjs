@@ -1,0 +1,476 @@
+/** Absolute minute: 1ºT = m; 2ºT = 45+m */
+export function absMin(half, m) {
+  if (m == null) return 0;
+  return half === 2 ? 45 + m : m;
+}
+
+/** Campeonato Alagoano 1966 — jogos do CSA (fonte do usuário).
+ * Inclui decisão em mar/1967 (season=1966).
+ * 1º jogo da final (vitória CSA, sem data/placar) NÃO inserido — sem inventar.
+ * Placar sempre na visão CSA (gf/ga). Sem inventar fichas.
+ */
+export const COMPETITION_NAME = "Campeonato Alagoano";
+export const SEASON = 1966;
+
+/**
+ * @typedef {{
+ *   date: string;
+ *   phase?: string|null;
+ *   opponent: string;
+ *   ha: "home"|"away";
+ *   gf: number|null;
+ *   ga: number|null;
+ *   unknownResult?: boolean;
+ *   walkover?: boolean;
+ *   stadium?: string|null;
+ *   referee?: string|null;
+ *   revenueText?: string|null;
+ *   manager?: string|null;
+ *   starters?: string[];
+ *   entered?: string[];
+ *   subs?: { out: string; in: string; minute?: number|null }[];
+ *   goals?: {
+ *     name: string;
+ *     minute?: number|null;
+ *     penalty?: boolean;
+ *     ownGoal?: boolean;
+ *     ownGoalDirection?: "for"|"against";
+ *   }[];
+ *   reds?: string[];
+ *   note?: string;
+ * }} Game
+ */
+
+/** @type {Game[]} */
+export const GAMES = [
+  // ——— 1º turno — ida ———
+  {
+    date: "1966-05-29",
+    phase: "1º turno",
+    opponent: "CSE-AL",
+    ha: "home",
+    gf: 0,
+    ga: 0,
+    stadium: "Estádio do Mutange",
+    revenueText: "Cr$ 832.500,00",
+    starters: [
+      "Jurandir",
+      "Evandro",
+      "Cláudio",
+      "Flávio",
+      "Zé Carlos",
+      "Paulo Nylon",
+      "Erik",
+      "Ratinho",
+      "Duda",
+      "Tonho Lima",
+      "Canhoteiro",
+    ],
+    entered: ["Roberto Mendes"],
+    subs: [{ out: "Duda", in: "Roberto Mendes" }],
+  },
+  {
+    date: "1966-06-09",
+    phase: "1º turno",
+    opponent: "CRB-AL",
+    ha: "home",
+    gf: 3,
+    ga: 1,
+    stadium: "Estádio do Mutange",
+    referee: "Manoel Amaro",
+    revenueText: "Cr$ 2.530.400,00",
+    manager: "Roberto Mendes",
+    starters: [
+      "Jurandir",
+      "Flávio",
+      "Cláudio",
+      "Chita",
+      "Gernand",
+      "Paulo Nylon",
+      "Erik",
+      "Ratinho",
+      "Bosco",
+      "Tonho Lima",
+      "Canhoteiro",
+    ],
+    entered: ["Duda"],
+    subs: [{ out: "Bosco", in: "Duda" }],
+    goals: [
+      { name: "Erik", penalty: true },
+      { name: "Ratinho" },
+      { name: "Duda" },
+    ],
+  },
+  {
+    date: "1966-06-19",
+    phase: "1º turno",
+    opponent: "Penedense-AL",
+    ha: "away",
+    gf: 4,
+    ga: 2,
+    stadium: "Estádio Alfredo Leahy",
+    referee: "Lourival Ferreira",
+    revenueText: "Cr$ 663.400,00",
+    manager: "Roberto Mendes",
+    starters: [
+      "Jurandir",
+      "Flávio",
+      "Cláudio",
+      "Chita",
+      "Gernand",
+      "Paulo Nylon",
+      "Erik",
+      "Ratinho",
+      "Bosco",
+      "Tonho Lima",
+      "Canhoteiro",
+    ],
+    goals: [
+      { name: "Canhoteiro", minute: absMin(1, 23) },
+      { name: "Ratinho", minute: absMin(1, 31) },
+      { name: "Bosco", minute: absMin(2, 13) },
+      { name: "Bosco", minute: absMin(2, 26) },
+    ],
+  },
+  {
+    date: "1966-06-26",
+    phase: "1º turno",
+    opponent: "ASA-AL",
+    ha: "away",
+    gf: 3,
+    ga: 0,
+    stadium: "Coaracy da Mata (Fumeirão)",
+    referee: "Nilson Silva",
+    manager: "Roberto Mendes",
+    starters: [
+      "Zé Galego",
+      "Flávio",
+      "Bibiu",
+      "Chita",
+      "Gernand",
+      "Paulo Nylon",
+      "Erik",
+      "Ratinho",
+      "Bosco",
+      "Tonho Lima",
+      "Canhoteiro",
+    ],
+    goals: [
+      { name: "Canhoteiro", minute: absMin(1, 17) },
+      { name: "Paulo Nylon", minute: absMin(1, 33) },
+      { name: "Erik", minute: absMin(1, 35) },
+    ],
+    note: "Documento: Galego → Zé Galego; expulsão Zito Aguiar (ASA)",
+  },
+  {
+    date: "1966-07-13",
+    phase: "1º turno",
+    opponent: "Ferroviário-AL",
+    ha: "away",
+    gf: 2,
+    ga: 0,
+    stadium: "Estádio da Pajuçara",
+    referee: "Manoel Amaro",
+    revenueText: "Cr$ 261.400,00",
+    starters: [
+      "Jurandir",
+      "Flávio",
+      "Bibiu",
+      "Chita",
+      "Gernand",
+      "Paulo Nylon",
+      "Erik",
+      "Ratinho",
+      "Bosco",
+      "Tonho Lima",
+      "Jaldenir",
+    ],
+    entered: ["Duda"],
+    subs: [{ out: "Jaldenir", in: "Duda" }],
+    goals: [
+      { name: "Paulo Nylon", minute: absMin(1, 37) },
+      { name: "Ratinho", minute: absMin(1, 40) },
+    ],
+  },
+  {
+    date: "1966-07-24",
+    phase: "1º turno",
+    opponent: "Capelense-AL",
+    ha: "away",
+    gf: 1,
+    ga: 1,
+    stadium: "Estádio Manoel Moreira",
+    referee: "Nilson Silva",
+    revenueText: "Cr$ 1.292.700,00",
+    goals: [{ name: "Tonho Lima", minute: absMin(2, 20) }],
+    note: "Escalação não informada",
+  },
+  {
+    date: "1966-07-28",
+    phase: "1º turno",
+    opponent: "Guarany-AL",
+    ha: "home",
+    gf: 4,
+    ga: 0,
+    stadium: "Estádio do Mutange",
+    referee: "Edson Tavares de Matos",
+    revenueText: "Cr$ 824.900,00",
+    goals: [
+      { name: "Erik", minute: absMin(1, 40), penalty: true },
+      { name: "Duda", minute: absMin(2, 10) },
+      { name: "Erik", penalty: true },
+      { name: "Duda" },
+    ],
+    note: "Escalação não informada; expulsão Jaques (Guarany)",
+  },
+  // ——— 1º turno — volta ———
+  {
+    date: "1966-08-28",
+    phase: "1º turno",
+    opponent: "CSE-AL",
+    ha: "away",
+    gf: 2,
+    ga: 0,
+    stadium: "Estádio Édson Amaro",
+    referee: "Benedito Loureiro",
+    revenueText: "Cr$ 1.646.000,00",
+    manager: "Maglione Sales",
+    starters: [
+      "Jurandir",
+      "Flávio",
+      "Bibiu",
+      "Chita",
+      "Gernand",
+      "Paulo Nylon",
+      "Erik",
+      "Zé Hilton",
+      "Duda",
+      "Tonho Lima",
+      "Canhoteiro",
+    ],
+    goals: [
+      { name: "Tonho Lima", minute: absMin(1, 16) },
+      { name: "Canhoteiro" },
+    ],
+  },
+  {
+    date: "1966-09-17",
+    phase: "1º turno",
+    opponent: "Guarany-AL",
+    ha: "away",
+    gf: null,
+    ga: null,
+    unknownResult: true,
+    note: "Documento: sem resultado nem outros dados",
+  },
+  {
+    date: "1966-09-25",
+    phase: "1º turno",
+    opponent: "ASA-AL",
+    ha: "home",
+    gf: 1,
+    ga: 0,
+    walkover: true,
+    stadium: "Estádio do Mutange",
+    note: "W.O. — ASA abandonou o campeonato",
+  },
+  {
+    date: "1966-09-25",
+    phase: "1º turno",
+    opponent: "Penedense-AL",
+    ha: "home",
+    gf: 7,
+    ga: 1,
+    stadium: "Estádio do Mutange",
+    referee: "Manoel Amaro",
+    revenueText: "Cr$ 829.900,00",
+    goals: [
+      { name: "Duda" },
+      { name: "Duda" },
+      { name: "Duda" },
+      { name: "Duda" },
+      { name: "Erik" },
+      { name: "Tonho Lima" },
+      { name: "Canhoteiro" },
+    ],
+    note: "Escalação não informada; expulsão Luís (Penedense)",
+  },
+  {
+    date: "1966-10-09",
+    phase: "1º turno",
+    opponent: "Ferroviário-AL",
+    ha: "home",
+    gf: 2,
+    ga: 1,
+    stadium: "Estádio do Mutange",
+    referee: "Nilson Ferreira da Silva",
+    revenueText: "Cr$ 667.600,00",
+    goals: [
+      { name: "Erik", minute: 10, penalty: true },
+      { name: "Gernand", minute: 17 },
+    ],
+    note: "Escalação não informada",
+  },
+  {
+    date: "1966-10-16",
+    phase: "1º turno",
+    opponent: "Capelense-AL",
+    ha: "home",
+    gf: 5,
+    ga: 1,
+    stadium: "Estádio do Mutange",
+    referee: "Nilson Silva",
+    revenueText: "Cr$ 1.153.300,00",
+    goals: [
+      { name: "Canhoteiro", minute: absMin(1, 36) },
+      { name: "Tonho Lima", minute: absMin(2, 8) },
+      { name: "Duda", minute: absMin(2, 9) },
+      { name: "Duda", minute: absMin(2, 26) },
+    ],
+    note: "Escalação não informada; só 4 gols CSA nomeados (placar 5x1)",
+  },
+  {
+    date: "1966-10-30",
+    phase: "1º turno",
+    opponent: "CRB-AL",
+    ha: "away",
+    gf: 2,
+    ga: 1,
+    stadium: "Estádio da Pajuçara",
+    referee: "Manoel Amaro",
+    revenueText: "Cr$ 2.909.800,00",
+    manager: "Maglione Sales",
+    starters: [
+      "Jurandir",
+      "Flávio",
+      "Bibiu",
+      "Cláudio",
+      "Gernand",
+      "Ratinho",
+      "Erik",
+      "Zé Hilton",
+      "Duda",
+      "Tonho Lima",
+      "Canhoteiro",
+    ],
+    entered: ["Pedro"],
+    subs: [{ out: "Zé Hilton", in: "Pedro" }],
+    goals: [
+      { name: "Gernand", minute: absMin(1, 23) },
+      { name: "Duda", minute: absMin(2, 26) },
+    ],
+    note: "CSA campeão do 1º turno; expulsão Aguiar (CRB)",
+  },
+  // ——— 2º turno ———
+  {
+    date: "1966-11-20",
+    phase: "2º turno",
+    opponent: "Capelense-AL",
+    ha: "home",
+    gf: 2,
+    ga: 2,
+    stadium: "Estádio do Mutange",
+    referee: "Lourival Ferreira",
+    revenueText: "Cr$ 1.237.600,00",
+    manager: "Maglione Sales",
+    starters: [
+      "Zé Galego",
+      "Flávio",
+      "Bibiu",
+      "Cláudio",
+      "Gernand",
+      "Ratinho",
+      "Erik",
+      "Zé Hilton",
+      "Duda",
+      "Chumbinho",
+      "Canhoteiro",
+    ],
+    goals: [
+      {
+        name: "Gernand",
+        ownGoal: true,
+        ownGoalDirection: "against",
+        minute: absMin(1, 14),
+      },
+      { name: "Duda", minute: absMin(2, 2) },
+      { name: "Duda", minute: absMin(2, 14) },
+    ],
+  },
+  {
+    date: "1966-12-04",
+    phase: "2º turno",
+    opponent: "Ferroviário-AL",
+    ha: "home",
+    gf: 2,
+    ga: 0,
+    stadium: "Estádio do Mutange",
+    referee: "Manoel Amaro",
+    revenueText: "Cr$ 1.057.000,00",
+    goals: [
+      { name: "Pádua", ownGoal: true, ownGoalDirection: "for", minute: absMin(1, 26) },
+      { name: "Tonho Lima", minute: absMin(2, 33) },
+    ],
+    note: "Escalação não informada",
+  },
+  {
+    date: "1966-12-11",
+    phase: "2º turno",
+    opponent: "Penedense-AL",
+    ha: "home",
+    gf: 2,
+    ga: 4,
+    stadium: "Estádio do Mutange",
+    referee: "Lourival Ferreira",
+    revenueText: "Cr$ 1.775.000,00",
+    goals: [
+      { name: "Erik", minute: absMin(1, 8), penalty: true },
+      { name: "Duda", minute: absMin(2, 40) },
+    ],
+    reds: ["Gernand"],
+    note: "Escalação não informada; Maglione Sales demitido após o jogo; Roberto Mendes reassumiu",
+  },
+  {
+    date: "1966-12-18",
+    phase: "2º turno",
+    opponent: "CRB-AL",
+    ha: "home",
+    gf: 1,
+    ga: 0,
+    walkover: true,
+    stadium: "Estádio do Mutange",
+    note: "W.O. — CRB não compareceu; Penedense campeão do 2º turno",
+  },
+  // ——— Decisão (melhor de 3) ———
+  // 1º jogo: vitória CSA, sem data/placar — omitido
+  {
+    date: "1967-03-19",
+    phase: "Decisão",
+    opponent: "Penedense-AL",
+    ha: "away",
+    gf: 3,
+    ga: 0,
+    stadium: "Estádio da Pajuçara",
+    referee: "Manoel Amaro",
+    revenueText: "NCr$ 3.211,80",
+    starters: [
+      "Zé Galego",
+      "Bibiu",
+      "Gernand",
+      "Cláudio",
+      "Flávio",
+      "Paulo Nylon",
+      "Erik",
+      "Ratinho",
+      "Duda",
+      "Tonho Lima",
+      "Canhoteiro",
+    ],
+    goals: [
+      { name: "Tonho Lima", minute: absMin(1, 5) },
+      { name: "Canhoteiro", minute: absMin(1, 22) },
+      { name: "Canhoteiro", minute: absMin(2, 41) },
+    ],
+    note: "2º jogo da decisão; CSA campeão alagoano 1966 (1º jogo da série sem dados no documento)",
+  },
+];
