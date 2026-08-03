@@ -3,7 +3,12 @@ import { Link } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-type PlayerRow = { playerId: number; playerName: string; value: number };
+type PlayerRow = {
+  playerId: number;
+  playerName: string;
+  value: number;
+  appearances?: number;
+};
 type MultiGoalBucket = { goalsInMatch: number; players: PlayerRow[] };
 type ManagerRow = { managerId: number; managerName: string; value: number };
 type MatchRow = {
@@ -310,9 +315,6 @@ export default function AdminRecords() {
             <Card title="Mais títulos (jogador)">
               <PlayerList rows={data.players.topTitles} />
             </Card>
-            <Card title="Mais clean sheets (goleiros)">
-              <PlayerList rows={data.players.topCleanSheets ?? []} />
-            </Card>
             <Card title="Mais vitórias (técnico)">
               <ManagerList rows={data.managers.topWins} />
             </Card>
@@ -485,65 +487,104 @@ export default function AdminRecords() {
             </Card>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
-            <Card title="Mais clean sheets em sequência (histórico)">
-              {(data.players.cleanSheetStreak?.historical ?? []).length === 0 ? (
-                <p className="text-sm text-gray-400">Sem dados ainda.</p>
-              ) : (
-                <ol className="space-y-1.5">
-                  {data.players.cleanSheetStreak.historical.map((r, i) => (
-                    <li
-                      key={`${r.playerId}-${r.startMatchId}`}
-                      className="flex items-baseline justify-between gap-3 text-sm"
-                    >
-                      <span className="min-w-0 truncate">
-                        <span className="text-gray-400 tabular-nums mr-2">{i + 1}.</span>
-                        <Link
-                          href={`/admin/jogadores/${r.playerId}`}
-                          className="text-[#1B3A6B] hover:underline font-medium"
-                        >
-                          {r.playerName}
-                        </Link>
-                        <span className="text-xs text-gray-400 ml-2">
-                          {fmtDate(r.startDate)} → {fmtDate(r.endDate)}
+          <div>
+            <h2 className="text-sm font-semibold text-gray-800 mb-3">
+              Clean sheets (goleiros)
+            </h2>
+            <div className="grid md:grid-cols-3 gap-4">
+              <Card title="Mais clean sheets (geral)">
+                {(data.players.topCleanSheets ?? []).length === 0 ? (
+                  <p className="text-sm text-gray-400">Sem dados ainda.</p>
+                ) : (
+                  <ol className="space-y-1.5">
+                    {data.players.topCleanSheets.map((r, i) => (
+                      <li
+                        key={r.playerId}
+                        className="flex items-baseline justify-between gap-3 text-sm"
+                      >
+                        <span className="min-w-0 truncate">
+                          <span className="text-gray-400 tabular-nums mr-2">
+                            {i + 1}.
+                          </span>
+                          <Link
+                            href={`/admin/jogadores/${r.playerId}`}
+                            className="text-[#1B3A6B] hover:underline font-medium"
+                          >
+                            {r.playerName}
+                          </Link>
                         </span>
-                      </span>
-                      <span className="tabular-nums font-semibold shrink-0">{r.length}</span>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </Card>
-            <Card title="Mais clean sheets em sequência (em andamento)">
-              {(data.players.cleanSheetStreak?.active ?? []).length === 0 ? (
-                <p className="text-sm text-gray-400">Nenhuma sequência ativa.</p>
-              ) : (
-                <ol className="space-y-1.5">
-                  {data.players.cleanSheetStreak.active.map((r, i) => (
-                    <li
-                      key={`${r.playerId}-cs-active`}
-                      className="flex items-baseline justify-between gap-3 text-sm"
-                    >
-                      <span className="min-w-0 truncate">
-                        <span className="text-gray-400 tabular-nums mr-2">{i + 1}.</span>
-                        <Link
-                          href={`/admin/jogadores/${r.playerId}`}
-                          className="text-[#1B3A6B] hover:underline font-medium"
-                        >
-                          {r.playerName}
-                        </Link>
-                        <span className="text-xs text-gray-400 ml-2">
-                          desde {fmtDate(r.startDate)}
+                        <span className="tabular-nums font-semibold shrink-0 text-right">
+                          {r.value}
+                          {r.appearances != null ? (
+                            <span className="text-xs font-normal text-gray-400 ml-1">
+                              em {r.appearances} jogos
+                            </span>
+                          ) : null}
                         </span>
-                      </span>
-                      <span className="tabular-nums font-semibold shrink-0 text-[#F5A623]">
-                        {r.length}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </Card>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </Card>
+              <Card title="Mais clean sheets em sequência (histórico)">
+                {(data.players.cleanSheetStreak?.historical ?? []).length === 0 ? (
+                  <p className="text-sm text-gray-400">Sem dados ainda.</p>
+                ) : (
+                  <ol className="space-y-1.5">
+                    {data.players.cleanSheetStreak.historical.map((r, i) => (
+                      <li
+                        key={`${r.playerId}-${r.startMatchId}`}
+                        className="flex items-baseline justify-between gap-3 text-sm"
+                      >
+                        <span className="min-w-0 truncate">
+                          <span className="text-gray-400 tabular-nums mr-2">{i + 1}.</span>
+                          <Link
+                            href={`/admin/jogadores/${r.playerId}`}
+                            className="text-[#1B3A6B] hover:underline font-medium"
+                          >
+                            {r.playerName}
+                          </Link>
+                          <span className="text-xs text-gray-400 ml-2">
+                            {fmtDate(r.startDate)} → {fmtDate(r.endDate)}
+                          </span>
+                        </span>
+                        <span className="tabular-nums font-semibold shrink-0">{r.length}</span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </Card>
+              <Card title="Mais clean sheets em sequência (em andamento)">
+                {(data.players.cleanSheetStreak?.active ?? []).length === 0 ? (
+                  <p className="text-sm text-gray-400">Nenhuma sequência ativa.</p>
+                ) : (
+                  <ol className="space-y-1.5">
+                    {data.players.cleanSheetStreak.active.map((r, i) => (
+                      <li
+                        key={`${r.playerId}-cs-active`}
+                        className="flex items-baseline justify-between gap-3 text-sm"
+                      >
+                        <span className="min-w-0 truncate">
+                          <span className="text-gray-400 tabular-nums mr-2">{i + 1}.</span>
+                          <Link
+                            href={`/admin/jogadores/${r.playerId}`}
+                            className="text-[#1B3A6B] hover:underline font-medium"
+                          >
+                            {r.playerName}
+                          </Link>
+                          <span className="text-xs text-gray-400 ml-2">
+                            desde {fmtDate(r.startDate)}
+                          </span>
+                        </span>
+                        <span className="tabular-nums font-semibold shrink-0 text-[#F5A623]">
+                          {r.length}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </Card>
+            </div>
           </div>
         </>
       )}

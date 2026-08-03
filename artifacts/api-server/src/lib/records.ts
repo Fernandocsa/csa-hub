@@ -37,6 +37,8 @@ export type PlayerRecordHolder = {
   playerId: number;
   playerName: string;
   value: number;
+  /** Optional context (e.g. starts as GK alongside clean sheets). */
+  appearances?: number;
 };
 
 /** Ranking of players by number of matches with exactly `goalsInMatch` CSA goals. */
@@ -596,33 +598,39 @@ async function biggestWins(limit = 10): Promise<MatchRecordHolder[]> {
 }
 
 /**
- * Goalkeepers with the most clean sheets (started as GK, team conceded 0).
+ * Goalkeepers ranked by total clean sheets as starter.
+ * `value` = matches without conceding; `appearances` = starts as GK.
  */
 async function topCleanSheets(limit = 10): Promise<PlayerRecordHolder[]> {
   const rows = await db
     .select({
       playerId: matchLineupsTable.playerId,
       playerName: playersTable.name,
-      value: sql<number>`cast(count(distinct ${matchLineupsTable.matchId}) as int)`,
+      appearances: sql<number>`cast(count(distinct ${matchLineupsTable.matchId}) as int)`,
+      value: sql<number>`cast(count(distinct case when ${matchesTable.goalsAgainst} = 0 then ${matchLineupsTable.matchId} end) as int)`,
     })
     .from(matchLineupsTable)
     .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
     .innerJoin(playersTable, eq(matchLineupsTable.playerId, playersTable.id))
-    .where(
-      and(
-        recordsMatchConditions(),
-        csaStartingGoalkeeperCondition(),
-        eq(matchesTable.goalsAgainst, 0),
-      ),
-    )
+    .where(and(recordsMatchConditions(), csaStartingGoalkeeperCondition()))
     .groupBy(matchLineupsTable.playerId, playersTable.name)
-    .orderBy(desc(sql`count(distinct ${matchLineupsTable.matchId})`), asc(playersTable.name))
+    .having(
+      sql`count(distinct case when ${matchesTable.goalsAgainst} = 0 then ${matchLineupsTable.matchId} end) > 0`,
+    )
+    .orderBy(
+      desc(
+        sql`count(distinct case when ${matchesTable.goalsAgainst} = 0 then ${matchLineupsTable.matchId} end)`,
+      ),
+      desc(sql`count(distinct ${matchLineupsTable.matchId})`),
+      asc(playersTable.name),
+    )
     .limit(limit);
 
   return rows.map((r) => ({
     playerId: r.playerId!,
     playerName: r.playerName,
     value: r.value,
+    appearances: r.appearances,
   }));
 }
 
