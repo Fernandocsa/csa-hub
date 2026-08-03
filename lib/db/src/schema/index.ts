@@ -15,3 +15,4 @@ export * from "./ai_import_sessions";
 export * from "./transfers";
 export * from "./presidents";
 export * from "./site_content";
+export * from "./daily_player";

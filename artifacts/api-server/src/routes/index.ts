@@ -19,6 +19,7 @@ import transfersRouter from "./transfers";
 import presidentsRouter from "./presidents";
 import classicoRouter from "./classico";
 import siteContentRouter from "./site-content";
+import guessPlayerRouter from "./guess-player";
 
 const router: IRouter = Router();
 
@@ -40,6 +41,7 @@ router.use(transfersRouter);
 router.use(presidentsRouter);
 router.use(classicoRouter);
 router.use(siteContentRouter);
+router.use(guessPlayerRouter);
 router.use(adminRouter);
 router.use(aiImportRouter);
 

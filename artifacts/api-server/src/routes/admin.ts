@@ -27,6 +27,7 @@ import {
   ratingLabel,
   type RatingEntityType,
 } from "../lib/rating-labels";
+import { getAdminQueue } from "../lib/guess-player";
 import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray, ne, isNull } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard } from "../lib/match-sheet";
 import { syncRelatedMatchLink, parsePenaltyShootoutFields } from "../lib/match-links";
@@ -6628,6 +6629,21 @@ router.put("/admin/site-content/:key", requireAdmin, async (req, res) => {
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+/** Fila dos próximos N dias do jogo Quem é o Jogador? (com histórico de aparições). */
+router.get("/admin/quem-e-o-jogador", requireAdmin, async (req, res) => {
+  try {
+    const daysRaw = parseInt(String(req.query.days ?? 30), 10);
+    const days = Number.isFinite(daysRaw)
+      ? Math.min(Math.max(daysRaw, 1), 60)
+      : 30;
+    const queue = await getAdminQueue(days);
+    res.json({ days, data: queue });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro ao carregar fila do jogo" });
   }
 });
 

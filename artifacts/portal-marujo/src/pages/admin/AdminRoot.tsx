@@ -36,6 +36,7 @@ import AdminTransferDetail from "./AdminTransferDetail";
 import AdminPresidents from "./AdminPresidents";
 import AdminPresidentDetail from "./AdminPresidentDetail";
 import AdminSiteContent from "./AdminSiteContent";
+import AdminGuessPlayer from "./AdminGuessPlayer";
 
 export default function AdminRoot() {
   const { checked, authenticated, login, logout } = useAdminAuth();
@@ -95,6 +96,7 @@ export default function AdminRoot() {
         <Route path="/admin/avaliacoes" component={AdminRatings} />
         <Route path="/admin/sugestoes" component={AdminSuggestions} />
         <Route path="/admin/conteudo" component={AdminSiteContent} />
+        <Route path="/admin/quem-e-o-jogador" component={AdminGuessPlayer} />
         <Route path="/admin/partidas-duplicadas" component={AdminMatchReview} />
         <Route path="/admin/importar-exportar" component={AdminImportExport} />
         <Route path="/admin/importar-ia" component={AdminAiImport} />
