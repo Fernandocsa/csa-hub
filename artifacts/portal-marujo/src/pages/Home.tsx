@@ -297,20 +297,33 @@ function OnThisDaySection() {
   );
 }
 
-function BirthdaysTodaySection() {
-  const { data, isLoading } = useGetBirthdaysToday();
-  const people = [...(data?.players ?? []), ...(data?.managers ?? [])];
-
+function BirthdaysTodaySection({
+  people,
+  isLoading,
+  title = "Aniversariantes do dia",
+  compact = false,
+}: {
+  people: BirthdayPerson[];
+  isLoading: boolean;
+  title?: string;
+  compact?: boolean;
+}) {
   if (!isLoading && people.length === 0) return null;
 
   return (
-    <section className="space-y-3" data-testid="section-birthdays-today">
+    <section className="space-y-3 h-full" data-testid="section-birthdays-today">
       <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-        Aniversariantes do dia
+        {title}
       </h2>
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 border rounded p-3">
-          {Array.from({ length: 2 }).map((_, i) => (
+        <div
+          className={
+            compact
+              ? "border rounded p-3 space-y-2"
+              : "grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 border rounded p-3"
+          }
+        >
+          {Array.from({ length: compact ? 1 : 2 }).map((_, i) => (
             <div key={i} className="flex items-center gap-3">
               <Skeleton className="h-8 w-8 rounded-full shrink-0" />
               <div className="flex-1 space-y-1.5">
@@ -321,7 +334,13 @@ function BirthdaysTodaySection() {
           ))}
         </div>
       ) : (
-        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 border rounded p-3">
+        <ul
+          className={
+            compact
+              ? "border rounded p-3"
+              : "grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 border rounded p-3"
+          }
+        >
           {people.map((p) => (
             <li key={`${p.kind}-${p.id}`}>
               <BirthdayPersonLink person={p} />
@@ -333,7 +352,7 @@ function BirthdaysTodaySection() {
   );
 }
 
-function LatestTransferSection() {
+function LatestTransferCard() {
   const { data, isLoading } = useGetLatestTransfer();
 
   if (isLoading || !data) return null;
@@ -341,48 +360,109 @@ function LatestTransferSection() {
   const club = data.club?.trim();
 
   return (
-    <section data-testid="section-latest-transfer">
-      <div className="flex items-center gap-3 border rounded p-4 hover:bg-muted/40 transition-colors group">
-        <Link href="/transferencias" className="shrink-0" aria-label={data.playerName}>
-          <PlayerPhoto
-            url={data.playerPhotoUrl}
-            name={data.playerName}
-            size="md"
-          />
+    <div
+      className="flex items-center gap-3 border rounded p-4 h-full hover:bg-muted/40 transition-colors group"
+      data-testid="section-latest-transfer"
+    >
+      <Link href="/transferencias" className="shrink-0" aria-label={data.playerName}>
+        <PlayerPhoto
+          url={data.playerPhotoUrl}
+          name={data.playerName}
+          size="md"
+        />
+      </Link>
+      <div className="min-w-0 flex-1">
+        <Link href="/transferencias" className="block">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            Última transferência
+          </p>
+          <p className="text-sm font-semibold group-hover:text-primary">
+            {data.playerName}
+            {" — "}
+            {data.direction === "out" ? "Saída" : "Chegada"}
+            {!club ? null : data.direction === "out" ? " → " : " ← "}
+          </p>
         </Link>
-        <div className="min-w-0 flex-1">
-          <Link href="/transferencias" className="block">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-              Última transferência
-            </p>
-            <p className="text-sm font-semibold group-hover:text-primary">
-              {data.playerName}
-              {" — "}
-              {data.direction === "out" ? "Saída" : "Chegada"}
-              {!club ? null : data.direction === "out" ? " → " : " ← "}
-            </p>
-          </Link>
-          {club && (
-            <div className="mt-0.5">
-              <OpponentHistoryLink
-                opponentId={data.opponentId}
-                name={club}
-                logoUrl={data.clubLogoUrl}
-                crestAfter={false}
-                crestFallback
-              />
+        {club && (
+          <div className="mt-0.5">
+            <OpponentHistoryLink
+              opponentId={data.opponentId}
+              name={club}
+              logoUrl={data.clubLogoUrl}
+              crestAfter={false}
+              crestFallback
+            />
+          </div>
+        )}
+        {(data.transferDate || data.season) && (
+          <p className="text-xs text-muted-foreground mt-1">
+            {data.transferDate ? fmtDate(data.transferDate) : null}
+            {data.transferDate && data.season ? " · " : null}
+            {data.season ? `Temporada ${data.season}` : null}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Side-by-side when exactly one birthday; otherwise transfer alone and birthdays below. */
+function TransferAndBirthdaysSection() {
+  const { data: bdayData, isLoading: loadBday } = useGetBirthdaysToday();
+  const { data: transfer, isLoading: loadTransfer } = useGetLatestTransfer();
+  const people = [...(bdayData?.players ?? []), ...(bdayData?.managers ?? [])];
+  const birthdayCount = people.length;
+  const shareRow = !loadBday && birthdayCount === 1 && !loadTransfer && !!transfer;
+
+  if (loadTransfer && loadBday) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="border rounded p-4 space-y-2">
+          <Skeleton className="h-3 w-36" />
+          <Skeleton className="h-4 w-48" />
+          <Skeleton className="h-3 w-28" />
+        </div>
+        <div className="border rounded p-3 space-y-2">
+          <Skeleton className="h-3 w-40" />
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-8 w-8 rounded-full shrink-0" />
+            <div className="flex-1 space-y-1.5">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-20" />
             </div>
-          )}
-          {(data.transferDate || data.season) && (
-            <p className="text-xs text-muted-foreground mt-1">
-              {data.transferDate ? fmtDate(data.transferDate) : null}
-              {data.transferDate && data.season ? " · " : null}
-              {data.season ? `Temporada ${data.season}` : null}
-            </p>
-          )}
+          </div>
         </div>
       </div>
-    </section>
+    );
+  }
+
+  if (shareRow) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
+        <LatestTransferCard />
+        <BirthdaysTodaySection
+          people={people}
+          isLoading={false}
+          title="Aniversariante do dia"
+          compact
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      <LatestTransferCard />
+      {birthdayCount >= 2 || loadBday ? (
+        <BirthdaysTodaySection people={people} isLoading={loadBday} />
+      ) : birthdayCount === 1 ? (
+        <BirthdaysTodaySection
+          people={people}
+          isLoading={false}
+          title="Aniversariante do dia"
+        />
+      ) : null}
+    </div>
   );
 }
 
@@ -576,9 +656,8 @@ export default function Home() {
         </div>
       </div>
 
-      <LatestTransferSection />
+      <TransferAndBirthdaysSection />
       <OnThisDaySection />
-      <BirthdaysTodaySection />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Mais Jogos */}
