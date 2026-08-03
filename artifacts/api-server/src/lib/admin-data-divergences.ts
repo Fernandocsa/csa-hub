@@ -270,7 +270,7 @@ async function playerBirthYearMismatch(): Promise<DivergenceGroup> {
     entityType: "player",
     title: "Ano de nascimento ≠ data de nascimento",
     description:
-      "birth_year não confere com o ano de birth_date — um dos dois campos está errado.",
+      "birth_year não confere com o ano de birth_date. A data de nascimento tem prioridade — o ano deve ser o mesmo da data.",
     count: rows.length,
     items: rows.map((r) => ({
       id: r.id,
