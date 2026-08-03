@@ -27,6 +27,13 @@ import { countPlayerTitles, listPlayerTitles } from "../lib/titles";
 const router = Router();
 
 async function loadPlayerSheetMatches(playerId: number, limit?: number) {
+  const [catalog] = await db
+    .select({ position: playersTable.position })
+    .from(playersTable)
+    .where(eq(playersTable.id, playerId))
+    .limit(1);
+  const catalogPosition = catalog?.position?.trim() || null;
+
   let q = db
     .select({
       matchId: matchesTable.id,
@@ -194,7 +201,7 @@ async function loadPlayerSheetMatches(playerId: number, limit?: number) {
       round: r.round ?? null,
       role: r.role,
       shirtNumber: r.shirtNumber ?? null,
-      position: r.position ?? null,
+      position: r.position?.trim() || catalogPosition,
       playerGoals: goalsByMatch.get(r.matchId) ?? 0,
       playerAssists: assistsByMatch.get(r.matchId) ?? 0,
       yellowCards: yellowByMatch.get(r.matchId) ?? 0,

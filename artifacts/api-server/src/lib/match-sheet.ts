@@ -8,7 +8,7 @@ import {
   matchesTable,
   playersTable,
 } from "@workspace/db";
-import { eq, asc, and, sql } from "drizzle-orm";
+import { eq, asc, and, sql, inArray } from "drizzle-orm";
 import {
   isUnknownEventMinute,
   normalizeEventMinute,
@@ -79,8 +79,12 @@ export function serializeLineup(
     photoUrl?: string | null;
     nationality?: string | null;
     nationalityFlag?: string | null;
+    /** Catalog position — used when the lineup row has no match-specific position. */
+    position?: string | null;
   } | null,
 ) {
+  const lineupPosition = row.position?.trim() || null;
+  const catalogPosition = player?.position?.trim() || null;
   return {
     id: row.id,
     matchId: row.matchId,
@@ -89,7 +93,7 @@ export function serializeLineup(
     playerName: row.playerName,
     role: row.role,
     shirtNumber: row.shirtNumber,
-    position: row.position,
+    position: lineupPosition ?? catalogPosition,
     sortOrder: row.sortOrder,
     photoUrl: player?.photoUrl ?? null,
     nationality: player?.nationality ?? null,
@@ -219,6 +223,7 @@ export async function loadMatchSheet(matchId: number) {
           photoUrl: playersTable.photoUrl,
           nationality: playersTable.nationality,
           nationalityFlag: playersTable.nationalityFlag,
+          playerPosition: playersTable.position,
         })
         .from(matchLineupsTable)
         .leftJoin(playersTable, eq(matchLineupsTable.playerId, playersTable.id))
@@ -267,6 +272,7 @@ export async function loadMatchSheet(matchId: number) {
         photoUrl: r.photoUrl,
         nationality: r.nationality,
         nationalityFlag: r.nationalityFlag,
+        position: r.playerPosition,
       }),
     ),
     goals: goals.map(serializeGoal),
@@ -336,11 +342,40 @@ export async function replaceCsaLineup(
       and(eq(matchLineupsTable.matchId, matchId), eq(matchLineupsTable.side, "csa")),
     );
 
+  const playerIds = [
+    ...new Set(lineupsIn.map((l) => l.playerId as number).filter(Boolean)),
+  ];
+  const catalogById = new Map<
+    number,
+    { name: string; position: string | null }
+  >();
+  if (playerIds.length > 0) {
+    const catalogRows = await db
+      .select({
+        id: playersTable.id,
+        name: playersTable.name,
+        position: playersTable.position,
+      })
+      .from(playersTable)
+      .where(inArray(playersTable.id, playerIds));
+    for (const p of catalogRows) {
+      catalogById.set(p.id, {
+        name: p.name,
+        position: p.position?.trim() || null,
+      });
+    }
+  }
+
   for (let i = 0; i < lineupsIn.length; i++) {
     const l = lineupsIn[i];
     const playerId = l.playerId as number;
+    const catalog = catalogById.get(playerId);
     const playerName =
-      (await resolvePlayerName(playerId, l.playerName)) ?? `Jogador #${playerId}`;
+      l.playerName?.trim() ||
+      catalog?.name ||
+      (await resolvePlayerName(playerId, l.playerName)) ||
+      `Jogador #${playerId}`;
+    const position = l.position?.trim() || catalog?.position || null;
 
     await db.insert(matchLineupsTable).values({
       matchId,
@@ -349,7 +384,7 @@ export async function replaceCsaLineup(
       playerName,
       role: l.role,
       shirtNumber: l.shirtNumber ?? null,
-      position: l.position?.trim() || null,
+      position,
       sortOrder: l.sortOrder ?? i,
     });
   }

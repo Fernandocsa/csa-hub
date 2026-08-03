@@ -9,7 +9,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
 import { ChevronLeft } from "lucide-react";
-import { sortLineupByPosition } from "@/lib/position-groups";
+import { groupLineupByPosition } from "@/lib/position-groups";
 import { StarRating } from "@/components/StarRating";
 import { EntityComments } from "@/components/EntityComments";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
@@ -207,58 +207,70 @@ function LineupList({
   substitutions: MatchSubstitutionRow[];
 }) {
   if (players.length === 0) return null;
+  const groups = groupLineupByPosition(players);
   return (
     <div>
       <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
         {title}
       </h3>
-      <ul className="border rounded divide-y">
-        {players.map((p) => {
-          const events = eventsForPlayer(
-            p.playerId,
-            p.playerName,
-            goals,
-            cards,
-            substitutions,
-          );
-          const nameEl =
-            p.playerId != null ? (
-              <Link
-                href={`/jogadores/${p.playerId}`}
-                className="font-medium truncate hover:text-primary hover:underline"
-              >
-                {p.playerName}
-              </Link>
-            ) : (
-              <span className="font-medium truncate">{p.playerName}</span>
-            );
-          return (
-            <li
-              key={p.id}
-              className="flex items-center gap-3 px-3 py-2 text-sm"
-            >
-              <PlayerPhoto url={p.photoUrl} name={p.playerName} size="sm" />
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-x-1">
-                  <PlayerFlag
-                    flag={p.nationalityFlag}
-                    nationality={p.nationality}
-                    size="sm"
-                  />
-                  {nameEl}
-                  <EventIcons events={events} />
-                </div>
-                {p.position && (
-                  <span className="text-xs text-muted-foreground">{p.position}</span>
-                )}
-              </div>
-              <span className="shrink-0 w-7 text-right text-xs tabular-nums text-muted-foreground">
-                {p.shirtNumber != null ? p.shirtNumber : "—"}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
+      <div className="space-y-3">
+        {groups.map(({ group, players: list }) => (
+          <div key={group}>
+            <p className="px-1 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80">
+              {group}
+            </p>
+            <ul className="border rounded divide-y">
+              {list.map((p) => {
+                const events = eventsForPlayer(
+                  p.playerId,
+                  p.playerName,
+                  goals,
+                  cards,
+                  substitutions,
+                );
+                const nameEl =
+                  p.playerId != null ? (
+                    <Link
+                      href={`/jogadores/${p.playerId}`}
+                      className="font-medium truncate hover:text-primary hover:underline"
+                    >
+                      {p.playerName}
+                    </Link>
+                  ) : (
+                    <span className="font-medium truncate">{p.playerName}</span>
+                  );
+                return (
+                  <li
+                    key={p.id}
+                    className="flex items-center gap-3 px-3 py-2 text-sm"
+                  >
+                    <PlayerPhoto url={p.photoUrl} name={p.playerName} size="sm" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-x-1">
+                        <PlayerFlag
+                          flag={p.nationalityFlag}
+                          nationality={p.nationality}
+                          size="sm"
+                        />
+                        {nameEl}
+                        <EventIcons events={events} />
+                      </div>
+                      {p.position && (
+                        <span className="text-xs text-muted-foreground">
+                          {p.position}
+                        </span>
+                      )}
+                    </div>
+                    <span className="shrink-0 w-7 text-right text-xs tabular-nums text-muted-foreground">
+                      {p.shirtNumber != null ? p.shirtNumber : "—"}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -322,12 +334,8 @@ export default function MatchDetail() {
   }
 
   const csaLineups = (match.lineups ?? []).filter((l) => l.side === "csa");
-  const starters = sortLineupByPosition(
-    csaLineups.filter((l) => l.role === "starter"),
-  );
-  const bench = sortLineupByPosition(
-    csaLineups.filter((l) => l.role === "bench"),
-  );
+  const starters = csaLineups.filter((l) => l.role === "starter");
+  const bench = csaLineups.filter((l) => l.role === "bench");
   const goals = (match.goals ?? []).filter((g) => g.side === "csa");
   const cards = (match.cards ?? []).filter((c) => c.side === "csa");
   const substitutions = (match.substitutions ?? []).filter(

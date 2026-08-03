@@ -346,6 +346,31 @@ export function sortLineupByPosition<
   return [...players].sort(compareLineupByPosition);
 }
 
+/**
+ * Group an already position-aware lineup into GOL/DEF/MEI/ATA (etc.),
+ * preserving field order within each group.
+ */
+export function groupLineupByPosition<
+  T extends {
+    position?: string | null;
+    shirtNumber?: string | number | null;
+    sortOrder?: number | null;
+    playerName?: string;
+    name?: string;
+  },
+>(players: T[]): { group: PositionGroup; players: T[] }[] {
+  const sorted = sortLineupByPosition(players);
+  const map = new Map<PositionGroup, T[]>();
+  for (const g of GROUP_ORDER) map.set(g, []);
+  for (const p of sorted) {
+    map.get(positionGroup(p.position))!.push(p);
+  }
+  return GROUP_ORDER.filter((g) => (map.get(g)?.length ?? 0) > 0).map((group) => ({
+    group,
+    players: map.get(group)!,
+  }));
+}
+
 export function compareByPositionGroupThenName(
   a: { name: string; position?: string | null },
   b: { name: string; position?: string | null },
