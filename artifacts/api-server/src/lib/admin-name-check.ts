@@ -23,11 +23,25 @@ function fieldsOf(row: CatalogRow): Array<{ value: string; matchedOn: "name" | "
   return out;
 }
 
+/** True when `shorter` is the leading token sequence of `longer`. */
 function isTokenPrefix(shorter: string[], longer: string[]): boolean {
   if (shorter.length === 0 || longer.length <= shorter.length) return false;
   return shorter.every((t, i) => longer[i] === t);
 }
 
+/**
+ * Similar only when the given name (prenome) matches.
+ * Sharing only common surnames (Silva, Nascimento, …) is NOT enough.
+ *
+ * Examples that match:
+ * - "Jessuí" ↔ "Jessuí Silva do Nascimento"
+ * - "Jessuí Silva" ↔ "Jessuí Silva do Nascimento"
+ * - exact full string (handled separately)
+ *
+ * Examples that do NOT match:
+ * - "Jessuí Silva do Nascimento" ↔ "Geovane Nascimento Silva"
+ * - "Jessuí Silva do Nascimento" ↔ "Mauro Silva do Nascimento Junior"
+ */
 function scoreAgainstField(
   qNorm: string,
   qTokens: string[],
@@ -40,13 +54,27 @@ function scoreAgainstField(
   const fTokens = nameTokens(fieldValue);
   if (!qTokens.length || !fTokens.length) return null;
 
+  // Different first names → never "similar" (avoids Silva/Nascimento false positives).
+  if (qTokens[0] !== fTokens[0]) return null;
+
+  // "Jessuí Silva" is a prefix of "Jessuí Silva do Nascimento" (or reverse).
   if (isTokenPrefix(qTokens, fTokens) || isTokenPrefix(fTokens, qTokens)) {
     return "similar";
   }
 
-  const set = new Set(fTokens);
-  const shared = qTokens.filter((t) => set.has(t));
-  if (shared.length >= 2) return "similar";
+  // Short given name vs composed: "Jessuí" ↔ "Jessuí Silva…"
+  if (qTokens.length === 1 || fTokens.length === 1) {
+    return "similar";
+  }
+
+  // Same prenome; every other token of the shorter name appears in the longer.
+  // e.g. "Jessuí Silva" ↔ "Jessuí Nascimento Silva"
+  const shorter = qTokens.length <= fTokens.length ? qTokens : fTokens;
+  const longer = qTokens.length <= fTokens.length ? fTokens : qTokens;
+  const longSet = new Set(longer);
+  if (shorter.slice(1).every((t) => longSet.has(t))) {
+    return "similar";
+  }
 
   return null;
 }
