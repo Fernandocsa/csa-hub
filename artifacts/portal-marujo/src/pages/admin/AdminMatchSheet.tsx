@@ -4,7 +4,8 @@ import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, Pencil, Trash2, X } from "lucide-react";
-import { PlayerFlag } from "@/components/PlayerFlag";
+import { PlayerPhoto } from "@/components/PlayerPhoto";
+import { EntityPhoto } from "@/components/EntityPhoto";
 import {
   compareByPositionGroupThenName,
   shortPositionCode,
@@ -34,6 +35,7 @@ type RosterPlayer = {
   position: string | null;
   nationality: string | null;
   nationalityFlag: string | null;
+  photoUrl?: string | null;
   shirtNumber: number | null;
   appearances: number;
   goals: number;
@@ -44,16 +46,14 @@ type RosterPlayer = {
 type PlayerInfo = {
   name: string;
   position: string | null;
-  nationality: string | null;
-  nationalityFlag: string | null;
+  photoUrl?: string | null;
 };
 
 type EscalacaoRow = {
   playerId: number;
   playerName: string;
   position: string | null;
-  nationality: string | null;
-  nationalityFlag: string | null;
+  photoUrl?: string | null;
 };
 
 type SheetLineup = {
@@ -247,9 +247,13 @@ export default function AdminMatchSheet() {
   const [match, setMatch] = useState<MatchMeta | null>(null);
   const [lookup, setLookup] = useState<MatchLookupData | null>(null);
   /** All managers (lookup) — only used to resolve names for a manager already on the match. */
-  const [allManagers, setAllManagers] = useState<{ id: number; name: string }[]>([]);
+  const [allManagers, setAllManagers] = useState<
+    { id: number; name: string; photoUrl?: string | null }[]
+  >([]);
   /** Managers linked to the match season via /admin/seasons/:year/managers. */
-  const [seasonManagers, setSeasonManagers] = useState<{ id: number; name: string }[]>([]);
+  const [seasonManagers, setSeasonManagers] = useState<
+    { id: number; name: string; photoUrl?: string | null }[]
+  >([]);
   const [seasons, setSeasons] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -331,8 +335,7 @@ export default function AdminMatchSheet() {
           next.set(l.playerId, {
             name: l.playerName,
             position: l.position ?? null,
-            nationality: null,
-            nationalityFlag: null,
+            photoUrl: null,
           });
         }
       }
@@ -416,12 +419,22 @@ export default function AdminMatchSheet() {
 
         if (managersRes.ok) {
           const mgrJson = (await managersRes.json()) as {
-            data?: Array<{ managerId: number; managerName: string }>;
+            data?: Array<{
+              managerId: number;
+              managerName: string;
+              photoUrl?: string | null;
+            }>;
           };
           setSeasonManagers(
             (mgrJson.data ?? [])
-              .map((m) => ({ id: m.managerId, name: m.managerName }))
-              .sort((a, b) => a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" })),
+              .map((m) => ({
+                id: m.managerId,
+                name: m.managerName,
+                photoUrl: m.photoUrl ?? null,
+              }))
+              .sort((a, b) =>
+                a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
+              ),
           );
         } else {
           setSeasonManagers([]);
@@ -467,8 +480,7 @@ export default function AdminMatchSheet() {
             next.set(p.id, {
               name: p.name,
               position: p.position,
-              nationality: p.nationality,
-              nationalityFlag: p.nationalityFlag,
+              photoUrl: p.photoUrl ?? null,
             });
           }
           return next;
@@ -514,8 +526,7 @@ export default function AdminMatchSheet() {
         playerId: p.id,
         playerName: p.name,
         position: p.position,
-        nationality: p.nationality,
-        nationalityFlag: p.nationalityFlag,
+        photoUrl: p.photoUrl ?? null,
       });
       seen.add(p.id);
     }
@@ -526,8 +537,7 @@ export default function AdminMatchSheet() {
         playerId: id,
         playerName: info?.name ?? `Jogador #${id}`,
         position: info?.position ?? null,
-        nationality: info?.nationality ?? null,
-        nationalityFlag: info?.nationalityFlag ?? null,
+        photoUrl: info?.photoUrl ?? null,
       });
       seen.add(id);
     }
@@ -548,6 +558,7 @@ export default function AdminMatchSheet() {
       rows.push({
         id: selectedId,
         name: fromAll?.name ?? match?.managerName ?? `Técnico #${selectedId}`,
+        photoUrl: fromAll?.photoUrl ?? null,
       });
       rows.sort((a, b) => a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }));
     }
@@ -625,8 +636,7 @@ export default function AdminMatchSheet() {
           next.set(p.id, {
             name: p.name,
             position: p.position,
-            nationality: p.nationality,
-            nationalityFlag: p.nationalityFlag,
+            photoUrl: p.photoUrl ?? null,
           });
         }
         return next;
@@ -1223,10 +1233,12 @@ export default function AdminMatchSheet() {
                         />
                       </td>
                       <td className={`px-1.5 md:px-2 py-1.5 min-w-0 ${zebra}`}>
-                        <div className="flex items-center gap-1 min-w-0">
-                          <span className="shrink-0">
-                            <PlayerFlag nationality={row.nationality} flag={row.nationalityFlag} />
-                          </span>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <PlayerPhoto
+                            url={row.photoUrl}
+                            name={row.playerName}
+                            size="sm"
+                          />
                           <a
                             href={`/admin/jogadores/${row.playerId}`}
                             target="_blank"
@@ -1294,15 +1306,24 @@ export default function AdminMatchSheet() {
                     return (
                       <tr key={m.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                         <td className="px-2 py-1.5 font-medium">
-                          <a
-                            href={`/admin/tecnicos/${m.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-[#1B3A6B] hover:underline"
-                            title="Abrir perfil do técnico"
-                          >
-                            {m.name}
-                          </a>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <EntityPhoto
+                              url={m.photoUrl}
+                              name={m.name}
+                              size="sm"
+                              shape="circle"
+                              label={`Foto de ${m.name}`}
+                            />
+                            <a
+                              href={`/admin/tecnicos/${m.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[#1B3A6B] hover:underline truncate"
+                              title="Abrir perfil do técnico"
+                            >
+                              {m.name}
+                            </a>
+                          </div>
                         </td>
                         <td className="px-2 py-1.5 text-center">
                           <input

@@ -1756,6 +1756,7 @@ router.get("/admin/matches/:id/roster", requireAdmin, async (req, res) => {
         position: playersTable.position,
         nationality: playersTable.nationality,
         nationalityFlag: playersTable.nationalityFlag,
+        photoUrl: playersTable.photoUrl,
         shirtNumber: playerSeasonStatsTable.shirtNumber,
         appearances: playerSeasonStatsTable.appearances,
         goals: playerSeasonStatsTable.goals,
@@ -1772,6 +1773,7 @@ router.get("/admin/matches/:id/roster", requireAdmin, async (req, res) => {
       position: string | null;
       nationality: string | null;
       nationalityFlag: string | null;
+      photoUrl: string | null;
       shirtNumber: number | null;
       appearances: number;
       goals: number;
@@ -1785,6 +1787,7 @@ router.get("/admin/matches/:id/roster", requireAdmin, async (req, res) => {
           position: playersTable.position,
           nationality: playersTable.nationality,
           nationalityFlag: playersTable.nationalityFlag,
+          photoUrl: playersTable.photoUrl,
           shirtNumber: sql<number | null>`null`.as("shirt_number"),
           appearances: sql<number>`0`.as("appearances"),
           goals: sql<number>`0`.as("goals"),
