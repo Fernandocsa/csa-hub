@@ -17,6 +17,7 @@ import {
   Cake,
   ArrowLeftRight,
   Building2,
+  FileText,
 } from "lucide-react";
 import { AdminHomeTabs } from "./AdminHomeTabs";
 
@@ -27,6 +28,7 @@ interface Summary {
 }
 
 const sections = [
+  { href: "/admin/conteudo", label: "Texto da home", icon: FileText, desc: "Editar o título e o texto de introdução da página inicial" },
   { href: "/admin/jogadores", label: "Jogadores", icon: Users, desc: "Cadastrar e editar jogadores e estatísticas por temporada" },
   { href: "/admin/tecnicos", label: "Técnicos", icon: UserCog, desc: "Badges manuais dos técnicos" },
   { href: "/admin/aniversariantes", label: "Aniversariantes", icon: Cake, desc: "Jogadores e técnicos que fazem aniversário no dia" },

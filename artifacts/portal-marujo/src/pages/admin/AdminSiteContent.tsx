@@ -93,9 +93,9 @@ export default function AdminSiteContent() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">Conteúdo do site</h1>
+        <h1 className="text-xl font-bold text-gray-900">Texto da home</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Blocos de texto editáveis (CMS simples). Hoje: introdução da home.
+          Edite o título e o texto de introdução da página inicial (Visão Geral).
         </p>
       </div>
 

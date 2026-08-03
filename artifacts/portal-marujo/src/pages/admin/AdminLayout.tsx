@@ -61,7 +61,7 @@ const navItems = [
   { href: "/admin/comentarios", label: "Comentários", icon: MessageSquare },
   { href: "/admin/avaliacoes", label: "Avaliações", icon: Star },
   { href: "/admin/sugestoes", label: "Sugestões", icon: Flag },
-  { href: "/admin/conteudo", label: "Conteúdo", icon: FileText },
+  { href: "/admin/conteudo", label: "Texto da home", icon: FileText },
   { href: "/admin/quem-e-o-jogador", label: "Quem é o Jogador?", icon: Puzzle },
   { href: "/admin/partidas-duplicadas", label: "Revisão Partidas", icon: ClipboardList },
   { href: "/admin/importar-exportar", label: "Importar / Exportar", icon: Download },
