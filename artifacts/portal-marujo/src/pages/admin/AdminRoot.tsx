@@ -37,6 +37,7 @@ import AdminPresidents from "./AdminPresidents";
 import AdminPresidentDetail from "./AdminPresidentDetail";
 import AdminSiteContent from "./AdminSiteContent";
 import AdminGuessPlayer from "./AdminGuessPlayer";
+import AdminDivergences from "./AdminDivergences";
 
 export default function AdminRoot() {
   const { checked, authenticated, login, logout } = useAdminAuth();
@@ -56,6 +57,7 @@ export default function AdminRoot() {
   return (
     <AdminLayout onLogout={logout}>
       <Switch>
+        <Route path="/admin/divergencias" component={AdminDivergences} />
         <Route path="/admin" component={AdminDashboard} />
         <Route path="/admin/jogadores/novo" component={AdminPlayerDetail} />
         <Route path="/admin/jogadores/:id" component={AdminPlayerDetail} />

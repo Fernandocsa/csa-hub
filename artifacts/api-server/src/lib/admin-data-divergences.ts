@@ -6,6 +6,7 @@ import {
   managerSeasonStatsTable,
   matchesTable,
   matchLineupsTable,
+  adminDivergenceDismissalsTable,
 } from "@workspace/db";
 import { and, eq, sql } from "drizzle-orm";
 import { officialPlayedMatchConditions } from "./match-filters";
@@ -545,28 +546,89 @@ async function playerLinkedVsManualSeason(): Promise<DivergenceGroup> {
 export async function loadAdminDataDivergences(): Promise<{
   groups: DivergenceGroup[];
   totalItems: number;
+  dismissedGroups: DivergenceGroup[];
+  dismissedTotal: number;
   generatedAt: string;
 }> {
-  const groups = (
-    await Promise.all([
-      managerManualVsLinked(),
-      managerSeasonSumVsStored(),
-      managerWdlInconsistent(),
-      managerSeasonWdlInconsistent(),
-      managerDuplicateNames(),
-      managerNationalityDemonyms(),
-      playerDuplicateNames(),
-      playerBirthYearMismatch(),
-      playerNationalityDemonyms(),
-      playerLinkedVsManualSeason(),
-    ])
-  ).filter((g) => g.count > 0);
+  const rawGroups = await Promise.all([
+    managerManualVsLinked(),
+    managerSeasonSumVsStored(),
+    managerWdlInconsistent(),
+    managerSeasonWdlInconsistent(),
+    managerDuplicateNames(),
+    managerNationalityDemonyms(),
+    playerDuplicateNames(),
+    playerBirthYearMismatch(),
+    playerNationalityDemonyms(),
+    playerLinkedVsManualSeason(),
+  ]);
+
+  const dismissedRows = await db
+    .select({
+      kind: adminDivergenceDismissalsTable.kind,
+      entityId: adminDivergenceDismissalsTable.entityId,
+    })
+    .from(adminDivergenceDismissalsTable);
+  const dismissed = new Set(
+    dismissedRows.map((r) => `${r.kind}:${r.entityId}`),
+  );
+
+  const groups: DivergenceGroup[] = [];
+  const dismissedGroups: DivergenceGroup[] = [];
+
+  for (const g of rawGroups) {
+    const active = g.items.filter((i) => !dismissed.has(`${g.kind}:${i.id}`));
+    const ignored = g.items.filter((i) => dismissed.has(`${g.kind}:${i.id}`));
+    if (active.length > 0) {
+      groups.push({ ...g, items: active, count: active.length });
+    }
+    if (ignored.length > 0) {
+      dismissedGroups.push({ ...g, items: ignored, count: ignored.length });
+    }
+  }
 
   groups.sort((a, b) => b.count - a.count || a.title.localeCompare(b.title, "pt-BR"));
+  dismissedGroups.sort(
+    (a, b) => b.count - a.count || a.title.localeCompare(b.title, "pt-BR"),
+  );
 
   return {
     groups,
     totalItems: groups.reduce((n, g) => n + g.count, 0),
+    dismissedGroups,
+    dismissedTotal: dismissedGroups.reduce((n, g) => n + g.count, 0),
     generatedAt: new Date().toISOString(),
   };
+}
+
+export async function dismissDivergence(
+  kind: string,
+  entityId: number,
+  note?: string | null,
+) {
+  const k = String(kind ?? "").trim();
+  if (!k || !Number.isFinite(entityId) || entityId <= 0) {
+    throw Object.assign(new Error("kind/entityId inválidos"), { status: 400 });
+  }
+  await db
+    .insert(adminDivergenceDismissalsTable)
+    .values({ kind: k, entityId, note: note?.trim() || null })
+    .onConflictDoNothing();
+  return loadAdminDataDivergences();
+}
+
+export async function undismissDivergence(kind: string, entityId: number) {
+  const k = String(kind ?? "").trim();
+  if (!k || !Number.isFinite(entityId) || entityId <= 0) {
+    throw Object.assign(new Error("kind/entityId inválidos"), { status: 400 });
+  }
+  await db
+    .delete(adminDivergenceDismissalsTable)
+    .where(
+      and(
+        eq(adminDivergenceDismissalsTable.kind, k),
+        eq(adminDivergenceDismissalsTable.entityId, entityId),
+      ),
+    );
+  return loadAdminDataDivergences();
 }

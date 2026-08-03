@@ -51,7 +51,7 @@ import {
   getSeasonCompetitionBadgeStatuses,
 } from "../lib/auto-badges";
 import { unknownResultMatchConditions } from "../lib/match-filters";
-import { loadAdminDataDivergences } from "../lib/admin-data-divergences";
+import { loadAdminDataDivergences, dismissDivergence, undismissDivergence } from "../lib/admin-data-divergences";
 import {
   loadBirthdays,
   parseYmd,
@@ -1207,6 +1207,45 @@ router.get("/admin/data-divergences", requireAdmin, async (req, res) => {
     res.status(500).json({ error: "Erro interno" });
   }
 });
+
+/** Marca item como “não é problema” (some da lista ativa). */
+router.post("/admin/data-divergences/dismiss", requireAdmin, async (req, res) => {
+  try {
+    const kind = String(req.body?.kind ?? "");
+    const entityId = Number(req.body?.entityId);
+    const note =
+      typeof req.body?.note === "string" ? req.body.note : undefined;
+    const payload = await dismissDivergence(kind, entityId, note);
+    res.json({ ok: true, ...payload });
+  } catch (err) {
+    const status = (err as { status?: number }).status ?? 500;
+    req.log.error(err);
+    res.status(status).json({
+      error: err instanceof Error ? err.message : "Erro ao ignorar divergência",
+    });
+  }
+});
+
+/** Restaura item ignorado para a lista ativa. */
+router.delete(
+  "/admin/data-divergences/dismiss/:kind/:entityId",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const kind = decodeURIComponent(String(req.params.kind ?? ""));
+      const entityId = Number(req.params.entityId);
+      const payload = await undismissDivergence(kind, entityId);
+      res.json({ ok: true, ...payload });
+    } catch (err) {
+      const status = (err as { status?: number }).status ?? 500;
+      req.log.error(err);
+      res.status(status).json({
+        error:
+          err instanceof Error ? err.message : "Erro ao restaurar divergência",
+      });
+    }
+  },
+);
 
 router.get("/admin/matches/:id", requireAdmin, async (req, res) => {
   try {
