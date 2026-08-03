@@ -16,7 +16,6 @@ import { EntityComments } from "@/components/EntityComments";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
-import { PlayerFlag } from "@/components/PlayerFlag";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { EntityPhoto } from "@/components/EntityPhoto";
 import { ShareButton } from "@/components/ShareButton";
@@ -297,11 +296,6 @@ function LineupList({
               <PlayerPhoto url={p.photoUrl} name={p.playerName} size="sm" />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-x-1">
-                  <PlayerFlag
-                    flag={p.nationalityFlag}
-                    nationality={p.nationality}
-                    size="sm"
-                  />
                   {nameEl}
                   {isCaptain && (
                     <span
