@@ -113,7 +113,7 @@ export default function PresidentsList() {
 
       <p className="text-sm text-muted-foreground border-t pt-4">
         Falta um mandato ou tem uma correção?{" "}
-        <Link href="/contribua" className="text-primary hover:underline">
+        <Link href="/sugestoes" className="text-primary hover:underline">
           Envie uma sugestão →
         </Link>
       </p>

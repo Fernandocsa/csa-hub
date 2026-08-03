@@ -18,6 +18,7 @@ import suggestionsRouter from "./suggestions";
 import transfersRouter from "./transfers";
 import presidentsRouter from "./presidents";
 import classicoRouter from "./classico";
+import siteContentRouter from "./site-content";
 
 const router: IRouter = Router();
 
@@ -38,6 +39,7 @@ router.use(suggestionsRouter);
 router.use(transfersRouter);
 router.use(presidentsRouter);
 router.use(classicoRouter);
+router.use(siteContentRouter);
 router.use(adminRouter);
 router.use(aiImportRouter);
 

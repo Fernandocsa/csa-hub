@@ -21,11 +21,14 @@ import {
   useGetBirthdaysToday,
   useGetOnThisDay,
   useGetLatestTransfer,
+  useGetSiteContent,
+  DEFAULT_HOME_INTRO,
   type MilestoneMatch,
   type BirthdayPerson,
   type OnThisDayMatch,
 } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MarkdownText, parseMarkdownTitle } from "@/components/MarkdownText";
 import {
   Table,
   TableBody,
@@ -310,20 +313,35 @@ function BirthdaysTodaySection({
 }) {
   if (!isLoading && people.length === 0) return null;
 
+  // Compact = same footprint as LatestTransferCard (side-by-side on home).
+  if (compact) {
+    const person = people[0];
+    return (
+      <section className="h-full" data-testid="section-birthdays-today">
+        {isLoading || !person ? (
+          <div className="flex items-center gap-3 border rounded p-4 h-full">
+            <Skeleton className="h-12 w-12 rounded-full shrink-0" />
+            <div className="flex-1 space-y-1.5">
+              <Skeleton className="h-3 w-40" />
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-20" />
+            </div>
+          </div>
+        ) : (
+          <BirthdayCompactCard person={person} title={title} />
+        )}
+      </section>
+    );
+  }
+
   return (
     <section className="space-y-3 h-full" data-testid="section-birthdays-today">
       <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
         {title}
       </h2>
       {isLoading ? (
-        <div
-          className={
-            compact
-              ? "border rounded p-3 space-y-2"
-              : "grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 border rounded p-3"
-          }
-        >
-          {Array.from({ length: compact ? 1 : 2 }).map((_, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 border rounded p-3">
+          {Array.from({ length: 2 }).map((_, i) => (
             <div key={i} className="flex items-center gap-3">
               <Skeleton className="h-8 w-8 rounded-full shrink-0" />
               <div className="flex-1 space-y-1.5">
@@ -334,13 +352,7 @@ function BirthdaysTodaySection({
           ))}
         </div>
       ) : (
-        <ul
-          className={
-            compact
-              ? "border rounded p-3"
-              : "grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 border rounded p-3"
-          }
-        >
+        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 border rounded p-3">
           {people.map((p) => (
             <li key={`${p.kind}-${p.id}`}>
               <BirthdayPersonLink person={p} />
@@ -349,6 +361,52 @@ function BirthdaysTodaySection({
         </ul>
       )}
     </section>
+  );
+}
+
+function BirthdayCompactCard({
+  person,
+  title,
+}: {
+  person: BirthdayPerson;
+  title: string;
+}) {
+  const href =
+    person.kind === "manager" ? `/tecnicos/${person.id}` : `/jogadores/${person.id}`;
+  const role =
+    person.kind === "manager" ? "Técnico" : person.position ?? "Jogador";
+
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-3 border rounded p-4 h-full hover:bg-muted/40 transition-colors group"
+      data-testid={`birthday-${person.kind}-${person.id}`}
+    >
+      {person.kind === "player" ? (
+        <PlayerPhoto url={person.photoUrl} name={person.name} size="md" />
+      ) : (
+        <EntityPhoto url={person.photoUrl} name={person.name} size="md" shape="circle" />
+      )}
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+          {title}
+        </p>
+        <div className="flex items-center gap-1.5 min-w-0">
+          <PlayerFlag
+            flag={person.nationalityFlag}
+            nationality={person.nationality}
+            size="sm"
+          />
+          <span className="text-sm font-semibold truncate group-hover:text-primary">
+            {person.name}
+          </span>
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">
+          {role}
+          {person.age != null ? ` · ${person.age} anos` : ""}
+        </p>
+      </div>
+    </Link>
   );
 }
 
@@ -416,20 +474,21 @@ function TransferAndBirthdaysSection() {
 
   if (loadTransfer && loadBday) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="border rounded p-4 space-y-2">
-          <Skeleton className="h-3 w-36" />
-          <Skeleton className="h-4 w-48" />
-          <Skeleton className="h-3 w-28" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
+        <div className="flex items-center gap-3 border rounded p-4 h-full">
+          <Skeleton className="h-12 w-12 rounded-full shrink-0" />
+          <div className="flex-1 space-y-1.5">
+            <Skeleton className="h-3 w-36" />
+            <Skeleton className="h-4 w-48" />
+            <Skeleton className="h-3 w-28" />
+          </div>
         </div>
-        <div className="border rounded p-3 space-y-2">
-          <Skeleton className="h-3 w-40" />
-          <div className="flex items-center gap-3">
-            <Skeleton className="h-8 w-8 rounded-full shrink-0" />
-            <div className="flex-1 space-y-1.5">
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-3 w-20" />
-            </div>
+        <div className="flex items-center gap-3 border rounded p-4 h-full">
+          <Skeleton className="h-12 w-12 rounded-full shrink-0" />
+          <div className="flex-1 space-y-1.5">
+            <Skeleton className="h-3 w-40" />
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-3 w-20" />
           </div>
         </div>
       </div>
@@ -476,6 +535,11 @@ export default function Home() {
   const { data: titles } = useGetTitles();
   const { data: milestones, isLoading: loadMil } = useGetMatchMilestones();
   const { data: topAssists, isLoading: loadAsst } = useGetTopAssists({ limit: 10 });
+  const { data: homeIntroBlock, isLoading: loadIntro } = useGetSiteContent("home_intro");
+
+  const introMd = homeIntroBlock?.content?.trim() || DEFAULT_HOME_INTRO;
+  const { title: introTitle, body: introBody } = parseMarkdownTitle(introMd);
+  const homeTitle = introTitle || "Portal Marujo — Base de dados do CSA";
 
   const victoryList = Array.isArray(victories) ? victories : [];
   const streakList = Array.isArray(streaks) ? streaks : [];
@@ -530,30 +594,20 @@ export default function Home() {
         <div className="border-b border-primary/10 pb-3">
           <div className="inline-flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-bold text-foreground" data-testid="heading-visao-geral">
-              Portal Marujo — Base de dados do CSA
+              {homeTitle}
             </h1>
-            <ShareButton title="Portal Marujo — Base de dados do CSA" />
+            <ShareButton title={homeTitle} />
           </div>
-          <p className="text-sm text-muted-foreground mt-1">
-            O Portal Marujo está em constante atualização. O principal objetivo do projeto é catalogar todos os jogos oficiais da história do CSA. Após a conclusão dessa etapa, o foco passa a ser a validação completa das estatísticas individuais dos jogadores e, posteriormente, a inclusão dos públicos e rendas das partidas.
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Os jogadores identificados com o selo de verificação (✓) possuem suas estatísticas totalmente conferidas e validadas. Já os demais atletas podem ter seus números ampliados à medida que novas temporadas forem pesquisadas e adicionadas ao acervo.
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Os rankings históricos exibem os valores mínimos comprovados até o momento e serão atualizados continuamente conforme novas informações forem verificadas.
-          </p>
-          <p className="text-sm mt-2">
-            <Link
-              href="/contribua"
-              className="text-primary hover:underline font-medium"
-              data-testid="link-contribua-home"
-            >
-              Ajude a completar o acervo →
-            </Link>
-          </p>
+          {loadIntro ? (
+            <div className="mt-2 space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-11/12" />
+              <Skeleton className="h-4 w-4/5" />
+            </div>
+          ) : (
+            <MarkdownText content={introBody} className="mt-2" />
+          )}
         </div>
-
         <GlobalSearch />
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2" data-testid="home-shortcuts">

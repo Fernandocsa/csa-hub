@@ -46,7 +46,7 @@ export function SiteFooter() {
               Recordes
             </Link>
             {" · "}
-            <Link href="/contribua" className="hover:text-primary hover:underline">
+            <Link href="/sugestoes" className="hover:text-primary hover:underline">
               Contribua
             </Link>
           </p>

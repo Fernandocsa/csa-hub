@@ -35,6 +35,7 @@ import AdminTransfers from "./AdminTransfers";
 import AdminTransferDetail from "./AdminTransferDetail";
 import AdminPresidents from "./AdminPresidents";
 import AdminPresidentDetail from "./AdminPresidentDetail";
+import AdminSiteContent from "./AdminSiteContent";
 
 export default function AdminRoot() {
   const { checked, authenticated, login, logout } = useAdminAuth();
@@ -93,6 +94,7 @@ export default function AdminRoot() {
         <Route path="/admin/comentarios" component={AdminComments} />
         <Route path="/admin/avaliacoes" component={AdminRatings} />
         <Route path="/admin/sugestoes" component={AdminSuggestions} />
+        <Route path="/admin/conteudo" component={AdminSiteContent} />
         <Route path="/admin/partidas-duplicadas" component={AdminMatchReview} />
         <Route path="/admin/importar-exportar" component={AdminImportExport} />
         <Route path="/admin/importar-ia" component={AdminAiImport} />

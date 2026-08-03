@@ -20,6 +20,7 @@ import {
   seasonCompetitionStatsTable,
   transfersTable,
   presidentsTable,
+  siteContentTable,
 } from "@workspace/db";
 import {
   isRatingEntityType,
@@ -6542,6 +6543,88 @@ router.delete("/admin/presidents/:id", requireAdmin, async (req, res) => {
       return res.status(404).json({ error: "Presidente não encontrado" });
     }
     res.json({ ok: true });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+// ── Site content (editable copy blocks) ──────────────────────────────────────
+
+function serializeSiteContent(row: typeof siteContentTable.$inferSelect) {
+  return {
+    key: row.key,
+    content: row.content,
+    updatedAt: row.updatedAt?.toISOString?.() ?? row.updatedAt,
+  };
+}
+
+router.get("/admin/site-content", requireAdmin, async (req, res) => {
+  try {
+    const rows = await db
+      .select()
+      .from(siteContentTable)
+      .orderBy(asc(siteContentTable.key));
+    res.json(rows.map(serializeSiteContent));
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.get("/admin/site-content/:key", requireAdmin, async (req, res) => {
+  try {
+    const key = String(req.params.key ?? "").trim();
+    if (!key) return res.status(400).json({ error: "key inválida" });
+    const [row] = await db
+      .select()
+      .from(siteContentTable)
+      .where(eq(siteContentTable.key, key))
+      .limit(1);
+    if (!row) return res.status(404).json({ error: "Bloco não encontrado" });
+    res.json(serializeSiteContent(row));
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put("/admin/site-content/:key", requireAdmin, async (req, res) => {
+  try {
+    const key = String(req.params.key ?? "").trim();
+    if (!key || key.length > 80) {
+      return res.status(400).json({ error: "key inválida" });
+    }
+    const content =
+      typeof req.body?.content === "string" ? req.body.content.trim() : "";
+    if (!content) return res.status(400).json({ error: "content obrigatório" });
+    if (content.length > 50_000) {
+      return res.status(400).json({ error: "content muito longo" });
+    }
+
+    const now = new Date();
+    const [existing] = await db
+      .select({ id: siteContentTable.id })
+      .from(siteContentTable)
+      .where(eq(siteContentTable.key, key))
+      .limit(1);
+
+    let row: typeof siteContentTable.$inferSelect;
+    if (existing) {
+      const [updated] = await db
+        .update(siteContentTable)
+        .set({ content, updatedAt: now })
+        .where(eq(siteContentTable.key, key))
+        .returning();
+      row = updated;
+    } else {
+      const [inserted] = await db
+        .insert(siteContentTable)
+        .values({ key, content, updatedAt: now })
+        .returning();
+      row = inserted;
+    }
+    res.json(serializeSiteContent(row));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
