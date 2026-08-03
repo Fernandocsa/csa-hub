@@ -12,7 +12,7 @@ import type {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ShareButton } from "@/components/ShareButton";
 import { PlayerFlag } from "@/components/PlayerFlag";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
@@ -356,10 +356,29 @@ export default function SeasonDetail() {
       </Link>
 
       <div className="border-b pb-4">
-        <div className="inline-flex items-center gap-2">
-          <h1 className="text-2xl font-bold" data-testid="heading-season">
-            Temporada {season.year}
-          </h1>
+        <div className="inline-flex items-center gap-2 flex-wrap">
+          <div className="inline-flex items-center gap-0.5">
+            <Link
+              href={`/temporadas/${Number(season.year) - 1}`}
+              aria-label={`Temporada ${Number(season.year) - 1}`}
+              className="inline-flex items-center justify-center h-9 w-9 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Link>
+            <h1
+              className="text-2xl font-bold tabular-nums"
+              data-testid="heading-season"
+            >
+              Temporada {season.year}
+            </h1>
+            <Link
+              href={`/temporadas/${Number(season.year) + 1}`}
+              aria-label={`Temporada ${Number(season.year) + 1}`}
+              className="inline-flex items-center justify-center h-9 w-9 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </Link>
+          </div>
           <ShareButton title={`Temporada ${season.year}`} />
         </div>
       </div>

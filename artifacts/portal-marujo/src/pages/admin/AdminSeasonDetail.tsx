@@ -4,7 +4,7 @@ import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
-import { ChevronLeft, Plus, Trash2, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Trash2, RefreshCw } from "lucide-react";
 import {
   compareByPositionGroupThenName,
   shortPositionCode,
@@ -936,7 +936,25 @@ export default function AdminSeasonDetail() {
         >
           <ChevronLeft size={13} /> Temporadas
         </Link>
-        <h1 className="text-xl font-bold text-gray-900">Temporada {season}</h1>
+        <div className="inline-flex items-center gap-1">
+          <Link
+            href={`/admin/temporadas/${year - 1}`}
+            aria-label={`Temporada ${year - 1}`}
+            className="inline-flex items-center justify-center h-8 w-8 rounded-md text-gray-500 hover:text-[#1B3A6B] hover:bg-gray-100"
+          >
+            <ChevronLeft size={20} />
+          </Link>
+          <h1 className="text-xl font-bold text-gray-900 tabular-nums">
+            Temporada {season}
+          </h1>
+          <Link
+            href={`/admin/temporadas/${year + 1}`}
+            aria-label={`Temporada ${year + 1}`}
+            className="inline-flex items-center justify-center h-8 w-8 rounded-md text-gray-500 hover:text-[#1B3A6B] hover:bg-gray-100"
+          >
+            <ChevronRight size={20} />
+          </Link>
+        </div>
         <p className="text-sm text-gray-500 mt-0.5">
           Verificação, badges, resumo, elenco e técnicos desta temporada.
         </p>
