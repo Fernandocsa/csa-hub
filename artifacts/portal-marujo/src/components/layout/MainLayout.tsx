@@ -34,6 +34,7 @@ const navigation: NavItem[] = [
       { name: "Sobre o CSA", href: "/sobre" },
       { name: "Transferências", href: "/transferencias" },
       { name: "Presidentes", href: "/presidentes" },
+      { name: "Quem é o Jogador?", href: "/quem-e-o-jogador" },
       { name: "Contribua", href: "/sugestoes" },
     ],
   },
