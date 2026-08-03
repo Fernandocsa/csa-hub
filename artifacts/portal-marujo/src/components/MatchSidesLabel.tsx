@@ -1,11 +1,11 @@
-import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
+import { CsaCrest } from "@/components/OpponentCrest";
 import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
 
 /**
  * CSA × Opponent (or reverse) for match/game rows.
- * Crest sits on the outer edge: before CSA always; after opponent when CSA is home,
- * before opponent when CSA is away (left side always reads crest → name).
- * When opponentId/matchId are set, opponent → histórico and score separator → partida.
+ * Crests sit on the outer edges: before the left team, after the right team.
+ * Home: [CSA] CSA · Opp [Opp]
+ * Away: [Opp] Opp · CSA [CSA]
  */
 export function MatchSidesLabel({
   homeAway,
@@ -25,8 +25,9 @@ export function MatchSidesLabel({
   const isHome = homeAway === "home";
   const csa = (
     <span className="inline-flex items-center gap-1.5 shrink-0">
-      <CsaCrest size="sm" />
+      {isHome && <CsaCrest size="sm" />}
       <span>CSA</span>
+      {!isHome && <CsaCrest size="sm" />}
     </span>
   );
   const opp = (
