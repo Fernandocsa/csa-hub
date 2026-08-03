@@ -380,7 +380,8 @@ export default function MatchDetail() {
 
   const trainerBlock =
     match.manager && match.managerId != null ? (
-      <div className="flex items-center gap-2 text-sm">
+      <div className="flex items-center gap-2 text-sm flex-wrap">
+        <span className="text-muted-foreground">Treinador:</span>
         <EntityPhoto
           url={match.managerPhotoUrl}
           name={match.manager}
@@ -388,18 +389,16 @@ export default function MatchDetail() {
           shape="circle"
           label={`Foto de ${match.manager}`}
         />
-        <p>
-          <span className="text-muted-foreground">Treinador:</span>{" "}
-          <Link
-            href={`/tecnicos/${match.managerId}`}
-            className="font-medium hover:text-primary hover:underline"
-          >
-            {match.manager}
-          </Link>
-        </p>
+        <Link
+          href={`/tecnicos/${match.managerId}`}
+          className="font-medium hover:text-primary hover:underline"
+        >
+          {match.manager}
+        </Link>
       </div>
     ) : match.manager ? (
-      <div className="flex items-center gap-2 text-sm">
+      <div className="flex items-center gap-2 text-sm flex-wrap">
+        <span className="text-muted-foreground">Treinador:</span>
         <EntityPhoto
           url={match.managerPhotoUrl}
           name={match.manager}
@@ -407,10 +406,7 @@ export default function MatchDetail() {
           shape="circle"
           label={`Foto de ${match.manager}`}
         />
-        <p>
-          <span className="text-muted-foreground">Treinador:</span>{" "}
-          <span className="font-medium">{match.manager}</span>
-        </p>
+        <span className="font-medium">{match.manager}</span>
       </div>
     ) : null;
 
