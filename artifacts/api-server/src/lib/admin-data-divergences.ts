@@ -8,7 +8,7 @@ import {
   matchLineupsTable,
   adminDivergenceDismissalsTable,
 } from "@workspace/db";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { officialPlayedMatchConditions } from "./match-filters";
 import { csaLineupActuallyPlayedCondition } from "./player-appeared";
 
@@ -19,6 +19,8 @@ export type DivergenceItem = {
   name: string;
   href: string;
   summary: string;
+  /** Ano(s) de temporada p/ identificação no admin (ex.: "1960" ou "2000–2003"). */
+  seasonHint?: string | null;
   meta?: Record<string, string | number | null>;
 };
 
@@ -93,6 +95,54 @@ function demonymSet() {
 
 function hasCompleteFullName(fullName: string | null | undefined): boolean {
   return Boolean(fullName && fullName.trim());
+}
+
+function yearFromSeason(season: string | null | undefined): string | null {
+  if (!season) return null;
+  const m = String(season).match(/^(\d{4})/);
+  return m?.[1] ?? null;
+}
+
+async function loadPlayerSeasonHints(
+  playerIds: number[],
+): Promise<Map<number, string>> {
+  const map = new Map<number, string>();
+  if (playerIds.length === 0) return map;
+
+  const rows = await db
+    .select({
+      playerId: playerSeasonStatsTable.playerId,
+      firstSeason: sql<string | null>`min(${playerSeasonStatsTable.season})`,
+      lastSeason: sql<string | null>`max(${playerSeasonStatsTable.season})`,
+    })
+    .from(playerSeasonStatsTable)
+    .where(inArray(playerSeasonStatsTable.playerId, playerIds))
+    .groupBy(playerSeasonStatsTable.playerId);
+
+  for (const r of rows) {
+    const first = yearFromSeason(r.firstSeason);
+    const last = yearFromSeason(r.lastSeason);
+    if (!first) continue;
+    map.set(r.playerId, last && last !== first ? `${first}–${last}` : first);
+  }
+  return map;
+}
+
+async function attachPlayerSeasonHints(groups: DivergenceGroup[]) {
+  const ids = [
+    ...new Set(
+      groups
+        .filter((g) => g.entityType === "player")
+        .flatMap((g) => g.items.map((i) => i.id)),
+    ),
+  ];
+  const hints = await loadPlayerSeasonHints(ids);
+  for (const g of groups) {
+    if (g.entityType !== "player") continue;
+    for (const item of g.items) {
+      item.seasonHint = hints.get(item.id) ?? null;
+    }
+  }
 }
 
 async function playerDuplicateNames(): Promise<DivergenceGroup> {
@@ -586,6 +636,19 @@ export async function loadAdminDataDivergences(): Promise<{
     playerNationalityDemonyms(),
     playerLinkedVsManualSeason(),
   ]);
+
+  await attachPlayerSeasonHints(rawGroups);
+
+  for (const g of rawGroups) {
+    if (g.kind !== "player_duplicate_name") continue;
+    g.items.sort((a, b) => {
+      const nameCmp = a.name.localeCompare(b.name, "pt-BR");
+      if (nameCmp !== 0) return nameCmp;
+      const ya = parseInt(String(a.seasonHint ?? "9999").slice(0, 4), 10);
+      const yb = parseInt(String(b.seasonHint ?? "9999").slice(0, 4), 10);
+      return (ya || 9999) - (yb || 9999) || a.id - b.id;
+    });
+  }
 
   const dismissedRows = await db
     .select({

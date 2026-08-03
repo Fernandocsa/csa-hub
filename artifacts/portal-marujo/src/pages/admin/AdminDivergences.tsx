@@ -15,6 +15,7 @@ type DivergenceItem = {
   name: string;
   href: string;
   summary: string;
+  seasonHint?: string | null;
 };
 
 type DivergenceGroup = {
@@ -127,7 +128,14 @@ export default function AdminDivergences() {
               className="border rounded-lg bg-white p-3 space-y-2"
             >
               <div className="flex items-start justify-between gap-2">
-                <p className="font-semibold text-gray-900 truncate">{item.name}</p>
+                <p className="font-semibold text-gray-900 truncate">
+                  {item.name}
+                  {item.seasonHint ? (
+                    <span className="ml-1.5 font-mono text-sm font-semibold text-[#1B3A6B]">
+                      {item.seasonHint}
+                    </span>
+                  ) : null}
+                </p>
                 <span className="shrink-0 text-[11px] text-gray-400 font-mono">
                   #{item.id}
                 </span>
