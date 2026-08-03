@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { transfersTable, playersTable } from "@workspace/db";
-import { asc, desc, eq, and } from "drizzle-orm";
+import { asc, desc, eq, and, sql } from "drizzle-orm";
 
 const router = Router();
 
@@ -55,10 +55,23 @@ router.get("/transfers", async (req, res) => {
       typeof req.query.direction === "string" ? req.query.direction.trim() : "";
     const direction =
       directionRaw === "in" || directionRaw === "out" ? directionRaw : null;
+    const loansOnly =
+      req.query.loansOnly === "1" ||
+      req.query.loansOnly === "true" ||
+      req.query.loansOnly === "yes";
 
     const conditions = [];
     if (season) conditions.push(eq(transfersTable.season, season));
     if (direction) conditions.push(eq(transfersTable.direction, direction));
+    if (loansOnly) {
+      conditions.push(
+        sql`(
+          ${transfersTable.transferType} ILIKE '%empréstimo%'
+          OR ${transfersTable.transferType} ILIKE '%emprestimo%'
+          OR ${transfersTable.transferType} ILIKE '%loan%'
+        )`,
+      );
+    }
 
     const rows = await db
       .select({
@@ -82,15 +95,62 @@ router.get("/transfers", async (req, res) => {
         asc(playersTable.name),
       );
 
+    const seasonConditions = loansOnly
+      ? [
+          sql`(
+            ${transfersTable.transferType} ILIKE '%empréstimo%'
+            OR ${transfersTable.transferType} ILIKE '%emprestimo%'
+            OR ${transfersTable.transferType} ILIKE '%loan%'
+          )`,
+        ]
+      : [];
+
     const seasons = await db
       .selectDistinct({ season: transfersTable.season })
       .from(transfersTable)
+      .where(seasonConditions.length ? and(...seasonConditions) : undefined)
       .orderBy(desc(transfersTable.season));
 
     res.json({
       transfers: rows.map(mapRow),
       seasons: seasons.map((s) => s.season),
     });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+/** Most recent transfer for Home widget — omitted client-side when empty. */
+router.get("/transfers/latest", async (req, res) => {
+  try {
+    const [row] = await db
+      .select({
+        id: transfersTable.id,
+        playerId: transfersTable.playerId,
+        playerName: playersTable.name,
+        playerPhotoUrl: playersTable.photoUrl,
+        direction: transfersTable.direction,
+        club: transfersTable.club,
+        transferDate: transfersTable.transferDate,
+        season: transfersTable.season,
+        transferType: transfersTable.transferType,
+        notes: transfersTable.notes,
+      })
+      .from(transfersTable)
+      .innerJoin(playersTable, eq(transfersTable.playerId, playersTable.id))
+      .orderBy(
+        sql`${transfersTable.transferDate} DESC NULLS LAST`,
+        desc(transfersTable.season),
+        desc(transfersTable.id),
+      )
+      .limit(1);
+
+    if (!row) {
+      res.json(null);
+      return;
+    }
+    res.json(mapRow(row));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno do servidor" });

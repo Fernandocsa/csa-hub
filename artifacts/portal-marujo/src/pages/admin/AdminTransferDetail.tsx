@@ -7,6 +7,13 @@ import { ChevronLeft } from "lucide-react";
 
 type PlayerOpt = { id: number; name: string };
 
+const TRANSFER_TYPE_PRESETS = [
+  "empréstimo",
+  "definitiva",
+  "fim de contrato",
+  "retorno de empréstimo",
+] as const;
+
 export default function AdminTransferDetail() {
   const params = useParams<{ id?: string }>();
   const [, setLocation] = useLocation();
@@ -22,6 +29,7 @@ export default function AdminTransferDetail() {
   const [transferDate, setTransferDate] = useState("");
   const [season, setSeason] = useState("");
   const [transferType, setTransferType] = useState("");
+  const [transferTypeOther, setTransferTypeOther] = useState(false);
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
@@ -53,6 +61,12 @@ export default function AdminTransferDetail() {
     setTransferDate(data.transferDate ?? "");
     setSeason(data.season ?? "");
     setTransferType(data.transferType ?? "");
+    setTransferTypeOther(
+      Boolean(
+        data.transferType &&
+          !(TRANSFER_TYPE_PRESETS as readonly string[]).includes(data.transferType),
+      ),
+    );
     setNotes(data.notes ?? "");
     setLoading(false);
   }, [isNew, transferId]);
@@ -69,6 +83,10 @@ export default function AdminTransferDetail() {
       .filter((p) => p.name.toLowerCase().includes(q))
       .slice(0, 30);
   }, [players, playerSearch]);
+
+  const transferTypeSelect = transferTypeOther
+    ? "__other__"
+    : transferType;
 
   async function createPlayerQuick() {
     const name = newPlayerName.trim();
@@ -258,11 +276,40 @@ export default function AdminTransferDetail() {
           <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
             Tipo
           </label>
-          <Input
-            value={transferType}
-            onChange={(e) => setTransferType(e.target.value)}
-            placeholder="empréstimo, definitiva, fim de contrato…"
-          />
+          <select
+            className={sel}
+            value={transferTypeSelect}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === "__other__") {
+                setTransferTypeOther(true);
+                if ((TRANSFER_TYPE_PRESETS as readonly string[]).includes(transferType)) {
+                  setTransferType("");
+                }
+                return;
+              }
+              setTransferTypeOther(false);
+              setTransferType(v);
+            }}
+          >
+            <option value="">— sem tipo —</option>
+            <option value="empréstimo">Empréstimo</option>
+            <option value="definitiva">Definitiva</option>
+            <option value="fim de contrato">Fim de contrato</option>
+            <option value="retorno de empréstimo">Retorno de empréstimo</option>
+            <option value="__other__">Outro…</option>
+          </select>
+          {transferTypeOther && (
+            <Input
+              className="mt-2"
+              value={transferType}
+              onChange={(e) => setTransferType(e.target.value)}
+              placeholder="Tipo personalizado…"
+            />
+          )}
+          <p className="text-xs text-gray-400 mt-1">
+            Use “Empréstimo” para listar em Jogadores → Emprestados.
+          </p>
         </div>
 
         <div>

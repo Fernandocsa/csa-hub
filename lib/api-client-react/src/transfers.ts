@@ -24,6 +24,8 @@ export interface TransfersListResponse {
 export type TransfersQuery = {
   season?: string;
   direction?: TransferDirection | "";
+  /** Only loan-type movements (empréstimo / emprestimo / loan). */
+  loansOnly?: boolean;
 };
 
 export const getTransfers = async (
@@ -34,6 +36,7 @@ export const getTransfers = async (
   if (query.direction === "in" || query.direction === "out") {
     params.set("direction", query.direction);
   }
+  if (query.loansOnly) params.set("loansOnly", "1");
   const qs = params.toString();
   return customFetch<TransfersListResponse>(
     `/api/transfers${qs ? `?${qs}` : ""}`,
@@ -47,4 +50,16 @@ export const useGetTransfers = (query: TransfersQuery = {}) =>
   useQuery({
     queryKey: getTransfersQueryKey(query),
     queryFn: () => getTransfers(query),
+  });
+
+export const getLatestTransfer = async (): Promise<TransferItem | null> =>
+  customFetch<TransferItem | null>("/api/transfers/latest");
+
+export const getLatestTransferQueryKey = () =>
+  ["/api/transfers/latest"] as const;
+
+export const useGetLatestTransfer = () =>
+  useQuery({
+    queryKey: getLatestTransferQueryKey(),
+    queryFn: getLatestTransfer,
   });

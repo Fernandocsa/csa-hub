@@ -35,6 +35,7 @@ const navigation: NavItem[] = [
       { name: "Artilheiros", href: "/jogadores/artilheiros" },
       { name: "Mais Jogos", href: "/jogadores/presencas" },
       { name: "Assistências", href: "/jogadores/assistencias" },
+      { name: "Emprestados", href: "/jogadores/emprestados" },
       { name: "Estrangeiros", href: "/jogadores/estrangeiros" },
       { name: "Por Estado", href: "/jogadores/por-estado" },
     ],
@@ -84,7 +85,6 @@ const navigation: NavItem[] = [
     icon: BookOpen,
     children: [
       { name: "Sobre o CSA", href: "/sobre" },
-      { name: "Clássico CSA × CRB", href: "/classico" },
       { name: "Transferências", href: "/transferencias" },
       { name: "Presidentes", href: "/presidentes" },
     ],

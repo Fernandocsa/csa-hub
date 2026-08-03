@@ -1,5 +1,7 @@
 import { Link, useParams } from "wouter";
+import type { ReactNode } from "react";
 import { useGetCompetition, getGetCompetitionQueryKey } from "@workspace/api-client-react";
+import type { CompetitionDetail } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
@@ -22,13 +24,145 @@ function nivel(type?: string | null) {
   return type ? (NIVEL[type] ?? type) : null;
 }
 
-export default function CompetitionDetail() {
+type HighlightEntry = { id: number; name: string; value: number };
+
+type CompetitionHighlights = {
+  mostAppearances: HighlightEntry | null;
+  topScorer: HighlightEntry | null;
+  managerMostMatches: HighlightEntry | null;
+  managerMostWins: HighlightEntry | null;
+};
+
+type CompetitionDetailWithHighlights = CompetitionDetail & {
+  highlights?: CompetitionHighlights | null;
+};
+
+function HighlightCard({
+  label,
+  name,
+  href,
+  valueText,
+  testId,
+}: {
+  label: string;
+  name: string;
+  href: string;
+  valueText: string;
+  testId: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="border rounded p-4 space-y-1 block hover:bg-muted/40 transition-colors"
+      data-testid={testId}
+    >
+      <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className="font-bold text-base truncate">{name}</p>
+      <p className="text-2xl font-black text-primary">{valueText}</p>
+    </Link>
+  );
+}
+
+function CompetitionHighlightsSection({
+  highlights,
+}: {
+  highlights: CompetitionHighlights | null | undefined;
+}) {
+  if (!highlights) return null;
+
+  const { mostAppearances, topScorer, managerMostMatches, managerMostWins } = highlights;
+  const sameManager =
+    managerMostMatches &&
+    managerMostWins &&
+    managerMostMatches.id === managerMostWins.id;
+
+  const cards: ReactNode[] = [];
+
+  if (mostAppearances) {
+    cards.push(
+      <HighlightCard
+        key="apps"
+        label="Mais jogos"
+        name={mostAppearances.name}
+        href={`/jogadores/${mostAppearances.id}`}
+        valueText={`${mostAppearances.value} ${mostAppearances.value === 1 ? "jogo" : "jogos"}`}
+        testId="highlight-most-appearances"
+      />,
+    );
+  }
+
+  if (topScorer) {
+    cards.push(
+      <HighlightCard
+        key="goals"
+        label="Artilheiro"
+        name={topScorer.name}
+        href={`/jogadores/${topScorer.id}`}
+        valueText={`${topScorer.value} ${topScorer.value === 1 ? "gol" : "gols"}`}
+        testId="highlight-top-scorer"
+      />,
+    );
+  }
+
+  if (sameManager && managerMostMatches && managerMostWins) {
+    cards.push(
+      <HighlightCard
+        key="mgr-combined"
+        label="Técnico em destaque"
+        name={managerMostMatches.name}
+        href={`/tecnicos/${managerMostMatches.id}`}
+        valueText={`${managerMostMatches.value} ${managerMostMatches.value === 1 ? "jogo" : "jogos"}, ${managerMostWins.value} ${managerMostWins.value === 1 ? "vitória" : "vitórias"}`}
+        testId="highlight-manager-combined"
+      />,
+    );
+  } else {
+    if (managerMostMatches) {
+      cards.push(
+        <HighlightCard
+          key="mgr-matches"
+          label="Técnico com mais jogos"
+          name={managerMostMatches.name}
+          href={`/tecnicos/${managerMostMatches.id}`}
+          valueText={`${managerMostMatches.value} ${managerMostMatches.value === 1 ? "jogo" : "jogos"}`}
+          testId="highlight-manager-matches"
+        />,
+      );
+    }
+    if (managerMostWins) {
+      cards.push(
+        <HighlightCard
+          key="mgr-wins"
+          label="Técnico com mais vitórias"
+          name={managerMostWins.name}
+          href={`/tecnicos/${managerMostWins.id}`}
+          valueText={`${managerMostWins.value} ${managerMostWins.value === 1 ? "vitória" : "vitórias"}`}
+          testId="highlight-manager-wins"
+        />,
+      );
+    }
+  }
+
+  if (cards.length === 0) return null;
+
+  return (
+    <section className="space-y-3" data-testid="section-competition-highlights">
+      <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        Destaques da Competição
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">{cards}</div>
+    </section>
+  );
+}
+
+export default function CompetitionDetailPage() {
   const params = useParams();
   const id = parseInt(params.id ?? "0", 10);
 
-  const { data: comp, isLoading, isError } = useGetCompetition(id, {
+  const { data, isLoading, isError } = useGetCompetition(id, {
     query: { enabled: !!id, queryKey: getGetCompetitionQueryKey(id) },
   });
+
+  const comp = data as CompetitionDetailWithHighlights | undefined;
 
   if (isLoading) {
     return (
@@ -43,6 +177,8 @@ export default function CompetitionDetail() {
   if (isError || !comp) {
     return <div className="text-center p-8 text-destructive">Competição não encontrada.</div>;
   }
+
+  const gd = (comp.goalsScored ?? 0) - (comp.goalsConceded ?? 0);
 
   return (
     <div className="space-y-5 max-w-3xl">
@@ -68,26 +204,44 @@ export default function CompetitionDetail() {
         ) : null}
       </div>
 
-      {/* Stat bar */}
-      <div className="grid grid-cols-5 gap-px bg-border rounded overflow-hidden" data-testid="competition-stat-bar">
+      <div
+        className="grid grid-cols-4 sm:grid-cols-8 gap-px bg-border rounded overflow-hidden"
+        data-testid="competition-stat-bar"
+      >
         {[
           { label: "Partidas", value: comp.matches, highlight: true },
           { label: "Vitórias", value: comp.wins, color: "text-green-600" },
           { label: "Empates", value: comp.draws, color: "text-amber-600" },
           { label: "Derrotas", value: comp.losses, color: "text-red-600" },
+          { label: "GP", value: comp.goalsScored ?? 0 },
+          { label: "GC", value: comp.goalsConceded ?? 0 },
+          {
+            label: "Saldo",
+            value: (gd >= 0 ? "+" : "") + gd,
+            color: gd >= 0 ? "text-green-600" : "text-red-600",
+          },
           { label: "Aproveit.", value: pct(comp.wins, comp.matches), highlight: true },
         ].map(({ label, value, color, highlight }) => (
           <div key={label} className="bg-background p-3 text-center">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
-            <p className={`text-xl font-bold mt-0.5 ${color ?? (highlight ? "text-primary" : "")}`}>{value}</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider leading-tight">
+              {label}
+            </p>
+            <p
+              className={`text-lg font-bold mt-0.5 tabular-nums ${color ?? (highlight ? "text-primary" : "")}`}
+            >
+              {value}
+            </p>
           </div>
         ))}
       </div>
 
-      {/* Season history */}
+      <CompetitionHighlightsSection highlights={comp.highlights} />
+
       {comp.seasonStats && comp.seasonStats.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Histórico por Edição</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+            Histórico por Edição
+          </h2>
           <div className="border rounded">
             <Table>
               <TableHeader>

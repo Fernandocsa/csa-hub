@@ -11,6 +11,7 @@ import {
 } from "@workspace/db";
 import { sql, eq, and, desc, asc } from "drizzle-orm";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
+import { getCompetitionHighlights } from "../lib/competition-highlights";
 
 const router = Router();
 
@@ -227,6 +228,8 @@ router.get("/competitions/:id", async (req, res) => {
       .orderBy(desc(matchesTable.season));
 
     const stats = overall[0];
+    const highlights = await getCompetitionHighlights(id);
+
     res.json({
       id: comp.id,
       name: comp.name,
@@ -238,6 +241,7 @@ router.get("/competitions/:id", async (req, res) => {
       goalsScored: stats?.goalsScored || 0,
       goalsConceded: stats?.goalsConceded || 0,
       titles: null,
+      highlights,
       seasonStats: seasonRows.map((r) => ({
         year: r.season,
         matches: r.matches,

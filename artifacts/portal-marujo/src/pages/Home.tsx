@@ -16,14 +16,15 @@ import {
   useGetStreaks,
   useGetTitles,
   useGetMatchMilestones,
-  useGetBiggestAttendance,
   useGetTopAssists,
   useGetNextMatch,
   useGetBirthdaysToday,
   useGetOnThisDay,
+  useGetLatestTransfer,
   type MilestoneMatch,
   type BirthdayPerson,
   type OnThisDayMatch,
+  type TransferItem,
 } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -35,7 +36,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
-import { OpponentCrest } from "@/components/OpponentCrest";
 import { MatchSidesLabel } from "@/components/MatchSidesLabel";
 import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
 import { PlayerFlag } from "@/components/PlayerFlag";
@@ -45,11 +45,6 @@ import { ShareButton } from "@/components/ShareButton";
 import { GlobalSearch } from "@/components/GlobalSearch";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 import { formatInt, formatDateBr } from "@/lib/utils";
-
-function pct(wins: number, total: number) {
-  if (!total) return "0.0%";
-  return ((wins / total) * 100).toFixed(1) + "%";
-}
 
 function fmtDate(d: string) {
   return formatDateBr(d);
@@ -339,16 +334,56 @@ function BirthdaysTodaySection() {
   );
 }
 
+function latestTransferLabel(t: TransferItem) {
+  const club = t.club?.trim();
+  if (t.direction === "out") {
+    return club
+      ? `${t.playerName} — Saída → ${club}`
+      : `${t.playerName} — Saída`;
+  }
+  return club
+    ? `${t.playerName} — Chegada ← ${club}`
+    : `${t.playerName} — Chegada`;
+}
+
+function LatestTransferSection() {
+  const { data, isLoading } = useGetLatestTransfer();
+
+  if (isLoading || !data) return null;
+
+  return (
+    <section data-testid="section-latest-transfer">
+      <Link
+        href="/transferencias"
+        className="block border rounded p-4 hover:bg-muted/40 transition-colors group"
+      >
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+          Última transferência
+        </p>
+        <p className="text-sm font-semibold group-hover:text-primary">
+          {latestTransferLabel(data)}
+        </p>
+        {(data.transferDate || data.season) && (
+          <p className="text-xs text-muted-foreground mt-1">
+            {data.transferDate ? fmtDate(data.transferDate) : null}
+            {data.transferDate && data.season ? " · " : null}
+            {data.season ? `Temporada ${data.season}` : null}
+          </p>
+        )}
+      </Link>
+    </section>
+  );
+}
+
 export default function Home() {
   const { data: summary, isLoading: loadSum } = useGetSummary();
   const { data: topScorers, isLoading: loadSc } = useGetTopScorers({ limit: 10 });
   const { data: topAppearances, isLoading: loadAp } = useGetTopAppearances({ limit: 10 });
-  const { data: seasons, isLoading: loadSe } = useListSeasons();
+  const { data: seasons } = useListSeasons();
   const { data: victories } = useGetBiggestVictories({ limit: 3 });
   const { data: streaks } = useGetStreaks();
   const { data: titles } = useGetTitles();
   const { data: milestones, isLoading: loadMil } = useGetMatchMilestones();
-  const { data: biggestAttendance, isLoading: loadAtt } = useGetBiggestAttendance(10);
   const { data: topAssists, isLoading: loadAsst } = useGetTopAssists({ limit: 10 });
 
   const victoryList = Array.isArray(victories) ? victories : [];
@@ -356,21 +391,14 @@ export default function Home() {
   const scorerList = Array.isArray(topScorers) ? topScorers : [];
   const appearanceList = Array.isArray(topAppearances) ? topAppearances : [];
   const seasonList = Array.isArray(seasons) ? seasons : [];
-  const attendanceList = Array.isArray(biggestAttendance) ? biggestAttendance : [];
   const assistList = Array.isArray(topAssists) ? topAssists : [];
-  const opponentList = Array.isArray(summary?.mostCommonOpponents)
-    ? summary.mostCommonOpponents
-    : [];
 
   const homeScorers = scorerList.slice(0, 10);
   const homeScorerRanks = assignCompetitionRanks(homeScorers, (p) => p.goals);
   const homeAppearances = appearanceList.slice(0, 10);
   const homeAppearanceRanks = assignCompetitionRanks(homeAppearances, (p) => p.appearances);
-  const homeAttendance = attendanceList.slice(0, 10);
-  const homeAttendanceRanks = assignCompetitionRanks(homeAttendance, (m) => m.attendance);
   const homeAssists = assistList.slice(0, 10);
   const homeAssistRanks = assignCompetitionRanks(homeAssists, (p) => p.assists);
-  const homeOpponentRanks = assignCompetitionRanks(opponentList, (o) => o.matches);
 
   const biggestWin = victoryList[0];
   const unbeatenStreak = streakList.find((s) => s.type === "unbeaten");
@@ -428,6 +456,25 @@ export default function Home() {
 
         <GlobalSearch />
 
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2" data-testid="home-shortcuts">
+          {shortcuts.map(({ href, label, icon: Icon, count }) => (
+            <Link
+              key={href}
+              href={href}
+              className="group flex flex-col items-start gap-2 rounded-md border bg-background/80 px-3 py-3 hover:border-primary/40 hover:bg-primary/5 transition-colors"
+              data-testid={`shortcut-${label.toLowerCase()}`}
+            >
+              <Icon className="h-5 w-5 text-primary" />
+              <span className="text-sm font-semibold leading-tight group-hover:text-primary">
+                {label}
+              </span>
+              {count != null && (
+                <span className="text-xs text-muted-foreground tabular-nums">{count}</span>
+              )}
+            </Link>
+          ))}
+        </div>
+
         {/* Stat bar */}
         {loadSum ? (
           <div className="grid grid-cols-3 sm:grid-cols-7 gap-px bg-primary/20 rounded overflow-hidden">
@@ -469,28 +516,9 @@ export default function Home() {
             ))}
           </div>
         ) : null}
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2" data-testid="home-shortcuts">
-          {shortcuts.map(({ href, label, icon: Icon, count }) => (
-            <Link
-              key={href}
-              href={href}
-              className="group flex flex-col items-start gap-2 rounded-md border bg-background/80 px-3 py-3 hover:border-primary/40 hover:bg-primary/5 transition-colors"
-              data-testid={`shortcut-${label.toLowerCase()}`}
-            >
-              <Icon className="h-5 w-5 text-primary" />
-              <span className="text-sm font-semibold leading-tight group-hover:text-primary">
-                {label}
-              </span>
-              {count != null && (
-                <span className="text-xs text-muted-foreground tabular-nums">{count}</span>
-              )}
-            </Link>
-          ))}
-        </div>
       </div>
 
-      {/* Primeira e Última Partida */}
+      {/* Marcos Históricos */}
       <div>
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 mb-3">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Marcos Históricos</h2>
@@ -527,6 +555,11 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      <LatestTransferSection />
+      <OnThisDaySection />
+      <BirthdaysTodaySection />
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Mais Jogos */}
         <div className="space-y-2">
@@ -660,6 +693,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+
       {/* Records highlights */}
       <div>
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Recordes Históricos</h2>
@@ -731,149 +765,7 @@ export default function Home() {
           )}
         </div>
       </div>
-
-      <OnThisDaySection />
-
-      <BirthdaysTodaySection />
-
-      {/* Resultados por Temporada */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Resultados por Temporada</h2>
-          <Link href="/temporadas" className="text-xs text-primary hover:underline">ver todos</Link>
-        </div>
-        <div className="border rounded">
-          <Table>
-            <TableHeader>
-              <TableRow className="text-xs">
-                <TableHead className="py-2">Ano</TableHead>
-                <TableHead className="py-2 text-right">J</TableHead>
-                <TableHead className="py-2 text-right text-green-600">V</TableHead>
-                <TableHead className="py-2 text-right text-amber-600">E</TableHead>
-                <TableHead className="py-2 text-right text-red-600">D</TableHead>
-                <TableHead className="py-2 text-right">%</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loadSe
-                ? Array.from({ length: 8 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell colSpan={6}><Skeleton className="h-4" /></TableCell>
-                    </TableRow>
-                  ))
-                : seasonList.slice(0, 10).map((s) => (
-                    <TableRow key={s.year} className="text-sm">
-                      <TableCell className="py-1.5 font-medium">
-                        <Link href={`/temporadas/${s.year}`} className="hover:text-primary hover:underline" data-testid={`link-season-${s.year}`}>
-                          {s.year}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="py-1.5 text-right tabular-nums">{formatInt(s.matches)}</TableCell>
-                      <TableCell className="py-1.5 text-right text-green-600 font-medium tabular-nums">{formatInt(s.wins)}</TableCell>
-                      <TableCell className="py-1.5 text-right text-amber-600 tabular-nums">{formatInt(s.draws)}</TableCell>
-                      <TableCell className="py-1.5 text-right text-red-600 tabular-nums">{formatInt(s.losses)}</TableCell>
-                      <TableCell className="py-1.5 text-right font-medium">{pct(s.wins, s.matches)}</TableCell>
-                    </TableRow>
-                  ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
-
-      {/* Maiores Públicos */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Maiores Públicos</h2>
-          <Link href="/publicos" className="text-xs text-primary hover:underline">ver todos</Link>
-        </div>
-        <div className="border rounded">
-          <Table>
-            <TableHeader>
-              <TableRow className="text-xs">
-                <TableHead className="py-2 w-6">#</TableHead>
-                <TableHead className="py-2">Partida</TableHead>
-                <TableHead className="py-2 text-right font-bold text-primary">Público</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loadAtt
-                ? Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell colSpan={3}><Skeleton className="h-4" /></TableCell>
-                    </TableRow>
-                  ))
-                : homeAttendance.map((m, i) => {
-                    return (
-                      <TableRow key={m.id} className="text-sm">
-                        <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeAttendanceRanks[i])}</TableCell>
-                        <TableCell className="py-1.5 font-medium">
-                          <MatchSidesLabel
-                            homeAway={m.homeAway}
-                            opponent={m.opponent}
-                            opponentId={(m as { opponentId?: number }).opponentId}
-                            matchId={m.id}
-                            logoUrl={m.opponentLogoUrl}
-                            separator={`${m.goalsFor}–${m.goalsAgainst}`}
-                          />
-                          <span className="text-xs text-muted-foreground ml-1.5">({m.season})</span>
-                        </TableCell>
-                        <TableCell className="py-1.5 text-right font-bold text-primary tabular-nums">
-                          {formatInt(m.attendance)}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
-
-      {/* Most common opponents */}
-      {summary && opponentList.length > 0 && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Adversários Mais Frequentes</h2>
-            <Link href="/adversarios" className="text-xs text-primary hover:underline">ver todos</Link>
-          </div>
-          <div className="border rounded">
-            <Table>
-              <TableHeader>
-                <TableRow className="text-xs">
-                  <TableHead className="py-2 w-6">#</TableHead>
-                  <TableHead className="py-2">Adversário</TableHead>
-                  <TableHead className="py-2 text-right">J</TableHead>
-                  <TableHead className="py-2 text-right text-green-600">V</TableHead>
-                  <TableHead className="py-2 text-right text-amber-600">E</TableHead>
-                  <TableHead className="py-2 text-right text-red-600">D</TableHead>
-                  <TableHead className="py-2 text-right">%</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {opponentList.map((opp, i) => (
-                  <TableRow key={opp.id} className="text-sm">
-                    <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeOpponentRanks[i])}</TableCell>
-                    <TableCell className="py-1.5 font-medium">
-                      <Link
-                        href={`/adversarios/${opp.id}`}
-                        className="inline-flex items-center gap-2 hover:text-primary hover:underline"
-                        data-testid={`link-opponent-${opp.id}`}
-                      >
-                        <OpponentCrest url={opp.logoUrl} name={opp.name} size="sm" />
-                        {opp.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="py-1.5 text-right tabular-nums">{formatInt(opp.matches)}</TableCell>
-                    <TableCell className="py-1.5 text-right text-green-600 tabular-nums">{formatInt(opp.wins)}</TableCell>
-                    <TableCell className="py-1.5 text-right text-amber-600 tabular-nums">{formatInt(opp.draws)}</TableCell>
-                    <TableCell className="py-1.5 text-right text-red-600 tabular-nums">{formatInt(opp.losses)}</TableCell>
-                    <TableCell className="py-1.5 text-right font-medium">{pct(opp.wins, opp.matches)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
+

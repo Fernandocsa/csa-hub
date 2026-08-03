@@ -8,15 +8,21 @@ import { useClientPage } from "@/hooks/useClientPage";
 import { formatDateBr } from "@/lib/utils";
 
 function directionLabel(d: TransferDirection) {
-  return d === "in" ? "Chegada" : "Saída";
+  return d === "in" ? "No CSA (chegado por empréstimo)" : "Emprestado pelo CSA";
 }
 
-export default function TransfersList() {
+function clubPhrase(direction: TransferDirection, club: string | null) {
+  if (!club) return null;
+  return direction === "in" ? `vindo de ${club}` : `no ${club}`;
+}
+
+export default function LoanedPlayers() {
   const [season, setSeason] = useState("");
   const [direction, setDirection] = useState<TransferDirection | "">("");
   const { data, isLoading } = useGetTransfers({
     season: season || undefined,
     direction,
+    loansOnly: true,
   });
 
   const transfers = data?.transfers ?? [];
@@ -25,7 +31,6 @@ export default function TransfersList() {
   const { page, setPage, pageSize, total, slice, needsPagination } =
     useClientPage(transfers);
 
-  /** Paginate flat list but still show season headers within the page slice. */
   const pageGrouped = useMemo(() => {
     const map = new Map<string, typeof transfers>();
     for (const t of slice) {
@@ -39,18 +44,21 @@ export default function TransfersList() {
   return (
     <div className="space-y-5">
       <div className="border-b pb-3">
-        <h1 className="text-xl font-bold" data-testid="heading-transferencias">
-          Transferências
+        <h1 className="text-xl font-bold" data-testid="heading-emprestados">
+          Jogadores Emprestados
         </h1>
         <p className="text-sm text-muted-foreground">
-          Chegadas e saídas do CSA, organizadas por temporada
+          Movimentações cadastradas como empréstimo — saídas do CSA e
+          chegadas por empréstimo
         </p>
-        <Link
-          href="/jogadores/emprestados"
-          className="text-xs text-primary hover:underline mt-1 inline-block"
-        >
-          Ver só empréstimos →
-        </Link>
+        <p className="text-xs text-muted-foreground mt-1">
+          Cadastre com tipo{" "}
+          <span className="font-medium text-foreground">empréstimo</span> em{" "}
+          <Link href="/transferencias" className="text-primary hover:underline">
+            Transferências
+          </Link>{" "}
+          (admin) para aparecer aqui.
+        </p>
       </div>
 
       <div className="flex flex-wrap gap-2 items-center">
@@ -61,7 +69,7 @@ export default function TransfersList() {
             setSeason(e.target.value);
             setPage(1);
           }}
-          data-testid="filter-season"
+          data-testid="filter-season-loans"
         >
           <option value="">Todas as temporadas</option>
           {seasons.map((s) => (
@@ -70,12 +78,12 @@ export default function TransfersList() {
             </option>
           ))}
         </select>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           {(
             [
-              { value: "", label: "Todas" },
-              { value: "in", label: "Chegadas" },
-              { value: "out", label: "Saídas" },
+              { value: "", label: "Todos" },
+              { value: "out", label: "Emprestados pelo CSA" },
+              { value: "in", label: "Emprestados no CSA" },
             ] as const
           ).map((opt) => (
             <Button
@@ -103,7 +111,7 @@ export default function TransfersList() {
         </div>
       ) : transfers.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Nenhuma transferência cadastrada ainda.
+          Nenhum empréstimo cadastrado ainda.
         </p>
       ) : (
         <>
@@ -114,43 +122,42 @@ export default function TransfersList() {
                   Temporada {seasonKey}
                 </h2>
                 <ul className="border rounded divide-y">
-                  {rows.map((t) => (
-                    <li
-                      key={t.id}
-                      className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-3 py-2.5 text-sm"
-                    >
-                      <span
-                        className={`text-xs font-semibold uppercase tracking-wide shrink-0 ${
-                          t.direction === "in"
-                            ? "text-green-700"
-                            : "text-red-700"
-                        }`}
+                  {rows.map((t) => {
+                    const club = clubPhrase(t.direction, t.club);
+                    return (
+                      <li
+                        key={t.id}
+                        className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-3 py-2.5 text-sm"
                       >
-                        {directionLabel(t.direction)}
-                      </span>
-                      <Link
-                        href={`/jogadores/${t.playerId}`}
-                        className="font-medium hover:text-primary hover:underline"
-                      >
-                        {t.playerName}
-                      </Link>
-                      {t.club && (
-                        <span className="text-muted-foreground">
-                          {t.direction === "in" ? "de" : "para"} {t.club}
+                        <span
+                          className={`text-xs font-semibold uppercase tracking-wide shrink-0 ${
+                            t.direction === "in"
+                              ? "text-green-700"
+                              : "text-amber-700"
+                          }`}
+                        >
+                          {t.direction === "out" ? "Saída" : "Chegada"}
                         </span>
-                      )}
-                      {t.transferType && (
-                        <span className="text-xs text-muted-foreground">
-                          · {t.transferType}
+                        <Link
+                          href={`/jogadores/${t.playerId}`}
+                          className="font-medium hover:text-primary hover:underline"
+                        >
+                          {t.playerName}
+                        </Link>
+                        {club && (
+                          <span className="text-muted-foreground">{club}</span>
+                        )}
+                        <span className="text-xs text-muted-foreground hidden sm:inline">
+                          · {directionLabel(t.direction)}
                         </span>
-                      )}
-                      {t.transferDate && (
-                        <span className="text-xs text-muted-foreground ml-auto tabular-nums">
-                          {formatDateBr(t.transferDate)}
-                        </span>
-                      )}
-                    </li>
-                  ))}
+                        {t.transferDate && (
+                          <span className="text-xs text-muted-foreground ml-auto tabular-nums">
+                            {formatDateBr(t.transferDate)}
+                          </span>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
             ))}

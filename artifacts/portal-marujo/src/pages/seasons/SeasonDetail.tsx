@@ -99,18 +99,6 @@ function CompetitionSummary({
   rows: SeasonCompetitionStat[];
   year: string;
 }) {
-  const totals = rows.reduce(
-    (acc, r) => ({
-      games: acc.games + r.games,
-      wins: acc.wins + r.wins,
-      draws: acc.draws + r.draws,
-      losses: acc.losses + r.losses,
-      goalsFor: acc.goalsFor + r.goalsFor,
-      goalsAgainst: acc.goalsAgainst + r.goalsAgainst,
-    }),
-    { games: 0, wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 },
-  );
-
   if (rows.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">Nenhuma competição no resumo desta temporada.</p>
@@ -127,7 +115,10 @@ function CompetitionSummary({
             <TableHead className="py-2 text-right">V</TableHead>
             <TableHead className="py-2 text-right">E</TableHead>
             <TableHead className="py-2 text-right">D</TableHead>
+            <TableHead className="py-2 text-right">GP</TableHead>
+            <TableHead className="py-2 text-right">GC</TableHead>
             <TableHead className="py-2 text-right">SG</TableHead>
+            <TableHead className="py-2 text-right">Aproveit.</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -156,29 +147,16 @@ function CompetitionSummary({
               <TableCell className="py-2 text-right tabular-nums text-red-600">
                 {r.losses}
               </TableCell>
+              <TableCell className="py-2 text-right tabular-nums">{r.goalsFor}</TableCell>
+              <TableCell className="py-2 text-right tabular-nums">{r.goalsAgainst}</TableCell>
               <TableCell className="py-2 text-right tabular-nums font-medium">
                 {gdLabel(r.goalsFor, r.goalsAgainst)}
               </TableCell>
+              <TableCell className="py-2 text-right tabular-nums">
+                {pct(r.wins, r.games)}
+              </TableCell>
             </TableRow>
           ))}
-          <TableRow className="text-sm border-t-2">
-            <TableCell className="py-2 font-semibold">Total</TableCell>
-            <TableCell className="py-2 text-right tabular-nums font-semibold">
-              {totals.games}
-            </TableCell>
-            <TableCell className="py-2 text-right tabular-nums font-semibold">
-              {totals.wins}
-            </TableCell>
-            <TableCell className="py-2 text-right tabular-nums font-semibold">
-              {totals.draws}
-            </TableCell>
-            <TableCell className="py-2 text-right tabular-nums font-semibold">
-              {totals.losses}
-            </TableCell>
-            <TableCell className="py-2 text-right tabular-nums font-semibold">
-              {gdLabel(totals.goalsFor, totals.goalsAgainst)}
-            </TableCell>
-          </TableRow>
         </TableBody>
       </Table>
     </div>
@@ -385,7 +363,14 @@ export default function SeasonDetail() {
         </div>
       </div>
 
-      {/* Totals from dual competition rows */}
+      {/* Competition summary first — cards below act as the season total */}
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          Resumo da Temporada
+        </h2>
+        <CompetitionSummary rows={competitionStats} year={season.year} />
+      </section>
+
       <div
         className="grid grid-cols-4 sm:grid-cols-8 gap-px bg-border rounded overflow-hidden"
         data-testid="season-stat-bar"
@@ -420,14 +405,6 @@ export default function SeasonDetail() {
           </div>
         ))}
       </div>
-
-      {/* Competition summary */}
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Resumo da Temporada
-        </h2>
-        <CompetitionSummary rows={competitionStats} year={season.year} />
-      </section>
 
       {/* Recent matches */}
       <SeasonRecentMatches year={season.year} />
