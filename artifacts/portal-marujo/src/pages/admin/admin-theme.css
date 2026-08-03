@@ -1,0 +1,208 @@
+/* Dark mode for /admin only — remaps hardcoded gray/white utilities used across admin pages. */
+
+.admin-shell[data-admin-theme="dark"] {
+  color-scheme: dark;
+  --background: 222 28% 9%;
+  --foreground: 210 20% 94%;
+  --card: 222 24% 13%;
+  --card-foreground: 210 20% 94%;
+  --popover: 222 24% 13%;
+  --popover-foreground: 210 20% 94%;
+  --muted: 222 18% 16%;
+  --muted-foreground: 215 12% 65%;
+  --border: 222 16% 22%;
+  --input: 222 16% 22%;
+  --accent: 222 18% 18%;
+  --accent-foreground: 210 20% 94%;
+  --primary: 214 55% 42%;
+  --primary-foreground: 0 0% 100%;
+  --ring: 214 55% 48%;
+  --destructive: 0 62% 45%;
+  --destructive-foreground: 0 0% 98%;
+}
+
+.admin-shell[data-admin-theme="dark"] .bg-gray-50,
+.admin-shell[data-admin-theme="dark"].bg-gray-50 {
+  background-color: hsl(222 28% 9%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .bg-gray-100 {
+  background-color: hsl(222 20% 14%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .bg-white {
+  background-color: hsl(222 24% 13%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .bg-gray-50\/80 {
+  background-color: hsl(222 22% 11% / 0.85) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .bg-background\/80,
+.admin-shell[data-admin-theme="dark"] .bg-background\/90 {
+  background-color: hsl(222 24% 13% / 0.9) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .text-gray-900,
+.admin-shell[data-admin-theme="dark"] .text-foreground {
+  color: hsl(210 20% 94%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .text-gray-800 {
+  color: hsl(210 16% 88%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .text-gray-700 {
+  color: hsl(210 12% 78%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .text-gray-600 {
+  color: hsl(210 10% 68%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .text-gray-500 {
+  color: hsl(215 10% 58%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .text-gray-400 {
+  color: hsl(215 9% 48%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .border,
+.admin-shell[data-admin-theme="dark"] .border-b,
+.admin-shell[data-admin-theme="dark"] .border-t,
+.admin-shell[data-admin-theme="dark"] .border-gray-100,
+.admin-shell[data-admin-theme="dark"] .border-gray-200 {
+  border-color: hsl(222 16% 22%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .divide-y > :not([hidden]) ~ :not([hidden]) {
+  border-color: hsl(222 16% 22%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .hover\:bg-gray-50:hover,
+.admin-shell[data-admin-theme="dark"] .hover\:bg-accent:hover {
+  background-color: hsl(222 18% 17%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .hover\:bg-blue-50:hover,
+.admin-shell[data-admin-theme="dark"] .hover\:bg-blue-50\/50:hover {
+  background-color: hsl(214 40% 18%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .bg-blue-50 {
+  background-color: hsl(214 40% 16%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .text-blue-700,
+.admin-shell[data-admin-theme="dark"] .text-blue-800 {
+  color: hsl(214 70% 72%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .border-blue-200 {
+  border-color: hsl(214 35% 28%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .bg-violet-50 {
+  background-color: hsl(270 30% 16%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .text-violet-700 {
+  color: hsl(270 60% 75%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .border-violet-200 {
+  border-color: hsl(270 25% 28%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .bg-emerald-50 {
+  background-color: hsl(160 35% 14%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .text-emerald-700,
+.admin-shell[data-admin-theme="dark"] .text-emerald-800,
+.admin-shell[data-admin-theme="dark"] .text-green-700 {
+  color: hsl(152 55% 58%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .border-emerald-100,
+.admin-shell[data-admin-theme="dark"] .border-emerald-200 {
+  border-color: hsl(160 30% 26%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .bg-amber-50 {
+  background-color: hsl(40 40% 14%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .text-amber-800,
+.admin-shell[data-admin-theme="dark"] .text-amber-700 {
+  color: hsl(40 70% 62%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .border-amber-100,
+.admin-shell[data-admin-theme="dark"] .border-amber-200 {
+  border-color: hsl(40 35% 26%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .hover\:bg-amber-100:hover {
+  background-color: hsl(40 40% 18%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .bg-red-50 {
+  background-color: hsl(0 35% 14%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .text-red-600,
+.admin-shell[data-admin-theme="dark"] .text-red-700 {
+  color: hsl(0 70% 68%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .border-red-200 {
+  border-color: hsl(0 30% 28%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .hover\:bg-red-50:hover {
+  background-color: hsl(0 35% 16%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .hover\:bg-emerald-50:hover {
+  background-color: hsl(160 35% 16%) !important;
+}
+
+/* Brand blue readable on dark surfaces */
+.admin-shell[data-admin-theme="dark"] .text-\[\#1B3A6B\] {
+  color: #8eb4e0 !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .hover\:text-\[\#1B3A6B\]:hover {
+  color: #a8c8ef !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .hover\:border-\[\#1B3A6B\]:hover,
+.admin-shell[data-admin-theme="dark"] .hover\:border-\[\#1B3A6B\]\/40:hover {
+  border-color: hsl(214 45% 40%) !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .border-\[\#1B3A6B\] {
+  border-color: #8eb4e0 !important;
+}
+
+.admin-shell[data-admin-theme="dark"] .bg-\[\#1B3A6B\] {
+  background-color: #2a5080 !important;
+}
+
+.admin-shell[data-admin-theme="dark"] input,
+.admin-shell[data-admin-theme="dark"] select,
+.admin-shell[data-admin-theme="dark"] textarea {
+  color: hsl(210 20% 94%);
+  background-color: hsl(222 22% 11%);
+}
+
+.admin-shell[data-admin-theme="dark"] input::placeholder,
+.admin-shell[data-admin-theme="dark"] textarea::placeholder {
+  color: hsl(215 10% 48%);
+}
+
+.admin-shell[data-admin-theme="dark"] table thead {
+  color: hsl(215 10% 58%);
+}

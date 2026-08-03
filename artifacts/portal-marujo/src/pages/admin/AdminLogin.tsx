@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Moon, Sun } from "lucide-react";
+import { useAdminTheme } from "@/hooks/useAdminTheme";
+import "./admin-theme.css";
 
 interface Props {
   onLogin: (password: string) => Promise<string | null>;
@@ -10,6 +13,7 @@ export default function AdminLogin({ onLogin }: Props) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { theme, toggleTheme, isDark } = useAdminTheme();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -21,7 +25,19 @@ export default function AdminLogin({ onLogin }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-[#1B3A6B] flex items-center justify-center">
+    <div
+      className={`admin-shell min-h-screen bg-[#1B3A6B] flex items-center justify-center relative ${isDark ? "dark" : ""}`}
+      data-admin-theme={theme}
+    >
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className="absolute top-4 right-4 inline-flex items-center gap-1.5 text-xs text-white/70 hover:text-white px-2.5 py-1.5 rounded border border-white/20 hover:border-white/40"
+        title={isDark ? "Tema claro" : "Tema escuro"}
+      >
+        {isDark ? <Sun size={13} /> : <Moon size={13} />}
+        {isDark ? "Claro" : "Escuro"}
+      </button>
       <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-sm">
         <div className="mb-6 text-center">
           <div className="text-2xl font-black tracking-tight">
@@ -44,7 +60,11 @@ export default function AdminLogin({ onLogin }: Props) {
             />
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <Button type="submit" className="w-full bg-[#1B3A6B] hover:bg-[#1B3A6B]/90" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full bg-[#1B3A6B] hover:bg-[#1B3A6B]/90"
+            disabled={loading}
+          >
             {loading ? "Entrando..." : "Entrar"}
           </Button>
         </form>

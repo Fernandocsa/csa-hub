@@ -1,5 +1,37 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Users, Trophy, Shield, Download, LogOut, ChevronLeft, CalendarDays, UserCog, CalendarRange, Landmark, MessageSquare, Flag, Scale, ClipboardList, BarChart3, Sparkles, Medal, Cake, Crown, Award, Star, ArrowLeftRight, Building2, FileText, Puzzle, AlertTriangle } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Trophy,
+  Shield,
+  Download,
+  LogOut,
+  ChevronLeft,
+  CalendarDays,
+  UserCog,
+  CalendarRange,
+  Landmark,
+  MessageSquare,
+  Flag,
+  Scale,
+  ClipboardList,
+  BarChart3,
+  Sparkles,
+  Medal,
+  Cake,
+  Crown,
+  Award,
+  Star,
+  ArrowLeftRight,
+  Building2,
+  FileText,
+  Puzzle,
+  AlertTriangle,
+  Moon,
+  Sun,
+} from "lucide-react";
+import { useAdminTheme } from "@/hooks/useAdminTheme";
+import "./admin-theme.css";
 
 interface Props {
   children: React.ReactNode;
@@ -36,9 +68,13 @@ const navItems = [
 
 export default function AdminLayout({ children, onLogout }: Props) {
   const [location] = useLocation();
+  const { theme, toggleTheme, isDark } = useAdminTheme();
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div
+      className={`admin-shell flex min-h-screen bg-gray-50 ${isDark ? "dark" : ""}`}
+      data-admin-theme={theme}
+    >
       <aside className="w-52 bg-[#1B3A6B] flex flex-col shrink-0">
         <div className="px-4 py-4 border-b border-white/10">
           <div className="text-lg font-black tracking-tight">
@@ -47,9 +83,8 @@ export default function AdminLayout({ children, onLogout }: Props) {
           </div>
           <p className="text-xs text-white/50 mt-0.5">Admin</p>
         </div>
-        <nav className="flex-1 py-2">
+        <nav className="flex-1 py-2 overflow-y-auto">
           {navItems.map((item) => {
-            // Exact segment match so /admin/partidas does not light up on /admin/partidas-duplicadas
             const active = item.exact
               ? location === item.href
               : location === item.href || location.startsWith(`${item.href}/`);
@@ -58,7 +93,9 @@ export default function AdminLayout({ children, onLogout }: Props) {
                 key={item.href}
                 href={item.href}
                 className={`flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium transition-colors ${
-                  active ? "bg-white/15 text-white" : "text-white/60 hover:text-white hover:bg-white/10"
+                  active
+                    ? "bg-white/15 text-white"
+                    : "text-white/60 hover:text-white hover:bg-white/10"
                 }`}
               >
                 <item.icon size={15} />
@@ -68,6 +105,15 @@ export default function AdminLayout({ children, onLogout }: Props) {
           })}
         </nav>
         <div className="p-3 border-t border-white/10 space-y-1">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="flex items-center gap-2 px-3 py-2 text-xs text-white/50 hover:text-white transition-colors rounded w-full text-left"
+            title={isDark ? "Usar tema claro" : "Usar tema escuro"}
+          >
+            {isDark ? <Sun size={13} /> : <Moon size={13} />}
+            {isDark ? "Tema claro" : "Tema escuro"}
+          </button>
           <Link
             href="/"
             className="flex items-center gap-2 px-3 py-2 text-xs text-white/50 hover:text-white transition-colors rounded"
@@ -76,6 +122,7 @@ export default function AdminLayout({ children, onLogout }: Props) {
             Ver portal
           </Link>
           <button
+            type="button"
             onClick={onLogout}
             className="flex items-center gap-2 px-3 py-2 text-xs text-white/50 hover:text-white transition-colors rounded w-full text-left"
           >
