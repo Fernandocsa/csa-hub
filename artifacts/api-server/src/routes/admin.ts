@@ -1264,6 +1264,7 @@ router.get("/admin/matches/:id", requireAdmin, async (req, res) => {
         scorers: matchesTable.scorers,
         opponentId: matchesTable.opponentId,
         opponentName: opponentsTable.name,
+        opponentLogoUrl: opponentsTable.logoUrl,
         competitionId: matchesTable.competitionId,
         competitionName: competitionsTable.name,
         stadiumId: matchesTable.stadiumId,

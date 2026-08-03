@@ -16,6 +16,8 @@ import MatchGeneralForm, {
   type RelatedMatchOption,
 } from "./MatchGeneralForm";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
+import { withAdminFrom } from "@/hooks/useAdminReturnTo";
+import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
 import {
   eventMinuteToFormValue,
   isUnknownEventMinute,
@@ -122,6 +124,7 @@ type MatchMeta = {
   season: string;
   opponentName: string;
   opponentId: number;
+  opponentLogoUrl?: string | null;
   goalsFor: number | null;
   goalsAgainst: number | null;
   result: string;
@@ -1005,15 +1008,40 @@ export default function AdminMatchSheet() {
           {isNew ? (
             "Nova partida"
           ) : (
-            <a
-              href={`/partidas/${match!.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-[#1B3A6B] hover:underline underline-offset-2"
-              title="Abrir página pública da partida"
-            >
-              CSA {match!.goalsFor ?? "–"}–{match!.goalsAgainst ?? "–"} {match!.opponentName}
-            </a>
+            <span className="inline-flex items-center gap-2 flex-wrap">
+              <span className="inline-flex items-center gap-1.5">
+                <CsaCrest size="md" />
+                <span>CSA</span>
+              </span>
+              <a
+                href={`/partidas/${match!.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tabular-nums text-[#1B3A6B] hover:underline underline-offset-2"
+                title="Abrir página pública da partida"
+              >
+                {match!.goalsFor ?? "–"}–{match!.goalsAgainst ?? "–"}
+              </a>
+              <Link
+                href={withAdminFrom(
+                  `/admin/adversarios/${match!.opponentId}`,
+                  `/admin/partidas/${match!.id}`,
+                )}
+                className="inline-flex items-center gap-1.5 hover:text-[#1B3A6B] hover:underline underline-offset-2"
+                title="Editar adversário"
+              >
+                <OpponentCrest
+                  url={
+                    match!.opponentLogoUrl ??
+                    lookup?.opponents.find((o) => o.id === match!.opponentId)?.logoUrl
+                  }
+                  name={match!.opponentName}
+                  size="md"
+                  fallback
+                />
+                <span>{match!.opponentName}</span>
+              </Link>
+            </span>
           )}
         </h1>
         {!isNew && match && (

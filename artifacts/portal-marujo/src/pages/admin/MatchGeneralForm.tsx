@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { OpponentCrest } from "@/components/OpponentCrest";
+import { withAdminFrom } from "@/hooks/useAdminReturnTo";
 
 export interface MatchLookupData {
-  opponents: { id: number; name: string }[];
+  opponents: { id: number; name: string; logoUrl?: string | null }[];
   competitions: { id: number; name: string }[];
   stadiums: { id: number; name: string }[];
   referees: { id: number; name: string; state?: string | null }[];
@@ -125,6 +128,11 @@ export default function MatchGeneralForm({
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  const selectedOpponent = useMemo(
+    () => lookup.opponents.find((o) => String(o.id) === opponentId) ?? null,
+    [lookup.opponents, opponentId],
+  );
 
   useEffect(() => {
     setMatchDate(initial?.matchDate ?? "");
@@ -274,19 +282,38 @@ export default function MatchGeneralForm({
         <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
           Adversário *
         </label>
-        <select
-          className={sel}
-          value={opponentId}
-          onChange={(e) => setOpponentId(e.target.value)}
-          required
-        >
-          <option value="">Selecionar...</option>
-          {lookup.opponents.map((o) => (
-            <option key={o.id} value={o.id}>
-              {o.name}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center gap-2">
+          <OpponentCrest
+            url={selectedOpponent?.logoUrl}
+            name={selectedOpponent?.name ?? "Adversário"}
+            size="md"
+            fallback
+          />
+          <select
+            className={`${sel} flex-1 min-w-0`}
+            value={opponentId}
+            onChange={(e) => setOpponentId(e.target.value)}
+            required
+          >
+            <option value="">Selecionar...</option>
+            {lookup.opponents.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        {selectedOpponent ? (
+          <Link
+            href={withAdminFrom(
+              `/admin/adversarios/${selectedOpponent.id}`,
+              matchId != null ? `/admin/partidas/${matchId}` : "/admin/partidas/novo",
+            )}
+            className="inline-block mt-1.5 text-xs text-[#1B3A6B] hover:underline"
+          >
+            Editar perfil do adversário
+          </Link>
+        ) : null}
       </div>
 
       <div className="grid grid-cols-3 gap-3">
