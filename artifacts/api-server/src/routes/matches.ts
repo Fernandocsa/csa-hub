@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { matchesTable, opponentsTable, stadiumsTable, competitionsTable, managersTable, refereesTable } from "@workspace/db";
-import { sql, eq, and, ilike, desc, ne } from "drizzle-orm";
+import { sql, eq, and, ilike, desc, asc, or, lt, gt, ne } from "drizzle-orm";
 import { loadMatchSheet } from "../lib/match-sheet";
 import {
   officialPlayedMatchConditions,
@@ -404,6 +404,41 @@ router.get("/matches/:id", async (req, res) => {
     const row = rows[0];
     const sheet = await loadMatchSheet(id);
 
+    const adjacentSelect = {
+      id: matchesTable.id,
+      date: matchesTable.matchDate,
+      opponent: opponentsTable.name,
+      goalsFor: matchesTable.goalsFor,
+      goalsAgainst: matchesTable.goalsAgainst,
+    };
+
+    const [[previousMatch], [nextMatch]] = await Promise.all([
+      db
+        .select(adjacentSelect)
+        .from(matchesTable)
+        .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+        .where(
+          or(
+            lt(matchesTable.matchDate, row.matchDate),
+            and(eq(matchesTable.matchDate, row.matchDate), lt(matchesTable.id, id)),
+          ),
+        )
+        .orderBy(desc(matchesTable.matchDate), desc(matchesTable.id))
+        .limit(1),
+      db
+        .select(adjacentSelect)
+        .from(matchesTable)
+        .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+        .where(
+          or(
+            gt(matchesTable.matchDate, row.matchDate),
+            and(eq(matchesTable.matchDate, row.matchDate), gt(matchesTable.id, id)),
+          ),
+        )
+        .orderBy(asc(matchesTable.matchDate), asc(matchesTable.id))
+        .limit(1),
+    ]);
+
     let relatedMatch: {
       id: number;
       date: string;
@@ -468,6 +503,24 @@ router.get("/matches/:id", async (req, res) => {
       penaltiesAgainst: row.penaltiesAgainst ?? null,
       relatedMatchId: row.relatedMatchId ?? null,
       relatedMatch,
+      previousMatch: previousMatch
+        ? {
+            id: previousMatch.id,
+            date: previousMatch.date,
+            opponent: previousMatch.opponent,
+            goalsFor: previousMatch.goalsFor ?? null,
+            goalsAgainst: previousMatch.goalsAgainst ?? null,
+          }
+        : null,
+      nextMatch: nextMatch
+        ? {
+            id: nextMatch.id,
+            date: nextMatch.date,
+            opponent: nextMatch.opponent,
+            goalsFor: nextMatch.goalsFor ?? null,
+            goalsAgainst: nextMatch.goalsAgainst ?? null,
+          }
+        : null,
       captainPlayerId: sheet.captainPlayerId ?? null,
       lineups: sheet.lineups,
       goals: sheet.goals,

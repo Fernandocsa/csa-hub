@@ -8,7 +8,7 @@ import {
 } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResultBadge } from "@/components/ui/result-badge";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { sortLineupByPosition } from "@/lib/position-groups";
 import { StarRating } from "@/components/StarRating";
 import { EntityComments } from "@/components/EntityComments";
@@ -445,11 +445,57 @@ export default function MatchDetail() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <Link href="/partidas">
-        <span className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground cursor-pointer">
-          <ChevronLeft className="h-4 w-4 mr-1" /> Voltar para Partidas
-        </span>
-      </Link>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Link href="/partidas">
+          <span className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground cursor-pointer">
+            <ChevronLeft className="h-4 w-4 mr-1" /> Voltar para Partidas
+          </span>
+        </Link>
+        <div className="flex items-center gap-1 sm:gap-2">
+          {match.previousMatch ? (
+            <Link
+              href={`/partidas/${match.previousMatch.id}`}
+              className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              title={`${fmtDate(match.previousMatch.date)} × ${match.previousMatch.opponent}`}
+              data-testid="match-nav-prev"
+            >
+              <ChevronLeft className="h-4 w-4 shrink-0" />
+              <span className="hidden sm:inline">Jogo anterior</span>
+              <span className="sm:hidden">Anterior</span>
+            </Link>
+          ) : (
+            <span
+              className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-sm text-muted-foreground/40 cursor-not-allowed"
+              aria-disabled
+            >
+              <ChevronLeft className="h-4 w-4 shrink-0" />
+              <span className="hidden sm:inline">Jogo anterior</span>
+              <span className="sm:hidden">Anterior</span>
+            </span>
+          )}
+          {match.nextMatch ? (
+            <Link
+              href={`/partidas/${match.nextMatch.id}`}
+              className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              title={`${fmtDate(match.nextMatch.date)} × ${match.nextMatch.opponent}`}
+              data-testid="match-nav-next"
+            >
+              <span className="hidden sm:inline">Próximo jogo</span>
+              <span className="sm:hidden">Próximo</span>
+              <ChevronRight className="h-4 w-4 shrink-0" />
+            </Link>
+          ) : (
+            <span
+              className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-sm text-muted-foreground/40 cursor-not-allowed"
+              aria-disabled
+            >
+              <span className="hidden sm:inline">Próximo jogo</span>
+              <span className="sm:hidden">Próximo</span>
+              <ChevronRight className="h-4 w-4 shrink-0" />
+            </span>
+          )}
+        </div>
+      </div>
 
       {/* Header — always shown */}
       <div className="border-b pb-4 space-y-2">

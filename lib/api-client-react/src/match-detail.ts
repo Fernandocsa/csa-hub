@@ -111,6 +111,22 @@ export interface MatchDetailSheet {
     round: string | null;
     phase: string | null;
   } | null;
+  /** Chronologically previous CSA match (by date, then id). */
+  previousMatch?: {
+    id: number;
+    date: string;
+    opponent: string;
+    goalsFor: number | null;
+    goalsAgainst: number | null;
+  } | null;
+  /** Chronologically next CSA match (by date, then id). */
+  nextMatch?: {
+    id: number;
+    date: string;
+    opponent: string;
+    goalsFor: number | null;
+    goalsAgainst: number | null;
+  } | null;
   /** CSA captain player id when set on the match sheet. */
   captainPlayerId?: number | null;
   lineups: MatchLineupRow[];
