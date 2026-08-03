@@ -33,7 +33,7 @@ import {
   unblockDailyPlayer,
   replaceDailyPlayer,
 } from "../lib/guess-player";
-import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray, ne, isNull } from "drizzle-orm";
+import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray, ne, isNull, lt, gt } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard, deleteMatchPenaltyEvent, updateMatchGoal } from "../lib/match-sheet";
 import { syncRelatedMatchLink, parsePenaltyShootoutFields } from "../lib/match-links";
 import { findDuplicateNameCandidates } from "../lib/admin-name-check";
@@ -1351,7 +1351,46 @@ router.get("/admin/matches/:id", requireAdmin, async (req, res) => {
       relatedMatch = rel ?? null;
     }
 
-    res.json({ ...row, relatedMatch });
+    const adjacentSelect = {
+      id: matchesTable.id,
+      matchDate: matchesTable.matchDate,
+      opponentName: opponentsTable.name,
+      goalsFor: matchesTable.goalsFor,
+      goalsAgainst: matchesTable.goalsAgainst,
+    };
+    const [[previousMatch], [nextMatch]] = await Promise.all([
+      db
+        .select(adjacentSelect)
+        .from(matchesTable)
+        .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+        .where(
+          or(
+            lt(matchesTable.matchDate, row.matchDate),
+            and(eq(matchesTable.matchDate, row.matchDate), lt(matchesTable.id, id)),
+          ),
+        )
+        .orderBy(desc(matchesTable.matchDate), desc(matchesTable.id))
+        .limit(1),
+      db
+        .select(adjacentSelect)
+        .from(matchesTable)
+        .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+        .where(
+          or(
+            gt(matchesTable.matchDate, row.matchDate),
+            and(eq(matchesTable.matchDate, row.matchDate), gt(matchesTable.id, id)),
+          ),
+        )
+        .orderBy(asc(matchesTable.matchDate), asc(matchesTable.id))
+        .limit(1),
+    ]);
+
+    res.json({
+      ...row,
+      relatedMatch,
+      previousMatch: previousMatch ?? null,
+      nextMatch: nextMatch ?? null,
+    });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });

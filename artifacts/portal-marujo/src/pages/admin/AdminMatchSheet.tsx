@@ -3,7 +3,7 @@ import { Link, useLocation, useParams } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronLeft, Pencil, Trash2, X, ClipboardPaste } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Trash2, X, ClipboardPaste } from "lucide-react";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { EntityPhoto } from "@/components/EntityPhoto";
 import {
@@ -163,6 +163,20 @@ type MatchMeta = {
   isWalkover?: boolean;
   isFriendly?: boolean;
   status?: string;
+  previousMatch?: {
+    id: number;
+    matchDate: string;
+    opponentName: string;
+    goalsFor: number | null;
+    goalsAgainst: number | null;
+  } | null;
+  nextMatch?: {
+    id: number;
+    matchDate: string;
+    opponentName: string;
+    goalsFor: number | null;
+    goalsAgainst: number | null;
+  } | null;
 };
 
 type TabId = "general" | "lineup" | "events" | "subs";
@@ -1290,12 +1304,54 @@ export default function AdminMatchSheet() {
   return (
     <div className="space-y-4 pb-10">
       <div>
-        <Link
-          href="/admin/partidas"
-          className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-[#1B3A6B] mb-2"
-        >
-          <ChevronLeft size={13} /> Partidas
-        </Link>
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <Link
+            href="/admin/partidas"
+            className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-[#1B3A6B]"
+          >
+            <ChevronLeft size={13} /> Partidas
+          </Link>
+          {!isNew && match && (
+            <div className="flex items-center gap-1">
+              {match.previousMatch ? (
+                <Link
+                  href={`/admin/partidas/${match.previousMatch.id}`}
+                  className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-gray-600 hover:text-[#1B3A6B] hover:bg-gray-50"
+                  title={`${match.previousMatch.matchDate} × ${match.previousMatch.opponentName}`}
+                >
+                  <ChevronLeft size={14} />
+                  <span className="hidden sm:inline">Anterior</span>
+                </Link>
+              ) : (
+                <span
+                  className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-gray-300 cursor-not-allowed"
+                  aria-disabled
+                >
+                  <ChevronLeft size={14} />
+                  <span className="hidden sm:inline">Anterior</span>
+                </span>
+              )}
+              {match.nextMatch ? (
+                <Link
+                  href={`/admin/partidas/${match.nextMatch.id}`}
+                  className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-gray-600 hover:text-[#1B3A6B] hover:bg-gray-50"
+                  title={`${match.nextMatch.matchDate} × ${match.nextMatch.opponentName}`}
+                >
+                  <span className="hidden sm:inline">Próxima</span>
+                  <ChevronRight size={14} />
+                </Link>
+              ) : (
+                <span
+                  className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-gray-300 cursor-not-allowed"
+                  aria-disabled
+                >
+                  <span className="hidden sm:inline">Próxima</span>
+                  <ChevronRight size={14} />
+                </span>
+              )}
+            </div>
+          )}
+        </div>
         <h1 className="text-xl font-bold text-gray-900">
           {isNew || !match ? (
             "Nova partida"
