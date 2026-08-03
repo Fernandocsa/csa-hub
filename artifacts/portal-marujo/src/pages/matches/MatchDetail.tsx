@@ -610,7 +610,7 @@ export default function MatchDetail() {
           {refereeBlock}
           <p className="text-xs text-muted-foreground">
             <span className="font-medium text-foreground/80">Legenda:</span>{" "}
-            ⚽ gol · P pênalti · F falta · A assistência · C capitão · retângulo
+            ⚽ gol · P pênalti · F gol de falta · A assistência · C capitão · retângulo
             amarelo/vermelho cartão · ↓ saiu · ↑ entrou · minuto ao lado
           </p>
         </section>
