@@ -26,7 +26,7 @@ export default function AdminLogin({ onLogin }: Props) {
 
   return (
     <div
-      className={`admin-shell min-h-screen bg-[#1B3A6B] flex items-center justify-center relative ${isDark ? "dark" : ""}`}
+      className="admin-shell min-h-screen bg-[#1B3A6B] flex items-center justify-center relative"
       data-admin-theme={theme}
     >
       <button

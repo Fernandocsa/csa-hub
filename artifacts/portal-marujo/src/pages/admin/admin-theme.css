@@ -16,8 +16,9 @@
   --card-foreground: 210 20% 94%;
   --popover: 222 24% 13%;
   --popover-foreground: 210 20% 94%;
+  /* Align with public .dark muted token */
   --muted: 222 18% 16%;
-  --muted-foreground: 215 14% 72%;
+  --muted-foreground: 214 18% 78%;
   --border: 222 16% 22%;
   --input: 222 16% 22%;
   --accent: 222 18% 18%;
@@ -69,15 +70,15 @@
 }
 
 .admin-shell[data-admin-theme="dark"] .text-gray-600 {
-  color: hsl(210 12% 74%) !important;
+  color: hsl(210 12% 78%) !important;
 }
 
 .admin-shell[data-admin-theme="dark"] .text-gray-500 {
-  color: hsl(215 12% 68%) !important;
+  color: hsl(214 14% 74%) !important;
 }
 
 .admin-shell[data-admin-theme="dark"] .text-gray-400 {
-  color: hsl(215 10% 62%) !important;
+  color: hsl(214 12% 70%) !important;
 }
 
 .admin-shell[data-admin-theme="dark"] .text-gray-300 {

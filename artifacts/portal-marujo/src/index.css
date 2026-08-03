@@ -200,14 +200,15 @@
   --popover-foreground: 210 20% 98%;
   --popover-border: 214 40% 16%;
 
-  --primary: 214 62% 40%;
+  --primary: 214 62% 48%;
   --primary-foreground: 0 0% 100%;
 
   --secondary: 214 40% 18%;
   --secondary-foreground: 210 20% 98%;
 
+  /* Was 60% — too dim on navy bg (~3:1). ~78% keeps hierarchy and clears WCAG AA. */
   --muted: 214 40% 14%;
-  --muted-foreground: 214 20% 60%;
+  --muted-foreground: 214 18% 78%;
 
   --accent: 51 100% 50%;
   --accent-foreground: 214 62% 10%;
@@ -216,7 +217,7 @@
   --destructive-foreground: 0 0% 100%;
 
   --input: 214 40% 20%;
-  --ring: 214 62% 40%;
+  --ring: 214 62% 48%;
 }
 
 @layer base {

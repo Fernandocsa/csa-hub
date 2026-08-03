@@ -681,7 +681,7 @@ export default function Home() {
       <div>
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 mb-3">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Marcos Históricos</h2>
-          <span className="text-xs text-muted-foreground/70 italic">As estatísticas de partidas consideram apenas jogos oficiais.</span>
+          <span className="text-xs text-muted-foreground italic">As estatísticas de partidas consideram apenas jogos oficiais.</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {loadMil ? (

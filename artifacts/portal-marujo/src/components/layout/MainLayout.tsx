@@ -254,7 +254,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className={cn("min-h-screen bg-background flex", isDark && "dark")}>
+    <div className="min-h-screen bg-background text-foreground flex">
       <aside className="hidden lg:flex lg:flex-col lg:w-56 lg:fixed lg:inset-y-0 bg-sidebar border-r border-sidebar-border z-30">
         <SidebarContent location={location} themeToggle={themeToggle} />
       </aside>

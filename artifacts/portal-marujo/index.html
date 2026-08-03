@@ -3,6 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <script>
+      (function () {
+        try {
+          var t =
+            localStorage.getItem("portal-marujo:theme") ||
+            localStorage.getItem("portal-marujo:admin-theme");
+          var dark =
+            t === "dark" ||
+            (t !== "light" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) {
+            document.documentElement.classList.add("dark");
+            document.documentElement.style.colorScheme = "dark";
+          }
+        } catch (e) {}
+      })();
+    </script>
     <title>Portal Marujo | A maior base estatística do CSA</title>
     <meta name="description" content="Portal Marujo — built on Replit. Update this description to reflect the app." />
     <meta name="robots" content="index, follow" />

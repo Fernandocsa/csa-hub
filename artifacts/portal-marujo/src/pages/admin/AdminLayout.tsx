@@ -72,7 +72,7 @@ export default function AdminLayout({ children, onLogout }: Props) {
 
   return (
     <div
-      className={`admin-shell flex min-h-screen bg-gray-50 ${isDark ? "dark" : ""}`}
+      className="admin-shell flex min-h-screen bg-gray-50 text-foreground"
       data-admin-theme={theme}
     >
       <aside className="w-52 bg-[#1B3A6B] flex flex-col shrink-0">
