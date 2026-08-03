@@ -216,12 +216,14 @@ function LineupList({
   goals,
   cards,
   substitutions,
+  captainPlayerId,
 }: {
   title: string;
   players: MatchLineupRow[];
   goals: MatchGoalRow[];
   cards: MatchCardRow[];
   substitutions: MatchSubstitutionRow[];
+  captainPlayerId?: number | null;
 }) {
   if (players.length === 0) return null;
   const sorted = sortLineupByPosition(players);
@@ -239,6 +241,10 @@ function LineupList({
             cards,
             substitutions,
           );
+          const isCaptain =
+            captainPlayerId != null &&
+            p.playerId != null &&
+            p.playerId === captainPlayerId;
           const nameEl =
             p.playerId != null ? (
               <Link
@@ -264,6 +270,15 @@ function LineupList({
                     size="sm"
                   />
                   {nameEl}
+                  {isCaptain && (
+                    <span
+                      className="inline-flex items-center justify-center h-4 min-w-4 px-0.5 rounded-sm bg-primary text-primary-foreground text-[10px] font-bold leading-none"
+                      title="Capitão"
+                      aria-label="Capitão"
+                    >
+                      C
+                    </span>
+                  )}
                   <EventIcons events={events} />
                 </div>
                 {p.position && (
@@ -580,6 +595,7 @@ export default function MatchDetail() {
               goals={goals}
               cards={cards}
               substitutions={substitutions}
+              captainPlayerId={match.captainPlayerId}
             />
             <LineupList
               title="Reservas"
@@ -587,13 +603,15 @@ export default function MatchDetail() {
               goals={goals}
               cards={cards}
               substitutions={substitutions}
+              captainPlayerId={match.captainPlayerId}
             />
           </div>
           {trainerBlock}
           {refereeBlock}
           <p className="text-xs text-muted-foreground">
-            ⚽ gol · P pênalti · F falta · A assistência · retângulo amarelo/vermelho cartão · ↓ saiu · ↑ entrou ·
-            minuto ao lado
+            <span className="font-medium text-foreground/80">Legenda:</span>{" "}
+            ⚽ gol · P pênalti · F falta · A assistência · C capitão · retângulo
+            amarelo/vermelho cartão · ↓ saiu · ↑ entrou · minuto ao lado
           </p>
         </section>
       )}

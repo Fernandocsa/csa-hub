@@ -111,6 +111,8 @@ export interface MatchDetailSheet {
     round: string | null;
     phase: string | null;
   } | null;
+  /** CSA captain player id when set on the match sheet. */
+  captainPlayerId?: number | null;
   lineups: MatchLineupRow[];
   goals: MatchGoalRow[];
   cards: MatchCardRow[];

@@ -468,6 +468,7 @@ router.get("/matches/:id", async (req, res) => {
       penaltiesAgainst: row.penaltiesAgainst ?? null,
       relatedMatchId: row.relatedMatchId ?? null,
       relatedMatch,
+      captainPlayerId: sheet.captainPlayerId ?? null,
       lineups: sheet.lineups,
       goals: sheet.goals,
       cards: sheet.cards,
