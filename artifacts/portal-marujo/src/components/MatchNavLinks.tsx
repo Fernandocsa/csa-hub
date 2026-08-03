@@ -23,7 +23,7 @@ export function OpponentHistoryLink({
   logoUrl?: string | null;
   className?: string;
   showCrest?: boolean;
-  /** Crest after the name (match lists). */
+  /** Crest after the name when opponent is on the right (CSA home). Before the name when on the left (CSA away). */
   crestAfter?: boolean;
   /** Show initials when logo is missing (transfer rows). */
   crestFallback?: boolean;

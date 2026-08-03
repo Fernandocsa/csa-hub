@@ -3,7 +3,8 @@ import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks"
 
 /**
  * CSA × Opponent (or reverse) for match/game rows.
- * Opponent crest comes AFTER the Nome-UF (match lists / match detail only).
+ * Crest sits on the outer edge: before CSA always; after opponent when CSA is home,
+ * before opponent when CSA is away (left side always reads crest → name).
  * When opponentId/matchId are set, opponent → histórico and score separator → partida.
  */
 export function MatchSidesLabel({
@@ -21,6 +22,7 @@ export function MatchSidesLabel({
   logoUrl?: string | null;
   separator?: string;
 }) {
+  const isHome = homeAway === "home";
   const csa = (
     <span className="inline-flex items-center gap-1.5 shrink-0">
       <CsaCrest size="sm" />
@@ -32,6 +34,7 @@ export function MatchSidesLabel({
       opponentId={opponentId}
       name={opponent}
       logoUrl={logoUrl}
+      crestAfter={isHome}
     />
   );
   const sep =
@@ -43,7 +46,7 @@ export function MatchSidesLabel({
       <span className="text-muted-foreground">{separator}</span>
     );
 
-  if (homeAway === "home") {
+  if (isHome) {
     return (
       <span className="inline-flex items-center gap-1.5 min-w-0">
         {csa}

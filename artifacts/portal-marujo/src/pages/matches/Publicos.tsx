@@ -164,7 +164,11 @@ function AttendanceTable({
                           opponentId={(m as { opponentId?: number }).opponentId}
                           matchId={m.id}
                           logoUrl={m.opponentLogoUrl}
-                          separator={`${m.goalsFor}–${m.goalsAgainst}`}
+                          separator={
+                            m.homeAway === "home"
+                              ? `${m.goalsFor}–${m.goalsAgainst}`
+                              : `${m.goalsAgainst}–${m.goalsFor}`
+                          }
                         />
                         <span className="text-xs text-muted-foreground ml-1.5">({m.season})</span>
                       </TableCell>

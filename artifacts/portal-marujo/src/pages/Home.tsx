@@ -137,6 +137,7 @@ function NextMatchCard() {
           <MatchSidesLabel
             homeAway={isHome ? "home" : "away"}
             opponent={nextMatch.opponent}
+            opponentId={nextMatch.opponentId}
             logoUrl={nextMatch.opponentLogoUrl}
           />
         </p>
@@ -216,6 +217,12 @@ function formatDayMonth(month: number, day: number) {
 function OnThisDayMatchRow({ match }: { match: OnThisDayMatch }) {
   const ago = yearsAgoLabel(match.yearsAgo);
   const scoreReady = match.goalsFor != null && match.goalsAgainst != null;
+  const isHome = match.homeAway === "home";
+  const scoreSep = scoreReady
+    ? isHome
+      ? `${match.goalsFor}–${match.goalsAgainst}`
+      : `${match.goalsAgainst}–${match.goalsFor}`
+    : "×";
 
   return (
     <div
@@ -236,9 +243,7 @@ function OnThisDayMatchRow({ match }: { match: OnThisDayMatch }) {
             opponentId={match.opponentId}
             matchId={match.id}
             logoUrl={match.opponentLogoUrl}
-            separator={
-              scoreReady ? `${match.goalsFor}–${match.goalsAgainst}` : "×"
-            }
+            separator={scoreSep}
           />
         </p>
         <p className="text-xs text-muted-foreground mt-0.5 truncate">
