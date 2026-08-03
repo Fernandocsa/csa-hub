@@ -96,7 +96,9 @@ function PlayerProfileForm({
   const [birthCity, setBirthCity] = useState(initial?.birthCity ?? "");
   const [birthState, setBirthState] = useState(initial?.birthState ?? "");
   const [birthCountry, setBirthCountry] = useState(
-    initial?.birthCountry ?? (isNew ? "Brasil" : ""),
+    initial?.birthCountry?.trim() ||
+      initial?.nationality?.trim() ||
+      (isNew ? "Brasil" : ""),
   );
   const [preferredFoot, setPreferredFoot] = useState(initial?.preferredFoot ?? "");
   const [heightCm, setHeightCm] = useState(
@@ -128,7 +130,11 @@ function PlayerProfileForm({
     setBirthMode(initial?.birthDate ? "exact" : initial?.birthYear != null ? "year" : "exact");
     setBirthCity(initial?.birthCity ?? "");
     setBirthState(initial?.birthState ?? "");
-    setBirthCountry(initial?.birthCountry ?? (isNew ? "Brasil" : ""));
+    setBirthCountry(
+      initial?.birthCountry?.trim() ||
+        initial?.nationality?.trim() ||
+        (isNew ? "Brasil" : ""),
+    );
     setPreferredFoot(initial?.preferredFoot ?? "");
     setHeightCm(initial?.heightCm != null ? String(initial.heightCm) : "");
     setWeightKg(initial?.weightKg != null ? String(initial.weightKg) : "");
@@ -370,7 +376,7 @@ function PlayerProfileForm({
         </div>
         <div>
           <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
-            País nasc.
+            País / Nacionalidade
           </label>
           <Input
             value={birthCountry}
