@@ -9,6 +9,7 @@ import {
   compareByPositionGroupThenName,
   shortPositionCode,
 } from "@/lib/position-groups";
+import { withAdminFrom } from "@/hooks/useAdminReturnTo";
 
 type CompStat = {
   id: number;
@@ -1329,7 +1330,10 @@ export default function AdminSeasonDetail() {
                         <tr key={row.id} className="border-b border-gray-100">
                           <td className="py-2 pr-2">
                             <Link
-                              href={`/admin/jogadores/${row.playerId}`}
+                              href={withAdminFrom(
+                                `/admin/jogadores/${row.playerId}`,
+                                `/admin/temporadas/${season}`,
+                              )}
                               className="font-medium text-[#1B3A6B] hover:underline"
                             >
                               {row.playerName}
@@ -1487,7 +1491,10 @@ export default function AdminSeasonDetail() {
                         <tr key={row.id} className="border-b border-gray-100">
                           <td className="py-2 pr-2">
                             <Link
-                              href={`/admin/tecnicos/${row.managerId}`}
+                              href={withAdminFrom(
+                                `/admin/tecnicos/${row.managerId}`,
+                                `/admin/temporadas/${season}`,
+                              )}
                               className="font-medium text-[#1B3A6B] hover:underline"
                             >
                               {row.managerName}

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
+import { useAdminReturnTo } from "@/hooks/useAdminReturnTo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -111,10 +112,12 @@ function ManagerProfileForm({
   initial,
   onSave,
   isNew,
+  cancelHref = "/admin/tecnicos",
 }: {
   initial?: Partial<Manager>;
   onSave: (data: ManagerPayload) => Promise<void>;
   isNew: boolean;
+  cancelHref?: string;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [fullName, setFullName] = useState(initial?.fullName ?? "");
@@ -406,7 +409,7 @@ function ManagerProfileForm({
         <Button type="submit" className="bg-[#1B3A6B]" disabled={saving}>
           {saving ? "Salvando..." : isNew ? "Criar técnico" : "Salvar"}
         </Button>
-        <Link href="/admin/tecnicos">
+        <Link href={cancelHref}>
           <Button type="button" variant="outline">
             Cancelar
           </Button>
@@ -514,6 +517,7 @@ function SeasonStatForm({
 export default function AdminManagerDetail() {
   const params = useParams<{ id?: string }>();
   const [, setLocation] = useLocation();
+  const { returnTo, label: returnLabel } = useAdminReturnTo("/admin/tecnicos");
   const isNew = !params.id;
   const managerId = params.id ? Number(params.id) : NaN;
 
@@ -765,10 +769,10 @@ export default function AdminManagerDetail() {
       <div>
         <p className="text-sm text-red-600">{error || "Técnico não encontrado"}</p>
         <Link
-          href="/admin/tecnicos"
+          href={returnTo}
           className="text-sm text-[#1B3A6B] hover:underline mt-2 inline-block"
         >
-          Voltar aos técnicos
+          Voltar
         </Link>
       </div>
     );
@@ -783,7 +787,7 @@ export default function AdminManagerDetail() {
     <div className="space-y-4 pb-16">
       <div>
         <Link
-          href="/admin/tecnicos"
+          href={returnTo}
           onClick={(e) => {
             if (!statsDirty) return;
             if (!confirm("Há alterações não salvas nas temporadas. Deseja sair sem salvar?")) {
@@ -792,7 +796,7 @@ export default function AdminManagerDetail() {
           }}
           className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-[#1B3A6B] mb-2"
         >
-          <ChevronLeft size={13} /> Técnicos
+          <ChevronLeft size={13} /> {returnLabel}
         </Link>
         <h1 className="text-xl font-bold text-gray-900">
           {isNew ? "Novo técnico" : manager!.name}
@@ -838,6 +842,7 @@ export default function AdminManagerDetail() {
           initial={isNew ? undefined : manager!}
           isNew={isNew}
           onSave={saveManager}
+          cancelHref={returnTo}
         />
       )}
 

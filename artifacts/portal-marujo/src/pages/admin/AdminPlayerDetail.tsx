@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
+import { useAdminReturnTo } from "@/hooks/useAdminReturnTo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -72,11 +73,13 @@ function PlayerProfileForm({
   onSave,
   onDelete,
   isNew,
+  cancelHref = "/admin/jogadores",
 }: {
   initial?: Partial<Player>;
   onSave: (data: PlayerPayload) => Promise<void>;
   onDelete?: () => Promise<void>;
   isNew: boolean;
+  cancelHref?: string;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [fullName, setFullName] = useState(initial?.fullName ?? "");
@@ -523,7 +526,7 @@ function PlayerProfileForm({
         <Button type="submit" className="bg-[#1B3A6B]" disabled={saving}>
           {saving ? "Salvando..." : isNew ? "Criar jogador" : "Salvar"}
         </Button>
-        <Link href="/admin/jogadores">
+        <Link href={cancelHref}>
           <Button type="button" variant="outline">
             Cancelar
           </Button>
@@ -657,6 +660,7 @@ function draftsFromStats(rows: StatRow[]): Record<number, StatDraft> {
 export default function AdminPlayerDetail() {
   const params = useParams<{ id?: string }>();
   const [, setLocation] = useLocation();
+  const { returnTo, label: returnLabel } = useAdminReturnTo("/admin/jogadores");
   const isNew = !params.id;
   const playerId = params.id ? Number(params.id) : NaN;
 
@@ -787,7 +791,7 @@ export default function AdminPlayerDetail() {
       const err = await r.json().catch(() => ({}));
       throw new Error((err as any).error ?? "Erro ao excluir");
     }
-    setLocation("/admin/jogadores");
+    setLocation(returnTo);
   }
 
   async function addStat(data: Omit<StatRow, "id" | "playerId">) {
@@ -878,10 +882,10 @@ export default function AdminPlayerDetail() {
       <div>
         <p className="text-sm text-red-600">{error || "Jogador não encontrado"}</p>
         <Link
-          href="/admin/jogadores"
+          href={returnTo}
           className="text-sm text-[#1B3A6B] hover:underline mt-2 inline-block"
         >
-          Voltar aos jogadores
+          Voltar
         </Link>
       </div>
     );
@@ -891,7 +895,7 @@ export default function AdminPlayerDetail() {
     <div className="space-y-4 pb-16">
       <div>
         <Link
-          href="/admin/jogadores"
+          href={returnTo}
           onClick={(e) => {
             if (!statsDirty) return;
             if (!confirm("Há alterações não salvas nas temporadas. Deseja sair sem salvar?")) {
@@ -900,7 +904,7 @@ export default function AdminPlayerDetail() {
           }}
           className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-[#1B3A6B] mb-2"
         >
-          <ChevronLeft size={13} /> Jogadores
+          <ChevronLeft size={13} /> {returnLabel}
         </Link>
         <h1 className="text-xl font-bold text-gray-900">
           {isNew ? "Novo jogador" : player!.name}
@@ -946,6 +950,7 @@ export default function AdminPlayerDetail() {
           isNew={isNew}
           onSave={savePlayer}
           onDelete={isNew ? undefined : deletePlayer}
+          cancelHref={returnTo}
         />
       )}
 
