@@ -104,6 +104,7 @@ router.get("/stadiums/:id", async (req, res) => {
         state: stadiumsTable.state,
         country: stadiumsTable.country,
         capacity: stadiumsTable.capacity,
+        photoUrl: stadiumsTable.photoUrl,
       })
       .from(stadiumsTable)
       .where(eq(stadiumsTable.id, id))
@@ -120,6 +121,11 @@ router.get("/stadiums/:id", async (req, res) => {
       .where(eq(opponentsTable.homeStadiumId, id))
       .orderBy(asc(opponentsTable.name));
 
+    const baseWhere = and(
+      eq(matchesTable.stadiumId, id),
+      officialPlayedMatchConditions(),
+    );
+
     const [stats] = await db
       .select({
         matches: sql<number>`cast(count(*) as int)`,
@@ -132,9 +138,47 @@ router.get("/stadiums/:id", async (req, res) => {
         lastMatch: sql<string>`cast(max(${matchesTable.matchDate}) as text)`,
       })
       .from(matchesTable)
-      .where(
-        and(eq(matchesTable.stadiumId, id), officialPlayedMatchConditions()),
-      );
+      .where(baseWhere);
+
+    const allMatchRows = await db
+      .select({
+        id: matchesTable.id,
+        matchDate: matchesTable.matchDate,
+        season: matchesTable.season,
+        goalsFor: matchesTable.goalsFor,
+        goalsAgainst: matchesTable.goalsAgainst,
+        result: matchesTable.result,
+        homeAway: matchesTable.homeAway,
+        opponentId: matchesTable.opponentId,
+        opponentName: opponentsTable.name,
+        opponentLogoUrl: opponentsTable.logoUrl,
+        competitionName: competitionsTable.name,
+        phase: matchesTable.phase,
+        round: matchesTable.round,
+      })
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .where(baseWhere)
+      .orderBy(desc(matchesTable.matchDate));
+
+    const opponentRows = await db
+      .select({
+        id: opponentsTable.id,
+        name: opponentsTable.name,
+        logoUrl: opponentsTable.logoUrl,
+        matches: sql<number>`cast(count(*) as int)`,
+        wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+        draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+        losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+        goalsFor: sql<number>`cast(coalesce(sum(${matchesTable.goalsFor}), 0) as int)`,
+        goalsAgainst: sql<number>`cast(coalesce(sum(${matchesTable.goalsAgainst}), 0) as int)`,
+      })
+      .from(matchesTable)
+      .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+      .where(baseWhere)
+      .groupBy(opponentsTable.id, opponentsTable.name, opponentsTable.logoUrl)
+      .orderBy(sql`count(*) desc`, asc(opponentsTable.name));
 
     const matches = stats?.matches ?? 0;
     const wins = stats?.wins ?? 0;
@@ -157,6 +201,32 @@ router.get("/stadiums/:id", async (req, res) => {
       winPercentage: matches > 0 ? (wins / matches) * 100 : 0,
       firstMatch: stats?.firstMatch ?? null,
       lastMatch: stats?.lastMatch ?? null,
+      opponentsFaced: opponentRows.map((o) => ({
+        id: o.id,
+        name: o.name,
+        logoUrl: o.logoUrl ?? null,
+        matches: o.matches ?? 0,
+        wins: o.wins ?? 0,
+        draws: o.draws ?? 0,
+        losses: o.losses ?? 0,
+        goalsFor: o.goalsFor ?? 0,
+        goalsAgainst: o.goalsAgainst ?? 0,
+      })),
+      allMatches: allMatchRows.map((m) => ({
+        id: m.id,
+        date: m.matchDate,
+        opponentId: m.opponentId,
+        opponent: m.opponentName,
+        opponentLogoUrl: m.opponentLogoUrl ?? null,
+        goalsFor: m.goalsFor,
+        goalsAgainst: m.goalsAgainst,
+        result: m.result,
+        homeAway: m.homeAway,
+        competition: m.competitionName,
+        season: m.season,
+        phase: m.phase,
+        round: m.round,
+      })),
     });
   } catch (err) {
     req.log.error(err);

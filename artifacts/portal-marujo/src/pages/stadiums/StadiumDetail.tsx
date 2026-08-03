@@ -1,11 +1,20 @@
+import { useState } from "react";
 import { Link, useParams } from "wouter";
 import { useGetStadiumDetail } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronLeft as PrevIcon, ChevronRight } from "lucide-react";
 import { ShareButton } from "@/components/ShareButton";
 import { EntityPhoto } from "@/components/EntityPhoto";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
+import { ResultBadge } from "@/components/ui/result-badge";
+import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
+import { LIST_PAGE_SIZE } from "@/lib/list-page";
 import { formatDateBr } from "@/lib/utils";
+
+const PAGE_SIZE = LIST_PAGE_SIZE;
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -20,6 +29,8 @@ export default function StadiumDetail() {
   const params = useParams<{ id: string }>();
   const id = parseInt(params.id ?? "0", 10);
   const { data: stadium, isLoading, isError } = useGetStadiumDetail(id);
+  const [matchPage, setMatchPage] = useState(0);
+  const [oppPage, setOppPage] = useState(0);
 
   if (isLoading) {
     return (
@@ -43,6 +54,21 @@ export default function StadiumDetail() {
       </div>
     );
   }
+
+  const allMatches = stadium.allMatches ?? [];
+  const opponentsFaced = stadium.opponentsFaced ?? [];
+  const matchPages = Math.max(1, Math.ceil(allMatches.length / PAGE_SIZE));
+  const currentMatchPage = Math.min(matchPage, matchPages - 1);
+  const pageMatches = allMatches.slice(
+    currentMatchPage * PAGE_SIZE,
+    (currentMatchPage + 1) * PAGE_SIZE,
+  );
+  const oppPages = Math.max(1, Math.ceil(opponentsFaced.length / PAGE_SIZE));
+  const currentOppPage = Math.min(oppPage, oppPages - 1);
+  const pageOpponents = opponentsFaced.slice(
+    currentOppPage * PAGE_SIZE,
+    (currentOppPage + 1) * PAGE_SIZE,
+  );
 
   return (
     <div className="space-y-5 max-w-3xl">
@@ -150,6 +176,192 @@ export default function StadiumDetail() {
             {stadium.lastMatch ? fmtDate(stadium.lastMatch) : "–"}
           </p>
         </div>
+      </div>
+
+      <div data-testid="stadium-opponents">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Adversários enfrentados
+            <span className="ml-2 font-normal text-xs">
+              ({opponentsFaced.length})
+            </span>
+          </h2>
+          {oppPages > 1 && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2"
+                onClick={() => setOppPage((p) => Math.max(0, p - 1))}
+                disabled={currentOppPage === 0}
+              >
+                <PrevIcon className="h-3.5 w-3.5" />
+              </Button>
+              <span>
+                {currentOppPage + 1}/{oppPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2"
+                onClick={() => setOppPage((p) => Math.min(oppPages - 1, p + 1))}
+                disabled={currentOppPage >= oppPages - 1}
+              >
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          )}
+        </div>
+        <div className="border rounded">
+          <Table>
+            <TableHeader>
+              <TableRow className="text-xs">
+                <TableHead className="py-2">Adversário</TableHead>
+                <TableHead className="py-2 text-right">J</TableHead>
+                <TableHead className="py-2 text-right text-green-600">V</TableHead>
+                <TableHead className="py-2 text-right text-amber-600">E</TableHead>
+                <TableHead className="py-2 text-right text-red-600">D</TableHead>
+                <TableHead className="py-2 text-right">Aproveit.</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pageOpponents.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="h-16 text-center text-muted-foreground"
+                  >
+                    Nenhum adversário registrado neste estádio.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                pageOpponents.map((opp) => (
+                  <TableRow key={opp.id} className="text-sm">
+                    <TableCell className="py-2 font-medium">
+                      <OpponentHistoryLink
+                        opponentId={opp.id}
+                        name={opp.name}
+                        logoUrl={opp.logoUrl}
+                      />
+                    </TableCell>
+                    <TableCell className="py-2 text-right">{opp.matches}</TableCell>
+                    <TableCell className="py-2 text-right text-green-600">{opp.wins}</TableCell>
+                    <TableCell className="py-2 text-right text-amber-600">{opp.draws}</TableCell>
+                    <TableCell className="py-2 text-right text-red-600">{opp.losses}</TableCell>
+                    <TableCell className="py-2 text-right font-medium">
+                      {pct(opp.wins, opp.matches)}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      <div data-testid="stadium-matches">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Histórico de Partidas
+            <span className="ml-2 font-normal text-xs">
+              ({allMatches.length} {allMatches.length === 1 ? "jogo" : "jogos"})
+            </span>
+          </h2>
+          {matchPages > 1 && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2"
+                onClick={() => setMatchPage((p) => Math.max(0, p - 1))}
+                disabled={currentMatchPage === 0}
+              >
+                <PrevIcon className="h-3.5 w-3.5" />
+              </Button>
+              <span>
+                {currentMatchPage + 1}/{matchPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2"
+                onClick={() =>
+                  setMatchPage((p) => Math.min(matchPages - 1, p + 1))
+                }
+                disabled={currentMatchPage >= matchPages - 1}
+              >
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          )}
+        </div>
+        <div className="border rounded">
+          <Table>
+            <TableHeader>
+              <TableRow className="text-xs">
+                <TableHead className="py-2">Data</TableHead>
+                <TableHead className="py-2">Adversário</TableHead>
+                <TableHead className="py-2 text-center">Res.</TableHead>
+                <TableHead className="py-2 text-center">Placar</TableHead>
+                <TableHead className="py-2">Mando</TableHead>
+                <TableHead className="py-2">Competição</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pageMatches.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="h-16 text-center text-muted-foreground"
+                  >
+                    Nenhuma partida vinculada.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                pageMatches.map((match) => (
+                  <TableRow key={match.id} className="text-sm">
+                    <TableCell className="py-2 text-muted-foreground text-xs">
+                      {fmtDate(match.date)}
+                    </TableCell>
+                    <TableCell className="py-2 font-medium">
+                      <OpponentHistoryLink
+                        opponentId={match.opponentId}
+                        name={match.opponent}
+                        logoUrl={match.opponentLogoUrl}
+                      />
+                    </TableCell>
+                    <TableCell className="py-2 text-center">
+                      <ResultBadge result={match.result} />
+                    </TableCell>
+                    <TableCell className="py-2 text-center">
+                      <MatchScoreLink matchId={match.id}>
+                        {match.goalsFor}–{match.goalsAgainst}
+                      </MatchScoreLink>
+                    </TableCell>
+                    <TableCell className="py-2 text-xs text-muted-foreground">
+                      {match.homeAway === "home" ? "Casa" : "Fora"}
+                    </TableCell>
+                    <TableCell className="py-2 text-xs text-muted-foreground">
+                      <div>{match.competition}</div>
+                      {matchPhaseRoundLabel(match.phase, match.round) && (
+                        <div className="text-[11px] text-muted-foreground/80 mt-0.5">
+                          {matchPhaseRoundLabel(match.phase, match.round)}
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        {matchPages > 1 && (
+          <p className="text-xs text-muted-foreground mt-2 text-right">
+            Exibindo {currentMatchPage * PAGE_SIZE + 1}–
+            {Math.min((currentMatchPage + 1) * PAGE_SIZE, allMatches.length)} de{" "}
+            {allMatches.length} jogos
+          </p>
+        )}
       </div>
 
       <EntitySuggestionForm entityType="stadium" entityId={stadium.id} />
