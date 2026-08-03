@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
-import { useAdminReturnTo } from "@/hooks/useAdminReturnTo";
+import { useAdminReturnTo, withAdminFrom } from "@/hooks/useAdminReturnTo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -114,11 +114,13 @@ function ManagerProfileForm({
   onSave,
   isNew,
   cancelHref = "/admin/tecnicos",
+  onMerged,
 }: {
   initial?: Partial<Manager>;
   onSave: (data: ManagerPayload) => Promise<void>;
   isNew: boolean;
   cancelHref?: string;
+  onMerged?: (result: { keptId: number; removedId: number }) => void;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [fullName, setFullName] = useState(initial?.fullName ?? "");
@@ -267,6 +269,16 @@ function ManagerProfileForm({
         excludeId={initial?.id ?? null}
         hrefForId={(id) => `/admin/tecnicos/${id}`}
         onBlockChange={setNameBlocked}
+        merge={
+          !isNew && initial?.id != null && onMerged
+            ? {
+                keepId: initial.id,
+                keepName: name.trim() || initial.name || `Técnico #${initial.id}`,
+                endpoint: "/admin/managers/merge",
+                onMerged,
+              }
+            : undefined
+        }
       />
       <div>
         <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
@@ -653,6 +665,17 @@ export default function AdminManagerDetail() {
     setTimeout(() => setSavedMsg(""), 2500);
   }
 
+  function handleMerged({ keptId, removedId }: { keptId: number; removedId: number }) {
+    if (keptId === managerId) {
+      setSavedMsg(`Duplicado #${removedId} absorvido neste perfil.`);
+      setTimeout(() => setSavedMsg(""), 4000);
+      void loadManager();
+      void loadStats();
+      return;
+    }
+    setLocation(withAdminFrom(`/admin/tecnicos/${keptId}`, returnTo));
+  }
+
   async function addStat(data: {
     season: string;
     games: number;
@@ -857,6 +880,7 @@ export default function AdminManagerDetail() {
           isNew={isNew}
           onSave={saveManager}
           cancelHref={returnTo}
+          onMerged={isNew ? undefined : handleMerged}
         />
       )}
 

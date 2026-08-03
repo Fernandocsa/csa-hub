@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
-import { useAdminReturnTo } from "@/hooks/useAdminReturnTo";
+import { useAdminReturnTo, withAdminFrom } from "@/hooks/useAdminReturnTo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -75,12 +75,14 @@ function PlayerProfileForm({
   onDelete,
   isNew,
   cancelHref = "/admin/jogadores",
+  onMerged,
 }: {
   initial?: Partial<Player>;
   onSave: (data: PlayerPayload) => Promise<void>;
   onDelete?: () => Promise<void>;
   isNew: boolean;
   cancelHref?: string;
+  onMerged?: (result: { keptId: number; removedId: number }) => void;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [fullName, setFullName] = useState(initial?.fullName ?? "");
@@ -285,6 +287,16 @@ function PlayerProfileForm({
         excludeId={initial?.id ?? null}
         hrefForId={(id) => `/admin/jogadores/${id}`}
         onBlockChange={setNameBlocked}
+        merge={
+          !isNew && initial?.id != null && onMerged
+            ? {
+                keepId: initial.id,
+                keepName: name.trim() || initial.name || `Jogador #${initial.id}`,
+                endpoint: "/admin/players/merge",
+                onMerged,
+              }
+            : undefined
+        }
       />
       <div>
         <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
@@ -816,6 +828,17 @@ export default function AdminPlayerDetail() {
     setLocation(returnTo);
   }
 
+  function handleMerged({ keptId, removedId }: { keptId: number; removedId: number }) {
+    if (keptId === playerId) {
+      setSavedMsg(`Duplicado #${removedId} absorvido neste perfil.`);
+      setTimeout(() => setSavedMsg(""), 4000);
+      void loadPlayer();
+      void loadStats();
+      return;
+    }
+    setLocation(withAdminFrom(`/admin/jogadores/${keptId}`, returnTo));
+  }
+
   async function addStat(data: Omit<StatRow, "id" | "playerId">) {
     const r = await adminFetch(`/admin/players/${playerId}/stats`, {
       method: "POST",
@@ -973,6 +996,7 @@ export default function AdminPlayerDetail() {
           onSave={savePlayer}
           onDelete={isNew ? undefined : deletePlayer}
           cancelHref={returnTo}
+          onMerged={isNew ? undefined : handleMerged}
         />
       )}
 

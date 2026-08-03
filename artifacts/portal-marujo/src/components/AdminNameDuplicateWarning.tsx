@@ -10,9 +10,17 @@ export type NameCheckMatch = {
   matchedOn: "name" | "fullName";
 };
 
+type MergeConfig = {
+  keepId: number;
+  keepName: string;
+  endpoint: string;
+  onMerged: (result: { keptId: number; removedId: number }) => void;
+};
+
 /**
  * Debounced duplicate-name warning for player/manager create & edit forms.
- * Exact matches block saving via onBlockChange(true).
+ * Exact full-name matches block saving via onBlockChange(true).
+ * When editing, offers merge into this profile or into the other one.
  */
 export function AdminNameDuplicateWarning({
   kind,
@@ -21,6 +29,7 @@ export function AdminNameDuplicateWarning({
   excludeId,
   hrefForId,
   onBlockChange,
+  merge,
 }: {
   kind: "player" | "manager";
   name: string;
@@ -29,9 +38,12 @@ export function AdminNameDuplicateWarning({
   hrefForId: (id: number) => string;
   /** Called when an exact duplicate should block save. */
   onBlockChange?: (blocked: boolean) => void;
+  /** When set (edit mode), show merge actions for each match. */
+  merge?: MergeConfig;
 }) {
   const [matches, setMatches] = useState<NameCheckMatch[]>([]);
   const [checking, setChecking] = useState(false);
+  const [mergingId, setMergingId] = useState<number | null>(null);
 
   useEffect(() => {
     const q = name.trim();
@@ -79,6 +91,64 @@ export function AdminNameDuplicateWarning({
     onBlockChange?.(blocked);
   }, [blocked, onBlockChange]);
 
+  async function runMerge(keepId: number, removeId: number, confirmMsg: string) {
+    if (!merge) return;
+    if (!confirm(confirmMsg)) return;
+    setMergingId(removeId === merge.keepId ? keepId : removeId);
+    try {
+      const r = await adminFetch(merge.endpoint, {
+        method: "POST",
+        body: JSON.stringify({ keepId, removeId }),
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error((err as { error?: string }).error ?? "Erro ao mesclar");
+      }
+      merge.onMerged({ keptId: keepId, removedId: removeId });
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Erro ao mesclar");
+    }
+    setMergingId(null);
+  }
+
+  function MatchActions({ m }: { m: NameCheckMatch }) {
+    if (!merge) return null;
+    const busy = mergingId != null;
+    return (
+      <span className="inline-flex flex-wrap items-center gap-2 mt-1">
+        <button
+          type="button"
+          disabled={busy}
+          className="text-xs font-semibold text-[#1B3A6B] hover:underline disabled:opacity-50"
+          onClick={() =>
+            void runMerge(
+              merge.keepId,
+              m.id,
+              `Absorver #${m.id} ${m.name} neste perfil (#${merge.keepId} ${merge.keepName})?\n\nO registro #${m.id} será excluído e os vínculos passam para #${merge.keepId}.`,
+            )
+          }
+        >
+          {mergingId === m.id ? "Mesclando…" : "Mesclar neste"}
+        </button>
+        <span className="text-gray-300">·</span>
+        <button
+          type="button"
+          disabled={busy}
+          className="text-xs font-semibold text-amber-800 hover:underline disabled:opacity-50"
+          onClick={() =>
+            void runMerge(
+              m.id,
+              merge.keepId,
+              `Absorver este perfil (#${merge.keepId} ${merge.keepName}) em #${m.id} ${m.name}?\n\nO registro atual (#${merge.keepId}) será excluído e os vínculos passam para #${m.id}.`,
+            )
+          }
+        >
+          Mesclar no outro
+        </button>
+      </span>
+    );
+  }
+
   if (matches.length === 0 && !checking) return null;
 
   const label = kind === "player" ? "jogador" : "técnico";
@@ -98,37 +168,52 @@ export function AdminNameDuplicateWarning({
         <>
           <p className="font-medium">
             Já existe {label} com esse nome completo no cadastro. Salvamento
-            bloqueado — abra o perfil existente para editar.
+            bloqueado — abra o perfil existente, ou mescle se for a mesma pessoa.
           </p>
-          <ul className="mt-2 space-y-1.5">
+          <ul className="mt-2 space-y-2">
             {exactMatches.map((m) => (
               <li key={m.id} className="text-sm">
                 <Link
                   href={hrefForId(m.id)}
                   className="inline-flex items-center gap-1 font-semibold text-[#1B3A6B] hover:underline"
                 >
-                  Editar #{m.id} {m.name}
+                  #{m.id} {m.name}
                   {m.fullName ? ` (${m.fullName})` : ""} →
                 </Link>
+                <MatchActions m={m} />
               </li>
             ))}
           </ul>
           {similarMatches.length > 0 ? (
-            <p className="mt-2 text-xs text-red-800/80">
-              Também há nomes parecidos:{" "}
-              {similarMatches
-                .map((m) => `#${m.id} ${m.name}`)
-                .join(", ")}
-              .
-            </p>
+            <div className="mt-3 pt-2 border-t border-red-200/60">
+              <p className="text-xs font-medium text-red-800/80 mb-1.5">
+                Também há nomes parecidos:
+              </p>
+              <ul className="space-y-2">
+                {similarMatches.map((m) => (
+                  <li key={m.id} className="text-xs">
+                    <Link
+                      href={hrefForId(m.id)}
+                      className="font-medium text-[#1B3A6B] hover:underline"
+                    >
+                      #{m.id} {m.name}
+                      {m.fullName ? ` · ${m.fullName}` : ""} →
+                    </Link>
+                    <MatchActions m={m} />
+                  </li>
+                ))}
+              </ul>
+            </div>
           ) : null}
         </>
       ) : (
         <>
           <p className="font-medium">
-            Há {label}(es) com nome parecido — confira antes de criar outro.
+            {merge
+              ? `Há ${label}(es) com nome parecido — confira se é a mesma pessoa e mescle se for o caso.`
+              : `Há ${label}(es) com nome parecido — confira antes de criar outro.`}
           </p>
-          <ul className="mt-1.5 space-y-1">
+          <ul className="mt-1.5 space-y-2">
             {similarMatches.map((m) => (
               <li key={m.id} className="text-xs">
                 <Link
@@ -138,6 +223,7 @@ export function AdminNameDuplicateWarning({
                   Abrir #{m.id} {m.name}
                   {m.fullName ? ` · ${m.fullName}` : ""} →
                 </Link>
+                <MatchActions m={m} />
               </li>
             ))}
           </ul>
