@@ -14,6 +14,7 @@ import { recordsMatchConditions, scoredFieldMatchConditions } from "./match-filt
 import {
   csaLineupActuallyPlayedCondition,
   csaLineupCameOnAsSubCondition,
+  csaLineupUnusedBenchCondition,
 } from "./player-appeared";
 import {
   topManagersByTitles,
@@ -525,6 +526,50 @@ async function topAppearancesAsSubstitute(limit = 10): Promise<PlayerRecordHolde
   }));
 }
 
+/** Matches where the player was named on the bench and never entered. */
+async function topUnusedBenchAppearances(
+  limit = 10,
+  season?: string,
+): Promise<PlayerRecordHolder[]> {
+  const rows = await db
+    .select({
+      playerId: matchLineupsTable.playerId,
+      playerName: playersTable.name,
+      value: sql<number>`cast(count(distinct ${matchLineupsTable.matchId}) as int)`,
+    })
+    .from(matchLineupsTable)
+    .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
+    .innerJoin(playersTable, eq(matchLineupsTable.playerId, playersTable.id))
+    .where(
+      and(
+        recordsMatchConditions(),
+        eq(matchLineupsTable.side, "csa"),
+        isNotNull(matchLineupsTable.playerId),
+        csaLineupUnusedBenchCondition(),
+        ...(season ? [eq(matchesTable.season, season)] : []),
+      ),
+    )
+    .groupBy(matchLineupsTable.playerId, playersTable.name)
+    .orderBy(desc(sql`count(distinct ${matchLineupsTable.matchId})`), asc(playersTable.name))
+    .limit(limit);
+
+  return rows.map((r) => ({
+    playerId: r.playerId!,
+    playerName: r.playerName,
+    value: r.value,
+  }));
+}
+
+async function latestRecordsSeason(): Promise<string | null> {
+  const rows = await db
+    .select({ season: matchesTable.season })
+    .from(matchesTable)
+    .where(recordsMatchConditions())
+    .orderBy(desc(matchesTable.matchDate), desc(matchesTable.id))
+    .limit(1);
+  return rows[0]?.season ?? null;
+}
+
 async function topManagerWins(limit = 10): Promise<ManagerRecordHolder[]> {
   const rows = await db
     .select({
@@ -884,6 +929,260 @@ async function consecutiveStartsRecords(): Promise<{
 }
 
 /**
+ * Consecutive official matches in which a player scored for CSA.
+ * Own goals do not count. Missing a match or playing without scoring breaks the streak.
+ */
+async function scoringStreakRecords(): Promise<{
+  historical: PlayerStreakRecord[];
+  active: PlayerStreakRecord[];
+}> {
+  const matches = await loadRecordsMatches();
+  if (matches.length === 0) {
+    return { historical: [], active: [] };
+  }
+
+  const goals = await db
+    .select({
+      matchId: matchGoalsTable.matchId,
+      playerId: matchGoalsTable.scorerPlayerId,
+    })
+    .from(matchGoalsTable)
+    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        recordsMatchConditions(),
+        eq(matchGoalsTable.side, "csa"),
+        eq(matchGoalsTable.isOwnGoal, false),
+        isNotNull(matchGoalsTable.scorerPlayerId),
+      ),
+    );
+
+  const scorersByMatch = new Map<number, Set<number>>();
+  const allPlayerIds = new Set<number>();
+  for (const g of goals) {
+    if (g.playerId == null) continue;
+    allPlayerIds.add(g.playerId);
+    let set = scorersByMatch.get(g.matchId);
+    if (!set) {
+      set = new Set();
+      scorersByMatch.set(g.matchId, set);
+    }
+    set.add(g.playerId);
+  }
+
+  if (allPlayerIds.size === 0) return { historical: [], active: [] };
+
+  const players = await db
+    .select({ id: playersTable.id, name: playersTable.name })
+    .from(playersTable)
+    .where(inArray(playersTable.id, [...allPlayerIds]));
+  const nameById = new Map(players.map((p) => [p.id, p.name]));
+
+  type Acc = {
+    bestLen: number;
+    bestStart: MatchRow | null;
+    bestEnd: MatchRow | null;
+    curLen: number;
+    curStart: MatchRow | null;
+    curEnd: MatchRow | null;
+  };
+  const acc = new Map<number, Acc>();
+  for (const id of allPlayerIds) {
+    acc.set(id, {
+      bestLen: 0,
+      bestStart: null,
+      bestEnd: null,
+      curLen: 0,
+      curStart: null,
+      curEnd: null,
+    });
+  }
+
+  for (const m of matches) {
+    const scored = scorersByMatch.get(m.id) ?? new Set<number>();
+    for (const playerId of allPlayerIds) {
+      const a = acc.get(playerId)!;
+      if (scored.has(playerId)) {
+        if (a.curLen === 0) a.curStart = m;
+        a.curLen += 1;
+        a.curEnd = m;
+        if (a.curLen > a.bestLen) {
+          a.bestLen = a.curLen;
+          a.bestStart = a.curStart;
+          a.bestEnd = a.curEnd;
+        }
+      } else {
+        a.curLen = 0;
+        a.curStart = null;
+        a.curEnd = null;
+      }
+    }
+  }
+
+  const historical: PlayerStreakRecord[] = [];
+  const active: PlayerStreakRecord[] = [];
+  for (const [playerId, a] of acc) {
+    if (a.bestLen > 0 && a.bestStart && a.bestEnd) {
+      historical.push({
+        playerId,
+        playerName: nameById.get(playerId) ?? `#${playerId}`,
+        length: a.bestLen,
+        startDate: a.bestStart.matchDate,
+        endDate: a.bestEnd.matchDate,
+        startMatchId: a.bestStart.id,
+        endMatchId: a.bestEnd.id,
+      });
+    }
+    if (a.curLen > 0 && a.curStart && a.curEnd) {
+      active.push({
+        playerId,
+        playerName: nameById.get(playerId) ?? `#${playerId}`,
+        length: a.curLen,
+        startDate: a.curStart.matchDate,
+        endDate: a.curEnd.matchDate,
+        startMatchId: a.curStart.id,
+        endMatchId: a.curEnd.id,
+      });
+    }
+  }
+
+  historical.sort((a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName));
+  active.sort((a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName));
+
+  return {
+    historical: historical.slice(0, 10),
+    active: active.slice(0, 10),
+  };
+}
+
+/**
+ * Consecutive unused-bench appearances across the club calendar.
+ * Missing a match, starting, or coming on as a sub breaks the streak.
+ */
+async function unusedBenchStreakRecords(): Promise<{
+  historical: PlayerStreakRecord[];
+  active: PlayerStreakRecord[];
+}> {
+  const matches = await loadRecordsMatches();
+  if (matches.length === 0) {
+    return { historical: [], active: [] };
+  }
+
+  const unused = await db
+    .select({
+      matchId: matchLineupsTable.matchId,
+      playerId: matchLineupsTable.playerId,
+    })
+    .from(matchLineupsTable)
+    .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        recordsMatchConditions(),
+        eq(matchLineupsTable.side, "csa"),
+        isNotNull(matchLineupsTable.playerId),
+        csaLineupUnusedBenchCondition(),
+      ),
+    );
+
+  const unusedByMatch = new Map<number, Set<number>>();
+  const allPlayerIds = new Set<number>();
+  for (const s of unused) {
+    if (s.playerId == null) continue;
+    allPlayerIds.add(s.playerId);
+    let set = unusedByMatch.get(s.matchId);
+    if (!set) {
+      set = new Set();
+      unusedByMatch.set(s.matchId, set);
+    }
+    set.add(s.playerId);
+  }
+
+  if (allPlayerIds.size === 0) return { historical: [], active: [] };
+
+  const players = await db
+    .select({ id: playersTable.id, name: playersTable.name })
+    .from(playersTable)
+    .where(inArray(playersTable.id, [...allPlayerIds]));
+  const nameById = new Map(players.map((p) => [p.id, p.name]));
+
+  type Acc = {
+    bestLen: number;
+    bestStart: MatchRow | null;
+    bestEnd: MatchRow | null;
+    curLen: number;
+    curStart: MatchRow | null;
+    curEnd: MatchRow | null;
+  };
+  const acc = new Map<number, Acc>();
+  for (const id of allPlayerIds) {
+    acc.set(id, {
+      bestLen: 0,
+      bestStart: null,
+      bestEnd: null,
+      curLen: 0,
+      curStart: null,
+      curEnd: null,
+    });
+  }
+
+  for (const m of matches) {
+    const onUnusedBench = unusedByMatch.get(m.id) ?? new Set<number>();
+    for (const playerId of allPlayerIds) {
+      const a = acc.get(playerId)!;
+      if (onUnusedBench.has(playerId)) {
+        if (a.curLen === 0) a.curStart = m;
+        a.curLen += 1;
+        a.curEnd = m;
+        if (a.curLen > a.bestLen) {
+          a.bestLen = a.curLen;
+          a.bestStart = a.curStart;
+          a.bestEnd = a.curEnd;
+        }
+      } else {
+        a.curLen = 0;
+        a.curStart = null;
+        a.curEnd = null;
+      }
+    }
+  }
+
+  const historical: PlayerStreakRecord[] = [];
+  const active: PlayerStreakRecord[] = [];
+  for (const [playerId, a] of acc) {
+    if (a.bestLen > 0 && a.bestStart && a.bestEnd) {
+      historical.push({
+        playerId,
+        playerName: nameById.get(playerId) ?? `#${playerId}`,
+        length: a.bestLen,
+        startDate: a.bestStart.matchDate,
+        endDate: a.bestEnd.matchDate,
+        startMatchId: a.bestStart.id,
+        endMatchId: a.bestEnd.id,
+      });
+    }
+    if (a.curLen > 0 && a.curStart && a.curEnd) {
+      active.push({
+        playerId,
+        playerName: nameById.get(playerId) ?? `#${playerId}`,
+        length: a.curLen,
+        startDate: a.curStart.matchDate,
+        endDate: a.curEnd.matchDate,
+        startMatchId: a.curStart.id,
+        endMatchId: a.curEnd.id,
+      });
+    }
+  }
+
+  historical.sort((a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName));
+  active.sort((a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName));
+
+  return {
+    historical: historical.slice(0, 10),
+    active: active.slice(0, 10),
+  };
+}
+
+/**
  * Consecutive wins / unbeaten run for each manager across the club calendar.
  * A match coached by someone else (or without a manager) breaks the streak.
  */
@@ -992,6 +1291,10 @@ export async function computeClubRecords() {
     matches,
     (m) => m.goalsAgainst != null && m.goalsAgainst === 0,
   );
+  const scoring = bestTeamStreak(
+    matches,
+    (m) => m.goalsFor != null && m.goalsFor > 0,
+  );
 
   const [
     goals,
@@ -1005,11 +1308,15 @@ export async function computeClubRecords() {
     playerWins,
     goalsAsSub,
     appsAsSub,
+    unusedBench,
+    unusedBenchSeason,
+    unusedBenchStreaks,
     cleanSheets,
     managerWins,
     thrashings,
     starts,
     gkCleanSheetStreaks,
+    scoringStreaks,
     playerTitles,
     managerTitles,
     managerWinStreaks,
@@ -1026,11 +1333,20 @@ export async function computeClubRecords() {
     topPlayerWins(),
     topGoalsAsSubstitute(),
     topAppearancesAsSubstitute(),
+    topUnusedBenchAppearances(),
+    (async () => {
+      const season = await latestRecordsSeason();
+      return season
+        ? { season, rows: await topUnusedBenchAppearances(10, season) }
+        : { season: null as string | null, rows: [] as PlayerRecordHolder[] };
+    })(),
+    unusedBenchStreakRecords(),
     topCleanSheets(),
     topManagerWins(),
     biggestWins(),
     consecutiveStartsRecords(),
     goalkeeperCleanSheetStreaks(),
+    scoringStreakRecords(),
     topPlayersByTitles(10),
     topManagersByTitles(10),
     managerStreakRecords(matches, (m) => m.result === "win"),
@@ -1051,6 +1367,10 @@ export async function computeClubRecords() {
         "Jogador: relacionado em qualquer ficha da campanha campeã (banco incluso). Técnico: apenas o último jogo oficial da campanha",
       cleanSheets:
         "Clean sheet: goleiro titular em partida oficial sem gol sofrido (posição Goleiro na ficha ou no cadastro)",
+      unusedBench:
+        "Banco sem entrar: relacionado como reserva e não entrou (não conta quem começou ou foi substituído para dentro)",
+      scoringStreak:
+        "Jogos seguidos marcando: gol(s) pelo CSA em partidas oficiais consecutivas (gol contra não conta; ficar de fora ou não marcar quebra)",
     },
     players: {
       topScorers: goals,
@@ -1067,6 +1387,10 @@ export async function computeClubRecords() {
       topWins: playerWins,
       topGoalsAsSubstitute: goalsAsSub,
       topAppearancesAsSubstitute: appsAsSub,
+      topUnusedBenchAppearances: unusedBench,
+      topUnusedBenchAppearancesCurrent: unusedBenchSeason.rows,
+      unusedBenchCurrentSeason: unusedBenchSeason.season,
+      unusedBenchStreak: unusedBenchStreaks,
       topCleanSheets: cleanSheets,
       topTitles: playerTitles.map((r) => ({
         playerId: r.id,
@@ -1075,6 +1399,7 @@ export async function computeClubRecords() {
       })),
       consecutiveStarts: starts,
       cleanSheetStreak: gkCleanSheetStreaks,
+      scoringStreak: scoringStreaks,
     },
     managers: {
       topWins: managerWins,
@@ -1091,6 +1416,7 @@ export async function computeClubRecords() {
       unbeatenStreak: unbeaten,
       winStreak,
       cleanSheetStreak: cleanSheet,
+      scoringStreak: scoring,
     },
   };
 }

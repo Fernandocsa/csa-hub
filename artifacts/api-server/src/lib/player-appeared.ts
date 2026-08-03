@@ -37,3 +37,21 @@ export function csaLineupCameOnAsSubCondition(): SQL {
     )
   )`;
 }
+
+/**
+ * True when the player was named on the bench and never came on
+ * (unused reserve — related but did not enter the field).
+ */
+export function csaLineupUnusedBenchCondition(): SQL {
+  return sql`(
+    ${matchLineupsTable.role} = 'bench'
+    AND NOT EXISTS (
+      SELECT 1
+      FROM ${matchSubstitutionsTable}
+      WHERE ${matchSubstitutionsTable.matchId} = ${matchLineupsTable.matchId}
+        AND ${matchSubstitutionsTable.side} = 'csa'
+        AND ${matchSubstitutionsTable.playerInId} IS NOT NULL
+        AND ${matchSubstitutionsTable.playerInId} = ${matchLineupsTable.playerId}
+    )
+  )`;
+}

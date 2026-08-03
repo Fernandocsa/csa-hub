@@ -37,6 +37,8 @@ type RecordsPayload = {
     appearances: string;
     titles: string;
     cleanSheets?: string;
+    unusedBench?: string;
+    scoringStreak?: string;
   };
   players: {
     topScorers: PlayerRow[];
@@ -51,10 +53,15 @@ type RecordsPayload = {
     topWins: PlayerRow[];
     topGoalsAsSubstitute: PlayerRow[];
     topAppearancesAsSubstitute: PlayerRow[];
+    topUnusedBenchAppearances: PlayerRow[];
+    topUnusedBenchAppearancesCurrent: PlayerRow[];
+    unusedBenchCurrentSeason: string | null;
+    unusedBenchStreak: { historical: PlayerStreak[]; active: PlayerStreak[] };
     topCleanSheets: PlayerRow[];
     topTitles: PlayerRow[];
     consecutiveStarts: { historical: PlayerStreak[]; active: PlayerStreak[] };
     cleanSheetStreak: { historical: PlayerStreak[]; active: PlayerStreak[] };
+    scoringStreak: { historical: PlayerStreak[]; active: PlayerStreak[] };
   };
   managers: {
     topWins: ManagerRow[];
@@ -67,6 +74,7 @@ type RecordsPayload = {
     unbeatenStreak: { historical: Streak; active: Streak };
     winStreak: { historical: Streak; active: Streak };
     cleanSheetStreak: { historical: Streak; active: Streak };
+    scoringStreak: { historical: Streak; active: Streak };
   };
 };
 
@@ -208,6 +216,54 @@ function ManagerStreakList({
   );
 }
 
+function PlayerStreakList({
+  rows,
+  activeTone = false,
+}: {
+  rows: PlayerStreak[];
+  activeTone?: boolean;
+}) {
+  if (rows.length === 0) {
+    return (
+      <p className="text-sm text-gray-400">
+        {activeTone ? "Nenhuma sequência ativa." : "Sem dados ainda."}
+      </p>
+    );
+  }
+  return (
+    <ol className="space-y-1.5">
+      {rows.map((r, i) => (
+        <li
+          key={`${r.playerId}-${activeTone ? "active" : r.startMatchId}`}
+          className="flex items-baseline justify-between gap-3 text-sm"
+        >
+          <span className="min-w-0 truncate">
+            <span className="text-gray-400 tabular-nums mr-2">{i + 1}.</span>
+            <Link
+              href={`/admin/jogadores/${r.playerId}`}
+              className="text-[#1B3A6B] hover:underline font-medium"
+            >
+              {r.playerName}
+            </Link>
+            <span className="text-xs text-gray-400 ml-2">
+              {activeTone
+                ? `desde ${fmtDate(r.startDate)}`
+                : `${fmtDate(r.startDate)} → ${fmtDate(r.endDate)}`}
+            </span>
+          </span>
+          <span
+            className={`tabular-nums font-semibold shrink-0 ${
+              activeTone ? "text-[#F5A623]" : ""
+            }`}
+          >
+            {r.length}
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 function Card({
   title,
   children,
@@ -285,6 +341,8 @@ export default function AdminRecords() {
             <p>{data.rules.appearances}</p>
             <p>{data.rules.titles}</p>
             {data.rules.cleanSheets ? <p>{data.rules.cleanSheets}</p> : null}
+            {data.rules.unusedBench ? <p>{data.rules.unusedBench}</p> : null}
+            {data.rules.scoringStreak ? <p>{data.rules.scoringStreak}</p> : null}
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
@@ -321,6 +379,39 @@ export default function AdminRecords() {
             <Card title="Mais títulos (técnico)">
               <ManagerList rows={data.managers.topTitles} />
             </Card>
+          </div>
+
+          <div>
+            <h2 className="text-sm font-semibold text-gray-800 mb-3">
+              Jogos no banco sem entrar
+            </h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card title="Mais jogos no banco sem entrar (histórico)">
+                <PlayerList rows={data.players.topUnusedBenchAppearances ?? []} />
+              </Card>
+              <Card
+                title={`Mais jogos no banco sem entrar (atual${
+                  data.players.unusedBenchCurrentSeason
+                    ? ` — ${data.players.unusedBenchCurrentSeason}`
+                    : ""
+                })`}
+              >
+                <PlayerList
+                  rows={data.players.topUnusedBenchAppearancesCurrent ?? []}
+                />
+              </Card>
+              <Card title="Mais jogos no banco sem entrar em sequência (histórico)">
+                <PlayerStreakList
+                  rows={data.players.unusedBenchStreak?.historical ?? []}
+                />
+              </Card>
+              <Card title="Mais jogos no banco sem entrar em sequência (atual)">
+                <PlayerStreakList
+                  rows={data.players.unusedBenchStreak?.active ?? []}
+                  activeTone
+                />
+              </Card>
+            </div>
           </div>
 
           <div>
@@ -380,7 +471,7 @@ export default function AdminRecords() {
             )}
           </Card>
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card title="Invencibilidade">
               <StreakBlock
                 historical={data.team.unbeatenStreak.historical}
@@ -397,6 +488,12 @@ export default function AdminRecords() {
               <StreakBlock
                 historical={data.team.cleanSheetStreak.historical}
                 active={data.team.cleanSheetStreak.active}
+              />
+            </Card>
+            <Card title="Jogos seguidos marcando">
+              <StreakBlock
+                historical={data.team.scoringStreak?.historical ?? { length: 0, startDate: null, endDate: null, startMatchId: null, endMatchId: null }}
+                active={data.team.scoringStreak?.active ?? { length: 0, startDate: null, endDate: null, startMatchId: null, endMatchId: null }}
               />
             </Card>
           </div>
@@ -484,6 +581,17 @@ export default function AdminRecords() {
                   ))}
                 </ol>
               )}
+            </Card>
+            <Card title="Mais jogos seguidos marcando (histórico)">
+              <PlayerStreakList
+                rows={data.players.scoringStreak?.historical ?? []}
+              />
+            </Card>
+            <Card title="Mais jogos seguidos marcando (em andamento)">
+              <PlayerStreakList
+                rows={data.players.scoringStreak?.active ?? []}
+                activeTone
+              />
             </Card>
           </div>
 
