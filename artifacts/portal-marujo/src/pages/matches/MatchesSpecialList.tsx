@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { Link, useLocation } from "wouter";
 import {
   useListSeasons,
   useListWalkovers,
@@ -78,7 +79,7 @@ const META: Record<
     subtitle: "Partidas com resultado oficial ainda não localizado",
     basePath: "/partidas/sem-resultado",
     intro:
-      "O placar pode ser atualizado conforme novas fontes forem encontradas.",
+      "Clique em uma partida para ver detalhes e sugerir o placar. Atualizamos conforme novas fontes forem encontradas.",
     empty: "Nenhuma partida com resultado desconhecido.",
     showScore: true,
   },
@@ -86,6 +87,7 @@ const META: Record<
 
 export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind }) {
   const meta = META[kind];
+  const [, setLocation] = useLocation();
   const { season, setSeason } = useSeasonQueryParam(meta.basePath);
   const [opponent, setOpponent] = useState("");
   const [page, setPage] = useState(1);
@@ -107,7 +109,7 @@ export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind })
     kind === "walkover" ? walkovers : kind === "friendly" ? friendlies : unknowns;
   const data = active.data;
   const isLoading = active.isLoading;
-  const colSpan = meta.showScore ? 6 : 6;
+  const colSpan = kind === "unknown" ? 7 : meta.showScore ? 6 : 6;
 
   return (
     <div className="space-y-5">
@@ -189,6 +191,9 @@ export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind })
               )}
               <TableHead className="py-2">Competição</TableHead>
               <TableHead className="py-2 hidden sm:table-cell">Estádio</TableHead>
+              {kind === "unknown" ? (
+                <TableHead className="py-2 text-right">Ação</TableHead>
+              ) : null}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -212,8 +217,25 @@ export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind })
                   const isUnknown =
                     (match as { isUnknownResult?: boolean }).isUnknownResult === true ||
                     match.result === "unknown";
+                  const openMatch = () =>
+                    setLocation(
+                      kind === "unknown"
+                        ? `/partidas/${match.id}?sugerir=placar`
+                        : `/partidas/${match.id}`,
+                    );
                   return (
-                    <TableRow key={match.id} className="text-sm">
+                    <TableRow
+                      key={match.id}
+                      className={cn(
+                        "text-sm",
+                        kind === "unknown" &&
+                          "cursor-pointer hover:bg-muted/50 transition-colors",
+                      )}
+                      onClick={kind === "unknown" ? openMatch : undefined}
+                      data-testid={
+                        kind === "unknown" ? `row-unknown-match-${match.id}` : undefined
+                      }
+                    >
                       <TableCell className="py-2 text-muted-foreground text-xs whitespace-nowrap">
                         {fmtDate(match.date)}
                       </TableCell>
@@ -245,7 +267,11 @@ export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind })
                           </TableCell>
                           <TableCell className="py-2 text-center">
                             {isUnknown ? (
-                              <MatchScoreLink matchId={match.id} className="text-gray-400 dark:text-gray-500">
+                              <MatchScoreLink
+                                matchId={match.id}
+                                className="text-gray-400 dark:text-gray-500"
+                                title="Abrir partida e sugerir placar"
+                              >
                                 ❓
                               </MatchScoreLink>
                             ) : (
@@ -291,6 +317,17 @@ export default function MatchesSpecialList({ kind }: { kind: MatchSpecialKind })
                       <TableCell className="py-2 text-muted-foreground text-xs hidden sm:table-cell">
                         {match.stadium ?? "–"}
                       </TableCell>
+                      {kind === "unknown" ? (
+                        <TableCell className="py-2 text-right">
+                          <Link
+                            href={`/partidas/${match.id}?sugerir=placar`}
+                            className="text-xs font-semibold text-primary hover:underline whitespace-nowrap"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Sugerir placar →
+                          </Link>
+                        </TableCell>
+                      ) : null}
                     </TableRow>
                   );
                 })}

@@ -562,8 +562,18 @@ export default function MatchDetail() {
 
       <StarRating entityType="match" entityId={match.id} />
 
+      {isUnknown ? (
+        <EntitySuggestionForm
+          id="sugerir-placar"
+          entityType="match"
+          entityId={match.id}
+          variant="score"
+          defaultOpen
+        />
+      ) : null}
+
       {/* Empty sheet: explain why escalação / eventos estão ausentes */}
-      {!hasAnySheet && (
+      {!hasAnySheet && !isUnknown && (
         <div
           role="status"
           className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-950"
@@ -571,6 +581,15 @@ export default function MatchDetail() {
           Ainda não temos a ficha completa desse jogo.
         </div>
       )}
+      {!hasAnySheet && isUnknown ? (
+        <div
+          role="status"
+          className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-950"
+        >
+          Resultado oficial ainda não localizado. Se você souber o placar, use a
+          sugestão acima.
+        </div>
+      ) : null}
 
       {/* Legacy scorers text — only if present */}
       {scorersText.length > 0 && (
@@ -625,7 +644,17 @@ export default function MatchDetail() {
       )}
 
       <EntityComments entityType="match" entityId={match.id} />
-      <EntitySuggestionForm entityType="match" entityId={match.id} />
+      {!isUnknown ? (
+        <EntitySuggestionForm entityType="match" entityId={match.id} />
+      ) : (
+        <EntitySuggestionForm
+          entityType="match"
+          entityId={match.id}
+          heading="Outra correção"
+          description="Algo além do placar (data, local, competição…)? Envie aqui."
+          ctaLabel="Enviar outra sugestão"
+        />
+      )}
     </div>
   );
 }

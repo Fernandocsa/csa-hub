@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 export type SuggestionEntityType =
   | "player"
@@ -36,18 +37,43 @@ async function postSuggestion(
 export function EntitySuggestionForm({
   entityType,
   entityId = null,
+  variant = "default",
+  defaultOpen = false,
+  heading,
+  description,
+  messagePlaceholder,
+  ctaLabel,
+  id,
 }: {
   entityType: SuggestionEntityType;
   /** Required except when entityType is "general". For season, pass the year. */
   entityId?: number | null;
+  /** Emphasized card for unknown match scores. */
+  variant?: "default" | "score";
+  defaultOpen?: boolean;
+  heading?: string;
+  description?: string;
+  messagePlaceholder?: string;
+  ctaLabel?: string;
+  id?: string;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [authorName, setAuthorName] = useState("");
   const [message, setMessage] = useState("");
   const [contact, setContact] = useState("");
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
   const [saving, setSaving] = useState(false);
+  const rootRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!defaultOpen) return;
+    setOpen(true);
+    const t = window.setTimeout(() => {
+      rootRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+    return () => window.clearTimeout(t);
+  }, [defaultOpen]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -80,21 +106,53 @@ export function EntitySuggestionForm({
     setSaving(false);
   }
 
+  const isScore = variant === "score";
+  const title =
+    heading ?? (isScore ? "Sugerir placar" : "Sugerir correção");
+  const blurb =
+    description ??
+    (isScore
+      ? "Sabe o resultado deste jogo? Envie o placar e, se puder, a fonte (jornal, site, livro)."
+      : "Encontrou um erro ou tem uma sugestão? Só a equipe do portal vê o envio.");
+  const placeholder =
+    messagePlaceholder ??
+    (isScore
+      ? "Ex.: CSA 2–1 Remo · fonte: Gazeta de Alagoas, 15/03/1980"
+      : "Descreva o problema ou a sugestão…");
+  const buttonLabel = ctaLabel ?? (isScore ? "Sugerir placar" : "Enviar sugestão");
+
   return (
-    <section className="space-y-3 border-t pt-6" data-testid="entity-suggestion">
+    <section
+      ref={rootRef}
+      id={id}
+      className={cn(
+        "space-y-3",
+        isScore
+          ? "rounded-lg border-2 border-primary/30 bg-primary/5 px-4 py-4"
+          : "border-t pt-6",
+      )}
+      data-testid="entity-suggestion"
+    >
       <div>
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Sugerir correção
+        <h2
+          className={cn(
+            "font-semibold tracking-wider text-muted-foreground",
+            isScore ? "text-base uppercase text-foreground" : "text-sm uppercase",
+          )}
+        >
+          {title}
         </h2>
-        <p className="text-xs text-muted-foreground mt-1">
-          Encontrou um erro ou tem uma sugestão? Só a equipe do portal vê o
-          envio.
-        </p>
+        <p className="text-xs text-muted-foreground mt-1">{blurb}</p>
       </div>
 
       {!open && !sent && (
-        <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
-          Enviar sugestão
+        <Button
+          type="button"
+          variant={isScore ? "default" : "outline"}
+          size="sm"
+          onClick={() => setOpen(true)}
+        >
+          {buttonLabel}
         </Button>
       )}
 
@@ -129,14 +187,14 @@ export function EntitySuggestionForm({
           </div>
           <div>
             <label className="text-xs font-medium text-muted-foreground block mb-1">
-              Mensagem *
+              {isScore ? "Placar / detalhes *" : "Mensagem *"}
             </label>
             <Textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               maxLength={4000}
               rows={4}
-              placeholder="Descreva o problema ou a sugestão…"
+              placeholder={placeholder}
               required
             />
           </div>
