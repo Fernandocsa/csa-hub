@@ -6,10 +6,11 @@ import {
   db,
   pool,
   dailyPlayerTable,
+  dailyPlayerBlocksTable,
   playersTable,
   playerSeasonStatsTable,
 } from "@workspace/db";
-import { and, asc, eq, lt, sql, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, lt, sql, inArray } from "drizzle-orm";
 import { formatYmd, parseYmd, saoPauloYmd, type Ymd } from "./birthdays";
 
 /** Data de lançamento do jogo (contagem Wordle #N). */
@@ -17,8 +18,18 @@ export const GAME_LAUNCH_DATE = "2026-08-02";
 
 export const MAX_ATTEMPTS = 5;
 
-/** Não repetir jogador nos últimos N dias (pool ~876 → 1 ano). */
-export const NO_REPEAT_DAYS = 365;
+/**
+ * Janela máxima de não-repetição. O valor efetivo cai com o pool
+ * (hoje ~86 com foto → ~81 dias) e sobe até 365 conforme fotos forem adicionadas.
+ */
+export const NO_REPEAT_DAYS_CAP = 365;
+
+export function noRepeatDaysForPool(poolSize: number): number {
+  return Math.min(NO_REPEAT_DAYS_CAP, Math.max(21, poolSize - 5));
+}
+
+/** @deprecated use noRepeatDaysForPool — kept for callers that need a static hint */
+export const NO_REPEAT_DAYS = 60;
 
 export type EligiblePlayer = {
   id: number;
@@ -79,10 +90,10 @@ export function gameNumberForDate(dateStr: string): number {
   return Math.floor((b - a) / 86_400_000) + 1;
 }
 
-function pickIndex(dateStr: string, poolSize: number): number {
+function pickIndex(dateStr: string, poolSize: number, salt = ""): number {
   if (poolSize <= 0) return 0;
   const digest = createHash("sha256")
-    .update(`quem-e-o-jogador:${dateStr}`)
+    .update(`quem-e-o-jogador:${dateStr}:${salt}`)
     .digest();
   return digest.readUInt32BE(0) % poolSize;
 }
@@ -144,15 +155,32 @@ export async function listEligiblePlayers(): Promise<EligiblePlayer[]> {
       AND LEFT(first_season, 4)::int >= 1960
       AND apps > 0
       AND season_rows > 0
+      AND photo_url IS NOT NULL
+      AND btrim(photo_url) <> ''
+      AND lower(btrim(photo_url)) NOT IN ('null', 'undefined', 'none')
     ORDER BY id ASC
   `);
 
-  const list = rows.map((r) => ({
-    ...r,
-    debutDecade: decadeOf(Number(r.debutYear)),
-  }));
+  const blocked = await loadBlockedIds();
+  const list = rows
+    .filter((r) => !blocked.has(r.id))
+    .map((r) => ({
+      ...r,
+      debutDecade: decadeOf(Number(r.debutYear)),
+    }));
   eligibleCache = { at: Date.now(), list };
   return list;
+}
+
+async function loadBlockedIds(): Promise<Set<number>> {
+  const rows = await db
+    .select({ playerId: dailyPlayerBlocksTable.playerId })
+    .from(dailyPlayerBlocksTable);
+  return new Set(rows.map((r) => r.playerId));
+}
+
+export function clearEligibleCache() {
+  eligibleCache = null;
 }
 
 async function loadPlayerAttrs(playerId: number): Promise<EligiblePlayer | null> {
@@ -222,13 +250,14 @@ function choosePlayerId(
   dateStr: string,
   eligible: EligiblePlayer[],
   excluded: Set<number>,
+  salt = "",
 ): number {
   const pool = eligible.filter((p) => !excluded.has(p.id));
   const use = pool.length > 0 ? pool : eligible;
   if (use.length === 0) {
     throw new Error("Nenhum jogador elegível para Quem é o Jogador?");
   }
-  return use[pickIndex(dateStr, use.length)]!.id;
+  return use[pickIndex(dateStr, use.length, salt)]!.id;
 }
 
 export async function ensureDailyPlayer(dateStr: string): Promise<{
@@ -249,15 +278,24 @@ export async function ensureDailyPlayer(dateStr: string): Promise<{
     .limit(1);
 
   if (existing) {
-    return {
-      date: dateStr,
-      playerId: existing.playerId,
-      gameNumber: gameNumberForDate(dateStr),
-    };
+    const blocked = await loadBlockedIds();
+    if (!blocked.has(existing.playerId)) {
+      return {
+        date: dateStr,
+        playerId: existing.playerId,
+        gameNumber: gameNumberForDate(dateStr),
+      };
+    }
+    await db
+      .delete(dailyPlayerTable)
+      .where(eq(dailyPlayerTable.playDate, dateStr));
   }
 
   const eligible = await listEligiblePlayers();
-  const excluded = await recentPlayerIds(dateStr, NO_REPEAT_DAYS);
+  const excluded = await recentPlayerIds(
+    dateStr,
+    noRepeatDaysForPool(eligible.length),
+  );
   const playerId = choosePlayerId(dateStr, eligible, excluded);
 
   await db
@@ -392,7 +430,56 @@ function dateToIso(value: string | Date): string {
   });
 }
 
-export async function getAdminQueue(days = 30) {
+/** Foto pública do jogador (para proxy same-origin no canvas de compartilhamento). */
+export async function getPlayerPhotoUrl(
+  playerId: number,
+): Promise<string | null> {
+  const [p] = await db
+    .select({ photoUrl: playersTable.photoUrl })
+    .from(playersTable)
+    .where(eq(playersTable.id, playerId))
+    .limit(1);
+  const url = p?.photoUrl?.trim() || null;
+  if (!url) return null;
+  if (["null", "undefined", "none"].includes(url.toLowerCase())) return null;
+  return url;
+}
+
+/**
+ * Remove datas de hoje em diante cujo jogador não está mais no pool elegível
+ * (ex.: sem foto) e regenera a fila.
+ */
+export async function rebuildUpcomingQueue(days = 30) {
+  eligibleCache = null;
+  const eligible = await listEligiblePlayers();
+  const eligibleIds = new Set(eligible.map((p) => p.id));
+  const today = formatYmd(saoPauloYmd());
+
+  const upcoming = await db
+    .select({
+      playDate: dailyPlayerTable.playDate,
+      playerId: dailyPlayerTable.playerId,
+    })
+    .from(dailyPlayerTable)
+    .where(sql`${dailyPlayerTable.playDate} >= ${today}::date`);
+
+  for (const row of upcoming) {
+    if (!eligibleIds.has(row.playerId)) {
+      const d = dateToIso(row.playDate as string | Date);
+      await db
+        .delete(dailyPlayerTable)
+        .where(eq(dailyPlayerTable.playDate, d));
+    }
+  }
+
+  return getAdminQueue(days, false);
+}
+
+export async function getAdminQueue(days = 30, rebuildInvalid = true) {
+  if (rebuildInvalid) {
+    return rebuildUpcomingQueue(days);
+  }
+
   const today = saoPauloYmd();
   const dates: string[] = [];
   for (let i = 0; i < days; i++) {
@@ -438,19 +525,150 @@ export async function getAdminQueue(days = 30) {
     histByPlayer.set(h.playerId, list);
   }
 
-  return ensured.map((e) => {
-    const p = byId.get(e.playerId);
-    const allDates = histByPlayer.get(e.playerId) ?? [];
-    return {
-      date: e.date,
-      gameNumber: e.gameNumber,
-      player: {
-        id: e.playerId,
-        name: p?.name ?? `#${e.playerId}`,
-        photoUrl: p?.photoUrl ?? null,
-        position: p?.position?.trim() || "—",
-      },
-      previousAppearances: allDates.filter((d) => d < e.date),
-    };
-  });
+  const eligible = await listEligiblePlayers();
+  const blocked = await listBlockedPlayers();
+
+  return {
+    poolSize: eligible.length,
+    noRepeatDays: noRepeatDaysForPool(eligible.length),
+    blocked,
+    days: ensured.map((e) => {
+      const p = byId.get(e.playerId);
+      const allDates = histByPlayer.get(e.playerId) ?? [];
+      return {
+        date: e.date,
+        gameNumber: e.gameNumber,
+        player: {
+          id: e.playerId,
+          name: p?.name ?? `#${e.playerId}`,
+          photoUrl: p?.photoUrl ?? null,
+          position: p?.position?.trim() || "—",
+        },
+        previousAppearances: allDates.filter((d) => d < e.date),
+      };
+    }),
+  };
+}
+
+export type BlockedPlayerRow = {
+  playerId: number;
+  name: string;
+  photoUrl: string | null;
+  position: string;
+  note: string | null;
+  createdAt: string;
+};
+
+export async function listBlockedPlayers(): Promise<BlockedPlayerRow[]> {
+  const rows = await db
+    .select({
+      playerId: dailyPlayerBlocksTable.playerId,
+      note: dailyPlayerBlocksTable.note,
+      createdAt: dailyPlayerBlocksTable.createdAt,
+      name: playersTable.name,
+      photoUrl: playersTable.photoUrl,
+      position: playersTable.position,
+    })
+    .from(dailyPlayerBlocksTable)
+    .innerJoin(
+      playersTable,
+      eq(playersTable.id, dailyPlayerBlocksTable.playerId),
+    )
+    .orderBy(desc(dailyPlayerBlocksTable.createdAt));
+
+  return rows.map((r) => ({
+    playerId: r.playerId,
+    name: r.name,
+    photoUrl: r.photoUrl,
+    position: r.position?.trim() || "—",
+    note: r.note,
+    createdAt:
+      r.createdAt instanceof Date
+        ? r.createdAt.toISOString()
+        : String(r.createdAt),
+  }));
+}
+
+/** Bloqueia o jogador do pool e regenera datas futuras em que ele estava. */
+export async function blockDailyPlayer(playerId: number, note?: string | null) {
+  const [player] = await db
+    .select({ id: playersTable.id })
+    .from(playersTable)
+    .where(eq(playersTable.id, playerId))
+    .limit(1);
+  if (!player) {
+    throw Object.assign(new Error("Jogador não encontrado"), { status: 404 });
+  }
+
+  await db
+    .insert(dailyPlayerBlocksTable)
+    .values({ playerId, note: note?.trim() || null })
+    .onConflictDoNothing();
+
+  eligibleCache = null;
+  const today = formatYmd(saoPauloYmd());
+  await db
+    .delete(dailyPlayerTable)
+    .where(
+      and(
+        eq(dailyPlayerTable.playerId, playerId),
+        sql`${dailyPlayerTable.playDate} >= ${today}::date`,
+      ),
+    );
+
+  return getAdminQueue(30, false);
+}
+
+export async function unblockDailyPlayer(playerId: number) {
+  await db
+    .delete(dailyPlayerBlocksTable)
+    .where(eq(dailyPlayerBlocksTable.playerId, playerId));
+  eligibleCache = null;
+  return getAdminQueue(30, false);
+}
+
+/**
+ * Troca o jogador de uma data (hoje ou futura), evitando o atual se possível.
+ */
+export async function replaceDailyPlayer(dateStr: string) {
+  const parsed = parseYmd(dateStr);
+  if (!parsed) {
+    throw Object.assign(new Error(`Data inválida: ${dateStr}`), {
+      status: 400,
+    });
+  }
+  const today = formatYmd(saoPauloYmd());
+  if (dateStr < today) {
+    throw Object.assign(
+      new Error("Não é possível trocar datas já passadas"),
+      { status: 400 },
+    );
+  }
+
+  const [existing] = await db
+    .select({ playerId: dailyPlayerTable.playerId })
+    .from(dailyPlayerTable)
+    .where(eq(dailyPlayerTable.playDate, dateStr))
+    .limit(1);
+
+  const previousId = existing?.playerId;
+
+  await db
+    .delete(dailyPlayerTable)
+    .where(eq(dailyPlayerTable.playDate, dateStr));
+
+  eligibleCache = null;
+  const eligible = await listEligiblePlayers();
+  const excluded = await recentPlayerIds(
+    dateStr,
+    noRepeatDaysForPool(eligible.length),
+  );
+  if (previousId != null) excluded.add(previousId);
+
+  const salt = `replace:${Date.now()}`;
+  const playerId = choosePlayerId(dateStr, eligible, excluded, salt);
+
+  await db.insert(dailyPlayerTable).values({ playDate: dateStr, playerId });
+
+  return getAdminQueue(30, false);
 }

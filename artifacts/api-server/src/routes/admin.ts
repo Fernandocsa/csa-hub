@@ -27,7 +27,12 @@ import {
   ratingLabel,
   type RatingEntityType,
 } from "../lib/rating-labels";
-import { getAdminQueue } from "../lib/guess-player";
+import {
+  getAdminQueue,
+  blockDailyPlayer,
+  unblockDailyPlayer,
+  replaceDailyPlayer,
+} from "../lib/guess-player";
 import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray, ne, isNull } from "drizzle-orm";
 import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard } from "../lib/match-sheet";
 import { syncRelatedMatchLink, parsePenaltyShootoutFields } from "../lib/match-links";
@@ -6640,11 +6645,98 @@ router.get("/admin/quem-e-o-jogador", requireAdmin, async (req, res) => {
       ? Math.min(Math.max(daysRaw, 1), 60)
       : 30;
     const queue = await getAdminQueue(days);
-    res.json({ days, data: queue });
+    res.json({
+      days,
+      poolSize: queue.poolSize,
+      noRepeatDays: queue.noRepeatDays,
+      blocked: queue.blocked,
+      data: queue.days,
+    });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro ao carregar fila do jogo" });
   }
 });
+
+/** Bloqueia jogador do pool (não entra mais no sorteio). */
+router.post("/admin/quem-e-o-jogador/block", requireAdmin, async (req, res) => {
+  try {
+    const playerId = Number(req.body?.playerId);
+    if (!Number.isFinite(playerId) || playerId <= 0) {
+      return res.status(400).json({ error: "playerId inválido" });
+    }
+    const note =
+      typeof req.body?.note === "string" ? req.body.note : undefined;
+    const queue = await blockDailyPlayer(playerId, note);
+    res.json({
+      ok: true,
+      poolSize: queue.poolSize,
+      noRepeatDays: queue.noRepeatDays,
+      blocked: queue.blocked,
+      data: queue.days,
+    });
+  } catch (err) {
+    const status = (err as { status?: number }).status ?? 500;
+    req.log.error(err);
+    res.status(status).json({
+      error:
+        err instanceof Error ? err.message : "Erro ao bloquear jogador",
+    });
+  }
+});
+
+/** Remove bloqueio e devolve o jogador ao pool. */
+router.delete(
+  "/admin/quem-e-o-jogador/block/:playerId",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const playerId = Number(req.params.playerId);
+      if (!Number.isFinite(playerId) || playerId <= 0) {
+        return res.status(400).json({ error: "playerId inválido" });
+      }
+      const queue = await unblockDailyPlayer(playerId);
+      res.json({
+        ok: true,
+        poolSize: queue.poolSize,
+        noRepeatDays: queue.noRepeatDays,
+        blocked: queue.blocked,
+        data: queue.days,
+      });
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "Erro ao desbloquear jogador" });
+    }
+  },
+);
+
+/** Troca o jogador sorteado de uma data (hoje ou futura). */
+router.post(
+  "/admin/quem-e-o-jogador/replace",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const date = String(req.body?.date ?? "").slice(0, 10);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        return res.status(400).json({ error: "date inválida (YYYY-MM-DD)" });
+      }
+      const queue = await replaceDailyPlayer(date);
+      res.json({
+        ok: true,
+        poolSize: queue.poolSize,
+        noRepeatDays: queue.noRepeatDays,
+        blocked: queue.blocked,
+        data: queue.days,
+      });
+    } catch (err) {
+      const status = (err as { status?: number }).status ?? 500;
+      req.log.error(err);
+      res.status(status).json({
+        error:
+          err instanceof Error ? err.message : "Erro ao trocar jogador",
+      });
+    }
+  },
+);
 
 export default router;

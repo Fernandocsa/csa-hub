@@ -5,6 +5,10 @@ import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  buildGuessShareCard,
+  canShareFiles,
+} from "@/lib/guess-share-card";
 
 type TodayPayload = {
   date: string;
@@ -139,6 +143,8 @@ export default function QuemEOjogadorPage() {
   const [submitting, setSubmitting] = useState(false);
   const [state, setState] = useState<StoredState | null>(null);
   const [copied, setCopied] = useState(false);
+  const [sharingImage, setSharingImage] = useState(false);
+  const [imageMsg, setImageMsg] = useState("");
   const abortRef = useRef<AbortController | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -291,6 +297,52 @@ export default function QuemEOjogadorPage() {
     await navigator.clipboard.writeText(text);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 2000);
+  }
+
+  async function onShareImage() {
+    if (!state?.answer || !finished || sharingImage) return;
+    setSharingImage(true);
+    setImageMsg("");
+    try {
+      const blob = await buildGuessShareCard({
+        playerId: state.answer.id,
+        won: state.status === "won",
+        attempts: state.guesses.length,
+        gameNumber: state.gameNumber,
+      });
+      const file = new File(
+        [blob],
+        `quem-e-o-jogador-${state.gameNumber}.png`,
+        { type: "image/png" },
+      );
+
+      if (canShareFiles()) {
+        await navigator.share({
+          files: [file],
+          title: "Quem é o Jogador? — Portal Marujo",
+          text: shareText(state),
+        });
+        setImageMsg("Compartilhado.");
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.name;
+        a.click();
+        URL.revokeObjectURL(url);
+        setImageMsg("Imagem baixada — compartilhe onde quiser.");
+      }
+    } catch (e) {
+      if (e instanceof Error && e.name === "AbortError") {
+        /* user cancelled share sheet */
+      } else {
+        setImageMsg(
+          e instanceof Error ? e.message : "Não foi possível gerar a imagem",
+        );
+      }
+    } finally {
+      setSharingImage(false);
+    }
   }
 
   if (loading) {
@@ -480,10 +532,26 @@ export default function QuemEOjogadorPage() {
             <Button type="button" variant="outline" onClick={() => void onShare()}>
               {copied ? "Copiado!" : "Compartilhar resultado"}
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={sharingImage}
+              onClick={() => void onShareImage()}
+              data-testid="share-image"
+            >
+              {sharingImage
+                ? "Gerando…"
+                : canShareFiles()
+                  ? "Compartilhar imagem"
+                  : "Baixar imagem"}
+            </Button>
             <Button type="button" variant="ghost" asChild>
               <Link href={`/jogadores/${state.answer.id}`}>Ver perfil</Link>
             </Button>
           </div>
+          {imageMsg && (
+            <p className="text-xs text-muted-foreground">{imageMsg}</p>
+          )}
           <pre className="text-xs bg-muted/40 rounded p-2 whitespace-pre-wrap font-mono">
             {shareText(state)}
           </pre>
