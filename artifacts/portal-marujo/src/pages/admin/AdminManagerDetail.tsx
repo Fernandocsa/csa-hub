@@ -189,7 +189,7 @@ function ManagerProfileForm({
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (nameBlocked) {
-      setError("Já existe técnico com esse nome. Abra o perfil existente para editar.");
+      setError("Já existe técnico com esse nome completo. Abra o perfil existente para editar.");
       return;
     }
     setSaving(true);

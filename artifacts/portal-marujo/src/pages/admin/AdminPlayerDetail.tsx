@@ -188,7 +188,7 @@ function PlayerProfileForm({
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (nameBlocked) {
-      setError("Já existe jogador com esse nome. Abra o perfil existente para editar.");
+      setError("Já existe jogador com esse nome completo. Abra o perfil existente para editar.");
       return;
     }
     setSaving(true);

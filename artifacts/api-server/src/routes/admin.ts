@@ -345,7 +345,7 @@ router.get("/admin/players/name-check", requireAdmin, async (req, res) => {
       })
       .from(playersTable);
     const matches = findDuplicateNameCandidates(
-      [q, fullName],
+      { name: q, fullName },
       rows,
       Number.isInteger(excludeId) ? excludeId : null,
     ).slice(0, 8);
@@ -2705,7 +2705,7 @@ router.get("/admin/managers/name-check", requireAdmin, async (req, res) => {
       })
       .from(managersTable);
     const matches = findDuplicateNameCandidates(
-      [q, fullName],
+      { name: q, fullName },
       rows,
       Number.isInteger(excludeId) ? excludeId : null,
     ).slice(0, 8);

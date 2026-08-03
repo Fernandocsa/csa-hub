@@ -30,97 +30,76 @@ function isTokenPrefix(shorter: string[], longer: string[]): boolean {
 }
 
 /**
- * Similar only when the given name (prenome) matches.
- * Sharing only common surnames (Silva, Nascimento, …) is NOT enough.
- *
- * Examples that match:
- * - "Jessuí" ↔ "Jessuí Silva do Nascimento"
- * - "Jessuí Silva" ↔ "Jessuí Silva do Nascimento"
- * - exact full string (handled separately)
- *
- * Examples that do NOT match:
- * - "Jessuí Silva do Nascimento" ↔ "Geovane Nascimento Silva"
- * - "Jessuí Silva do Nascimento" ↔ "Mauro Silva do Nascimento Junior"
+ * Soft "looks like" match. Requires the same first name (prenome).
+ * Never used for save-blocking — only warnings.
  */
-function scoreAgainstField(
-  qNorm: string,
-  qTokens: string[],
-  fieldValue: string,
-): NameCheckMatch | null {
+function isSimilarName(query: string, fieldValue: string): boolean {
+  const qNorm = normName(query);
   const fNorm = normName(fieldValue);
-  if (!fNorm) return null;
-  if (qNorm === fNorm) return "exact";
+  if (!qNorm || !fNorm) return false;
+  if (qNorm === fNorm) return true;
 
+  const qTokens = nameTokens(query);
   const fTokens = nameTokens(fieldValue);
-  if (!qTokens.length || !fTokens.length) return null;
+  if (!qTokens.length || !fTokens.length) return false;
+  if (qTokens[0] !== fTokens[0]) return false;
 
-  // Different first names → never "similar" (avoids Silva/Nascimento false positives).
-  if (qTokens[0] !== fTokens[0]) return null;
+  if (isTokenPrefix(qTokens, fTokens) || isTokenPrefix(fTokens, qTokens)) return true;
+  if (qTokens.length === 1 || fTokens.length === 1) return true;
 
-  // "Jessuí Silva" is a prefix of "Jessuí Silva do Nascimento" (or reverse).
-  if (isTokenPrefix(qTokens, fTokens) || isTokenPrefix(fTokens, qTokens)) {
-    return "similar";
-  }
-
-  // Short given name vs composed: "Jessuí" ↔ "Jessuí Silva…"
-  if (qTokens.length === 1 || fTokens.length === 1) {
-    return "similar";
-  }
-
-  // Same prenome; every other token of the shorter name appears in the longer.
-  // e.g. "Jessuí Silva" ↔ "Jessuí Nascimento Silva"
   const shorter = qTokens.length <= fTokens.length ? qTokens : fTokens;
   const longer = qTokens.length <= fTokens.length ? fTokens : qTokens;
   const longSet = new Set(longer);
-  if (shorter.slice(1).every((t) => longSet.has(t))) {
-    return "similar";
-  }
-
-  return null;
+  return shorter.slice(1).every((t) => longSet.has(t));
 }
 
 /**
  * Find existing players/managers that look like the typed name(s).
- * Compares against both display name and full name.
+ *
+ * `exact` (blocks save) = typed full name equals an existing full name.
+ * Display-name matches are only `similar` (warning).
  */
 export function findDuplicateNameCandidates(
-  queries: string[],
+  queries: { name?: string; fullName?: string },
   catalog: CatalogRow[],
   excludeId?: number | null,
 ): NameCheckCandidate[] {
-  const queryNorms = new Map<string, string>();
-  for (const raw of queries) {
-    const trimmed = String(raw ?? "").trim();
-    if (trimmed.length < 2) continue;
-    const n = normName(trimmed);
-    if (!n) continue;
-    queryNorms.set(n, trimmed);
-  }
-  if (queryNorms.size === 0) return [];
+  const nameQ = String(queries.name ?? "").trim();
+  const fullQ = String(queries.fullName ?? "").trim();
+  if (nameQ.length < 2 && fullQ.length < 2) return [];
 
   const byId = new Map<number, NameCheckCandidate>();
+
+  function upsert(row: CatalogRow, match: NameCheckMatch, matchedOn: "name" | "fullName") {
+    const prev = byId.get(row.id);
+    if (!prev || (prev.match === "similar" && match === "exact")) {
+      byId.set(row.id, {
+        id: row.id,
+        name: row.name,
+        fullName: row.fullName,
+        match,
+        matchedOn,
+      });
+    }
+  }
 
   for (const row of catalog) {
     if (excludeId != null && row.id === excludeId) continue;
 
-    for (const [, raw] of queryNorms) {
-      const qNorm = normName(raw);
-      const qTokens = nameTokens(raw);
+    // Block only when both sides have a full name and they match exactly.
+    if (fullQ.length >= 2 && row.fullName?.trim()) {
+      if (normName(fullQ) === normName(row.fullName)) {
+        upsert(row, "exact", "fullName");
+        continue;
+      }
+    }
 
-      for (const field of fieldsOf(row)) {
-        const match = scoreAgainstField(qNorm, qTokens, field.value);
-        if (!match) continue;
-
-        const prev = byId.get(row.id);
-        if (!prev || (prev.match === "similar" && match === "exact")) {
-          byId.set(row.id, {
-            id: row.id,
-            name: row.name,
-            fullName: row.fullName,
-            match,
-            matchedOn: field.matchedOn,
-          });
-        }
+    for (const field of fieldsOf(row)) {
+      if (fullQ.length >= 2 && isSimilarName(fullQ, field.value)) {
+        upsert(row, "similar", field.matchedOn);
+      }
+      if (nameQ.length >= 2 && isSimilarName(nameQ, field.value)) {
+        upsert(row, "similar", field.matchedOn);
       }
     }
   }

@@ -97,8 +97,8 @@ export function AdminNameDuplicateWarning({
       ) : blocked ? (
         <>
           <p className="font-medium">
-            Já existe {label} com esse nome no cadastro. Salvamento bloqueado —
-            abra o perfil existente para editar.
+            Já existe {label} com esse nome completo no cadastro. Salvamento
+            bloqueado — abra o perfil existente para editar.
           </p>
           <ul className="mt-2 space-y-1.5">
             {exactMatches.map((m) => (
