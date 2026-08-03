@@ -12,6 +12,7 @@ export type NameCheckMatch = {
 
 /**
  * Debounced duplicate-name warning for player/manager create & edit forms.
+ * Exact matches block saving via onBlockChange(true).
  */
 export function AdminNameDuplicateWarning({
   kind,
@@ -19,12 +20,15 @@ export function AdminNameDuplicateWarning({
   fullName,
   excludeId,
   hrefForId,
+  onBlockChange,
 }: {
   kind: "player" | "manager";
   name: string;
   fullName: string;
   excludeId?: number | null;
   hrefForId: (id: number) => string;
+  /** Called when an exact duplicate should block save. */
+  onBlockChange?: (blocked: boolean) => void;
 }) {
   const [matches, setMatches] = useState<NameCheckMatch[]>([]);
   const [checking, setChecking] = useState(false);
@@ -34,12 +38,13 @@ export function AdminNameDuplicateWarning({
     const fn = fullName.trim();
     if (q.length < 2 && fn.length < 2) {
       setMatches([]);
+      setChecking(false);
       return;
     }
 
     let cancelled = false;
+    setChecking(true);
     const timer = window.setTimeout(async () => {
-      setChecking(true);
       try {
         const params = new URLSearchParams();
         if (q) params.set("q", q);
@@ -66,46 +71,73 @@ export function AdminNameDuplicateWarning({
     };
   }, [kind, name, fullName, excludeId]);
 
+  const exactMatches = matches.filter((m) => m.match === "exact");
+  const similarMatches = matches.filter((m) => m.match === "similar");
+  const blocked = exactMatches.length > 0;
+
+  useEffect(() => {
+    onBlockChange?.(blocked);
+  }, [blocked, onBlockChange]);
+
   if (matches.length === 0 && !checking) return null;
 
   const label = kind === "player" ? "jogador" : "técnico";
-  const hasExact = matches.some((m) => m.match === "exact");
 
   return (
     <div
       className={`rounded-md border px-3 py-2 text-sm ${
-        hasExact
-          ? "border-amber-300 bg-amber-50 text-amber-950"
+        blocked
+          ? "border-red-300 bg-red-50 text-red-950"
           : "border-sky-200 bg-sky-50 text-sky-950"
       }`}
-      role="status"
+      role="alert"
     >
       {checking && matches.length === 0 ? (
         <p className="text-xs text-gray-500">Verificando nomes parecidos…</p>
+      ) : blocked ? (
+        <>
+          <p className="font-medium">
+            Já existe {label} com esse nome no cadastro. Salvamento bloqueado —
+            abra o perfil existente para editar.
+          </p>
+          <ul className="mt-2 space-y-1.5">
+            {exactMatches.map((m) => (
+              <li key={m.id} className="text-sm">
+                <Link
+                  href={hrefForId(m.id)}
+                  className="inline-flex items-center gap-1 font-semibold text-[#1B3A6B] hover:underline"
+                >
+                  Editar #{m.id} {m.name}
+                  {m.fullName ? ` (${m.fullName})` : ""} →
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {similarMatches.length > 0 ? (
+            <p className="mt-2 text-xs text-red-800/80">
+              Também há nomes parecidos:{" "}
+              {similarMatches
+                .map((m) => `#${m.id} ${m.name}`)
+                .join(", ")}
+              .
+            </p>
+          ) : null}
+        </>
       ) : (
         <>
           <p className="font-medium">
-            {hasExact
-              ? `Já existe ${label} com esse nome (ou nome completo) no cadastro.`
-              : `Há ${label}(es) com nome parecido no cadastro — confira antes de criar outro.`}
+            Há {label}(es) com nome parecido — confira antes de criar outro.
           </p>
           <ul className="mt-1.5 space-y-1">
-            {matches.map((m) => (
+            {similarMatches.map((m) => (
               <li key={m.id} className="text-xs">
                 <Link
                   href={hrefForId(m.id)}
                   className="font-medium text-[#1B3A6B] hover:underline"
                 >
-                  #{m.id} {m.name}
+                  Abrir #{m.id} {m.name}
+                  {m.fullName ? ` · ${m.fullName}` : ""} →
                 </Link>
-                {m.fullName ? (
-                  <span className="text-gray-600"> · {m.fullName}</span>
-                ) : null}
-                <span className="text-gray-500">
-                  {" "}
-                  ({m.match === "exact" ? "nome igual" : "parecido"}
-                  {m.matchedOn === "fullName" ? " no nome completo" : ""})
-                </span>
               </li>
             ))}
           </ul>

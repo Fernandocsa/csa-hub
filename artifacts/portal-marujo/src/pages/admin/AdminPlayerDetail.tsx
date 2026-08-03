@@ -119,6 +119,7 @@ function PlayerProfileForm({
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [nameBlocked, setNameBlocked] = useState(false);
 
   useEffect(() => {
     setName(initial?.name ?? "");
@@ -186,6 +187,10 @@ function PlayerProfileForm({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (nameBlocked) {
+      setError("Já existe jogador com esse nome. Abra o perfil existente para editar.");
+      return;
+    }
     setSaving(true);
     setError("");
     try {
@@ -279,6 +284,7 @@ function PlayerProfileForm({
         fullName={fullName}
         excludeId={initial?.id ?? null}
         hrefForId={(id) => `/admin/jogadores/${id}`}
+        onBlockChange={setNameBlocked}
       />
       <div>
         <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
@@ -539,7 +545,7 @@ function PlayerProfileForm({
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex flex-wrap items-center gap-2 pt-2">
-        <Button type="submit" className="bg-[#1B3A6B]" disabled={saving}>
+        <Button type="submit" className="bg-[#1B3A6B]" disabled={saving || nameBlocked}>
           {saving ? "Salvando..." : isNew ? "Criar jogador" : "Salvar"}
         </Button>
         <Link href={cancelHref}>
