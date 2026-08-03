@@ -21,6 +21,7 @@ export type DivergenceItem = {
   summary: string;
   /** Ano(s) de temporada p/ identificação no admin (ex.: "1960" ou "2000–2003"). */
   seasonHint?: string | null;
+  photoUrl?: string | null;
   meta?: Record<string, string | number | null>;
 };
 
@@ -141,6 +142,51 @@ async function attachPlayerSeasonHints(groups: DivergenceGroup[]) {
     if (g.entityType !== "player") continue;
     for (const item of g.items) {
       item.seasonHint = hints.get(item.id) ?? null;
+    }
+  }
+}
+
+async function attachEntityPhotos(groups: DivergenceGroup[]) {
+  const playerIds = [
+    ...new Set(
+      groups
+        .filter((g) => g.entityType === "player")
+        .flatMap((g) => g.items.map((i) => i.id)),
+    ),
+  ];
+  const managerIds = [
+    ...new Set(
+      groups
+        .filter((g) => g.entityType === "manager")
+        .flatMap((g) => g.items.map((i) => i.id)),
+    ),
+  ];
+
+  const photoByKey = new Map<string, string | null>();
+
+  if (playerIds.length > 0) {
+    const rows = await db
+      .select({ id: playersTable.id, photoUrl: playersTable.photoUrl })
+      .from(playersTable)
+      .where(inArray(playersTable.id, playerIds));
+    for (const r of rows) {
+      photoByKey.set(`player:${r.id}`, r.photoUrl?.trim() || null);
+    }
+  }
+
+  if (managerIds.length > 0) {
+    const rows = await db
+      .select({ id: managersTable.id, photoUrl: managersTable.photoUrl })
+      .from(managersTable)
+      .where(inArray(managersTable.id, managerIds));
+    for (const r of rows) {
+      photoByKey.set(`manager:${r.id}`, r.photoUrl?.trim() || null);
+    }
+  }
+
+  for (const g of groups) {
+    for (const item of g.items) {
+      item.photoUrl = photoByKey.get(`${g.entityType}:${item.id}`) ?? null;
     }
   }
 }
@@ -638,6 +684,7 @@ export async function loadAdminDataDivergences(): Promise<{
   ]);
 
   await attachPlayerSeasonHints(rawGroups);
+  await attachEntityPhotos(rawGroups);
 
   for (const g of rawGroups) {
     if (g.kind !== "player_duplicate_name") continue;

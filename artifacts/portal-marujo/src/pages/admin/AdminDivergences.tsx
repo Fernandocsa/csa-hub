@@ -8,6 +8,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EntityPhoto } from "@/components/EntityPhoto";
 import { AdminHomeTabs } from "./AdminHomeTabs";
 
 type DivergenceItem = {
@@ -16,6 +17,7 @@ type DivergenceItem = {
   href: string;
   summary: string;
   seasonHint?: string | null;
+  photoUrl?: string | null;
 };
 
 type DivergenceGroup = {
@@ -128,14 +130,23 @@ export default function AdminDivergences() {
               className="border rounded-lg bg-white p-3 space-y-2"
             >
               <div className="flex items-start justify-between gap-2">
-                <p className="font-semibold text-gray-900 truncate">
-                  {item.name}
-                  {item.seasonHint ? (
-                    <span className="ml-1.5 font-mono text-sm font-semibold text-[#1B3A6B]">
-                      {item.seasonHint}
-                    </span>
-                  ) : null}
-                </p>
+                <div className="flex items-center gap-2 min-w-0">
+                  <EntityPhoto
+                    url={item.photoUrl}
+                    name={item.name}
+                    size="sm"
+                    shape="circle"
+                    label={`Foto de ${item.name}`}
+                  />
+                  <p className="font-semibold text-gray-900 truncate">
+                    {item.name}
+                    {item.seasonHint ? (
+                      <span className="ml-1.5 font-mono text-sm font-semibold text-[#1B3A6B]">
+                        {item.seasonHint}
+                      </span>
+                    ) : null}
+                  </p>
+                </div>
                 <span className="shrink-0 text-[11px] text-gray-400 font-mono">
                   #{item.id}
                 </span>
