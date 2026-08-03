@@ -55,6 +55,8 @@ type PlayerEvent = {
   kind: "goal" | "assist" | "yellow" | "red" | "sub_out" | "sub_in";
   minute: number;
   injuryTimeMinute: number | null;
+  isPenalty?: boolean;
+  isFreeKick?: boolean;
 };
 
 function eventsForPlayer(
@@ -74,6 +76,8 @@ function eventsForPlayer(
         kind: "goal",
         minute: g.minute,
         injuryTimeMinute: g.injuryTimeMinute,
+        isPenalty: Boolean(g.isPenalty),
+        isFreeKick: Boolean(g.isFreeKick),
       });
     }
     if (
@@ -131,9 +135,11 @@ function eventsForPlayer(
   });
 }
 
-function eventTitle(kind: PlayerEvent["kind"]) {
-  switch (kind) {
+function eventTitle(e: PlayerEvent) {
+  switch (e.kind) {
     case "goal":
+      if (e.isPenalty) return "Gol de pênalti";
+      if (e.isFreeKick) return "Gol de falta";
       return "Gol";
     case "assist":
       return "Assistência";
@@ -156,9 +162,19 @@ function EventIcons({ events }: { events: PlayerEvent[] }) {
         <span
           key={`${e.kind}-${e.minute}-${e.injuryTimeMinute}-${i}`}
           className="inline-flex items-center gap-0.5 text-xs text-muted-foreground"
-          title={eventTitle(e.kind)}
+          title={eventTitle(e)}
         >
           {e.kind === "goal" && <span aria-hidden>⚽</span>}
+          {e.kind === "goal" && e.isPenalty && (
+            <span aria-hidden className="text-[9px] font-semibold uppercase">
+              P
+            </span>
+          )}
+          {e.kind === "goal" && e.isFreeKick && (
+            <span aria-hidden className="text-[9px] font-semibold uppercase">
+              F
+            </span>
+          )}
           {e.kind === "assist" && (
             <span aria-hidden className="font-bold text-[10px] border rounded px-0.5 leading-none">
               A
@@ -551,7 +567,7 @@ export default function MatchDetail() {
           {trainerBlock}
           {refereeBlock}
           <p className="text-xs text-muted-foreground">
-            ⚽ gol · A assistência · retângulo amarelo/vermelho cartão · ↓ saiu · ↑ entrou ·
+            ⚽ gol · P pênalti · F falta · A assistência · retângulo amarelo/vermelho cartão · ↓ saiu · ↑ entrou ·
             minuto ao lado
           </p>
         </section>

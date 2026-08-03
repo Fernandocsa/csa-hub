@@ -74,6 +74,7 @@ type SheetGoal = {
   assistPlayerId: number | null;
   assistName: string | null;
   isPenalty: boolean;
+  isFreeKick: boolean;
   isOwnGoal: boolean;
   ownGoalDirection: "for" | "against" | null;
 };
@@ -155,10 +156,18 @@ type EventRow = {
   injuryTimeMinute: string;
   isOwnGoal: boolean;
   isPenalty: boolean;
+  isFreeKick: boolean;
 };
 
 function emptyEventRow(): EventRow {
-  return { playerId: "", minute: "", injuryTimeMinute: "", isOwnGoal: false, isPenalty: false };
+  return {
+    playerId: "",
+    minute: "",
+    injuryTimeMinute: "",
+    isOwnGoal: false,
+    isPenalty: false,
+    isFreeKick: false,
+  };
 }
 
 type ManagerCardRow = {
@@ -725,6 +734,7 @@ export default function AdminMatchSheet() {
           minute: normalizeEventMinute(row.minute),
           injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
           isPenalty: row.isPenalty && !row.isOwnGoal,
+          isFreeKick: row.isFreeKick && !row.isOwnGoal && !row.isPenalty,
           isOwnGoal: row.isOwnGoal,
           ownGoalDirection: row.isOwnGoal ? "for" : null,
         });
@@ -1198,6 +1208,7 @@ export default function AdminMatchSheet() {
                     <th className="px-2 py-2 w-28">Min Acrésc.</th>
                     <th className="px-2 py-2 w-14 text-center">g.c.</th>
                     <th className="px-2 py-2 w-14 text-center">Pen</th>
+                    <th className="px-2 py-2 w-14 text-center">Falta</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1250,6 +1261,7 @@ export default function AdminMatchSheet() {
                               patchAt(rows, i, {
                                 isOwnGoal: e.target.checked,
                                 isPenalty: e.target.checked ? false : row.isPenalty,
+                                isFreeKick: e.target.checked ? false : row.isFreeKick,
                               }),
                             )
                           }
@@ -1262,7 +1274,28 @@ export default function AdminMatchSheet() {
                           checked={row.isPenalty}
                           disabled={row.isOwnGoal}
                           onChange={(e) =>
-                            setGoalRows((rows) => patchAt(rows, i, { isPenalty: e.target.checked }))
+                            setGoalRows((rows) =>
+                              patchAt(rows, i, {
+                                isPenalty: e.target.checked,
+                                isFreeKick: e.target.checked ? false : row.isFreeKick,
+                              }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5 text-center">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4"
+                          checked={row.isFreeKick}
+                          disabled={row.isOwnGoal}
+                          onChange={(e) =>
+                            setGoalRows((rows) =>
+                              patchAt(rows, i, {
+                                isFreeKick: e.target.checked,
+                                isPenalty: e.target.checked ? false : row.isPenalty,
+                              }),
+                            )
                           }
                         />
                       </td>
@@ -1312,6 +1345,7 @@ export default function AdminMatchSheet() {
                       </td>
                       <td className="px-2 py-1.5"></td>
                       <td className="px-2 py-1.5"></td>
+                      <td className="px-2 py-1.5"></td>
                     </tr>
                   ))}
 
@@ -1356,6 +1390,7 @@ export default function AdminMatchSheet() {
                           }
                         />
                       </td>
+                      <td className="px-2 py-1.5"></td>
                       <td className="px-2 py-1.5"></td>
                       <td className="px-2 py-1.5"></td>
                     </tr>
@@ -1404,6 +1439,7 @@ export default function AdminMatchSheet() {
                       </td>
                       <td className="px-2 py-1.5"></td>
                       <td className="px-2 py-1.5"></td>
+                      <td className="px-2 py-1.5"></td>
                     </tr>
                   ))}
 
@@ -1441,6 +1477,7 @@ export default function AdminMatchSheet() {
                         }
                       />
                     </td>
+                    <td className="px-2 py-1.5"></td>
                     <td className="px-2 py-1.5"></td>
                     <td className="px-2 py-1.5"></td>
                   </tr>
@@ -1481,6 +1518,7 @@ export default function AdminMatchSheet() {
                     </td>
                     <td className="px-2 py-1.5"></td>
                     <td className="px-2 py-1.5"></td>
+                    <td className="px-2 py-1.5"></td>
                   </tr>
 
                   <tr className="border-t">
@@ -1501,6 +1539,7 @@ export default function AdminMatchSheet() {
                         ))}
                       </select>
                     </td>
+                    <td className="px-2 py-1.5"></td>
                     <td className="px-2 py-1.5"></td>
                     <td className="px-2 py-1.5"></td>
                     <td className="px-2 py-1.5"></td>
@@ -1618,6 +1657,9 @@ export default function AdminMatchSheet() {
                       {g.isOwnGoal ? "Gol contra" : (g.scorerName ?? "—")}
                       {g.isPenalty && (
                         <span className="ml-1 text-[10px] uppercase text-gray-400">(Pênalti)</span>
+                      )}
+                      {g.isFreeKick && (
+                        <span className="ml-1 text-[10px] uppercase text-gray-400">(Falta)</span>
                       )}
                       {g.isOwnGoal && (
                         <span className="ml-1 text-[10px] uppercase text-gray-400">

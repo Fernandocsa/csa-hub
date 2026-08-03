@@ -33,6 +33,7 @@ type RecordsPayload = {
     topAssists: PlayerRow[];
     topAppearances: PlayerRow[];
     topPenaltyGoals: PlayerRow[];
+    topFreeKickGoals: PlayerRow[];
     topHatTricks: PlayerRow[];
     multiGoalHauls: MultiGoalBucket[];
     topYellowCards: PlayerRow[];
@@ -285,6 +286,9 @@ export default function AdminRecords() {
             </Card>
             <Card title="Gols de pênalti">
               <PlayerList rows={data.players.topPenaltyGoals} />
+            </Card>
+            <Card title="Gols de falta">
+              <PlayerList rows={data.players.topFreeKickGoals} />
             </Card>
             <Card title="Mais vitórias (jogador)">
               <PlayerList rows={data.players.topWins} />

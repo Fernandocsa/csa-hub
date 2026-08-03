@@ -315,15 +315,13 @@ export default function AboutCsa() {
         </P>
         <ul className="text-sm leading-relaxed text-muted-foreground space-y-2 list-disc pl-5">
           <li>
-            Vice-campeão do Campeonato Brasileiro Série B em 1980, 1982 e 1983
+            Vice-campeão da Taça de Prata em 1980, 1982 e 1983
           </li>
           <li>Vice-campeão da Copa Conmebol em 1999</li>
           <li>
-            Rebaixamentos e reconstruções na década de 2010, incluindo o
-            vice-campeonato alagoano de 2013 (centenário do clube, perdido nos
-            pênaltis para o CRB)
+            <strong className="text-foreground">2016</strong>: vice-campeão da
+            Série D
           </li>
-          <li>Acesso à Série C em 2016, vindo da Série D</li>
           <li>
             <strong className="text-foreground">2017</strong>: primeiro título
             nacional da história — Campeonato Brasileiro Série C

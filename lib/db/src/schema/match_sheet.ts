@@ -61,6 +61,7 @@ export const matchGoalsTable = pgTable("match_goals", {
   assistPlayerId: integer("assist_player_id").references(() => playersTable.id),
   assistName: text("assist_name"),
   isPenalty: boolean("is_penalty").notNull().default(false),
+  isFreeKick: boolean("is_free_kick").notNull().default(false),
   isOwnGoal: boolean("is_own_goal").notNull().default(false),
   /** 'for' = GPF / g.c. a favor do CSA; 'against' = GPD sofrido */
   ownGoalDirection: text("own_goal_direction"),

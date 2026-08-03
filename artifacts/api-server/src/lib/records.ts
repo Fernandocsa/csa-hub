@@ -281,6 +281,36 @@ async function topPenaltyGoals(limit = 10): Promise<PlayerRecordHolder[]> {
   }));
 }
 
+async function topFreeKickGoals(limit = 10): Promise<PlayerRecordHolder[]> {
+  const rows = await db
+    .select({
+      playerId: matchGoalsTable.scorerPlayerId,
+      playerName: playersTable.name,
+      value: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchGoalsTable)
+    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
+    .innerJoin(playersTable, eq(matchGoalsTable.scorerPlayerId, playersTable.id))
+    .where(
+      and(
+        recordsMatchConditions(),
+        eq(matchGoalsTable.side, "csa"),
+        eq(matchGoalsTable.isOwnGoal, false),
+        eq(matchGoalsTable.isFreeKick, true),
+        isNotNull(matchGoalsTable.scorerPlayerId),
+      ),
+    )
+    .groupBy(matchGoalsTable.scorerPlayerId, playersTable.name)
+    .orderBy(desc(sql`count(*)`), asc(playersTable.name))
+    .limit(limit);
+
+  return rows.map((r) => ({
+    playerId: r.playerId!,
+    playerName: r.playerName,
+    value: r.value,
+  }));
+}
+
 /**
  * Rankings of players by how many matches they scored exactly N goals in
  * (N = 3 hat-trick, 4 poker, 5+, …). Only buckets with at least one haul are returned.
@@ -794,6 +824,7 @@ export async function computeClubRecords() {
     assists,
     appearances,
     penalties,
+    freeKicks,
     multiGoalHauls,
     yellowCards,
     redCards,
@@ -812,6 +843,7 @@ export async function computeClubRecords() {
     topAssists(),
     topAppearances(),
     topPenaltyGoals(),
+    topFreeKickGoals(),
     multiGoalHaulsByCount(),
     topCards("yellow"),
     topCards("red"),
@@ -845,6 +877,7 @@ export async function computeClubRecords() {
       topAssists: assists,
       topAppearances: appearances,
       topPenaltyGoals: penalties,
+      topFreeKickGoals: freeKicks,
       /** Exact 3-goal hauls only (kept for compatibility). */
       topHatTricks,
       /** Buckets for exact N goals in a match (3, 4, 5, …). */

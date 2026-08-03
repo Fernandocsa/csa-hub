@@ -35,6 +35,7 @@ export type GoalInput = {
   assistPlayerId?: number | null;
   assistName?: string | null;
   isPenalty?: boolean;
+  isFreeKick?: boolean;
   isOwnGoal?: boolean;
   /** 'for' = GPF / g.c. a favor do CSA; 'against' = GPD */
   ownGoalDirection?: "for" | "against" | null;
@@ -115,6 +116,7 @@ export function serializeGoal(row: typeof matchGoalsTable.$inferSelect) {
     assistPlayerId: row.assistPlayerId,
     assistName: row.assistName,
     isPenalty: row.isPenalty ?? false,
+    isFreeKick: row.isFreeKick ?? false,
     isOwnGoal: row.isOwnGoal ?? false,
     ownGoalDirection: (row.ownGoalDirection as "for" | "against" | null) ?? null,
   };
@@ -537,6 +539,7 @@ async function insertGoalRow(
       assistPlayerId,
       assistName,
       isPenalty: Boolean(g.isPenalty) && !isOwnGoal,
+      isFreeKick: Boolean(g.isFreeKick) && !isOwnGoal && !Boolean(g.isPenalty),
       isOwnGoal,
       ownGoalDirection,
     })

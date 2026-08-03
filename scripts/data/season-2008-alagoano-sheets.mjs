@@ -9,6 +9,8 @@
  * 28/03→30/03 Ipanema: Serginho confirmado CSA (RSSSF: Serginho Baiano, Marciano, Matteus).
  * 04/05 Genílson: fonte rotula “(CSA)”; Genílson era goleiro do ASA — gravado como
  *   gol contra a favor do CSA (RSSSF atribui a Jean Carlo; preferimos o nome da fonte).
+ * Complemento 2026-08: escalações de 06/04, 13/04, 16/04 e 20/04; Flávio Barros desde 16/04;
+ *   Zé do Carmo também em 13/04. Divergências de estádio/data/artilheiro mantidas como já gravadas.
  */
 export const SEASON = "2008";
 export const COMPETITION_NAME = "Campeonato Alagoano";
@@ -294,6 +296,24 @@ export const SHEETS = [
     date: "2008-04-06",
     stadium: "Estádio Nelson Peixoto Feijó",
     referee: "José Elias Santos Filho",
+    starters: [
+      "Gilberto",
+      "Deleu",
+      "Júnior",
+      "Flamarion",
+      "Marciano",
+      "Matteus",
+      "Du Cosmo",
+      "Magno",
+      "Jean Carlo",
+      "Paulinho Macaíba",
+      "Serginho Baiano",
+    ],
+    subs: [
+      { out: "Deleu", in: "Cleisson Rato" },
+      { out: "Du Cosmo", in: "Ricardo Miranda" },
+      { out: "Jean Carlo", in: "Gil Baiano" },
+    ],
     csaGoals: [
       { name: "Paulinho Macaíba", minute: absMin(1, 27) },
       { name: "Serginho Baiano", minute: absMin(2, 31) },
@@ -312,9 +332,28 @@ export const SHEETS = [
     date: "2008-04-13",
     stadium: "Estádio Rei Pelé (Trapichão)",
     referee: "Flávio Feijó de Omena",
+    manager: "Zé do Carmo",
     attendance: 5445,
     grossRevenue: 39265.5,
     grossRevenueText: "R$ 39.265,50",
+    starters: [
+      "Gilberto",
+      "Cristiano Fernandes",
+      "Júnior",
+      "Fábio Lima",
+      "Claudinho",
+      "Ricardo Miranda",
+      "Magno",
+      "Cleisson Rato",
+      "Jean Carlo",
+      "Izaías",
+      "Paulinho Macaíba",
+    ],
+    subs: [
+      { out: "Magno", in: "Du Cosmo" },
+      { out: "Jean Carlo", in: "Gil Baiano" },
+      { out: "Izaías", in: "Da Silva" },
+    ],
     csaGoals: [{ name: "Paulinho Macaíba", minute: absMin(1, 36) }],
     oppGoals: [{ name: "Júnior Amorim", minute: absMin(2, 26) }],
   },
@@ -324,9 +363,28 @@ export const SHEETS = [
     date: "2008-04-16",
     stadium: "Estádio Gerson Amaral",
     referee: "George Alves Feitoza",
+    manager: "Flávio Barros",
     attendance: 2490,
     grossRevenue: 6513,
     grossRevenueText: "R$ 6.513,00",
+    starters: [
+      "Gilberto",
+      "Deleu",
+      "Cristiano Fernandes",
+      "Fábio Lima",
+      "Claudinho",
+      "Matteus",
+      "Magno",
+      "Ricardo Miranda",
+      "Jean Carlo",
+      "Serginho Baiano",
+      "Paulinho Macaíba",
+    ],
+    subs: [
+      { out: "Matteus", in: "Gil Baiano" },
+      { out: "Jean Carlo", in: "Cleisson Rato" },
+      { out: "Serginho Baiano", in: "Luciano Gaúcho" },
+    ],
     csaGoals: [
       { name: "Serginho Baiano", minute: absMin(1, 40) },
       { name: "Paulinho Macaíba", minute: absMin(2, 40) },
@@ -336,10 +394,30 @@ export const SHEETS = [
   {
     date: "2008-04-20",
     stadium: "Estádio Rei Pelé (Trapichão)",
+    manager: "Flávio Barros",
     grossRevenue: 21086.5,
     grossRevenueText: "R$ 21.086,50",
+    starters: [
+      "Gilberto",
+      "Deleu",
+      "Cristiano Fernandes",
+      "Fábio Lima",
+      "Marciano",
+      "Matteus",
+      "Ricardo Miranda",
+      "Magno",
+      "Jean Carlo",
+      "Izaías",
+      "Paulinho Macaíba",
+    ],
+    subs: [
+      { out: "Matteus", in: "Júnior" },
+      { out: "Jean Carlo", in: "Cleisson Rato" },
+      { out: "Izaías", in: "Thiago Silva" },
+    ],
     csaGoals: [{ name: "Ricardo Miranda" }],
     oppGoals: [{ name: "Ivan" }],
+    csaReds: ["Cristiano Fernandes"],
   },
 
   // —— Decisão 2º Turno ——

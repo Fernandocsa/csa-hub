@@ -31,6 +31,10 @@ export interface MatchGoalRow {
   assistLineupId: number | null;
   assistPlayerId: number | null;
   assistName: string | null;
+  isPenalty?: boolean;
+  isFreeKick?: boolean;
+  isOwnGoal?: boolean;
+  ownGoalDirection?: "for" | "against" | null;
 }
 
 export interface MatchCardRow {

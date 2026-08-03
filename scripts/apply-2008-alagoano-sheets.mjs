@@ -44,6 +44,7 @@ const CREATE_META = {
   marciano: { name: "Marciano", position: "Lateral", forceNew: true },
   matteus: { name: "Matteus", position: "Volante", forceNew: true },
   matheus: { name: "Matteus", position: "Volante", forceNew: true },
+  mateus: { name: "Matteus", position: "Volante", forceNew: true },
   "du cosmo": { name: "Du Cosmo", position: "Volante", forceNew: true },
   magno: { name: "Magno", position: "Meia", forceNew: true },
   "jean carlo": { name: "Jean Carlo", position: "Meia", forceNew: true },
@@ -69,6 +70,12 @@ const CREATE_META = {
     forceNew: true,
   },
   cleisson: { name: "Cleisson Rato", position: "Meia", forceNew: true },
+  "cleison rato": {
+    name: "Cleisson Rato",
+    position: "Meia",
+    forceNew: true,
+  },
+  cleison: { name: "Cleisson Rato", position: "Meia", forceNew: true },
   claudinho: { name: "Claudinho", position: "Lateral", forceNew: true },
   fagner: { name: "Fagner", position: "Atacante", forceNew: true },
   flamarion: { name: "Flamarion", position: "Zagueiro", forceNew: true },
@@ -79,6 +86,7 @@ const CREATE_META = {
   },
   "da silva": { name: "Da Silva", position: "Atacante", forceNew: true },
   "thiago silva": { name: "Thiago Silva", position: "Atacante", forceNew: true },
+  "tiago silva": { name: "Thiago Silva", position: "Atacante", forceNew: true },
   thiago: { name: "Thiago Silva", position: "Atacante", forceNew: true },
   "fabio lima": { name: "Fábio Lima", position: "Zagueiro", forceNew: true },
   "gil baiano": { name: "Gil Baiano", position: "Atacante", forceNew: true },
@@ -91,6 +99,21 @@ const CREATE_META = {
     forceNew: true,
   },
   ari: { name: "Ari", position: "Volante", forceNew: true },
+  cristiano: {
+    name: "Cristiano Fernandes",
+    position: "Zagueiro",
+    forceNew: true,
+  },
+  christiano: {
+    name: "Cristiano Fernandes",
+    position: "Zagueiro",
+    forceNew: true,
+  },
+  "luciano gaucho": {
+    name: "Luciano Gaúcho",
+    position: "Atacante",
+    forceNew: true,
+  },
 };
 
 const STADIUM_META = {
