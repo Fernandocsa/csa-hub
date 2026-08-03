@@ -11,6 +11,7 @@ import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { ufDisplayName } from "@/lib/br-locations";
 import { ShareButton } from "@/components/ShareButton";
 import { EntityPhoto } from "@/components/EntityPhoto";
+import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 
 import { LIST_PAGE_SIZE } from "@/lib/list-page";
 import { formatDateBr } from "@/lib/utils";
@@ -240,6 +241,8 @@ export default function RefereeDetail() {
           </Table>
         </div>
       </div>
+
+      <EntitySuggestionForm entityType="referee" entityId={referee.id} />
     </div>
   );
 }

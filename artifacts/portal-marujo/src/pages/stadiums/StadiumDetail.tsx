@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 import { ShareButton } from "@/components/ShareButton";
 import { EntityPhoto } from "@/components/EntityPhoto";
+import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { formatDateBr } from "@/lib/utils";
 
 function pct(wins: number, total: number) {
@@ -150,6 +151,8 @@ export default function StadiumDetail() {
           </p>
         </div>
       </div>
+
+      <EntitySuggestionForm entityType="stadium" entityId={stadium.id} />
     </div>
   );
 }

@@ -463,6 +463,15 @@ export default function Home() {
           <p className="text-sm text-muted-foreground mt-1">
             Os rankings históricos exibem os valores mínimos comprovados até o momento e serão atualizados continuamente conforme novas informações forem verificadas.
           </p>
+          <p className="text-sm mt-2">
+            <Link
+              href="/contribua"
+              className="text-primary hover:underline font-medium"
+              data-testid="link-contribua-home"
+            >
+              Ajude a completar o acervo →
+            </Link>
+          </p>
         </div>
 
         <GlobalSearch />

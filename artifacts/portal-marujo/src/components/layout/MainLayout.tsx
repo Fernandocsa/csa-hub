@@ -87,6 +87,7 @@ const navigation: NavItem[] = [
       { name: "Sobre o CSA", href: "/sobre" },
       { name: "Transferências", href: "/transferencias" },
       { name: "Presidentes", href: "/presidentes" },
+      { name: "Contribua", href: "/contribua" },
     ],
   },
 ];

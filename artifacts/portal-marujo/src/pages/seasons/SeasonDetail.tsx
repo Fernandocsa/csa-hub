@@ -18,6 +18,7 @@ import { PlayerFlag } from "@/components/PlayerFlag";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { EntityPhoto } from "@/components/EntityPhoto";
 import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
+import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 import { groupPlayersByPosition } from "@/lib/position-groups";
 import { cn, formatDateBr } from "@/lib/utils";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
@@ -484,6 +485,11 @@ export default function SeasonDetail() {
           />
         </div>
       </section>
+
+      <EntitySuggestionForm
+        entityType="season"
+        entityId={Number(season.year)}
+      />
     </div>
   );
 }

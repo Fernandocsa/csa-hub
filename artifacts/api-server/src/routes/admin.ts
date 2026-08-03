@@ -5890,7 +5890,12 @@ router.get("/admin/suggestions", requireAdmin, async (req, res) => {
            WHEN s.entity_type = 'manager' THEN m.name
            WHEN s.entity_type = 'match' THEN
              COALESCE(to_char(mt.match_date::timestamp, 'YYYY-MM-DD'), '?') ||
-             CASE WHEN o.name IS NOT NULL THEN ' vs ' || o.name ELSE '' END
+             CASE WHEN o_match.name IS NOT NULL THEN ' vs ' || o_match.name ELSE '' END
+           WHEN s.entity_type = 'opponent' THEN o_ent.name
+           WHEN s.entity_type = 'stadium' THEN st.name
+           WHEN s.entity_type = 'referee' THEN rf.name
+           WHEN s.entity_type = 'season' THEN s.entity_id::text
+           WHEN s.entity_type = 'general' THEN 'Sugestão geral'
            ELSE NULL
          END AS "entityLabel"
        FROM suggestions s
@@ -5900,8 +5905,14 @@ router.get("/admin/suggestions", requireAdmin, async (req, res) => {
          ON s.entity_type = 'manager' AND s.entity_id = m.id
        LEFT JOIN matches mt
          ON s.entity_type = 'match' AND s.entity_id = mt.id
-       LEFT JOIN opponents o
-         ON mt.opponent_id = o.id
+       LEFT JOIN opponents o_match
+         ON mt.opponent_id = o_match.id
+       LEFT JOIN opponents o_ent
+         ON s.entity_type = 'opponent' AND s.entity_id = o_ent.id
+       LEFT JOIN stadiums st
+         ON s.entity_type = 'stadium' AND s.entity_id = st.id
+       LEFT JOIN referees rf
+         ON s.entity_type = 'referee' AND s.entity_id = rf.id
        ${where}
        ORDER BY s.created_at DESC, s.id DESC
        LIMIT $${limitIdx} OFFSET $${offsetIdx}`,
@@ -5913,7 +5924,7 @@ router.get("/admin/suggestions", requireAdmin, async (req, res) => {
         (r: {
           id: number;
           entityType: string;
-          entityId: number;
+          entityId: number | null;
           authorName: string;
           message: string;
           contact: string | null;
@@ -5921,21 +5932,41 @@ router.get("/admin/suggestions", requireAdmin, async (req, res) => {
           createdAt: Date | string;
           entityLabel: string | null;
         }) => {
-          let publicPath = "/";
-          let adminPath = "/admin";
-          let entityLabel = r.entityLabel ?? `#${r.entityId}`;
-          if (r.entityType === "player") {
+          let publicPath: string | null = null;
+          let adminPath: string | null = null;
+          let entityLabel = r.entityLabel ?? (r.entityId != null ? `#${r.entityId}` : "—");
+          if (r.entityType === "player" && r.entityId != null) {
             publicPath = `/jogadores/${r.entityId}`;
             adminPath = `/admin/jogadores/${r.entityId}`;
             if (!r.entityLabel) entityLabel = `Jogador #${r.entityId}`;
-          } else if (r.entityType === "manager") {
+          } else if (r.entityType === "manager" && r.entityId != null) {
             publicPath = `/tecnicos/${r.entityId}`;
             adminPath = `/admin/tecnicos/${r.entityId}`;
             if (!r.entityLabel) entityLabel = `Técnico #${r.entityId}`;
-          } else if (r.entityType === "match") {
+          } else if (r.entityType === "match" && r.entityId != null) {
             publicPath = `/partidas/${r.entityId}`;
             adminPath = `/admin/partidas/${r.entityId}`;
             if (!r.entityLabel) entityLabel = `Partida #${r.entityId}`;
+          } else if (r.entityType === "opponent" && r.entityId != null) {
+            publicPath = `/adversarios/${r.entityId}`;
+            adminPath = `/admin/adversarios/${r.entityId}`;
+            if (!r.entityLabel) entityLabel = `Adversário #${r.entityId}`;
+          } else if (r.entityType === "stadium" && r.entityId != null) {
+            publicPath = `/estadios/${r.entityId}`;
+            adminPath = `/admin/estadios/${r.entityId}`;
+            if (!r.entityLabel) entityLabel = `Estádio #${r.entityId}`;
+          } else if (r.entityType === "referee" && r.entityId != null) {
+            publicPath = `/arbitros/${r.entityId}`;
+            adminPath = `/admin/arbitros/${r.entityId}`;
+            if (!r.entityLabel) entityLabel = `Árbitro #${r.entityId}`;
+          } else if (r.entityType === "season" && r.entityId != null) {
+            publicPath = `/temporadas/${r.entityId}`;
+            adminPath = `/admin/temporadas/${r.entityId}`;
+            entityLabel = r.entityLabel ?? `Temporada ${r.entityId}`;
+          } else if (r.entityType === "general") {
+            publicPath = null;
+            adminPath = null;
+            entityLabel = "Sugestão geral";
           }
           return {
             id: r.id,

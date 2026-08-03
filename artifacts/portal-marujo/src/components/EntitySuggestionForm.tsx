@@ -3,14 +3,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-export type SuggestionEntityType = "player" | "manager" | "match";
+export type SuggestionEntityType =
+  | "player"
+  | "manager"
+  | "match"
+  | "opponent"
+  | "stadium"
+  | "referee"
+  | "season"
+  | "general";
 
 async function postSuggestion(
   entityType: SuggestionEntityType,
-  entityId: number,
+  entityId: number | null,
   payload: { authorName: string; message: string; contact?: string },
 ): Promise<void> {
-  const r = await fetch(`/api/suggestions/${entityType}/${entityId}`, {
+  const url =
+    entityType === "general"
+      ? "/api/suggestions/general"
+      : `/api/suggestions/${entityType}/${entityId}`;
+  const r = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -23,10 +35,11 @@ async function postSuggestion(
 
 export function EntitySuggestionForm({
   entityType,
-  entityId,
+  entityId = null,
 }: {
   entityType: SuggestionEntityType;
-  entityId: number;
+  /** Required except when entityType is "general". For season, pass the year. */
+  entityId?: number | null;
 }) {
   const [open, setOpen] = useState(false);
   const [authorName, setAuthorName] = useState("");
@@ -45,6 +58,10 @@ export function EntitySuggestionForm({
     }
     if (!message.trim()) {
       setError("Descreva a sugestão ou o erro.");
+      return;
+    }
+    if (entityType !== "general" && (entityId == null || entityId < 1)) {
+      setError("Entidade inválida para envio.");
       return;
     }
     setSaving(true);

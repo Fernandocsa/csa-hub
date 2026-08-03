@@ -9,13 +9,17 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
-/** Private visitor suggestions / error reports (admin-only visibility). */
+/**
+ * Private visitor suggestions / error reports (admin-only visibility).
+ * entityId is null only when entityType = 'general'.
+ */
 export const suggestionsTable = pgTable(
   "suggestions",
   {
     id: serial("id").primaryKey(),
-    entityType: text("entity_type").notNull(), // player | manager | match
-    entityId: integer("entity_id").notNull(),
+    /** player | manager | match | opponent | stadium | referee | season | general */
+    entityType: text("entity_type").notNull(),
+    entityId: integer("entity_id"),
     authorName: text("author_name").notNull(),
     message: text("message").notNull(),
     contact: text("contact"),

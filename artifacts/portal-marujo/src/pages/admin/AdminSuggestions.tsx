@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 interface AdminSuggestionRow {
   id: number;
   entityType: string;
-  entityId: number;
+  entityId: number | null;
   entityLabel: string;
-  publicPath: string;
-  adminPath: string;
+  publicPath: string | null;
+  adminPath: string | null;
   authorName: string;
   message: string;
   contact: string | null;
@@ -31,6 +31,11 @@ function entityTypeLabel(t: string): string {
   if (t === "player") return "Jogador";
   if (t === "manager") return "Técnico";
   if (t === "match") return "Partida";
+  if (t === "opponent") return "Adversário";
+  if (t === "stadium") return "Estádio";
+  if (t === "referee") return "Árbitro";
+  if (t === "season") return "Temporada";
+  if (t === "general") return "Geral";
   return t;
 }
 
@@ -190,22 +195,28 @@ export default function AdminSuggestions() {
                     <div className="text-xs text-gray-400">
                       {entityTypeLabel(row.entityType)}
                     </div>
-                    <Link
-                      href={row.adminPath}
-                      className="text-[#1B3A6B] hover:underline"
-                    >
-                      {row.entityLabel}
-                    </Link>
-                    <div>
-                      <a
-                        href={row.publicPath}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-xs text-gray-400 hover:underline"
+                    {row.adminPath ? (
+                      <Link
+                        href={row.adminPath}
+                        className="text-[#1B3A6B] hover:underline"
                       >
-                        ver no portal
-                      </a>
-                    </div>
+                        {row.entityLabel}
+                      </Link>
+                    ) : (
+                      <span className="text-gray-800">{row.entityLabel}</span>
+                    )}
+                    {row.publicPath && (
+                      <div>
+                        <a
+                          href={row.publicPath}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs text-gray-400 hover:underline"
+                        >
+                          ver no portal
+                        </a>
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-2 text-gray-700 whitespace-pre-wrap break-words max-w-md">
                     {row.message}

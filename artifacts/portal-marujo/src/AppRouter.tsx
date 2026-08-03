@@ -52,6 +52,7 @@ import TransfersList from "./pages/transfers/TransfersList";
 import PresidentsList from "./pages/presidents/PresidentsList";
 import AboutCsa from "./pages/club/AboutCsa";
 import ClassicoPage from "./pages/club/Classico";
+import Contribua from "./pages/club/Contribua";
 import AdminRoot from "./pages/admin/AdminRoot";
 import NotFound from "./pages/not-found";
 
@@ -117,6 +118,8 @@ export default function AppRouter() {
         <Route path="/presidentes" component={PresidentsList} />
         <Route path="/sobre" component={AboutCsa} />
         <Route path="/sobre-o-csa" component={AboutCsa} />
+        <Route path="/contribua" component={Contribua} />
+        <Route path="/sugestoes" component={Contribua} />
         <Route path="/classico" component={ClassicoPage} />
         <Route path="/csa-x-crb" component={ClassicoPage} />
         <Route component={NotFound} />

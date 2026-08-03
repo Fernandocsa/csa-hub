@@ -5,12 +5,17 @@ import {
   playersTable,
   managersTable,
   matchesTable,
+  opponentsTable,
+  stadiumsTable,
+  refereesTable,
+  seasonsTable,
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import {
-  isRatingEntityType,
-  type RatingEntityType,
-} from "../lib/rating-labels";
+  isSuggestionEntityType,
+  suggestionRequiresEntityId,
+  type SuggestionEntityType,
+} from "../lib/suggestion-entity";
 
 const router = Router();
 
@@ -19,7 +24,7 @@ const MESSAGE_MAX = 4000;
 const CONTACT_MAX = 200;
 
 async function entityExists(
-  entityType: RatingEntityType,
+  entityType: SuggestionEntityType,
   entityId: number,
 ): Promise<boolean> {
   if (entityType === "player") {
@@ -38,32 +43,47 @@ async function entityExists(
       .limit(1);
     return !!row;
   }
-  const [row] = await db
-    .select({ id: matchesTable.id })
-    .from(matchesTable)
-    .where(eq(matchesTable.id, entityId))
-    .limit(1);
-  return !!row;
-}
-
-function parseEntityParams(req: {
-  params: { entityType?: string; entityId?: string };
-}):
-  | { ok: true; entityType: RatingEntityType; entityId: number }
-  | { ok: false; status: number; error: string } {
-  const rawType = (req.params.entityType ?? "").toLowerCase();
-  if (!isRatingEntityType(rawType)) {
-    return {
-      ok: false,
-      status: 400,
-      error: "entityType inválido (player | manager | match)",
-    };
+  if (entityType === "match") {
+    const [row] = await db
+      .select({ id: matchesTable.id })
+      .from(matchesTable)
+      .where(eq(matchesTable.id, entityId))
+      .limit(1);
+    return !!row;
   }
-  const entityId = parseInt(req.params.entityId ?? "", 10);
-  if (!Number.isFinite(entityId) || entityId < 1) {
-    return { ok: false, status: 400, error: "entityId inválido" };
+  if (entityType === "opponent") {
+    const [row] = await db
+      .select({ id: opponentsTable.id })
+      .from(opponentsTable)
+      .where(eq(opponentsTable.id, entityId))
+      .limit(1);
+    return !!row;
   }
-  return { ok: true, entityType: rawType, entityId };
+  if (entityType === "stadium") {
+    const [row] = await db
+      .select({ id: stadiumsTable.id })
+      .from(stadiumsTable)
+      .where(eq(stadiumsTable.id, entityId))
+      .limit(1);
+    return !!row;
+  }
+  if (entityType === "referee") {
+    const [row] = await db
+      .select({ id: refereesTable.id })
+      .from(refereesTable)
+      .where(eq(refereesTable.id, entityId))
+      .limit(1);
+    return !!row;
+  }
+  if (entityType === "season") {
+    const [row] = await db
+      .select({ year: seasonsTable.year })
+      .from(seasonsTable)
+      .where(eq(seasonsTable.year, entityId))
+      .limit(1);
+    return !!row;
+  }
+  return false;
 }
 
 function normalizeAuthorName(raw: unknown): string | null {
@@ -89,15 +109,28 @@ function normalizeContact(raw: unknown): string | null {
   return contact;
 }
 
-/** Public submit only — no public list. */
-router.post("/suggestions/:entityType/:entityId", async (req, res) => {
+async function insertSuggestion(
+  req: { log: { error: (e: unknown) => void }; body: unknown },
+  res: {
+    status: (n: number) => {
+      json: (b: unknown) => void;
+    };
+  },
+  entityType: SuggestionEntityType,
+  entityId: number | null,
+) {
   try {
-    const parsed = parseEntityParams(req);
-    if (!parsed.ok) return res.status(parsed.status).json({ error: parsed.error });
-
-    const { entityType, entityId } = parsed;
-    if (!(await entityExists(entityType, entityId))) {
-      return res.status(404).json({ error: "Entidade não encontrada" });
+    if (suggestionRequiresEntityId(entityType)) {
+      if (entityId == null || !Number.isFinite(entityId) || entityId < 1) {
+        return res.status(400).json({ error: "entityId inválido" });
+      }
+      if (!(await entityExists(entityType, entityId))) {
+        return res.status(404).json({ error: "Entidade não encontrada" });
+      }
+    } else if (entityId != null) {
+      return res
+        .status(400)
+        .json({ error: "Sugestão geral não deve ter entityId" });
     }
 
     const body = req.body as {
@@ -152,6 +185,29 @@ router.post("/suggestions/:entityType/:entityId", async (req, res) => {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
   }
+}
+
+/** General suggestion (no linked entity). */
+router.post("/suggestions/general", async (req, res) => {
+  await insertSuggestion(req, res, "general", null);
+});
+
+/** Entity-scoped suggestion. */
+router.post("/suggestions/:entityType/:entityId", async (req, res) => {
+  const rawType = (req.params.entityType ?? "").toLowerCase();
+  if (rawType === "general") {
+    return res.status(400).json({
+      error: "Use POST /api/suggestions/general para sugestões gerais",
+    });
+  }
+  if (!isSuggestionEntityType(rawType)) {
+    return res.status(400).json({
+      error:
+        "entityType inválido (player | manager | match | opponent | stadium | referee | season)",
+    });
+  }
+  const entityId = parseInt(req.params.entityId ?? "", 10);
+  await insertSuggestion(req, res, rawType, entityId);
 });
 
 export default router;

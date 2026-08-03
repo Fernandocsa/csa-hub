@@ -45,6 +45,10 @@ export function SiteFooter() {
             <Link href="/registros" className="hover:text-primary hover:underline">
               Recordes
             </Link>
+            {" · "}
+            <Link href="/contribua" className="hover:text-primary hover:underline">
+              Contribua
+            </Link>
           </p>
           <p>© {year} Portal Marujo</p>
         </div>

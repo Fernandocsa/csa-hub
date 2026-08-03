@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
 import { ShareButton } from "@/components/ShareButton";
+import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 
 import { LIST_PAGE_SIZE } from "@/lib/list-page";
 import { formatDateBr } from "@/lib/utils";
@@ -469,6 +470,8 @@ export default function OpponentDetail() {
           </p>
         )}
       </div>
+
+      <EntitySuggestionForm entityType="opponent" entityId={opponent.id} />
     </div>
   );
 }
