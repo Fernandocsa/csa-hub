@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link } from "wouter";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { PlayerFlag } from "@/components/PlayerFlag";
+import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { useGetTopAssists, useListSeasons } from "@workspace/api-client-react";
 import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -91,15 +92,23 @@ export default function TopAssists() {
                       <TableCell className="py-2 font-medium">
                         <Link
                           href={`/jogadores/${p.id}`}
-                          className="hover:text-primary hover:underline inline-flex items-center gap-1"
+                          className="hover:text-primary hover:underline inline-flex items-center gap-2 min-w-0"
                         >
-                          <PlayerFlag
-                            flag={p.nationalityFlag}
-                            nationality={p.nationality}
-                            showBrazil={false}
+                          <PlayerPhoto
+                            url={p.photoUrl}
+                            name={p.name}
+                            size="sm"
+                            className="h-7 w-7 text-[9px]"
                           />
-                          {p.name}
-                          <VerifiedBadge status={(p as any).verificationStatus} />
+                          <span className="inline-flex items-center gap-1 min-w-0">
+                            <PlayerFlag
+                              flag={p.nationalityFlag}
+                              nationality={p.nationality}
+                              showBrazil={false}
+                            />
+                            <span className="truncate">{p.name}</span>
+                            <VerifiedBadge status={(p as any).verificationStatus} />
+                          </span>
                         </Link>
                       </TableCell>
                       <TableCell className="py-2 text-muted-foreground text-xs hidden sm:table-cell">

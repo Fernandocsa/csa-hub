@@ -745,14 +745,22 @@ export default function Home() {
                       <TableRow key={p.id} className="text-sm">
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeAppearanceRanks[i])}</TableCell>
                         <TableCell className="py-1.5 font-medium">
-                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
-                            <PlayerFlag
-                              flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
-                              nationality={p.nationality}
-                              showBrazil={false}
+                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-2 min-w-0">
+                            <PlayerPhoto
+                              url={(p as { photoUrl?: string | null }).photoUrl}
+                              name={p.name}
+                              size="sm"
+                              className="h-7 w-7 text-[9px]"
                             />
-                            {p.name}
-                            <VerifiedBadge status={(p as any).verificationStatus} />
+                            <span className="inline-flex items-center gap-1 min-w-0">
+                              <PlayerFlag
+                                flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
+                                nationality={p.nationality}
+                                showBrazil={false}
+                              />
+                              <span className="truncate">{p.name}</span>
+                              <VerifiedBadge status={(p as any).verificationStatus} />
+                            </span>
                           </Link>
                         </TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary tabular-nums">{formatInt(p.appearances)}</TableCell>
@@ -789,14 +797,22 @@ export default function Home() {
                       <TableRow key={p.id} className="text-sm">
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeScorerRanks[i])}</TableCell>
                         <TableCell className="py-1.5 font-medium">
-                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1" data-testid={`link-player-${p.id}`}>
-                            <PlayerFlag
-                              flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
-                              nationality={p.nationality}
-                              showBrazil={false}
+                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-2 min-w-0" data-testid={`link-player-${p.id}`}>
+                            <PlayerPhoto
+                              url={(p as { photoUrl?: string | null }).photoUrl}
+                              name={p.name}
+                              size="sm"
+                              className="h-7 w-7 text-[9px]"
                             />
-                            {p.name}
-                            <VerifiedBadge status={(p as any).verificationStatus} />
+                            <span className="inline-flex items-center gap-1 min-w-0">
+                              <PlayerFlag
+                                flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
+                                nationality={p.nationality}
+                                showBrazil={false}
+                              />
+                              <span className="truncate">{p.name}</span>
+                              <VerifiedBadge status={(p as any).verificationStatus} />
+                            </span>
                           </Link>
                         </TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary tabular-nums">{formatInt(p.goals)}</TableCell>
@@ -833,14 +849,22 @@ export default function Home() {
                       <TableRow key={p.id} className="text-sm">
                         <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeAssistRanks[i])}</TableCell>
                         <TableCell className="py-1.5 font-medium">
-                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1">
-                            <PlayerFlag
-                              flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
-                              nationality={p.nationality}
-                              showBrazil={false}
+                          <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-2 min-w-0">
+                            <PlayerPhoto
+                              url={(p as { photoUrl?: string | null }).photoUrl}
+                              name={p.name}
+                              size="sm"
+                              className="h-7 w-7 text-[9px]"
                             />
-                            {p.name}
-                            <VerifiedBadge status={(p as any).verificationStatus} />
+                            <span className="inline-flex items-center gap-1 min-w-0">
+                              <PlayerFlag
+                                flag={(p as { nationalityFlag?: string | null }).nationalityFlag}
+                                nationality={p.nationality}
+                                showBrazil={false}
+                              />
+                              <span className="truncate">{p.name}</span>
+                              <VerifiedBadge status={(p as any).verificationStatus} />
+                            </span>
                           </Link>
                         </TableCell>
                         <TableCell className="py-1.5 text-right font-bold text-primary tabular-nums">{formatInt(p.assists)}</TableCell>

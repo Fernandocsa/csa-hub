@@ -373,6 +373,7 @@ export type FlooredCareerRankRow = {
   position: string | null;
   nationality: string | null;
   nationalityFlag: string | null;
+  photoUrl: string | null;
   verificationStatus: string | null;
   appearances: number;
   goals: number;
@@ -494,6 +495,7 @@ export async function flooredCareerRankings(opts: {
       p.position,
       p.nationality,
       p.nationality_flag AS "nationalityFlag",
+      p.photo_url AS "photoUrl",
       p.verification_status AS "verificationStatus",
       c.appearances,
       c.goals,
@@ -513,6 +515,7 @@ export async function flooredCareerRankings(opts: {
     position: (r.position as string | null) ?? null,
     nationality: (r.nationality as string | null) ?? null,
     nationalityFlag: (r.nationalityFlag as string | null) ?? null,
+    photoUrl: (r.photoUrl as string | null)?.trim() || null,
     verificationStatus: (r.verificationStatus as string | null) ?? null,
     appearances: Number(r.appearances) || 0,
     goals: Number(r.goals) || 0,
