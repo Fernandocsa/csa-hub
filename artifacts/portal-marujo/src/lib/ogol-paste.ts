@@ -5,6 +5,7 @@
  * - shirt number line + name line (+ optional event lines)
  * - (C) on name = captain
  * - R + NN' / 90+4' = yellow (2×R same player → second becomes red)
+ * - S + NN' = segundo amarelo (vermelho)
  * - NN' alone = goal (supports 90+N' stoppage time)
  * - multiple goals on one line: `19' 27'`
  * - NN' (pen.) = penalty goal
@@ -72,7 +73,7 @@ const MINUTE_RE = /^(\d{1,3})(?:\s*\+\s*(\d{1,2}))?\s*'$/;
 /** Goal clock, optionally marked as penalty: `65'` / `65' (pen.)` / `90+2'(pen)` */
 const GOAL_CLOCK_RE =
   /^(\d{1,3})(?:\s*\+\s*(\d{1,2}))?\s*'(?:\s*\(pen\.?\))?$/i;
-const EVENT_TOKEN = /^(R|B|A|C|7|8)$/i;
+const EVENT_TOKEN = /^(R|B|A|C|S|SR|7|8)$/i;
 
 /** Normalize fancy quotes so `90+4'` / `78'` from Ogol still parse. */
 function normalizeOgolToken(raw: string): string {
@@ -113,14 +114,30 @@ function parseGoalToken(
 }
 
 /**
- * Split a token line into individual clock tokens.
- * Handles `19' 27'`, `65' (pen.)`, mixed spaces / fancy quotes.
+ * Split a token line into individual clock / event tokens.
+ * Handles `19' 27'`, `65' (pen.)`, and glued paste like `R90+2'SR90+5'`.
  */
 function expandTokenLine(line: string): string[] {
   const t = normalizeOgolToken(line);
   if (!t) return [];
   if (EVENT_TOKEN.test(t)) return [t];
   if (/^(csa|titulares?|reservas?|treinadores?)$/i.test(t)) return [t];
+
+  // Glued events+minutes from messy copy: R90+2'S R90+5' / R90+2'SR90+5'
+  if (/[RBACS78]/i.test(t) && /\d/.test(t)) {
+    const gluedRe =
+      /([RBACS78])|(\d{1,3}(?:\s*\+\s*\d{1,2})?\s*'(?:\s*\(pen\.?\))?)/gi;
+    const glued: string[] = [];
+    let m: RegExpExecArray | null;
+    while ((m = gluedRe.exec(t)) !== null) {
+      glued.push(normalizeOgolToken(m[0]));
+    }
+    const gluedJoined = glued.join("").replace(/\s+/g, "");
+    const compact = t.replace(/\s+/g, "");
+    if (glued.length > 1 && gluedJoined === compact) {
+      return glued;
+    }
+  }
 
   // Fresh /g regex each call — shared lastIndex would break match+replace.
   const re = /\d{1,3}(?:\s*\+\s*\d{1,2})?\s*'(?:\s*\(pen\.?\))?/gi;
@@ -436,7 +453,10 @@ export function parseOgolPaste(raw: string): OgolParseResult {
 
   const goals: OgolGoal[] = [];
   const assists: OgolAssist[] = [];
-  const cardEvents: ({ playerName: string } & OgolClock)[] = [];
+  const cardEvents: ({
+    playerName: string;
+    forceRed?: boolean;
+  } & OgolClock)[] = [];
   const penalties: OgolPenalty[] = [];
   const subOuts: OgolSubOut[] = [];
   const subIns: OgolSubIn[] = [];
@@ -477,6 +497,29 @@ export function parseOgolPaste(raw: string): OgolParseResult {
           cardEvents.push({ playerName: p.name, minute: 200, injuryTimeMinute: null });
           ti += 1;
           warnings.push(`Cartão de ${p.name} sem minuto`);
+        }
+        continue;
+      }
+      // S = segundo amarelo → vermelho (expulsão).
+      // Ogol sometimes pastes `S` then `R` + minute, or glued `SR90+5'`.
+      if (up === "S" || up === "SR") {
+        let from = ti + 1;
+        if (up === "S" && toks[from]?.toUpperCase() === "R") from += 1;
+        const { clocks, next } = takeClocks(toks, from);
+        if (clocks.length) {
+          for (const clock of clocks) {
+            cardEvents.push({ playerName: p.name, ...clock, forceRed: true });
+          }
+          ti = next;
+        } else {
+          cardEvents.push({
+            playerName: p.name,
+            minute: 200,
+            injuryTimeMinute: null,
+            forceRed: true,
+          });
+          ti = Math.max(from, ti + 1);
+          warnings.push(`Segundo amarelo de ${p.name} sem minuto`);
         }
         continue;
       }
@@ -531,11 +574,22 @@ export function parseOgolPaste(raw: string): OgolParseResult {
     }
   }
 
-  // Cards: first R yellow; second R for same player → red
+  // Cards: first R yellow; second R → red; S (segundo amarelo) → red
   const cards: OgolCard[] = [];
   const yellowCount = new Map<string, number>();
   for (const c of cardEvents) {
     const key = normName(c.playerName);
+    if (c.forceRed) {
+      // Count as the second booking for tracking, but always emit red.
+      yellowCount.set(key, Math.max(yellowCount.get(key) ?? 0, 1) + 1);
+      cards.push({
+        playerName: c.playerName,
+        minute: c.minute,
+        injuryTimeMinute: c.injuryTimeMinute,
+        cardType: "red",
+      });
+      continue;
+    }
     const n = (yellowCount.get(key) ?? 0) + 1;
     yellowCount.set(key, n);
     if (n === 1) {
