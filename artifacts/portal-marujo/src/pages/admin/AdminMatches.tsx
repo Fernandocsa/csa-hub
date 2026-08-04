@@ -15,7 +15,9 @@ interface MatchRow {
   goalsAgainst: number;
   result: string;
   homeAway: string;
+  opponentId: number;
   opponentName: string;
+  competitionId: number;
   competitionName: string;
 }
 
@@ -200,45 +202,43 @@ export default function AdminMatches() {
                 </thead>
                 <tbody>
                   {paginated.map((m) => {
-                    const href = `/admin/partidas/${m.id}`;
+                    const matchHref = `/admin/partidas/${m.id}`;
+                    const opponentHref = `/admin/adversarios/${m.opponentId}`;
+                    const competitionHref = `/admin/competicoes/${m.competitionId}`;
                     return (
                       <tr
                         key={m.id}
-                        className="border-b hover:bg-gray-50 group"
+                        className="border-b hover:bg-gray-50"
                         data-testid={`row-admin-match-${m.id}`}
                       >
-                        <td className="px-3 py-2 whitespace-nowrap">
-                          <Link href={href} className="block text-gray-600 hover:text-[#1B3A6B]">
-                            {m.matchDate}
-                          </Link>
+                        <td className="px-3 py-2 whitespace-nowrap text-gray-600">
+                          {m.matchDate}
                         </td>
                         <td className="px-3 py-2">
                           <Link
-                            href={href}
-                            className="block font-medium text-[#1B3A6B] group-hover:underline"
+                            href={opponentHref}
+                            className="font-medium text-[#1B3A6B] hover:underline"
                           >
                             {m.opponentName}
                           </Link>
                         </td>
                         <td className="px-3 py-2 text-center">
-                          <Link href={href} className="inline-flex justify-center">
+                          <Link href={matchHref} className="inline-flex justify-center">
                             <ResultBadge result={m.result as "win" | "draw" | "loss"} />
                           </Link>
                         </td>
                         <td className="px-3 py-2 text-center font-mono">
-                          <Link href={href} className="block text-gray-900">
+                          <Link href={matchHref} className="text-gray-900 hover:underline">
                             {m.goalsFor}–{m.goalsAgainst}
                           </Link>
                         </td>
-                        <td className="px-3 py-2">
-                          <Link href={href} className="block text-gray-600">
-                            {homeAwayLabel(m.homeAway)}
-                          </Link>
+                        <td className="px-3 py-2 text-gray-600">
+                          {homeAwayLabel(m.homeAway)}
                         </td>
                         <td className="px-3 py-2 max-w-[160px]">
                           <Link
-                            href={href}
-                            className="block text-gray-600 truncate"
+                            href={competitionHref}
+                            className="block text-gray-600 truncate hover:text-[#1B3A6B] hover:underline"
                             title={m.competitionName}
                           >
                             {m.competitionName}
