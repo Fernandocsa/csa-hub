@@ -343,7 +343,7 @@ export default function AdminRecords() {
         <p className="text-sm text-red-600">{error}</p>
       ) : !data ? null : (
         <>
-          <div className="bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 text-xs text-amber-900 space-y-0.5">
+          <div className="bg-[#1B3A6B] border border-[#1B3A6B] rounded-lg px-3 py-2 text-xs text-white space-y-0.5">
             <p>{data.rules.matches}</p>
             <p>{data.rules.appearances}</p>
             <p>{data.rules.titles}</p>

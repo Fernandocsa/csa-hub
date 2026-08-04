@@ -167,8 +167,8 @@ function mapCompetition(raw) {
   if (n.includes("torneio seletivo") && n.includes("cbf")) {
     return { name: "Torneio Seletivo Taça CBF", type: "national", friendly: false };
   }
-  if (n.includes("torneio seletivo")) {
-    return { name: "Torneio Seletivo Brasileiro", type: "national", friendly: false };
+  if (n.includes("torneio seletivo") || n.includes("seletivo do campeonato brasileiro")) {
+    return { name: "Seletivo do Campeonato Brasileiro", type: "national", friendly: false };
   }
   if (n.includes("antonio bayma")) {
     return { name: "Torneio Antônio Bayma", type: "regional", friendly: false };
