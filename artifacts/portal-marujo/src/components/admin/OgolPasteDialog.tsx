@@ -69,6 +69,8 @@ type Divergence = {
 type Props = {
   open: boolean;
   onClose: () => void;
+  /** Match / roster season — linked to the player profile when confirming an existing name. */
+  season: string;
   roster: OgolRosterPlayer[];
   managers: OgolManagerOption[];
   allManagers: OgolManagerOption[];
@@ -81,6 +83,8 @@ type Props = {
     managerId: number | null;
   };
   onApply: (payload: OgolApplyPayload) => void;
+  /** Called after a player is inserted into the season elenco (profile). */
+  onSeasonPlayerLinked?: (player: OgolRosterPlayer) => void;
 };
 
 function findExactRosterMatches(name: string, roster: OgolRosterPlayer[]): OgolRosterPlayer[] {
@@ -115,11 +119,13 @@ function findSoftRosterMatches(name: string, roster: OgolRosterPlayer[]): OgolRo
 export function OgolPasteDialog({
   open,
   onClose,
+  season,
   roster,
   managers,
   allManagers,
   current,
   onApply,
+  onSeasonPlayerLinked,
 }: Props) {
   const [step, setStep] = useState<"paste" | "review">("paste");
   const [text, setText] = useState("");
@@ -453,12 +459,58 @@ export function OgolPasteDialog({
     }));
   }
 
+  /** Ensure player_season_stats row for this match season (player profile / elenco). */
+  async function ensurePlayerInSeason(playerId: number): Promise<void> {
+    const year = String(season ?? "").trim();
+    if (!year) return;
+    const r = await adminFetch(`/admin/seasons/${encodeURIComponent(year)}/players`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        playerId,
+        appearances: 0,
+        goals: 0,
+        assists: 0,
+        shirtNumber: null,
+      }),
+    });
+    if (r.ok || r.status === 409) return;
+    const err = await r.json().catch(() => ({}));
+    throw new Error(
+      (err as { error?: string }).error ??
+        `Falha ao adicionar temporada ${year} ao jogador`,
+    );
+  }
+
+  /**
+   * Confirm existing player (possibly from another season): link season on profile,
+   * then mark name as matched.
+   */
+  async function linkAndResolve(key: string, player: OgolRosterPlayer) {
+    const outside = !roster.some((x) => x.id === player.id);
+    setBusy(true);
+    setError("");
+    try {
+      if (outside) {
+        await ensurePlayerInSeason(player.id);
+        onSeasonPlayerLinked?.(player);
+      }
+      // After linking, they belong to this season's elenco.
+      resolveName(key, player, false);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Erro ao vincular jogador");
+    }
+    setBusy(false);
+  }
+
   async function resolveCreate(key: string, name: string) {
     setBusy(true);
     setError("");
     try {
       const p = await createPlayer(name);
-      resolveName(key, p, true);
+      await ensurePlayerInSeason(p.id);
+      onSeasonPlayerLinked?.(p);
+      resolveName(key, p, false);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Erro ao criar jogador");
     }
@@ -782,7 +834,8 @@ export function OgolPasteDialog({
                   </p>
                   <p className="text-[11px] text-amber-800">
                     Jogadores fora do elenco da temporada precisam ser confirmados (ou
-                    busque por outro nome / temporada).
+                    busque por outro nome). Ao escolher um jogador existente, a temporada{" "}
+                    <strong>{season || "deste jogo"}</strong> é adicionada ao perfil dele.
                   </p>
                   {pendingNames.map(([key, r]) => {
                     if (r.status !== "pending") return null;
@@ -801,16 +854,11 @@ export function OgolPasteDialog({
                           <select
                             className="border rounded px-2 py-1 text-sm bg-white min-w-[18rem] max-w-full"
                             defaultValue=""
+                            disabled={busy}
                             onChange={(e) => {
                               const id = Number(e.target.value);
                               const hit = optionPool.find((c) => c.id === id);
-                              if (hit) {
-                                resolveName(
-                                  key,
-                                  hit,
-                                  !roster.some((x) => x.id === hit.id),
-                                );
-                              }
+                              if (hit) void linkAndResolve(key, hit);
                             }}
                           >
                             <option value="">Escolher existente…</option>
@@ -861,13 +909,8 @@ export function OgolPasteDialog({
                                 <button
                                   type="button"
                                   className="w-full text-left px-2 py-1.5 text-xs hover:bg-amber-50"
-                                  onClick={() =>
-                                    resolveName(
-                                      key,
-                                      h,
-                                      !roster.some((x) => x.id === h.id),
-                                    )
-                                  }
+                                  disabled={busy}
+                                  onClick={() => void linkAndResolve(key, h)}
                                 >
                                   <span className="font-medium">{h.name}</span>
                                   {h.fullName ? (

@@ -12,10 +12,12 @@
  * - multiple goals on one line: `19' 27'`
  * - NN' (pen.) = penalty goal
  * - NN' (g.c.) / (gc) = own goal (gol contra / GPD)
+ * - 7 + NN' = sub in; 8 + NN' = sub out (only the first minute after 7/8;
+ *   later bare minutes on the same player are goals, e.g. `7 66' 75'`)
+ * - glued `883'` / `7 83'` = sub code + minute (never peel `83'` into `8`+`3'`)
  * - B + NN' = assist at minute
  * - A + NN' = missed penalty
  * - C + NN' = saved penalty
- * - 7 + NN' = sub in; 8 + NN' = sub out
  */
 
 export type OgolRole = "starter" | "bench";
@@ -184,6 +186,9 @@ function parseGoalToken(
 /**
  * Split a token line into individual clock / event tokens.
  * Handles `19' 27'`, `65' (pen.)`, and glued paste like `R90+2'SR90+5'`.
+ *
+ * Important: never peel the leading digit of a real minute (70'–89') into a
+ * fake `7`/`8` sub event. Glued `883'` (= `8` + `83'`) is handled separately.
  */
 function expandTokenLine(line: string): string[] {
   const t = normalizeOgolToken(line);
@@ -192,12 +197,30 @@ function expandTokenLine(line: string): string[] {
   if (isUnknownMinuteToken(t)) return [t];
   if (/^(csa|titulares?|reservas?|treinadores?)$/i.test(t)) return [t];
 
-  // Pure minute / goal clock (e.g. 86') — never treat the leading digit as event "8"
+  // `8 83'` / `7 66'` on one line (space between code and clock)
+  {
+    const spaced = t.match(/^([78])\s+(.+)$/i);
+    if (spaced) {
+      const rest = normalizeOgolToken(spaced[2]);
+      if (parseMinuteToken(rest) != null || parseGoalToken(rest) != null) {
+        return [spaced[1], rest];
+      }
+    }
+  }
+
+  // Glued `883'` / `766'` → event 8/7 + clock (only when the whole token is not a
+  // plausible match minute, so `83'` / `75'` stay intact).
+  {
+    const gluedSub = splitGluedSubEvent(t);
+    if (gluedSub) return gluedSub;
+  }
+
+  // Pure minute / goal clock (e.g. 86' / 83') — never treat leading digit as 7/8
   if (parseGoalToken(t) != null || parseMinuteToken(t) != null) return [t];
 
-  // Glued events+minutes from messy copy: R90+2'S R90+5' / R90+2'SR90+5'
-  // Require a letter event (R/B/A/C/S) or 7/8 glued onto a clock — not bare NN'.
-  if (/[RBACS]/i.test(t) || /^[78]\d{1,3}(?:\+|\')/i.test(t) || /\d'[78]/i.test(t)) {
+  // Glued letter events+minutes: R90+2'SR90+5' — do NOT include bare 7/8 here
+  // (that peels `83'` → `8` + `3'`).
+  if (/[RBACS]/i.test(t) || /\d'[78]/i.test(t)) {
     const gluedRe = new RegExp(
       String.raw`([RBACS78])|(\d{1,3}(?:\s*\+\s*\d{1,2})?\s*'${GOAL_MARK_RE})`,
       "gi",
@@ -229,6 +252,30 @@ function expandTokenLine(line: string): string[] {
   return [t];
 }
 
+/**
+ * Ogol sometimes glues sub code + minute: `883'` = `8` + `83'`, `766'` = `7` + `66'`.
+ * Only split when the unsplit token would be an implausible match minute (>120),
+ * so real clocks like `83'` / `75'` / `90+4'` are never broken into `8`+`3'` etc.
+ */
+function splitGluedSubEvent(raw: string): string[] | null {
+  const t = normalizeOgolToken(raw);
+  const m = t.match(
+    new RegExp(String.raw`^([78])(\d{1,3}(?:\s*\+\s*\d{1,2})?\s*'${GOAL_MARK_RE})$`, "i"),
+  );
+  if (!m) return null;
+
+  const wholeClock = parseMinuteToken(t) ?? parseGoalToken(t)?.clock ?? null;
+  if (wholeClock && wholeClock.minute <= 120) {
+    // Plausible minute (incl. 70'–89') — keep as a single clock.
+    return null;
+  }
+
+  const rest = normalizeOgolToken(m[2]);
+  const restClock = parseMinuteToken(rest) ?? parseGoalToken(rest)?.clock ?? null;
+  if (!restClock || restClock.minute < 1 || restClock.minute > 120) return null;
+  return [m[1], rest];
+}
+
 /** Consume consecutive minute tokens starting at `from` (inclusive index into toks). */
 function takeClocks(toks: string[], from: number): { clocks: OgolClock[]; next: number } {
   const clocks: OgolClock[] = [];
@@ -240,6 +287,17 @@ function takeClocks(toks: string[], from: number): { clocks: OgolClock[]; next: 
     j += 1;
   }
   return { clocks, next: j };
+}
+
+/** One clock only — used by 7/8 so a following goal minute is not eaten as another sub. */
+function takeOneClock(
+  toks: string[],
+  from: number,
+): { clock: OgolClock | null; next: number } {
+  if (from >= toks.length) return { clock: null, next: from };
+  const c = parseMinuteToken(toks[from]);
+  if (!c) return { clock: null, next: from };
+  return { clock: c, next: from + 1 };
 }
 
 function clockOnly(c: OgolClock): OgolClock {
@@ -659,12 +717,11 @@ export function parseOgolPaste(raw: string): OgolParseResult {
         continue;
       }
       if (up === "7" || up === "8") {
-        const { clocks, next } = takeClocks(toks, ti + 1);
-        if (clocks.length) {
-          for (const clock of clocks) {
-            if (up === "8") subOuts.push({ playerName: p.name, ...clock });
-            else subIns.push({ playerName: p.name, ...clock });
-          }
+        // Only the first clock belongs to the sub — e.g. `7 66' 75'` = in at 66, goal at 75.
+        const { clock, next } = takeOneClock(toks, ti + 1);
+        if (clock) {
+          if (up === "8") subOuts.push({ playerName: p.name, ...clock });
+          else subIns.push({ playerName: p.name, ...clock });
           ti = next;
         } else {
           // Minute often lives only on the other side of the substitution.

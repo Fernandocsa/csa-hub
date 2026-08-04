@@ -14,6 +14,7 @@ import {
   isUnknownEventMinute,
   normalizeEventMinute,
 } from "./event-minute";
+import { syncPlayersSeasonStatsFromSheets } from "./player-stats-floor";
 
 type CardClock = {
   minute: number | null;
@@ -32,6 +33,78 @@ function compareCardClock(a: CardClock, b: CardClock): number {
   const bm = b.minute ?? 200;
   if (am !== bm) return am - bm;
   return (a.injuryTimeMinute ?? 0) - (b.injuryTimeMinute ?? 0);
+}
+
+/** Collect CSA player ids referenced on a match sheet (lineups / goals / cards / subs). */
+export async function collectCsaSheetPlayerIds(matchId: number): Promise<number[]> {
+  const ids = new Set<number>();
+  const add = (id: number | null | undefined) => {
+    if (id != null && Number.isInteger(id) && id > 0) ids.add(id);
+  };
+
+  const lineups = await db
+    .select({ playerId: matchLineupsTable.playerId })
+    .from(matchLineupsTable)
+    .where(
+      and(eq(matchLineupsTable.matchId, matchId), eq(matchLineupsTable.side, "csa")),
+    );
+  for (const r of lineups) add(r.playerId);
+
+  const goals = await db
+    .select({
+      scorerPlayerId: matchGoalsTable.scorerPlayerId,
+      assistPlayerId: matchGoalsTable.assistPlayerId,
+    })
+    .from(matchGoalsTable)
+    .where(and(eq(matchGoalsTable.matchId, matchId), eq(matchGoalsTable.side, "csa")));
+  for (const r of goals) {
+    add(r.scorerPlayerId);
+    add(r.assistPlayerId);
+  }
+
+  const cards = await db
+    .select({ playerId: matchCardsTable.playerId })
+    .from(matchCardsTable)
+    .where(and(eq(matchCardsTable.matchId, matchId), eq(matchCardsTable.side, "csa")));
+  for (const r of cards) add(r.playerId);
+
+  const subs = await db
+    .select({
+      playerOutId: matchSubstitutionsTable.playerOutId,
+      playerInId: matchSubstitutionsTable.playerInId,
+    })
+    .from(matchSubstitutionsTable)
+    .where(
+      and(
+        eq(matchSubstitutionsTable.matchId, matchId),
+        eq(matchSubstitutionsTable.side, "csa"),
+      ),
+    );
+  for (const r of subs) {
+    add(r.playerOutId);
+    add(r.playerInId);
+  }
+
+  const pens = await db
+    .select({ playerId: matchPenaltyEventsTable.playerId })
+    .from(matchPenaltyEventsTable)
+    .where(
+      and(
+        eq(matchPenaltyEventsTable.matchId, matchId),
+        eq(matchPenaltyEventsTable.side, "csa"),
+      ),
+    );
+  for (const r of pens) add(r.playerId);
+
+  return [...ids];
+}
+
+async function syncSheetPlayerSeasonStats(
+  matchId: number,
+  extraPlayerIds: number[] = [],
+) {
+  const ids = await collectCsaSheetPlayerIds(matchId);
+  await syncPlayersSeasonStatsFromSheets([...ids, ...extraPlayerIds]);
 }
 
 /**
@@ -436,6 +509,7 @@ export async function replaceCsaLineup(
     managerId?: number | null;
   },
 ) {
+  const previousPlayerIds = await collectCsaSheetPlayerIds(matchId);
   const lineupsIn = (input.lineups ?? []).filter(
     (l) => !l.side || l.side === "csa",
   );
@@ -536,6 +610,7 @@ export async function replaceCsaLineup(
       .where(eq(matchesTable.id, matchId));
   }
 
+  await syncSheetPlayerSeasonStats(matchId, previousPlayerIds);
   return loadMatchSheet(matchId);
 }
 
@@ -599,6 +674,7 @@ export async function replaceCsaSubstitutions(
     });
   }
 
+  await syncSheetPlayerSeasonStats(matchId);
   return loadMatchSheet(matchId);
 }
 
@@ -874,10 +950,21 @@ export async function appendCsaEvents(
 
   await ensureSecondYellowReds(matchId, lineupIdByPlayer);
   await syncOwnGoalsForCount(matchId);
+  await syncSheetPlayerSeasonStats(matchId);
   return loadMatchSheet(matchId);
 }
 
 export async function deleteMatchGoal(matchId: number, goalId: number) {
+  const [existing] = await db
+    .select({
+      scorerPlayerId: matchGoalsTable.scorerPlayerId,
+      assistPlayerId: matchGoalsTable.assistPlayerId,
+    })
+    .from(matchGoalsTable)
+    .where(
+      and(eq(matchGoalsTable.id, goalId), eq(matchGoalsTable.matchId, matchId)),
+    )
+    .limit(1);
   const deleted = await db
     .delete(matchGoalsTable)
     .where(
@@ -888,6 +975,10 @@ export async function deleteMatchGoal(matchId: number, goalId: number) {
     throw Object.assign(new Error("Gol não encontrado"), { status: 404 });
   }
   await syncOwnGoalsForCount(matchId);
+  await syncSheetPlayerSeasonStats(matchId, [
+    existing?.scorerPlayerId ?? 0,
+    existing?.assistPlayerId ?? 0,
+  ]);
   return loadMatchSheet(matchId);
 }
 
@@ -1064,5 +1155,6 @@ export async function replaceCsaMatchSheet(
   await replaceCsaSubstitutions(matchId, input.substitutions ?? []);
   await ensureSecondYellowReds(matchId, lineupIdByPlayer);
   await syncOwnGoalsForCount(matchId);
+  await syncSheetPlayerSeasonStats(matchId);
   return loadMatchSheet(matchId);
 }

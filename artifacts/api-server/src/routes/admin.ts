@@ -75,6 +75,7 @@ import {
   recalculateManagerSeasonStats,
   syncManagerCareerFromSeasonRows,
 } from "../lib/manager-stats";
+import { syncPlayerSeasonStatsFromSheets } from "../lib/player-stats-floor";
 import {
   listSeasonCompetitionStats,
   recalculateSeasonCompetitionStats,
@@ -5371,6 +5372,7 @@ router.post("/admin/players/merge", requireAdmin, async (req, res) => {
           [keepId, row.season],
         );
         if (exist.rows[0]) {
+          // Prefer max for now; exact sheet totals are rebuilt below.
           await client.query(
             `UPDATE player_season_stats SET
                appearances = GREATEST(appearances, $2),
@@ -5408,6 +5410,14 @@ router.post("/admin/players/merge", requireAdmin, async (req, res) => {
       );
       await client.query(`DELETE FROM players WHERE id=$1`, [removeId]);
       await client.query("COMMIT");
+
+      // Rebuild kept player season totals from sheets (apps/goals/assists).
+      try {
+        await syncPlayerSeasonStatsFromSheets(keepId);
+      } catch (syncErr) {
+        req.log.warn({ err: syncErr, keepId }, "player merge: season stats sync failed");
+      }
+
       res.json({ ok: true, kept: keepName, removedId: removeId });
     } catch (e) {
       await client.query("ROLLBACK");

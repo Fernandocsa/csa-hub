@@ -2700,6 +2700,7 @@ export default function AdminMatchSheet() {
       <OgolPasteDialog
         open={ogolOpen}
         onClose={() => setOgolOpen(false)}
+        season={match?.season ?? rosterSeason}
         roster={roster.map((p) => ({
           id: p.id,
           name: p.name,
@@ -2717,6 +2718,21 @@ export default function AdminMatchSheet() {
               ? Number(captainDraft)
               : captainPlayerId,
           managerId: managerIdDraft.trim() !== "" ? Number(managerIdDraft) : null,
+        }}
+        onSeasonPlayerLinked={(p) => {
+          setRoster((prev) =>
+            prev.some((x) => x.id === p.id)
+              ? prev
+              : [
+                  ...prev,
+                  {
+                    id: p.id,
+                    name: p.name,
+                    position: p.position,
+                    photoUrl: p.photoUrl ?? null,
+                  },
+                ],
+          );
         }}
         onApply={(payload) => {
           applyOgolPayload(payload);

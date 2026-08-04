@@ -5,6 +5,7 @@ import {
   matchLineupsTable,
   matchPenaltyEventsTable,
   matchesTable,
+  playerSeasonStatsTable,
 } from "@workspace/db";
 import { officialPlayedMatchConditions } from "./match-filters";
 import { csaLineupActuallyPlayedCondition } from "./player-appeared";
@@ -154,6 +155,140 @@ export async function linkedPlayerSeasonStats(playerId: number) {
     map.set(r.season, cur);
   }
   return map;
+}
+
+/**
+ * Sheet-derived season totals for writing back to `player_season_stats`.
+ * Counts CSA appearances (starter or sub who entered) and goals/assists on any
+ * match with a sheet — not limited to "official" filters — so the admin profile
+ * stays in sync when fichas are edited.
+ */
+export async function sheetDerivedPlayerSeasonStats(playerId: number) {
+  const apps = await db
+    .select({
+      season: matchesTable.season,
+      appearances: sql<number>`cast(count(distinct ${matchLineupsTable.matchId}) as int)`,
+    })
+    .from(matchLineupsTable)
+    .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        eq(matchLineupsTable.playerId, playerId),
+        eq(matchLineupsTable.side, "csa"),
+        csaLineupActuallyPlayedCondition(),
+      ),
+    )
+    .groupBy(matchesTable.season);
+
+  const goals = await db
+    .select({
+      season: matchesTable.season,
+      goals: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchGoalsTable)
+    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        eq(matchGoalsTable.scorerPlayerId, playerId),
+        eq(matchGoalsTable.side, "csa"),
+        eq(matchGoalsTable.isOwnGoal, false),
+      ),
+    )
+    .groupBy(matchesTable.season);
+
+  const assists = await db
+    .select({
+      season: matchesTable.season,
+      assists: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchGoalsTable)
+    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        eq(matchGoalsTable.assistPlayerId, playerId),
+        eq(matchGoalsTable.side, "csa"),
+      ),
+    )
+    .groupBy(matchesTable.season);
+
+  const map = new Map<string, { appearances: number; goals: number; assists: number }>();
+  for (const r of apps) {
+    map.set(String(r.season), {
+      appearances: r.appearances ?? 0,
+      goals: 0,
+      assists: 0,
+    });
+  }
+  for (const r of goals) {
+    const season = String(r.season);
+    const cur = map.get(season) ?? { appearances: 0, goals: 0, assists: 0 };
+    cur.goals = r.goals ?? 0;
+    map.set(season, cur);
+  }
+  for (const r of assists) {
+    const season = String(r.season);
+    const cur = map.get(season) ?? { appearances: 0, goals: 0, assists: 0 };
+    cur.assists = r.assists ?? 0;
+    map.set(season, cur);
+  }
+  return map;
+}
+
+/**
+ * Upsert `player_season_stats` apps/goals/assists from match sheets.
+ * Preserves shirt_number. Creates missing season rows. Leaves pure-manual
+ * seasons (no sheet activity) untouched.
+ */
+export async function syncPlayerSeasonStatsFromSheets(playerId: number): Promise<void> {
+  if (!Number.isInteger(playerId) || playerId < 1) return;
+
+  const derived = await sheetDerivedPlayerSeasonStats(playerId);
+  if (derived.size === 0) return;
+
+  const existing = await db
+    .select({
+      id: playerSeasonStatsTable.id,
+      season: playerSeasonStatsTable.season,
+    })
+    .from(playerSeasonStatsTable)
+    .where(eq(playerSeasonStatsTable.playerId, playerId));
+  const bySeason = new Map(existing.map((r) => [String(r.season), r.id]));
+
+  for (const [season, agg] of derived) {
+    const id = bySeason.get(season);
+    if (id != null) {
+      await db
+        .update(playerSeasonStatsTable)
+        .set({
+          appearances: agg.appearances,
+          goals: agg.goals,
+          assists: agg.assists,
+        })
+        .where(eq(playerSeasonStatsTable.id, id));
+    } else {
+      await db.insert(playerSeasonStatsTable).values({
+        playerId,
+        season,
+        appearances: agg.appearances,
+        goals: agg.goals,
+        assists: agg.assists,
+        shirtNumber: null,
+      });
+    }
+  }
+}
+
+export async function syncPlayersSeasonStatsFromSheets(
+  playerIds: Iterable<number>,
+): Promise<void> {
+  const unique = [
+    ...new Set(
+      [...playerIds].filter((id) => Number.isInteger(id) && id > 0),
+    ),
+  ];
+  for (const id of unique) {
+    await syncPlayerSeasonStatsFromSheets(id);
+  }
 }
 
 /**
