@@ -79,10 +79,18 @@ const EVENT_TOKEN = /^(R|B|A|C|S|SR|7|8)$/i;
 function normalizeOgolToken(raw: string): string {
   return raw
     .trim()
+    .normalize("NFKC")
     .replace(/[\u2018\u2019\u2032\u00B4]/g, "'")
     .replace(/\u00A0/g, " ")
-    .replace(/[\u2000-\u200B\u202F\u205F]/g, " ")
+    .replace(/[\u2000-\u200D\u202F\u205F\uFEFF]/g, " ")
     .replace(/\s+/g, " ");
+}
+
+/** Event letter(s) only, e.g. R / S / SR / 8 — strips invisible junk from paste. */
+function eventCode(raw: string): string {
+  return normalizeOgolToken(raw)
+    .replace(/[^A-Za-z0-9]/g, "")
+    .toUpperCase();
 }
 
 function parseMinuteToken(raw: string | undefined | null): OgolClock | null {
@@ -479,13 +487,13 @@ export function parseOgolPaste(raw: string): OgolParseResult {
         ti += 1;
         continue;
       }
-      // Mid-stream expand for unsplit multi-minute / pen. lines
+      // Mid-stream expand for unsplit multi-minute / pen. / glued card lines
       const splitClocks = expandTokenLine(t);
       if (splitClocks.length > 1 || (splitClocks.length === 1 && splitClocks[0] !== t)) {
         toks.splice(ti, 1, ...splitClocks);
         continue;
       }
-      const up = t.toUpperCase();
+      const up = eventCode(t);
       if (up === "R") {
         const { clocks, next } = takeClocks(toks, ti + 1);
         if (clocks.length) {
@@ -504,7 +512,7 @@ export function parseOgolPaste(raw: string): OgolParseResult {
       // Ogol sometimes pastes `S` then `R` + minute, or glued `SR90+5'`.
       if (up === "S" || up === "SR") {
         let from = ti + 1;
-        if (up === "S" && toks[from]?.toUpperCase() === "R") from += 1;
+        if (up === "S" && eventCode(toks[from] ?? "") === "R") from += 1;
         const { clocks, next } = takeClocks(toks, from);
         if (clocks.length) {
           for (const clock of clocks) {
