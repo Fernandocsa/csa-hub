@@ -6,6 +6,8 @@
  * - (C) on name = captain
  * - R + NN' / 90+4' = yellow (2×R same player → second becomes red)
  * - NN' alone = goal (supports 90+N' stoppage time)
+ * - multiple goals on one line: `19' 27'`
+ * - NN' (pen.) = penalty goal
  * - B + NN' = assist at minute
  * - A + NN' = missed penalty
  * - C + NN' = saved penalty
@@ -29,7 +31,7 @@ export type OgolParsedPlayer = {
   position?: string | null;
 };
 
-export type OgolGoal = { playerName: string } & OgolClock;
+export type OgolGoal = { playerName: string; isPenalty?: boolean } & OgolClock;
 export type OgolAssist = { playerName: string } & OgolClock;
 export type OgolCard = {
   playerName: string;
@@ -65,18 +67,95 @@ const SECTION_STARTERS = /^(csa|titulares?)$/i;
 const SECTION_BENCH = /^reservas?$/i;
 const SECTION_COACH = /^treinadores?$/i;
 const SHIRT_RE = /^\d{1,3}$/;
-/** `63'` or stoppage `90+4'` / `45+2'` */
+/** `63'` or stoppage `90+4'` / `45+2'` (apostrophe required) */
 const MINUTE_RE = /^(\d{1,3})(?:\s*\+\s*(\d{1,2}))?\s*'$/;
+/** Goal clock, optionally marked as penalty: `65'` / `65' (pen.)` / `90+2'(pen)` */
+const GOAL_CLOCK_RE =
+  /^(\d{1,3})(?:\s*\+\s*(\d{1,2}))?\s*'(?:\s*\(pen\.?\))?$/i;
 const EVENT_TOKEN = /^(R|B|A|C|7|8)$/i;
+
+/** Normalize fancy quotes so `90+4'` / `78'` from Ogol still parse. */
+function normalizeOgolToken(raw: string): string {
+  return raw
+    .trim()
+    .replace(/[\u2018\u2019\u2032\u00B4]/g, "'")
+    .replace(/\u00A0/g, " ")
+    .replace(/[\u2000-\u200B\u202F\u205F]/g, " ")
+    .replace(/\s+/g, " ");
+}
 
 function parseMinuteToken(raw: string | undefined | null): OgolClock | null {
   if (!raw) return null;
-  const m = raw.trim().match(MINUTE_RE);
+  // Strip optional (pen.) so assists/cards can reuse clocks next to pen markers if needed
+  const base = normalizeOgolToken(raw).replace(/\s*\(pen\.?\)$/i, "");
+  const m = base.match(MINUTE_RE);
   if (!m) return null;
   return {
     minute: Number(m[1]),
     injuryTimeMinute: m[2] != null ? Number(m[2]) : null,
   };
+}
+
+function parseGoalToken(
+  raw: string | undefined | null,
+): ({ clock: OgolClock; isPenalty: boolean }) | null {
+  if (!raw) return null;
+  const t = normalizeOgolToken(raw);
+  const m = t.match(GOAL_CLOCK_RE);
+  if (!m) return null;
+  return {
+    clock: {
+      minute: Number(m[1]),
+      injuryTimeMinute: m[2] != null ? Number(m[2]) : null,
+    },
+    isPenalty: /\(pen\.?\)/i.test(t),
+  };
+}
+
+/**
+ * Split a token line into individual clock tokens.
+ * Handles `19' 27'`, `65' (pen.)`, mixed spaces / fancy quotes.
+ */
+function expandTokenLine(line: string): string[] {
+  const t = normalizeOgolToken(line);
+  if (!t) return [];
+  if (EVENT_TOKEN.test(t)) return [t];
+  if (/^(csa|titulares?|reservas?|treinadores?)$/i.test(t)) return [t];
+
+  // Fresh /g regex each call — shared lastIndex would break match+replace.
+  const re = /\d{1,3}(?:\s*\+\s*\d{1,2})?\s*'(?:\s*\(pen\.?\))?/gi;
+  const parts = t.match(re);
+  if (parts?.length) {
+    const stripped = t.replace(re, "").trim();
+    if (!stripped) {
+      return parts.map((p) => normalizeOgolToken(p));
+    }
+  }
+  return [t];
+}
+
+/** Consume consecutive minute tokens starting at `from` (inclusive index into toks). */
+function takeClocks(toks: string[], from: number): { clocks: OgolClock[]; next: number } {
+  const clocks: OgolClock[] = [];
+  let j = from;
+  while (j < toks.length) {
+    const c = parseMinuteToken(toks[j]);
+    if (!c) break;
+    clocks.push(c);
+    j += 1;
+  }
+  return { clocks, next: j };
+}
+
+function clockOnly(c: OgolClock): OgolClock {
+  return { minute: c.minute, injuryTimeMinute: c.injuryTimeMinute };
+}
+
+function isMinuteLine(t: string): boolean {
+  const s = normalizeOgolToken(t);
+  if (parseGoalToken(s) != null || parseMinuteToken(s) != null) return true;
+  const expanded = expandTokenLine(s);
+  return expanded.length > 1 || (expanded.length === 1 && parseGoalToken(expanded[0]) != null);
 }
 
 function clockKey(c: OgolClock): string {
@@ -148,7 +227,7 @@ export function pairSubstitutions(
   })) {
     const outsM = outs.filter((o) => clockKey(o) === key);
     const insM = ins.filter((i) => clockKey(i) === key);
-    const clock: OgolClock = outsM[0] ?? insM[0];
+    const clock = clockOnly(outsM[0] ?? insM[0]);
     const label = formatOgolClock(clock);
 
     if (outsM.length === 1 && insM.length === 1) {
@@ -235,15 +314,12 @@ export function pairSubstitutions(
       });
     });
 
-    if (usedOrderFallback) {
+    const unpairedAfter = pairs.filter((p) => clockKey(p) === key && !p.paired);
+    if (usedOrderFallback && unpairedAfter.length === 0) {
+      // Complete rows via order — UI shows pair notes; no blocking warning.
+    } else if (unpairedAfter.length) {
       warnings.push(
-        `${label}: trocas simultâneas pareadas por ordem — confira quem saiu por quem`,
-      );
-    }
-    const unpaired = pairs.filter((p) => clockKey(p) === key && !p.paired);
-    if (unpaired.length) {
-      warnings.push(
-        `${label}: ${unpaired.length} substituição(ões) incompleta(s) — revise na ficha`,
+        `${label}: ${unpairedAfter.length} substituição(ões) incompleta(s) — revise na ficha`,
       );
     }
   }
@@ -268,7 +344,7 @@ export function parseOgolPaste(raw: string): OgolParseResult {
   if (lines[0] && SECTION_STARTERS.test(lines[0])) i = 1;
 
   while (i < lines.length) {
-    const line = lines[i];
+    const line = normalizeOgolToken(lines[i]);
     const section = isSectionHeader(line);
     if (section === "bench") {
       role = "bench";
@@ -294,31 +370,53 @@ export function parseOgolPaste(raw: string): OgolParseResult {
       continue;
     }
 
-    if (SHIRT_RE.test(line) && i + 1 < lines.length && !SHIRT_RE.test(lines[i + 1])) {
+    if (SHIRT_RE.test(line) && i + 1 < lines.length && !SHIRT_RE.test(normalizeOgolToken(lines[i + 1]))) {
+      const nextName = normalizeOgolToken(lines[i + 1]);
+
+      // `8` / `7` immediately before Reservas/Treinadores is an event on the
+      // previous player, not shirt number + player named "Reservas".
+      if (isSectionHeader(nextName)) {
+        if (rawPlayers.length > 0 && EVENT_TOKEN.test(line)) {
+          rawPlayers[rawPlayers.length - 1].tokens.push(line);
+        } else {
+          warnings.push(`Número solto ignorado antes de "${nextName}": ${line}`);
+        }
+        i += 1;
+        continue;
+      }
+
       const shirtNumber = Number(line);
-      const { name, isCaptain } = stripCaptain(lines[i + 1]);
+      const { name, isCaptain } = stripCaptain(nextName);
+      // Never create a player whose "name" is a section header
+      if (isSectionHeader(name)) {
+        i += 1;
+        continue;
+      }
       i += 2;
       const tokens: string[] = [];
       while (i < lines.length) {
-        const t = lines[i];
+        const t = normalizeOgolToken(lines[i]);
         if (isSectionHeader(t)) break;
         if (
           SHIRT_RE.test(t) &&
           i + 1 < lines.length &&
-          !EVENT_TOKEN.test(lines[i + 1]) &&
-          !MINUTE_RE.test(lines[i + 1])
+          !EVENT_TOKEN.test(normalizeOgolToken(lines[i + 1])) &&
+          !isMinuteLine(lines[i + 1])
         ) {
-          const next = lines[i + 1];
-          if (
+          const next = normalizeOgolToken(lines[i + 1]);
+          // Next shirt + section header → current `t` is event (7/8), not new player
+          if (isSectionHeader(next)) {
+            // fall through and push `t` as token
+          } else if (
             next &&
             !EVENT_TOKEN.test(next) &&
-            !MINUTE_RE.test(next) &&
+            !isMinuteLine(next) &&
             !SHIRT_RE.test(next)
           ) {
             break;
           }
         }
-        tokens.push(t);
+        tokens.push(...expandTokenLine(t));
         i += 1;
       }
       rawPlayers.push({ shirtNumber, name, isCaptain, role, tokens });
@@ -342,24 +440,39 @@ export function parseOgolPaste(raw: string): OgolParseResult {
   const penalties: OgolPenalty[] = [];
   const subOuts: OgolSubOut[] = [];
   const subIns: OgolSubIn[] = [];
+  /** `8` / `7` without a following minute — minute inferred from the other side later. */
+  const pendingOutNames: string[] = [];
+  const pendingInNames: string[] = [];
 
   for (const p of rawPlayers) {
     let ti = 0;
     const toks = p.tokens;
     while (ti < toks.length) {
       const t = toks[ti];
-      const loneClock = parseMinuteToken(t);
-      if (loneClock) {
-        goals.push({ playerName: p.name, ...loneClock });
+      const goalTok = parseGoalToken(t);
+      if (goalTok) {
+        goals.push({
+          playerName: p.name,
+          ...goalTok.clock,
+          isPenalty: goalTok.isPenalty,
+        });
         ti += 1;
+        continue;
+      }
+      // Mid-stream expand for unsplit multi-minute / pen. lines
+      const splitClocks = expandTokenLine(t);
+      if (splitClocks.length > 1 || (splitClocks.length === 1 && splitClocks[0] !== t)) {
+        toks.splice(ti, 1, ...splitClocks);
         continue;
       }
       const up = t.toUpperCase();
       if (up === "R") {
-        const clock = parseMinuteToken(toks[ti + 1]);
-        if (clock) {
-          cardEvents.push({ playerName: p.name, ...clock });
-          ti += 2;
+        const { clocks, next } = takeClocks(toks, ti + 1);
+        if (clocks.length) {
+          for (const clock of clocks) {
+            cardEvents.push({ playerName: p.name, ...clock });
+          }
+          ti = next;
         } else {
           cardEvents.push({ playerName: p.name, minute: 200, injuryTimeMinute: null });
           ti += 1;
@@ -368,10 +481,12 @@ export function parseOgolPaste(raw: string): OgolParseResult {
         continue;
       }
       if (up === "B") {
-        const clock = parseMinuteToken(toks[ti + 1]);
-        if (clock) {
-          assists.push({ playerName: p.name, ...clock });
-          ti += 2;
+        const { clocks, next } = takeClocks(toks, ti + 1);
+        if (clocks.length) {
+          for (const clock of clocks) {
+            assists.push({ playerName: p.name, ...clock });
+          }
+          ti = next;
         } else {
           warnings.push(`Assistência de ${p.name} sem minuto`);
           ti += 1;
@@ -379,14 +494,16 @@ export function parseOgolPaste(raw: string): OgolParseResult {
         continue;
       }
       if (up === "A" || up === "C") {
-        const clock = parseMinuteToken(toks[ti + 1]);
-        if (clock) {
-          penalties.push({
-            playerName: p.name,
-            ...clock,
-            eventType: up === "A" ? "missed" : "saved",
-          });
-          ti += 2;
+        const { clocks, next } = takeClocks(toks, ti + 1);
+        if (clocks.length) {
+          for (const clock of clocks) {
+            penalties.push({
+              playerName: p.name,
+              ...clock,
+              eventType: up === "A" ? "missed" : "saved",
+            });
+          }
+          ti = next;
         } else {
           warnings.push(`Pênalti (${up}) de ${p.name} sem minuto`);
           ti += 1;
@@ -394,13 +511,17 @@ export function parseOgolPaste(raw: string): OgolParseResult {
         continue;
       }
       if (up === "7" || up === "8") {
-        const clock = parseMinuteToken(toks[ti + 1]);
-        if (clock) {
-          if (up === "8") subOuts.push({ playerName: p.name, ...clock });
-          else subIns.push({ playerName: p.name, ...clock });
-          ti += 2;
+        const { clocks, next } = takeClocks(toks, ti + 1);
+        if (clocks.length) {
+          for (const clock of clocks) {
+            if (up === "8") subOuts.push({ playerName: p.name, ...clock });
+            else subIns.push({ playerName: p.name, ...clock });
+          }
+          ti = next;
         } else {
-          warnings.push(`Substituição (${up}) de ${p.name} sem minuto`);
+          // Minute often lives only on the other side of the substitution.
+          if (up === "8") pendingOutNames.push(p.name);
+          else pendingInNames.push(p.name);
           ti += 1;
         }
         continue;
@@ -479,6 +600,62 @@ export function parseOgolPaste(raw: string): OgolParseResult {
     () => "Outros",
   );
   warnings.push(...subWarn);
+
+  // Fill bare 8/7 using incomplete rows (minute only on the other side).
+  for (const pair of substitutions) {
+    if (pair.paired) continue;
+    if (pair.playerInName && !pair.playerOutName && pendingOutNames.length) {
+      pair.playerOutName = pendingOutNames.shift()!;
+      pair.paired = true;
+      delete pair.note;
+    } else if (pair.playerOutName && !pair.playerInName && pendingInNames.length) {
+      pair.playerInName = pendingInNames.shift()!;
+      pair.paired = true;
+      delete pair.note;
+    }
+  }
+  while (pendingOutNames.length && pendingInNames.length) {
+    substitutions.push({
+      minute: 200,
+      injuryTimeMinute: null,
+      playerOutName: pendingOutNames.shift()!,
+      playerInName: pendingInNames.shift()!,
+      paired: true,
+      note: "Sem minuto no Ogol — revise na ficha",
+    });
+  }
+  for (const name of pendingOutNames) {
+    substitutions.push({
+      minute: 200,
+      injuryTimeMinute: null,
+      playerOutName: name,
+      playerInName: "",
+      paired: false,
+      note: "Saída sem minuto/entrada",
+    });
+    warnings.push(`Substituição (8) de ${name} sem minuto/entrada correspondente`);
+  }
+  for (const name of pendingInNames) {
+    substitutions.push({
+      minute: 200,
+      injuryTimeMinute: null,
+      playerOutName: "",
+      playerInName: name,
+      paired: false,
+      note: "Entrada sem minuto/saída",
+    });
+    warnings.push(`Substituição (7) de ${name} sem minuto/saída correspondente`);
+  }
+
+  // Drop stale "incomplete" warnings when we filled them via pending names
+  const stillIncomplete = substitutions.filter((s) => !s.paired).length;
+  if (stillIncomplete === 0) {
+    for (let wi = warnings.length - 1; wi >= 0; wi--) {
+      if (/substituição\(ões\) incompleta/i.test(warnings[wi])) {
+        warnings.splice(wi, 1);
+      }
+    }
+  }
 
   return {
     players,

@@ -378,7 +378,12 @@ export default function AdminMatchSheet() {
 
   function fillEventSlots(
     current: EventRow[],
-    incoming: { playerId: number; minute: string; injuryTimeMinute?: string }[],
+    incoming: {
+      playerId: number;
+      minute: string;
+      injuryTimeMinute?: string;
+      isPenalty?: boolean;
+    }[],
     minRows: number,
   ): EventRow[] {
     const next = current.map((r) => ({ ...r }));
@@ -391,6 +396,7 @@ export default function AdminMatchSheet() {
           playerId: String(item.playerId),
           minute: item.minute,
           injuryTimeMinute: item.injuryTimeMinute ?? "",
+          isPenalty: Boolean(item.isPenalty),
         });
       } else {
         next[cursor] = {
@@ -398,6 +404,7 @@ export default function AdminMatchSheet() {
           playerId: String(item.playerId),
           minute: item.minute,
           injuryTimeMinute: item.injuryTimeMinute ?? "",
+          isPenalty: Boolean(item.isPenalty),
         };
       }
       cursor += 1;
@@ -473,20 +480,20 @@ export default function AdminMatchSheet() {
 
     setStarterIds((prev) => {
       const next = new Set(prev);
-      for (const p of payload.starters) {
-        if (!next.has(p.playerId) && !benchIds.has(p.playerId)) {
-          next.add(p.playerId);
-        }
+      for (const p of payload.starters) next.add(p.playerId);
+      for (const s of payload.substitutions) {
+        if (s.playerOutId != null) next.add(s.playerOutId);
       }
       return next;
     });
     setBenchIds((prev) => {
       const next = new Set(prev);
-      for (const p of payload.bench) {
-        if (!next.has(p.playerId) && !starterIds.has(p.playerId)) {
-          next.add(p.playerId);
-        }
+      for (const p of payload.bench) next.add(p.playerId);
+      for (const s of payload.substitutions) {
+        if (s.playerInId != null) next.add(s.playerInId);
+        if (s.playerOutId != null) next.delete(s.playerOutId);
       }
+      for (const p of payload.starters) next.delete(p.playerId);
       return next;
     });
 
@@ -814,13 +821,30 @@ export default function AdminMatchSheet() {
     return rows;
   }, [seasonManagers, managerIdDraft, allManagers, match?.managerName]);
 
-  const lineupOptions = useMemo(
-    () =>
-      escalacaoRows
-        .filter((r) => starterIds.has(r.playerId) || benchIds.has(r.playerId))
-        .sort((a, b) => a.playerName.localeCompare(b.playerName, "pt-BR", { sensitivity: "base" })),
-    [escalacaoRows, starterIds, benchIds],
-  );
+  const lineupOptions = useMemo(() => {
+    const fromLineup = escalacaoRows
+      .filter((r) => starterIds.has(r.playerId) || benchIds.has(r.playerId));
+    const seen = new Set(fromLineup.map((r) => r.playerId));
+    const extras: EscalacaoRow[] = [];
+    for (const row of subRows) {
+      for (const idStr of [row.playerOutId, row.playerInId]) {
+        if (!idStr) continue;
+        const id = Number(idStr);
+        if (!Number.isFinite(id) || seen.has(id)) continue;
+        seen.add(id);
+        const info = playerInfo.get(id);
+        extras.push({
+          playerId: id,
+          playerName: info?.name ?? `Jogador #${id}`,
+          position: info?.position ?? null,
+          photoUrl: info?.photoUrl ?? null,
+        });
+      }
+    }
+    return [...fromLineup, ...extras].sort((a, b) =>
+      a.playerName.localeCompare(b.playerName, "pt-BR", { sensitivity: "base" }),
+    );
+  }, [escalacaoRows, starterIds, benchIds, subRows, playerInfo]);
 
   function playerNameById(id: number | null): string {
     if (id == null) return "—";
@@ -1223,21 +1247,20 @@ export default function AdminMatchSheet() {
     setError("");
     setSavedMsg("");
     try {
+      const incomplete = subRows.filter(
+        (s) =>
+          (Boolean(s.playerOutId) || Boolean(s.playerInId) || Boolean(s.minute.trim())) &&
+          !(s.playerOutId && s.playerInId),
+      );
+      // Only complete pairs — ignore minute-only / half-filled rows (they used to block save).
       const substitutions = subRows
-        .filter((s) => s.playerOutId || s.playerInId || s.minute)
-        .map((s) => {
-          if (!s.playerOutId || !s.playerInId) {
-            throw new Error(
-              "Cada substituição preenchida precisa de quem saiu e quem entrou.",
-            );
-          }
-          return {
-            playerOutId: Number(s.playerOutId),
-            playerInId: Number(s.playerInId),
-            minute: normalizeEventMinute(s.minute),
-            injuryTimeMinute: s.injuryTimeMinute ? Number(s.injuryTimeMinute) : null,
-          };
-        });
+        .filter((s) => s.playerOutId && s.playerInId)
+        .map((s) => ({
+          playerOutId: Number(s.playerOutId),
+          playerInId: Number(s.playerInId),
+          minute: normalizeEventMinute(s.minute),
+          injuryTimeMinute: s.injuryTimeMinute ? Number(s.injuryTimeMinute) : null,
+        }));
       const r = await adminFetch(`/admin/matches/${matchId}/sheet/substitutions`, {
         method: "PUT",
         body: JSON.stringify({ substitutions }),
@@ -1250,7 +1273,11 @@ export default function AdminMatchSheet() {
       setSubRows(buildSubRows(sheet.substitutions ?? []));
       setOgolCanRevert(false);
       setOgolSnapshot(null);
-      setSavedMsg("Substituições salvas.");
+      setSavedMsg(
+        incomplete.length
+          ? `Substituições salvas (${substitutions.length}). ${incomplete.length} linha(s) incompleta(s) ignorada(s).`
+          : "Substituições salvas.",
+      );
     } catch (e: any) {
       setError(e.message ?? "Erro ao salvar substituições");
     }

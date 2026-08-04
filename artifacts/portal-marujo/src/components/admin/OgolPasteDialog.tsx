@@ -30,7 +30,7 @@ export type OgolApplyPayload = {
   managerId: number | null;
   /** Players not in season roster — inject locally */
   extraPlayers: OgolRosterPlayer[];
-  goals: { playerId: number; minute: string; injuryTimeMinute: string }[];
+  goals: { playerId: number; minute: string; injuryTimeMinute: string; isPenalty?: boolean }[];
   assists: { playerId: number; minute: string; injuryTimeMinute: string }[];
   yellows: { playerId: number; minute: string; injuryTimeMinute: string }[];
   reds: { playerId: number; minute: string; injuryTimeMinute: string }[];
@@ -75,13 +75,32 @@ type Props = {
   onApply: (payload: OgolApplyPayload) => void;
 };
 
-function findLocalMatches(name: string, roster: OgolRosterPlayer[]): OgolRosterPlayer[] {
+function findExactRosterMatches(name: string, roster: OgolRosterPlayer[]): OgolRosterPlayer[] {
   const key = normalizeOgolPlayerName(name);
-  const exact = roster.filter((p) => normalizeOgolPlayerName(p.name) === key);
-  if (exact.length) return exact;
+  return roster.filter((p) => normalizeOgolPlayerName(p.name) === key);
+}
+
+/** Soft matches: shared substantial token (never substring prenome like Gustavo⊂Gustavinho). */
+function findSoftRosterMatches(name: string, roster: OgolRosterPlayer[]): OgolRosterPlayer[] {
+  const key = normalizeOgolPlayerName(name);
+  const keyTokens = key.split(" ").filter(Boolean);
   return roster.filter((p) => {
     const n = normalizeOgolPlayerName(p.name);
-    return n.includes(key) || key.includes(n);
+    if (n === key) return false;
+    const tokens = n.split(" ").filter(Boolean);
+    if (!tokens.length || !keyTokens.length) return false;
+    // Prefer shared non-trivial tokens (length ≥ 4), or identical first+last when both multi-word
+    const shared = tokens.filter((t) => t.length >= 4 && keyTokens.includes(t));
+    if (shared.length >= 1) return true;
+    if (
+      tokens.length >= 2 &&
+      keyTokens.length >= 2 &&
+      tokens[0] === keyTokens[0] &&
+      tokens[tokens.length - 1] === keyTokens[keyTokens.length - 1]
+    ) {
+      return true;
+    }
+    return false;
   });
 }
 
@@ -108,6 +127,9 @@ export function OgolPasteDialog({
   const [subs, setSubs] = useState<OgolSubPair[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [pendingSearch, setPendingSearch] = useState<
+    Record<string, { q: string; hits: OgolRosterPlayer[]; searching: boolean }>
+  >({});
 
   const rosterById = useMemo(() => {
     const m = new Map<number, OgolRosterPlayer>();
@@ -137,6 +159,25 @@ export function OgolPasteDialog({
         photoUrl: p.photoUrl ?? null,
       }),
     );
+  }
+
+  async function searchPending(key: string, q: string) {
+    setPendingSearch((prev) => ({
+      ...prev,
+      [key]: { q, hits: prev[key]?.hits ?? [], searching: q.trim().length >= 2 },
+    }));
+    if (q.trim().length < 2) {
+      setPendingSearch((prev) => ({
+        ...prev,
+        [key]: { q, hits: [], searching: false },
+      }));
+      return;
+    }
+    const hits = await searchPlayers(q.trim());
+    setPendingSearch((prev) => {
+      if (prev[key]?.q !== q) return prev;
+      return { ...prev, [key]: { q, hits, searching: false } };
+    });
   }
 
   async function createPlayer(name: string): Promise<OgolRosterPlayer> {
@@ -182,40 +223,41 @@ export function OgolPasteDialog({
       const resMap: Record<string, NameResolution> = {};
       for (const p of result.players) {
         const key = normalizeOgolPlayerName(p.name);
-        const local = findLocalMatches(p.name, roster);
-        if (local.length === 1) {
+        if (/^(csa|titulares?|reservas?|treinadores?)$/i.test(p.name.trim())) {
+          continue;
+        }
+        const exact = findExactRosterMatches(p.name, roster);
+        // Only auto-accept a unique exact hit on the season roster.
+        if (exact.length === 1) {
           resMap[key] = {
             status: "matched",
-            playerId: local[0].id,
-            playerName: local[0].name,
-            position: local[0].position,
+            playerId: exact[0].id,
+            playerName: exact[0].name,
+            position: exact[0].position,
             outsideRoster: false,
           };
-        } else {
-          const remote = await searchPlayers(p.name);
-          const merged = [
-            ...local,
-            ...remote.filter((r) => !local.some((l) => l.id === r.id)),
-          ];
-          if (merged.length === 1) {
-            const hit = merged[0];
-            resMap[key] = {
-              status: "matched",
-              playerId: hit.id,
-              playerName: hit.name,
-              position: hit.position,
-              outsideRoster: !roster.some((r) => r.id === hit.id),
-            };
-          } else {
-            resMap[key] = {
-              status: "pending",
-              candidates: merged.slice(0, 12),
-              createName: p.name,
-            };
-          }
+          continue;
         }
+
+        const soft = findSoftRosterMatches(p.name, roster);
+        const remote = await searchPlayers(p.name);
+        const merged = [
+          ...exact,
+          ...soft,
+          ...remote.filter(
+            (r) =>
+              !exact.some((l) => l.id === r.id) && !soft.some((l) => l.id === r.id),
+          ),
+        ];
+        // Outside-roster / ambiguous / soft → always confirm (never auto-pick Gustavinho 2017 etc.)
+        resMap[key] = {
+          status: "pending",
+          candidates: merged.slice(0, 12),
+          createName: p.name,
+        };
       }
       setResolutions(resMap);
+      setPendingSearch({});
 
       // Manager
       if (result.managerName) {
@@ -282,13 +324,25 @@ export function OgolPasteDialog({
           return true;
         });
       };
-      const { pairs } = pairSubstitutions(
+      const { pairs, warnings: reWarn } = pairSubstitutions(
         dedupe(outs),
         dedupe(ins),
         posMap,
         (pos) => positionGroup(pos),
       );
       setSubs(pairs);
+      // Prefer re-paired sub warnings; drop noisy/stale sub messages from first pass
+      const keep = result.warnings.filter(
+        (w) =>
+          !/trocas simultâneas/i.test(w) &&
+          !/substituição\(ões\) incompleta/i.test(w) &&
+          !/Substituição \([78]\)/i.test(w),
+      );
+      setParsed({
+        ...result,
+        substitutions: pairs,
+        warnings: [...keep, ...reWarn],
+      });
 
       // Divergences vs current ficha (shirts / captain / manager) — only when matched
       const divs: Divergence[] = [];
@@ -467,7 +521,9 @@ export function OgolPasteDialog({
     const goals = parsed.goals
       .map((g) => {
         const id = idForName(g.playerName);
-        return id != null ? { playerId: id, ...clockFields(g) } : null;
+        return id != null
+          ? { playerId: id, ...clockFields(g), isPenalty: Boolean(g.isPenalty) }
+          : null;
       })
       .filter(Boolean) as OgolApplyPayload["goals"];
 
@@ -632,6 +688,7 @@ export function OgolPasteDialog({
                     {parsed.goals.map((g, i) => (
                       <li key={`g-${i}`}>
                         ⚽ {g.playerName} {formatOgolClock(g)}
+                        {g.isPenalty ? " (pen.)" : ""}
                       </li>
                     ))}
                     {parsed.assists.map((a, i) => (
@@ -665,20 +722,29 @@ export function OgolPasteDialog({
               {pendingNames.length > 0 && (
                 <div className="border border-amber-200 bg-amber-50 rounded p-3 space-y-3">
                   <p className="text-xs font-semibold text-amber-900">
-                    ⚠ Nomes sem match no elenco ({pendingNames.length})
+                    ⚠ Nomes para confirmar ({pendingNames.length})
+                  </p>
+                  <p className="text-[11px] text-amber-800">
+                    Jogadores fora do elenco da temporada precisam ser confirmados (ou
+                    busque por outro nome / temporada).
                   </p>
                   {pendingNames.map(([key, r]) => {
                     if (r.status !== "pending") return null;
+                    const search = pendingSearch[key];
+                    const searchHits = (search?.hits ?? []).filter(
+                      (h) => !r.candidates.some((c) => c.id === h.id),
+                    );
+                    const optionPool = [...r.candidates, ...searchHits];
                     return (
-                      <div key={key} className="text-sm space-y-1">
+                      <div key={key} className="text-sm space-y-1.5">
                         <p className="font-medium">&quot;{r.createName}&quot;</p>
                         <div className="flex flex-wrap gap-2 items-center">
                           <select
-                            className="border rounded px-2 py-1 text-sm bg-white min-w-[12rem]"
+                            className="border rounded px-2 py-1 text-sm bg-white min-w-[14rem]"
                             defaultValue=""
                             onChange={(e) => {
                               const id = Number(e.target.value);
-                              const hit = r.candidates.find((c) => c.id === id);
+                              const hit = optionPool.find((c) => c.id === id);
                               if (hit) {
                                 resolveName(
                                   key,
@@ -692,6 +758,17 @@ export function OgolPasteDialog({
                             {r.candidates.map((c) => (
                               <option key={c.id} value={c.id}>
                                 {c.name} #{c.id}
+                                {roster.some((x) => x.id === c.id)
+                                  ? " (elenco)"
+                                  : " (outra temporada)"}
+                              </option>
+                            ))}
+                            {searchHits.map((c) => (
+                              <option key={`s-${c.id}`} value={c.id}>
+                                {c.name} #{c.id}
+                                {roster.some((x) => x.id === c.id)
+                                  ? " (elenco)"
+                                  : " (busca)"}
                               </option>
                             ))}
                           </select>
@@ -705,6 +782,23 @@ export function OgolPasteDialog({
                             Criar novo
                           </Button>
                         </div>
+                        <div className="flex flex-wrap gap-2 items-center">
+                          <input
+                            type="search"
+                            className="border rounded px-2 py-1 text-sm bg-white min-w-[12rem]"
+                            placeholder="Buscar outro jogador…"
+                            value={search?.q ?? ""}
+                            onChange={(e) => searchPending(key, e.target.value)}
+                          />
+                          {search?.searching && (
+                            <span className="text-[11px] text-gray-500">Buscando…</span>
+                          )}
+                        </div>
+                        {optionPool.length === 0 && (
+                          <p className="text-[11px] text-amber-800">
+                            Nenhum candidato automático — busque acima ou crie novo.
+                          </p>
+                        )}
                       </div>
                     );
                   })}
