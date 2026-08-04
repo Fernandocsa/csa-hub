@@ -3,6 +3,8 @@
  *
  * Notation:
  * - shirt number line + name line (+ optional event lines)
+ * - `-` as shirt = número indisponível (shirtNumber null)
+ * - `n/d` / `n/d'` as minute = minutagem indisponível (sentinel 200)
  * - (C) on name = captain
  * - R + NN' / 90+4' = yellow (2×R same player → second becomes red)
  * - S + NN' = segundo amarelo (vermelho)
@@ -67,13 +69,48 @@ export type OgolParseResult = {
 const SECTION_STARTERS = /^(csa|titulares?)$/i;
 const SECTION_BENCH = /^reservas?$/i;
 const SECTION_COACH = /^treinadores?$/i;
+/** Numeric shirt, or `-` when number is unavailable in historic sheets. */
 const SHIRT_RE = /^\d{1,3}$/;
+const SHIRT_MISSING_RE = /^[-–—]$/;
 /** `63'` or stoppage `90+4'` / `45+2'` (apostrophe required) */
 const MINUTE_RE = /^(\d{1,3})(?:\s*\+\s*(\d{1,2}))?\s*'$/;
 /** Goal clock, optionally marked as penalty: `65'` / `65' (pen.)` / `90+2'(pen)` */
 const GOAL_CLOCK_RE =
   /^(\d{1,3})(?:\s*\+\s*(\d{1,2}))?\s*'(?:\s*\(pen\.?\))?$/i;
 const EVENT_TOKEN = /^(R|B|A|C|S|SR|7|8)$/i;
+/** Sentinel aligned with API UNKNOWN_EVENT_MINUTE */
+const UNKNOWN_OGOL_MINUTE = 200;
+
+function isShirtLine(raw: string): boolean {
+  const t = normalizeOgolToken(raw);
+  return SHIRT_RE.test(t) || SHIRT_MISSING_RE.test(t);
+}
+
+function parseShirtNumber(raw: string): number | null {
+  const t = normalizeOgolToken(raw);
+  if (SHIRT_MISSING_RE.test(t)) return null;
+  if (SHIRT_RE.test(t)) return Number(t);
+  return null;
+}
+
+function isUnknownMinuteToken(raw: string | undefined | null): boolean {
+  if (!raw) return false;
+  const t = normalizeOgolToken(raw)
+    .replace(/[''\u2032]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, "");
+  return (
+    t === "n/d" ||
+    t === "nd" ||
+    t === "n.d" ||
+    t === "n.d." ||
+    t === "s/n" ||
+    t === "sn" ||
+    t === "?" ||
+    t === "na" ||
+    t === "n/a"
+  );
+}
 
 /** Normalize fancy quotes so `90+4'` / `78'` from Ogol still parse. */
 function normalizeOgolToken(raw: string): string {
@@ -95,6 +132,9 @@ function eventCode(raw: string): string {
 
 function parseMinuteToken(raw: string | undefined | null): OgolClock | null {
   if (!raw) return null;
+  if (isUnknownMinuteToken(raw)) {
+    return { minute: UNKNOWN_OGOL_MINUTE, injuryTimeMinute: null };
+  }
   // Strip optional (pen.) so assists/cards can reuse clocks next to pen markers if needed
   const base = normalizeOgolToken(raw).replace(/\s*\(pen\.?\)$/i, "");
   const m = base.match(MINUTE_RE);
@@ -109,6 +149,12 @@ function parseGoalToken(
   raw: string | undefined | null,
 ): ({ clock: OgolClock; isPenalty: boolean }) | null {
   if (!raw) return null;
+  if (isUnknownMinuteToken(raw)) {
+    return {
+      clock: { minute: UNKNOWN_OGOL_MINUTE, injuryTimeMinute: null },
+      isPenalty: false,
+    };
+  }
   const t = normalizeOgolToken(raw);
   const m = t.match(GOAL_CLOCK_RE);
   if (!m) return null;
@@ -129,10 +175,15 @@ function expandTokenLine(line: string): string[] {
   const t = normalizeOgolToken(line);
   if (!t) return [];
   if (EVENT_TOKEN.test(t)) return [t];
+  if (isUnknownMinuteToken(t)) return [t];
   if (/^(csa|titulares?|reservas?|treinadores?)$/i.test(t)) return [t];
 
+  // Pure minute / goal clock (e.g. 86') — never treat the leading digit as event "8"
+  if (parseGoalToken(t) != null || parseMinuteToken(t) != null) return [t];
+
   // Glued events+minutes from messy copy: R90+2'S R90+5' / R90+2'SR90+5'
-  if (/[RBACS78]/i.test(t) && /\d/.test(t)) {
+  // Require a letter event (R/B/A/C/S) or 7/8 glued onto a clock — not bare NN'.
+  if (/[RBACS]/i.test(t) || /^[78]\d{1,3}(?:\+|\')/i.test(t) || /\d'[78]/i.test(t)) {
     const gluedRe =
       /([RBACS78])|(\d{1,3}(?:\s*\+\s*\d{1,2})?\s*'(?:\s*\(pen\.?\))?)/gi;
     const glued: string[] = [];
@@ -178,9 +229,20 @@ function clockOnly(c: OgolClock): OgolClock {
 
 function isMinuteLine(t: string): boolean {
   const s = normalizeOgolToken(t);
+  if (isUnknownMinuteToken(s)) return true;
   if (parseGoalToken(s) != null || parseMinuteToken(s) != null) return true;
   const expanded = expandTokenLine(s);
   return expanded.length > 1 || (expanded.length === 1 && parseGoalToken(expanded[0]) != null);
+}
+
+function looksLikePlayerName(raw: string): boolean {
+  const t = normalizeOgolToken(raw);
+  if (!t) return false;
+  if (isSectionHeader(t)) return false;
+  if (isShirtLine(t)) return false;
+  if (EVENT_TOKEN.test(t)) return false;
+  if (isMinuteLine(t)) return false;
+  return true;
 }
 
 function clockKey(c: OgolClock): string {
@@ -188,6 +250,7 @@ function clockKey(c: OgolClock): string {
 }
 
 export function formatOgolClock(c: OgolClock): string {
+  if (c.minute === UNKNOWN_OGOL_MINUTE) return "n/d";
   if (c.injuryTimeMinute != null && c.injuryTimeMinute > 0) {
     return `${c.minute}+${c.injuryTimeMinute}'`;
   }
@@ -210,7 +273,7 @@ function stripCaptain(raw: string): { name: string; isCaptain: boolean } {
 }
 
 type RawPlayer = {
-  shirtNumber: number;
+  shirtNumber: number | null;
   name: string;
   isCaptain: boolean;
   role: OgolRole;
@@ -395,7 +458,11 @@ export function parseOgolPaste(raw: string): OgolParseResult {
       continue;
     }
 
-    if (SHIRT_RE.test(line) && i + 1 < lines.length && !SHIRT_RE.test(normalizeOgolToken(lines[i + 1]))) {
+    if (
+      isShirtLine(line) &&
+      i + 1 < lines.length &&
+      looksLikePlayerName(lines[i + 1])
+    ) {
       const nextName = normalizeOgolToken(lines[i + 1]);
 
       // `8` / `7` immediately before Reservas/Treinadores is an event on the
@@ -410,7 +477,7 @@ export function parseOgolPaste(raw: string): OgolParseResult {
         continue;
       }
 
-      const shirtNumber = Number(line);
+      const shirtNumber = parseShirtNumber(line);
       const { name, isCaptain } = stripCaptain(nextName);
       // Never create a player whose "name" is a section header
       if (isSectionHeader(name)) {
@@ -423,7 +490,7 @@ export function parseOgolPaste(raw: string): OgolParseResult {
         const t = normalizeOgolToken(lines[i]);
         if (isSectionHeader(t)) break;
         if (
-          SHIRT_RE.test(t) &&
+          isShirtLine(t) &&
           i + 1 < lines.length &&
           !EVENT_TOKEN.test(normalizeOgolToken(lines[i + 1])) &&
           !isMinuteLine(lines[i + 1])
@@ -432,12 +499,7 @@ export function parseOgolPaste(raw: string): OgolParseResult {
           // Next shirt + section header → current `t` is event (7/8), not new player
           if (isSectionHeader(next)) {
             // fall through and push `t` as token
-          } else if (
-            next &&
-            !EVENT_TOKEN.test(next) &&
-            !isMinuteLine(next) &&
-            !SHIRT_RE.test(next)
-          ) {
+          } else if (looksLikePlayerName(next)) {
             break;
           }
         }
@@ -445,6 +507,21 @@ export function parseOgolPaste(raw: string): OgolParseResult {
         i += 1;
       }
       rawPlayers.push({ shirtNumber, name, isCaptain, role, tokens });
+      continue;
+    }
+
+    // Event code + minute (or n/d) that landed outside a player block → previous player
+    if (
+      rawPlayers.length > 0 &&
+      EVENT_TOKEN.test(line) &&
+      i + 1 < lines.length &&
+      isMinuteLine(lines[i + 1])
+    ) {
+      rawPlayers[rawPlayers.length - 1].tokens.push(
+        line,
+        ...expandTokenLine(normalizeOgolToken(lines[i + 1])),
+      );
+      i += 2;
       continue;
     }
 
