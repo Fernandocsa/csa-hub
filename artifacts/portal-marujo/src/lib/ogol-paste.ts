@@ -98,8 +98,10 @@ function isSectionHeader(line: string): "starters" | "bench" | "coach" | null {
 }
 
 /**
- * Pair outs/ins at the same minute by coarse position group when unique;
- * otherwise leave unpaired for manual review.
+ * Pair outs/ins at the same minute:
+ * 1) unique position-group 1:1
+ * 2) remaining with equal counts → FIFO (complete rows; may need review)
+ * 3) only leave incomplete rows when out/in counts differ
  */
 export function pairSubstitutions(
   outs: OgolSubOut[],
@@ -127,42 +129,60 @@ export function pairSubstitutions(
 
     const usedOut = new Set<number>();
     const usedIn = new Set<number>();
+    let usedOrderFallback = false;
 
-    // Group outs by position group
-    const byGroup = new Map<string, number[]>();
-    outsM.forEach((o, idx) => {
-      const g = positionGroupFn(positionByName.get(normName(o.playerName)) ?? null);
-      const list = byGroup.get(g) ?? [];
-      list.push(idx);
-      byGroup.set(g, list);
-    });
+    const groupOf = (name: string) =>
+      positionGroupFn(positionByName.get(normName(name)) ?? null);
 
-    for (const [group, outIdxs] of byGroup) {
+    // 1) Unique position-group pairs (exactly one out + one in in that group)
+    const groups = new Set<string>([
+      ...outsM.map((o) => groupOf(o.playerName)),
+      ...insM.map((i) => groupOf(i.playerName)),
+    ]);
+    for (const group of groups) {
+      const outIdxs = outsM
+        .map((o, idx) => ({ o, idx }))
+        .filter(({ o, idx }) => !usedOut.has(idx) && groupOf(o.playerName) === group)
+        .map(({ idx }) => idx);
       const inIdxs = insM
         .map((i, idx) => ({ i, idx }))
-        .filter(
-          ({ i, idx }) =>
-            !usedIn.has(idx) &&
-            positionGroupFn(positionByName.get(normName(i.playerName)) ?? null) ===
-              group,
-        )
+        .filter(({ i, idx }) => !usedIn.has(idx) && groupOf(i.playerName) === group)
         .map(({ idx }) => idx);
 
       if (outIdxs.length === 1 && inIdxs.length === 1) {
-        const oi = outIdxs[0];
-        const ii = inIdxs[0];
-        usedOut.add(oi);
-        usedIn.add(ii);
+        usedOut.add(outIdxs[0]);
+        usedIn.add(inIdxs[0]);
         pairs.push({
           minute,
-          playerOutName: outsM[oi].playerName,
-          playerInName: insM[ii].playerName,
+          playerOutName: outsM[outIdxs[0]].playerName,
+          playerInName: insM[inIdxs[0]].playerName,
           paired: true,
         });
       }
     }
 
-    // Remaining: leave unpaired
+    // 2) Remaining: FIFO so we don't create empty Saiu/Entrou rows when counts match
+    const remainingOuts = outsM
+      .map((o, idx) => ({ o, idx }))
+      .filter(({ idx }) => !usedOut.has(idx));
+    const remainingIns = insM
+      .map((i, idx) => ({ i, idx }))
+      .filter(({ idx }) => !usedIn.has(idx));
+    const fifoCount = Math.min(remainingOuts.length, remainingIns.length);
+    for (let k = 0; k < fifoCount; k++) {
+      usedOut.add(remainingOuts[k].idx);
+      usedIn.add(remainingIns[k].idx);
+      usedOrderFallback = true;
+      pairs.push({
+        minute,
+        playerOutName: remainingOuts[k].o.playerName,
+        playerInName: remainingIns[k].i.playerName,
+        paired: true,
+        note: "Pareado por ordem (revise se a seta do Ogol for outra)",
+      });
+    }
+
+    // 3) True leftovers only when counts differ
     outsM.forEach((o, idx) => {
       if (usedOut.has(idx)) return;
       pairs.push({
@@ -170,7 +190,7 @@ export function pairSubstitutions(
         playerOutName: o.playerName,
         playerInName: "",
         paired: false,
-        note: "Saída sem entrada pareada (mesmo minuto / posição ambígua)",
+        note: "Saída sem entrada no mesmo minuto",
       });
     });
     insM.forEach((i, idx) => {
@@ -180,17 +200,20 @@ export function pairSubstitutions(
         playerOutName: "",
         playerInName: i.playerName,
         paired: false,
-        note: "Entrada sem saída pareada (mesmo minuto / posição ambígua)",
+        note: "Entrada sem saída no mesmo minuto",
       });
     });
 
-    if (outsM.length > 1 || insM.length > 1) {
-      const unpaired = pairs.filter((p) => p.minute === minute && !p.paired);
-      if (unpaired.length) {
-        warnings.push(
-          `${minute}': trocas simultâneas — ${unpaired.length} vínculo(s) precisam de revisão manual`,
-        );
-      }
+    if (usedOrderFallback) {
+      warnings.push(
+        `${minute}': trocas simultâneas pareadas por ordem — confira quem saiu por quem`,
+      );
+    }
+    const unpaired = pairs.filter((p) => p.minute === minute && !p.paired);
+    if (unpaired.length) {
+      warnings.push(
+        `${minute}': ${unpaired.length} substituição(ões) incompleta(s) — revise na ficha`,
+      );
     }
   }
 

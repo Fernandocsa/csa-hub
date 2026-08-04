@@ -532,7 +532,8 @@ export default function AdminMatchSheet() {
       const next = rows.map((r) => ({ ...r }));
       let cursor = 0;
       for (const s of payload.substitutions) {
-        if (!s.playerOutId && !s.playerInId) continue;
+        // Skip incomplete pairs (one side missing) — avoids empty Saiu/Entrou rows.
+        if (!s.playerOutId || !s.playerInId) continue;
         while (
           cursor < next.length &&
           (next[cursor].playerOutId || next[cursor].playerInId)
