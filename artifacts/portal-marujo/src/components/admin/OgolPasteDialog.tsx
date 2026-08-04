@@ -318,10 +318,12 @@ export function OgolPasteDialog({
         body: JSON.stringify({ alias: alias.trim(), playerId }),
       },
     );
-    if (!r.ok && r.status !== 409) {
-      // Non-fatal — confirmation already linked the player to the season.
-      console.warn("Failed to save season Ogol alias", await r.text().catch(() => ""));
-    }
+    if (r.ok || r.status === 409) return;
+    const err = await r.json().catch(() => ({}));
+    throw new Error(
+      (err as { error?: string }).error ??
+        `Falha ao lembrar apelido "${alias.trim()}" na temporada ${year}`,
+    );
   }
 
   async function interpret() {
@@ -367,6 +369,24 @@ export function OgolPasteDialog({
         }
 
         const soft = findSoftRosterMatches(p.name, roster);
+        // Unique soft hit on season roster = clear nickname (Ênio → Ênio Oliveira).
+        // Still never auto-pick when 2+ soft hits (Gustavinho collision case).
+        if (exact.length === 0 && soft.length === 1) {
+          const hit = soft[0];
+          resMap[key] = {
+            status: "matched",
+            playerId: hit.id,
+            playerName: hit.name,
+            position: hit.position,
+            outsideRoster: false,
+          };
+          // Persist so other seasons stay unaffected but this year remembers.
+          void saveSeasonAlias(p.name, hit.id).catch(() => {
+            /* non-blocking on interpret */
+          });
+          continue;
+        }
+
         const remote = await searchPlayers(p.name);
         const merged = [
           ...exact,

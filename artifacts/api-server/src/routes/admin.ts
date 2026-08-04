@@ -4389,27 +4389,25 @@ router.post("/admin/seasons/:year/player-aliases", requireAdmin, async (req, res
       .limit(1);
     if (!player) return res.status(404).json({ error: "Jogador não encontrado" });
 
-    const inserted = await db
-      .insert(playerSeasonNameAliasesTable)
-      .values({
-        playerId,
-        season,
-        alias,
-        aliasNorm,
-      })
-      .onConflictDoUpdate({
-        target: [
-          playerSeasonNameAliasesTable.season,
-          playerSeasonNameAliasesTable.aliasNorm,
-        ],
-        set: {
-          playerId,
-          alias,
-        },
-      })
-      .returning();
+    // Raw upsert — Drizzle onConflictDoUpdate against a uniqueIndex is unreliable here.
+    const upsert = await pgPool.query(
+      `
+      INSERT INTO player_season_name_aliases (player_id, season, alias, alias_norm)
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (season, alias_norm)
+      DO UPDATE SET player_id = EXCLUDED.player_id, alias = EXCLUDED.alias
+      RETURNING id, player_id, season, alias, alias_norm
+      `,
+      [playerId, season, alias, aliasNorm],
+    );
+    const row = upsert.rows[0] as {
+      id: number;
+      player_id: number;
+      season: string;
+      alias: string;
+      alias_norm: string;
+    };
 
-    const row = inserted[0];
     res.status(201).json({
       id: row.id,
       playerId: player.id,
@@ -4417,9 +4415,9 @@ router.post("/admin/seasons/:year/player-aliases", requireAdmin, async (req, res
       position: player.position,
       photoUrl: player.photoUrl ?? null,
       fullName: player.fullName ?? null,
-      season,
+      season: row.season,
       alias: row.alias,
-      aliasNorm: row.aliasNorm,
+      aliasNorm: row.alias_norm,
     });
   } catch (err) {
     req.log.error(err);
