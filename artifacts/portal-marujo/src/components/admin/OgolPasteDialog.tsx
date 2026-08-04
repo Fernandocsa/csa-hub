@@ -16,6 +16,7 @@ export type OgolRosterPlayer = {
   name: string;
   position: string | null;
   photoUrl?: string | null;
+  fullName?: string | null;
 };
 
 export type OgolManagerOption = {
@@ -150,15 +151,50 @@ export function OgolPasteDialog({
       (p: {
         id: number;
         name: string;
+        fullName?: string | null;
         position?: string | null;
         photoUrl?: string | null;
       }) => ({
         id: p.id,
         name: p.name,
+        fullName: p.fullName ?? null,
         position: p.position ?? null,
         photoUrl: p.photoUrl ?? null,
       }),
     );
+  }
+
+  /** Broad substring search (name + full name) for the confirm picker. */
+  async function searchPlayersBroad(q: string): Promise<OgolRosterPlayer[]> {
+    const r = await adminFetch(
+      `/admin/players/search?q=${encodeURIComponent(q)}&limit=20`,
+    );
+    if (!r.ok) return [];
+    const list = await r.json();
+    if (!Array.isArray(list)) return [];
+    return list.map(
+      (p: {
+        id: number;
+        name: string;
+        fullName?: string | null;
+        position?: string | null;
+        photoUrl?: string | null;
+      }) => ({
+        id: p.id,
+        name: p.name,
+        fullName: p.fullName ?? null,
+        position: p.position ?? null,
+        photoUrl: p.photoUrl ?? null,
+      }),
+    );
+  }
+
+  function playerOptionLabel(p: OgolRosterPlayer, tag?: string): string {
+    const full = p.fullName?.trim();
+    const base = full && normalizeOgolPlayerName(full) !== normalizeOgolPlayerName(p.name)
+      ? `${p.name} — ${full}`
+      : p.name;
+    return `${base} #${p.id}${tag ? ` ${tag}` : ""}`;
   }
 
   async function searchPending(key: string, q: string) {
@@ -173,10 +209,18 @@ export function OgolPasteDialog({
       }));
       return;
     }
-    const hits = await searchPlayers(q.trim());
+    const term = q.trim();
+    const [broad, similar] = await Promise.all([
+      searchPlayersBroad(term),
+      searchPlayers(term),
+    ]);
+    const merged = [
+      ...broad,
+      ...similar.filter((s) => !broad.some((b) => b.id === s.id)),
+    ];
     setPendingSearch((prev) => {
       if (prev[key]?.q !== q) return prev;
-      return { ...prev, [key]: { q, hits, searching: false } };
+      return { ...prev, [key]: { q, hits: merged, searching: false } };
     });
   }
 
@@ -731,16 +775,19 @@ export function OgolPasteDialog({
                   {pendingNames.map(([key, r]) => {
                     if (r.status !== "pending") return null;
                     const search = pendingSearch[key];
-                    const searchHits = (search?.hits ?? []).filter(
-                      (h) => !r.candidates.some((c) => c.id === h.id),
-                    );
-                    const optionPool = [...r.candidates, ...searchHits];
+                    const searchHits = search?.hits ?? [];
+                    const optionPool = [
+                      ...r.candidates,
+                      ...searchHits.filter(
+                        (h) => !r.candidates.some((c) => c.id === h.id),
+                      ),
+                    ];
                     return (
                       <div key={key} className="text-sm space-y-1.5">
                         <p className="font-medium">&quot;{r.createName}&quot;</p>
                         <div className="flex flex-wrap gap-2 items-center">
                           <select
-                            className="border rounded px-2 py-1 text-sm bg-white min-w-[14rem]"
+                            className="border rounded px-2 py-1 text-sm bg-white min-w-[18rem] max-w-full"
                             defaultValue=""
                             onChange={(e) => {
                               const id = Number(e.target.value);
@@ -757,20 +804,21 @@ export function OgolPasteDialog({
                             <option value="">Escolher existente…</option>
                             {r.candidates.map((c) => (
                               <option key={c.id} value={c.id}>
-                                {c.name} #{c.id}
-                                {roster.some((x) => x.id === c.id)
-                                  ? " (elenco)"
-                                  : " (outra temporada)"}
+                                {playerOptionLabel(
+                                  c,
+                                  roster.some((x) => x.id === c.id)
+                                    ? "(elenco)"
+                                    : "(outra temporada)",
+                                )}
                               </option>
                             ))}
-                            {searchHits.map((c) => (
-                              <option key={`s-${c.id}`} value={c.id}>
-                                {c.name} #{c.id}
-                                {roster.some((x) => x.id === c.id)
-                                  ? " (elenco)"
-                                  : " (busca)"}
-                              </option>
-                            ))}
+                            {searchHits
+                              .filter((h) => !r.candidates.some((c) => c.id === h.id))
+                              .map((c) => (
+                                <option key={`s-${c.id}`} value={c.id}>
+                                  {playerOptionLabel(c, "(busca)")}
+                                </option>
+                              ))}
                           </select>
                           <Button
                             type="button"
@@ -785,8 +833,8 @@ export function OgolPasteDialog({
                         <div className="flex flex-wrap gap-2 items-center">
                           <input
                             type="search"
-                            className="border rounded px-2 py-1 text-sm bg-white min-w-[12rem]"
-                            placeholder="Buscar outro jogador…"
+                            className="border rounded px-2 py-1 text-sm bg-white min-w-[14rem]"
+                            placeholder="Buscar: Cabral, nome completo…"
                             value={search?.q ?? ""}
                             onChange={(e) => searchPending(key, e.target.value)}
                           />
@@ -794,7 +842,42 @@ export function OgolPasteDialog({
                             <span className="text-[11px] text-gray-500">Buscando…</span>
                           )}
                         </div>
-                        {optionPool.length === 0 && (
+                        {searchHits.length > 0 && (
+                          <ul className="border border-amber-100 bg-white rounded divide-y max-h-40 overflow-y-auto">
+                            {searchHits.map((h) => (
+                              <li key={h.id}>
+                                <button
+                                  type="button"
+                                  className="w-full text-left px-2 py-1.5 text-xs hover:bg-amber-50"
+                                  onClick={() =>
+                                    resolveName(
+                                      key,
+                                      h,
+                                      !roster.some((x) => x.id === h.id),
+                                    )
+                                  }
+                                >
+                                  <span className="font-medium">{h.name}</span>
+                                  {h.fullName ? (
+                                    <span className="text-gray-500"> — {h.fullName}</span>
+                                  ) : null}
+                                  <span className="text-gray-400"> #{h.id}</span>
+                                  {roster.some((x) => x.id === h.id) ? (
+                                    <span className="text-emerald-700"> · elenco</span>
+                                  ) : null}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        {!search?.searching &&
+                          (search?.q?.trim().length ?? 0) >= 2 &&
+                          searchHits.length === 0 && (
+                          <p className="text-[11px] text-amber-800">
+                            Nenhum resultado para &quot;{search?.q}&quot;.
+                          </p>
+                        )}
+                        {optionPool.length === 0 && !search?.q && (
                           <p className="text-[11px] text-amber-800">
                             Nenhum candidato automático — busque acima ou crie novo.
                           </p>

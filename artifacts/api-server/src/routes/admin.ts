@@ -358,6 +358,39 @@ router.get("/admin/players/name-check", requireAdmin, async (req, res) => {
   }
 });
 
+/** Substring search on display name + full name (for Ogol confirm / pickers). */
+router.get("/admin/players/search", requireAdmin, async (req, res) => {
+  try {
+    const q = String((req.query as { q?: string }).q ?? "").trim();
+    const limitRaw = parseInt(String((req.query as { limit?: string }).limit ?? "20"), 10);
+    const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 40) : 20;
+    if (q.length < 2) return res.json([]);
+
+    const pattern = `%${q.replace(/[%_]/g, "")}%`;
+    const rows = await db
+      .select({
+        id: playersTable.id,
+        name: playersTable.name,
+        fullName: playersTable.fullName,
+        position: playersTable.position,
+        photoUrl: playersTable.photoUrl,
+      })
+      .from(playersTable)
+      .where(
+        or(
+          ilike(playersTable.name, pattern),
+          ilike(playersTable.fullName, pattern),
+        ),
+      )
+      .orderBy(asc(playersTable.name))
+      .limit(limit);
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
 router.get("/admin/players/:id", requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
