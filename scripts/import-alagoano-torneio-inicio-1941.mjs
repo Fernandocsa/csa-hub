@@ -37,7 +37,7 @@ const MATCHES = [
   },
   {
     competition: "Torneio Início de Alagoas",
-    competitionType: "state",
+    competitionType: "friendly",
     date: "1941-05-18",
     opponent: "CRB-AL",
     goalsFor: 2,
@@ -48,7 +48,7 @@ const MATCHES = [
   },
   {
     competition: "Torneio Início de Alagoas",
-    competitionType: "state",
+    competitionType: "friendly",
     date: "1941-05-18",
     opponent: "Vasco da Gama-AL",
     goalsFor: 2,
@@ -206,7 +206,7 @@ try {
          match_date, season, opponent_id, goals_for, goals_against,
          result, home_away, competition_id, phase,
          is_walkover, is_friendly, status
-       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, false, false, 'played')
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, false, $10, 'played')
        RETURNING id`,
       [
         m.date,
@@ -218,6 +218,7 @@ try {
         m.homeAway,
         competitionId,
         m.phase ?? null,
+        m.competition === "Torneio Início de Alagoas",
       ],
     );
 

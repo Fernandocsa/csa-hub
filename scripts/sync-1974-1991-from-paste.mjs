@@ -138,7 +138,7 @@ function mapCompetition(raw) {
     return { name: "Amistoso", type: "friendly", friendly: true };
   }
   if (n.startsWith("torneio inicio")) {
-    return { name: "Torneio Início de Alagoas", type: "state", friendly: false };
+    return { name: "Torneio Início de Alagoas", type: "friendly", friendly: true };
   }
   if (n === "alagoano" || n.startsWith("alagoano ")) {
     return { name: "Campeonato Alagoano", type: "state", friendly: false };
