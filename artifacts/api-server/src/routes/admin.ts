@@ -4142,6 +4142,27 @@ function parseOptionalShirtNumber(raw: unknown): number | null | undefined {
   return n;
 }
 
+/** Drizzle wraps PG errors — walk cause chain for unique violations (23505). */
+function isPgUniqueViolation(err: unknown): boolean {
+  let cur: unknown = err;
+  for (let i = 0; i < 6 && cur; i++) {
+    if (typeof cur === "object" && cur !== null) {
+      const obj = cur as { code?: unknown; message?: unknown; cause?: unknown };
+      if (String(obj.code ?? "") === "23505") return true;
+      if (
+        typeof obj.message === "string" &&
+        /duplicate key|unique constraint|unique|duplicate/i.test(obj.message)
+      ) {
+        return true;
+      }
+      cur = obj.cause;
+      continue;
+    }
+    break;
+  }
+  return false;
+}
+
 router.get("/admin/seasons/:year/players", requireAdmin, async (req, res) => {
   try {
     const year = parseInt(req.params.year, 10);
@@ -4199,6 +4220,28 @@ router.post("/admin/seasons/:year/players", requireAdmin, async (req, res) => {
     }
 
     try {
+      // Idempotent: already on roster → treat as linked (Ogol "outra temporada").
+      const [already] = await db
+        .select({ id: playerSeasonStatsTable.id })
+        .from(playerSeasonStatsTable)
+        .where(
+          and(
+            eq(playerSeasonStatsTable.playerId, playerId),
+            eq(playerSeasonStatsTable.season, season),
+          ),
+        )
+        .limit(1);
+      if (already) {
+        try {
+          await syncPlayerSeasonStatsFromSheets(playerId);
+        } catch (syncErr) {
+          req.log.warn({ err: syncErr, playerId }, "sync after season link failed");
+        }
+        return res.status(409).json({
+          error: "Jogador já está no elenco desta temporada",
+        });
+      }
+
       const [inserted] = await db
         .insert(playerSeasonStatsTable)
         .values({
@@ -4235,8 +4278,7 @@ router.post("/admin/seasons/:year/players", requireAdmin, async (req, res) => {
         ),
       );
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (/unique|duplicate/i.test(msg)) {
+      if (isPgUniqueViolation(err)) {
         // Still refresh sheet-backed seasons when the row already existed.
         try {
           await syncPlayerSeasonStatsFromSheets(playerId);
