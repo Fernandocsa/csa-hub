@@ -4,6 +4,7 @@ import {
   matchGoalsTable,
   matchCardsTable,
   matchLineupsTable,
+  matchPenaltyEventsTable,
   playersTable,
   managersTable,
   opponentsTable,
@@ -287,6 +288,63 @@ async function topPenaltyGoals(limit = 10): Promise<PlayerRecordHolder[]> {
       ),
     )
     .groupBy(matchGoalsTable.scorerPlayerId, playersTable.name)
+    .orderBy(desc(sql`count(*)`), asc(playersTable.name))
+    .limit(limit);
+
+  return rows.map((r) => ({
+    playerId: r.playerId!,
+    playerName: r.playerName,
+    value: r.value,
+  }));
+}
+
+/** Matches as CSA captain (matches.captain_player_id). */
+async function topCaptainAppearances(limit = 10): Promise<PlayerRecordHolder[]> {
+  const rows = await db
+    .select({
+      playerId: matchesTable.captainPlayerId,
+      playerName: playersTable.name,
+      value: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchesTable)
+    .innerJoin(playersTable, eq(matchesTable.captainPlayerId, playersTable.id))
+    .where(
+      and(recordsMatchConditions(), isNotNull(matchesTable.captainPlayerId)),
+    )
+    .groupBy(matchesTable.captainPlayerId, playersTable.name)
+    .orderBy(desc(sql`count(*)`), asc(playersTable.name))
+    .limit(limit);
+
+  return rows.map((r) => ({
+    playerId: r.playerId!,
+    playerName: r.playerName,
+    value: r.value,
+  }));
+}
+
+/** Missed / saved penalties from match_penalty_events — never goals. */
+async function topPenaltyEvents(
+  eventType: "missed" | "saved",
+  limit = 10,
+): Promise<PlayerRecordHolder[]> {
+  const rows = await db
+    .select({
+      playerId: matchPenaltyEventsTable.playerId,
+      playerName: playersTable.name,
+      value: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchPenaltyEventsTable)
+    .innerJoin(matchesTable, eq(matchPenaltyEventsTable.matchId, matchesTable.id))
+    .innerJoin(playersTable, eq(matchPenaltyEventsTable.playerId, playersTable.id))
+    .where(
+      and(
+        recordsMatchConditions(),
+        eq(matchPenaltyEventsTable.side, "csa"),
+        eq(matchPenaltyEventsTable.eventType, eventType),
+        isNotNull(matchPenaltyEventsTable.playerId),
+      ),
+    )
+    .groupBy(matchPenaltyEventsTable.playerId, playersTable.name)
     .orderBy(desc(sql`count(*)`), asc(playersTable.name))
     .limit(limit);
 
@@ -1321,6 +1379,9 @@ export async function computeClubRecords() {
     managerTitles,
     managerWinStreaks,
     managerUnbeatenStreaks,
+    captainApps,
+    penaltiesMissed,
+    penaltiesSaved,
   ] = await Promise.all([
     topScorers(),
     topAssists(),
@@ -1354,6 +1415,9 @@ export async function computeClubRecords() {
       matches,
       (m) => m.result === "win" || m.result === "draw",
     ),
+    topCaptainAppearances(),
+    topPenaltyEvents("missed"),
+    topPenaltyEvents("saved"),
   ]);
 
   const topHatTricks =
@@ -1371,6 +1435,9 @@ export async function computeClubRecords() {
         "Banco sem entrar: relacionado como reserva e não entrou (não conta quem começou ou foi substituído para dentro)",
       scoringStreak:
         "Jogos seguidos marcando: gol(s) pelo CSA em partidas oficiais consecutivas (gol contra não conta; ficar de fora ou não marcar quebra)",
+      captain: "Capitão: partidas oficiais com o jogador marcado como capitão na ficha",
+      penaltyEvents:
+        "Pênaltis perdidos/defendidos: eventos próprios da ficha (A/C) — não entram na artilharia nem em gols",
     },
     players: {
       topScorers: goals,
@@ -1400,6 +1467,9 @@ export async function computeClubRecords() {
       consecutiveStarts: starts,
       cleanSheetStreak: gkCleanSheetStreaks,
       scoringStreak: scoringStreaks,
+      topCaptainAppearances: captainApps,
+      topPenaltiesMissed: penaltiesMissed,
+      topPenaltiesSaved: penaltiesSaved,
     },
     managers: {
       topWins: managerWins,

@@ -39,6 +39,8 @@ type RecordsPayload = {
     cleanSheets?: string;
     unusedBench?: string;
     scoringStreak?: string;
+    captain?: string;
+    penaltyEvents?: string;
   };
   players: {
     topScorers: PlayerRow[];
@@ -62,6 +64,9 @@ type RecordsPayload = {
     consecutiveStarts: { historical: PlayerStreak[]; active: PlayerStreak[] };
     cleanSheetStreak: { historical: PlayerStreak[]; active: PlayerStreak[] };
     scoringStreak: { historical: PlayerStreak[]; active: PlayerStreak[] };
+    topCaptainAppearances: PlayerRow[];
+    topPenaltiesMissed: PlayerRow[];
+    topPenaltiesSaved: PlayerRow[];
   };
   managers: {
     topWins: ManagerRow[];
@@ -343,6 +348,8 @@ export default function AdminRecords() {
             {data.rules.cleanSheets ? <p>{data.rules.cleanSheets}</p> : null}
             {data.rules.unusedBench ? <p>{data.rules.unusedBench}</p> : null}
             {data.rules.scoringStreak ? <p>{data.rules.scoringStreak}</p> : null}
+            {data.rules.captain ? <p>{data.rules.captain}</p> : null}
+            {data.rules.penaltyEvents ? <p>{data.rules.penaltyEvents}</p> : null}
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
@@ -355,8 +362,17 @@ export default function AdminRecords() {
             <Card title="Mais jogos">
               <PlayerList rows={data.players.topAppearances} />
             </Card>
+            <Card title="Mais jogos como capitão">
+              <PlayerList rows={data.players.topCaptainAppearances ?? []} />
+            </Card>
             <Card title="Gols de pênalti">
               <PlayerList rows={data.players.topPenaltyGoals} />
+            </Card>
+            <Card title="Mais pênaltis perdidos">
+              <PlayerList rows={data.players.topPenaltiesMissed ?? []} />
+            </Card>
+            <Card title="Mais pênaltis defendidos">
+              <PlayerList rows={data.players.topPenaltiesSaved ?? []} />
             </Card>
             <Card title="Gols de falta">
               <PlayerList rows={data.players.topFreeKickGoals} />
