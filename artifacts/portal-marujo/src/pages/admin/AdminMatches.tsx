@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,6 @@ interface MatchRow {
 }
 
 export default function AdminMatches() {
-  const [, setLocation] = useLocation();
   const { season, setSeason } = useSeasonQueryParam("/admin/partidas");
   const [years, setYears] = useState<number[]>([]);
   const [matches, setMatches] = useState<MatchRow[]>([]);
@@ -200,39 +199,66 @@ export default function AdminMatches() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginated.map((m) => (
-                    <tr
-                      key={m.id}
-                      className="border-b hover:bg-gray-50 cursor-pointer"
-                      onClick={() => setLocation(`/admin/partidas/${m.id}`)}
-                      data-testid={`row-admin-match-${m.id}`}
-                    >
-                      <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{m.matchDate}</td>
-                      <td className="px-3 py-2 font-medium text-[#1B3A6B]">{m.opponentName}</td>
-                      <td className="px-3 py-2 text-center">
-                        <ResultBadge result={m.result as "win" | "draw" | "loss"} />
-                      </td>
-                      <td className="px-3 py-2 text-center font-mono">
-                        {m.goalsFor}–{m.goalsAgainst}
-                      </td>
-                      <td className="px-3 py-2 text-gray-600">{homeAwayLabel(m.homeAway)}</td>
-                      <td className="px-3 py-2 text-gray-600 max-w-[160px] truncate">
-                        {m.competitionName}
-                      </td>
-                      <td className="px-3 py-2">
-                        <div className="flex items-center justify-end">
-                          <button
-                            type="button"
-                            onClick={(e) => deleteMatch(m.id, e)}
-                            className="p-1 text-gray-400 hover:text-red-600 rounded"
-                            title="Excluir"
+                  {paginated.map((m) => {
+                    const href = `/admin/partidas/${m.id}`;
+                    return (
+                      <tr
+                        key={m.id}
+                        className="border-b hover:bg-gray-50 group"
+                        data-testid={`row-admin-match-${m.id}`}
+                      >
+                        <td className="px-3 py-2 whitespace-nowrap">
+                          <Link href={href} className="block text-gray-600 hover:text-[#1B3A6B]">
+                            {m.matchDate}
+                          </Link>
+                        </td>
+                        <td className="px-3 py-2">
+                          <Link
+                            href={href}
+                            className="block font-medium text-[#1B3A6B] group-hover:underline"
                           >
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                            {m.opponentName}
+                          </Link>
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          <Link href={href} className="inline-flex justify-center">
+                            <ResultBadge result={m.result as "win" | "draw" | "loss"} />
+                          </Link>
+                        </td>
+                        <td className="px-3 py-2 text-center font-mono">
+                          <Link href={href} className="block text-gray-900">
+                            {m.goalsFor}–{m.goalsAgainst}
+                          </Link>
+                        </td>
+                        <td className="px-3 py-2">
+                          <Link href={href} className="block text-gray-600">
+                            {homeAwayLabel(m.homeAway)}
+                          </Link>
+                        </td>
+                        <td className="px-3 py-2 max-w-[160px]">
+                          <Link
+                            href={href}
+                            className="block text-gray-600 truncate"
+                            title={m.competitionName}
+                          >
+                            {m.competitionName}
+                          </Link>
+                        </td>
+                        <td className="px-3 py-2">
+                          <div className="flex items-center justify-end">
+                            <button
+                              type="button"
+                              onClick={(e) => deleteMatch(m.id, e)}
+                              className="p-1 text-gray-400 hover:text-red-600 rounded"
+                              title="Excluir"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
               {paginated.length === 0 && (
