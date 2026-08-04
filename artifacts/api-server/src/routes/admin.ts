@@ -21,6 +21,7 @@ import {
   transfersTable,
   presidentsTable,
   siteContentTable,
+  matchLineupsTable,
 } from "@workspace/db";
 import {
   isRatingEntityType,
@@ -571,6 +572,13 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
       .where(eq(playersTable.id, id))
       .returning();
     if (!updated) return res.status(404).json({ error: "Jogador não encontrado" });
+
+    // Lineup rows store a position snapshot; keep them aligned with the catalog
+    // so public match sheets reflect admin position edits.
+    await db
+      .update(matchLineupsTable)
+      .set({ position: primaryPosition })
+      .where(eq(matchLineupsTable.playerId, id));
 
     if (Object.prototype.hasOwnProperty.call(body, "linkedManagerId")) {
       const raw = body.linkedManagerId;
