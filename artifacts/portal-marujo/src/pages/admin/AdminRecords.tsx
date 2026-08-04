@@ -41,12 +41,14 @@ type RecordsPayload = {
     scoringStreak?: string;
     captain?: string;
     penaltyEvents?: string;
+    ownGoals?: string;
   };
   players: {
     topScorers: PlayerRow[];
     topAssists: PlayerRow[];
     topAppearances: PlayerRow[];
     topPenaltyGoals: PlayerRow[];
+    topOwnGoals: PlayerRow[];
     topFreeKickGoals: PlayerRow[];
     topHatTricks: PlayerRow[];
     multiGoalHauls: MultiGoalBucket[];
@@ -350,6 +352,7 @@ export default function AdminRecords() {
             {data.rules.scoringStreak ? <p>{data.rules.scoringStreak}</p> : null}
             {data.rules.captain ? <p>{data.rules.captain}</p> : null}
             {data.rules.penaltyEvents ? <p>{data.rules.penaltyEvents}</p> : null}
+            {data.rules.ownGoals ? <p>{data.rules.ownGoals}</p> : null}
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
@@ -367,6 +370,9 @@ export default function AdminRecords() {
             </Card>
             <Card title="Gols de pênalti">
               <PlayerList rows={data.players.topPenaltyGoals} />
+            </Card>
+            <Card title="Mais gols contra (GPD)">
+              <PlayerList rows={data.players.topOwnGoals ?? []} />
             </Card>
             <Card title="Mais pênaltis perdidos">
               <PlayerList rows={data.players.topPenaltiesMissed ?? []} />

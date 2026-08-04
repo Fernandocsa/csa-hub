@@ -329,6 +329,93 @@ router.get("/players/top-assists", async (req, res) => {
   }
 });
 
+/** Ranking of CSA players who scored own goals (GPD / against). */
+router.get("/players/top-own-goals", async (req, res) => {
+  try {
+    const { season, limit = "100" } = req.query as Record<string, string>;
+    const lim = Math.min(parseInt(limit) || 100, 200);
+    const seasonFilter = season
+      ? sql`AND m.season::text = ${season}`
+      : sql``;
+
+    const result = await db.execute(sql`
+      WITH og AS (
+        SELECT
+          mg.scorer_player_id AS player_id,
+          count(*)::int AS own_goals
+        FROM match_goals mg
+        INNER JOIN matches m ON m.id = mg.match_id
+        WHERE coalesce(mg.is_own_goal, false) = true
+          AND mg.own_goal_direction = 'against'
+          AND mg.scorer_player_id IS NOT NULL
+          AND coalesce(m.is_friendly, false) = false
+          AND coalesce(m.status, 'played') <> 'scheduled'
+          AND coalesce(m.result, '') <> 'unknown'
+          AND lower(coalesce(m.phase, '')) NOT LIKE '%anulad%'
+          ${seasonFilter}
+        GROUP BY mg.scorer_player_id
+      ),
+      apps AS (
+        SELECT
+          ml.player_id,
+          count(DISTINCT ml.match_id)::int AS appearances
+        FROM match_lineups ml
+        INNER JOIN matches m ON m.id = ml.match_id
+        WHERE ml.side = 'csa'
+          AND ml.player_id IS NOT NULL
+          AND coalesce(m.is_friendly, false) = false
+          AND coalesce(m.status, 'played') <> 'scheduled'
+          AND coalesce(m.result, '') <> 'unknown'
+          AND lower(coalesce(m.phase, '')) NOT LIKE '%anulad%'
+          AND (
+            ml.role = 'starter'
+            OR EXISTS (
+              SELECT 1 FROM match_substitutions s
+              WHERE s.match_id = ml.match_id
+                AND s.side = 'csa'
+                AND s.player_in_id IS NOT NULL
+                AND s.player_in_id = ml.player_id
+            )
+          )
+          ${seasonFilter}
+          AND ml.player_id IN (SELECT player_id FROM og)
+        GROUP BY ml.player_id
+      )
+      SELECT
+        p.id,
+        p.name,
+        p.position,
+        p.nationality,
+        p.nationality_flag AS "nationalityFlag",
+        p.verification_status AS "verificationStatus",
+        coalesce(a.appearances, 0)::int AS appearances,
+        og.own_goals::int AS goals
+      FROM og
+      INNER JOIN players p ON p.id = og.player_id
+      LEFT JOIN apps a ON a.player_id = og.player_id
+      ORDER BY og.own_goals DESC, p.name ASC
+      LIMIT ${lim}
+    `);
+
+    const rows = ((result as unknown as { rows: Record<string, unknown>[] }).rows ?? []).map(
+      (r) => ({
+        id: Number(r.id),
+        name: String(r.name),
+        position: (r.position as string | null) ?? null,
+        nationality: (r.nationality as string | null) ?? null,
+        nationalityFlag: (r.nationalityFlag as string | null) ?? null,
+        verificationStatus: (r.verificationStatus as string | null) ?? null,
+        appearances: Number(r.appearances) || 0,
+        goals: Number(r.goals) || 0,
+      }),
+    );
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
 // Foreign players (non-Brazilian)
 router.get("/players/foreign", async (req, res) => {
   try {

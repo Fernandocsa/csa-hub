@@ -31,7 +31,14 @@ export type OgolApplyPayload = {
   managerId: number | null;
   /** Players not in season roster — inject locally */
   extraPlayers: OgolRosterPlayer[];
-  goals: { playerId: number; minute: string; injuryTimeMinute: string; isPenalty?: boolean }[];
+  goals: {
+    playerId: number;
+    minute: string;
+    injuryTimeMinute: string;
+    isPenalty?: boolean;
+    /** CSA own goal (GPD / against). */
+    isOwnGoal?: boolean;
+  }[];
   assists: { playerId: number; minute: string; injuryTimeMinute: string }[];
   yellows: { playerId: number; minute: string; injuryTimeMinute: string }[];
   reds: { playerId: number; minute: string; injuryTimeMinute: string }[];
@@ -566,7 +573,12 @@ export function OgolPasteDialog({
       .map((g) => {
         const id = idForName(g.playerName);
         return id != null
-          ? { playerId: id, ...clockFields(g), isPenalty: Boolean(g.isPenalty) }
+          ? {
+              playerId: id,
+              ...clockFields(g),
+              isPenalty: Boolean(g.isPenalty),
+              isOwnGoal: Boolean(g.isOwnGoal),
+            }
           : null;
       })
       .filter(Boolean) as OgolApplyPayload["goals"];
@@ -732,7 +744,7 @@ export function OgolPasteDialog({
                     {parsed.goals.map((g, i) => (
                       <li key={`g-${i}`}>
                         ⚽ {g.playerName} {formatOgolClock(g)}
-                        {g.isPenalty ? " (pen.)" : ""}
+                        {g.isOwnGoal ? " (g.c.)" : g.isPenalty ? " (pen.)" : ""}
                       </li>
                     ))}
                     {parsed.assists.map((a, i) => (

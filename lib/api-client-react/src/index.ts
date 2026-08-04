@@ -26,3 +26,4 @@ export * from "./transfers";
 export * from "./presidents";
 export * from "./classico";
 export * from "./site-content";
+export * from "./own-goals";

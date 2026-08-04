@@ -383,6 +383,7 @@ export default function AdminMatchSheet() {
       minute: string;
       injuryTimeMinute?: string;
       isPenalty?: boolean;
+      isOwnGoal?: boolean;
     }[],
     minRows: number,
   ): EventRow[] {
@@ -390,21 +391,22 @@ export default function AdminMatchSheet() {
     let cursor = 0;
     for (const item of incoming) {
       while (cursor < next.length && next[cursor].playerId) cursor += 1;
+      const patch = {
+        playerId: String(item.playerId),
+        minute: item.minute,
+        injuryTimeMinute: item.injuryTimeMinute ?? "",
+        isPenalty: Boolean(item.isPenalty) && !item.isOwnGoal,
+        isOwnGoal: Boolean(item.isOwnGoal),
+      };
       if (cursor >= next.length) {
         next.push({
           ...emptyEventRow(),
-          playerId: String(item.playerId),
-          minute: item.minute,
-          injuryTimeMinute: item.injuryTimeMinute ?? "",
-          isPenalty: Boolean(item.isPenalty),
+          ...patch,
         });
       } else {
         next[cursor] = {
           ...next[cursor],
-          playerId: String(item.playerId),
-          minute: item.minute,
-          injuryTimeMinute: item.injuryTimeMinute ?? "",
-          isPenalty: Boolean(item.isPenalty),
+          ...patch,
         };
       }
       cursor += 1;
@@ -1030,7 +1032,8 @@ export default function AdminMatchSheet() {
           isPenalty: row.isPenalty && !row.isOwnGoal,
           isFreeKick: row.isFreeKick && !row.isOwnGoal && !row.isPenalty,
           isOwnGoal: row.isOwnGoal,
-          ownGoalDirection: row.isOwnGoal ? "for" : null,
+          // g.c. on a CSA scorer = GPD (against); GPF uses the dedicated row below.
+          ownGoalDirection: row.isOwnGoal ? "against" : null,
         });
       }
 

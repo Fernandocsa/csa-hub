@@ -193,6 +193,30 @@ paths:
                 items:
                   $ref: "#/components/schemas/PlayerStat"
 
+  /players/top-own-goals:
+    get:
+      operationId: getTopOwnGoals
+      tags: [players]
+      summary: CSA players ranked by own goals (GPD)
+      parameters:
+        - name: season
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Own-goal leaders (goals field = own goals count)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlayerStat"
+
   /matches:
     get:
       operationId: listMatches

@@ -11,6 +11,7 @@
  * - NN' alone = goal (supports 90+N' stoppage time)
  * - multiple goals on one line: `19' 27'`
  * - NN' (pen.) = penalty goal
+ * - NN' (g.c.) / (gc) = own goal (gol contra / GPD)
  * - B + NN' = assist at minute
  * - A + NN' = missed penalty
  * - C + NN' = saved penalty
@@ -34,7 +35,12 @@ export type OgolParsedPlayer = {
   position?: string | null;
 };
 
-export type OgolGoal = { playerName: string; isPenalty?: boolean } & OgolClock;
+export type OgolGoal = {
+  playerName: string;
+  isPenalty?: boolean;
+  /** CSA player into own net (GPD). */
+  isOwnGoal?: boolean;
+} & OgolClock;
 export type OgolAssist = { playerName: string } & OgolClock;
 export type OgolCard = {
   playerName: string;
@@ -74,9 +80,13 @@ const SHIRT_RE = /^\d{1,3}$/;
 const SHIRT_MISSING_RE = /^[-–—]$/;
 /** `63'` or stoppage `90+4'` / `45+2'` (apostrophe required) */
 const MINUTE_RE = /^(\d{1,3})(?:\s*\+\s*(\d{1,2}))?\s*'$/;
-/** Goal clock, optionally marked as penalty: `65'` / `65' (pen.)` / `90+2'(pen)` */
-const GOAL_CLOCK_RE =
-  /^(\d{1,3})(?:\s*\+\s*(\d{1,2}))?\s*'(?:\s*\(pen\.?\))?$/i;
+/** Suffix after minute: `(pen.)` or own-goal `(g.c.)` / `(gc)` / `(g.c)` */
+const GOAL_MARK_RE = String.raw`(?:\s*\((?:pen\.?|g\.?\s*c\.?)\))?`;
+/** Goal clock, optionally marked: `65'` / `65' (pen.)` / `3' (g.c.)` / `90+2'(pen)` */
+const GOAL_CLOCK_RE = new RegExp(
+  String.raw`^(\d{1,3})(?:\s*\+\s*(\d{1,2}))?\s*'${GOAL_MARK_RE}$`,
+  "i",
+);
 const EVENT_TOKEN = /^(R|B|A|C|S|SR|7|8)$/i;
 /** Sentinel aligned with API UNKNOWN_EVENT_MINUTE */
 const UNKNOWN_OGOL_MINUTE = 200;
@@ -147,23 +157,27 @@ function parseMinuteToken(raw: string | undefined | null): OgolClock | null {
 
 function parseGoalToken(
   raw: string | undefined | null,
-): ({ clock: OgolClock; isPenalty: boolean }) | null {
+): ({ clock: OgolClock; isPenalty: boolean; isOwnGoal: boolean }) | null {
   if (!raw) return null;
   if (isUnknownMinuteToken(raw)) {
     return {
       clock: { minute: UNKNOWN_OGOL_MINUTE, injuryTimeMinute: null },
       isPenalty: false,
+      isOwnGoal: false,
     };
   }
   const t = normalizeOgolToken(raw);
   const m = t.match(GOAL_CLOCK_RE);
   if (!m) return null;
+  const isOwnGoal = /\(\s*g\.?\s*c\.?\s*\)/i.test(t);
+  const isPenalty = !isOwnGoal && /\(pen\.?\)/i.test(t);
   return {
     clock: {
       minute: Number(m[1]),
       injuryTimeMinute: m[2] != null ? Number(m[2]) : null,
     },
-    isPenalty: /\(pen\.?\)/i.test(t),
+    isPenalty,
+    isOwnGoal,
   };
 }
 
@@ -184,8 +198,10 @@ function expandTokenLine(line: string): string[] {
   // Glued events+minutes from messy copy: R90+2'S R90+5' / R90+2'SR90+5'
   // Require a letter event (R/B/A/C/S) or 7/8 glued onto a clock — not bare NN'.
   if (/[RBACS]/i.test(t) || /^[78]\d{1,3}(?:\+|\')/i.test(t) || /\d'[78]/i.test(t)) {
-    const gluedRe =
-      /([RBACS78])|(\d{1,3}(?:\s*\+\s*\d{1,2})?\s*'(?:\s*\(pen\.?\))?)/gi;
+    const gluedRe = new RegExp(
+      String.raw`([RBACS78])|(\d{1,3}(?:\s*\+\s*\d{1,2})?\s*'${GOAL_MARK_RE})`,
+      "gi",
+    );
     const glued: string[] = [];
     let m: RegExpExecArray | null;
     while ((m = gluedRe.exec(t)) !== null) {
@@ -199,7 +215,10 @@ function expandTokenLine(line: string): string[] {
   }
 
   // Fresh /g regex each call — shared lastIndex would break match+replace.
-  const re = /\d{1,3}(?:\s*\+\s*\d{1,2})?\s*'(?:\s*\(pen\.?\))?/gi;
+  const re = new RegExp(
+    String.raw`\d{1,3}(?:\s*\+\s*\d{1,2})?\s*'${GOAL_MARK_RE}`,
+    "gi",
+  );
   const parts = t.match(re);
   if (parts?.length) {
     const stripped = t.replace(re, "").trim();
@@ -560,6 +579,7 @@ export function parseOgolPaste(raw: string): OgolParseResult {
           playerName: p.name,
           ...goalTok.clock,
           isPenalty: goalTok.isPenalty,
+          isOwnGoal: goalTok.isOwnGoal,
         });
         ti += 1;
         continue;

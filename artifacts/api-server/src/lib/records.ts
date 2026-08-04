@@ -298,6 +298,36 @@ async function topPenaltyGoals(limit = 10): Promise<PlayerRecordHolder[]> {
   }));
 }
 
+/** CSA players who scored into their own net (GPD). */
+async function topOwnGoals(limit = 10): Promise<PlayerRecordHolder[]> {
+  const rows = await db
+    .select({
+      playerId: matchGoalsTable.scorerPlayerId,
+      playerName: playersTable.name,
+      value: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchGoalsTable)
+    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
+    .innerJoin(playersTable, eq(matchGoalsTable.scorerPlayerId, playersTable.id))
+    .where(
+      and(
+        recordsMatchConditions(),
+        eq(matchGoalsTable.isOwnGoal, true),
+        eq(matchGoalsTable.ownGoalDirection, "against"),
+        isNotNull(matchGoalsTable.scorerPlayerId),
+      ),
+    )
+    .groupBy(matchGoalsTable.scorerPlayerId, playersTable.name)
+    .orderBy(desc(sql`count(*)`), asc(playersTable.name))
+    .limit(limit);
+
+  return rows.map((r) => ({
+    playerId: r.playerId!,
+    playerName: r.playerName,
+    value: r.value,
+  }));
+}
+
 /** Matches as CSA captain (matches.captain_player_id). */
 async function topCaptainAppearances(limit = 10): Promise<PlayerRecordHolder[]> {
   const rows = await db
@@ -1359,6 +1389,7 @@ export async function computeClubRecords() {
     assists,
     appearances,
     penalties,
+    ownGoals,
     freeKicks,
     multiGoalHauls,
     yellowCards,
@@ -1387,6 +1418,7 @@ export async function computeClubRecords() {
     topAssists(),
     topAppearances(),
     topPenaltyGoals(),
+    topOwnGoals(),
     topFreeKickGoals(),
     multiGoalHaulsByCount(),
     topCards("yellow"),
@@ -1438,12 +1470,15 @@ export async function computeClubRecords() {
       captain: "Capitão: partidas oficiais com o jogador marcado como capitão na ficha",
       penaltyEvents:
         "Pênaltis perdidos/defendidos: eventos próprios da ficha (A/C) — não entram na artilharia nem em gols",
+      ownGoals:
+        "Gols contra (GPD): jogador do CSA que marcou na própria meta — não entram na artilharia",
     },
     players: {
       topScorers: goals,
       topAssists: assists,
       topAppearances: appearances,
       topPenaltyGoals: penalties,
+      topOwnGoals: ownGoals,
       topFreeKickGoals: freeKicks,
       /** Exact 3-goal hauls only (kept for compatibility). */
       topHatTricks,
