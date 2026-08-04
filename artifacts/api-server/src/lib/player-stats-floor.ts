@@ -235,15 +235,35 @@ export async function sheetDerivedPlayerSeasonStats(playerId: number) {
 }
 
 /**
+ * Seasons where the player appears on any CSA sheet (starter or bench),
+ * including unused reserves who never entered.
+ */
+export async function seasonsWithAnyCsaLineup(playerId: number): Promise<string[]> {
+  const rows = await db
+    .selectDistinct({ season: matchesTable.season })
+    .from(matchLineupsTable)
+    .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        eq(matchLineupsTable.playerId, playerId),
+        eq(matchLineupsTable.side, "csa"),
+      ),
+    );
+  return rows.map((r) => String(r.season));
+}
+
+/**
  * Upsert `player_season_stats` apps/goals/assists from match sheets.
- * Preserves shirt_number. Creates missing season rows. Leaves pure-manual
- * seasons (no sheet activity) untouched.
+ * Preserves shirt_number. Creates missing season rows for any CSA lineup
+ * season (including unused bench at 0/0/0). Never deletes other seasons.
+ * Leaves pure-manual seasons (no sheet activity) untouched.
  */
 export async function syncPlayerSeasonStatsFromSheets(playerId: number): Promise<void> {
   if (!Number.isInteger(playerId) || playerId < 1) return;
 
   const derived = await sheetDerivedPlayerSeasonStats(playerId);
-  if (derived.size === 0) return;
+  const lineupSeasons = await seasonsWithAnyCsaLineup(playerId);
+  if (derived.size === 0 && lineupSeasons.length === 0) return;
 
   const existing = await db
     .select({
@@ -274,7 +294,23 @@ export async function syncPlayerSeasonStatsFromSheets(playerId: number): Promise
         assists: agg.assists,
         shirtNumber: null,
       });
+      bySeason.set(season, -1);
     }
+  }
+
+  // Keep elenco / profile seasons for unused-bench (and any sheet presence)
+  // so linking a player into a new season never "loses" prior ones.
+  for (const season of lineupSeasons) {
+    if (bySeason.has(season)) continue;
+    await db.insert(playerSeasonStatsTable).values({
+      playerId,
+      season,
+      appearances: 0,
+      goals: 0,
+      assists: 0,
+      shirtNumber: null,
+    });
+    bySeason.set(season, -1);
   }
 }
 

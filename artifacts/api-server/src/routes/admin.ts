@@ -4210,6 +4210,13 @@ router.post("/admin/seasons/:year/players", requireAdmin, async (req, res) => {
           shirtNumber,
         })
         .returning();
+      // Re-sync from sheets so unused-bench / other lineup seasons stay on the profile
+      // when a player is linked into a new season (e.g. Ogol "outra temporada").
+      try {
+        await syncPlayerSeasonStatsFromSheets(playerId);
+      } catch (syncErr) {
+        req.log.warn({ err: syncErr, playerId }, "sync after season link failed");
+      }
       const rows = await listSeasonPlayerStats(season);
       const row = rows.find((r) => r.id === inserted.id);
       res.status(201).json(
@@ -4230,6 +4237,12 @@ router.post("/admin/seasons/:year/players", requireAdmin, async (req, res) => {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       if (/unique|duplicate/i.test(msg)) {
+        // Still refresh sheet-backed seasons when the row already existed.
+        try {
+          await syncPlayerSeasonStatsFromSheets(playerId);
+        } catch (syncErr) {
+          req.log.warn({ err: syncErr, playerId }, "sync after season link failed");
+        }
         return res.status(409).json({
           error: "Jogador já está no elenco desta temporada",
         });
@@ -5551,23 +5564,48 @@ router.put("/admin/players/:id/season-stats/:season", requireAdmin, async (req, 
   }
 });
 
-// Replace all player_season_stats for a player with a single aggregate entry
+// Legacy: upsert ONE season row without wiping the rest of the profile.
+// (Older clients used to DELETE all seasons then insert one — that wiped history.)
 router.put("/admin/players/:id/stats", requireAdmin, async (req, res) => {
   try {
     const playerId = parseInt(req.params.id);
+    if (isNaN(playerId) || playerId < 1) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
     const { season, appearances, goals, assists } = req.body as {
       season: string; appearances: number; goals: number; assists?: number;
     };
     if (!season) return res.status(400).json({ error: "season obrigatório" });
-    await db.delete(playerSeasonStatsTable).where(eq(playerSeasonStatsTable.playerId, playerId));
-    await db.insert(playerSeasonStatsTable).values({
-      playerId,
-      season,
-      appearances: appearances ?? 0,
-      goals: goals ?? 0,
-      assists: assists ?? 0,
-    });
-    res.json({ ok: true, playerId, season, appearances: appearances ?? 0, goals: goals ?? 0 });
+    const apps = appearances ?? 0;
+    const g = goals ?? 0;
+    const a = assists ?? 0;
+
+    const [existing] = await db
+      .select({ id: playerSeasonStatsTable.id })
+      .from(playerSeasonStatsTable)
+      .where(
+        and(
+          eq(playerSeasonStatsTable.playerId, playerId),
+          eq(playerSeasonStatsTable.season, season),
+        ),
+      )
+      .limit(1);
+
+    if (existing) {
+      await db
+        .update(playerSeasonStatsTable)
+        .set({ appearances: apps, goals: g, assists: a })
+        .where(eq(playerSeasonStatsTable.id, existing.id));
+    } else {
+      await db.insert(playerSeasonStatsTable).values({
+        playerId,
+        season,
+        appearances: apps,
+        goals: g,
+        assists: a,
+      });
+    }
+    res.json({ ok: true, playerId, season, appearances: apps, goals: g, assists: a });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });

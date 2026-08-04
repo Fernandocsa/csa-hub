@@ -142,6 +142,15 @@ try {
 
     for (const r of roster) {
       if (touched.has(r.player_id)) continue;
+      // Still on a CSA sheet this season (e.g. unused bench) — keep the row.
+      const { rows: onSheet } = await client.query(
+        `SELECT 1 FROM match_lineups ml
+         JOIN matches m ON m.id = ml.match_id
+         WHERE ml.player_id = $1 AND ml.side = 'csa' AND m.season::text = $2
+         LIMIT 1`,
+        [r.player_id, season],
+      );
+      if (onSheet[0]) continue;
       // No linked sheet activity: drop manual apps/goals (or the whole row if no assists)
       if ((r.appearances ?? 0) === 0 && (r.goals ?? 0) === 0) continue;
       if (!DRY) {
@@ -172,13 +181,24 @@ try {
     }
   }
 
-  // Drop fully empty season rows (no apps/goals/assists)
+  // Only drop empty season rows with NO CSA sheet presence (not even unused bench).
+  // Roster / unused-bench seasons at 0/0/0 must stay on the player profile.
   let emptyDeleted = 0;
   if (!DRY) {
     const del = await client.query(
-      `DELETE FROM player_season_stats
-       WHERE coalesce(appearances,0)=0 AND coalesce(goals,0)=0 AND coalesce(assists,0)=0
-       RETURNING id`,
+      `DELETE FROM player_season_stats pss
+       WHERE coalesce(pss.appearances,0)=0
+         AND coalesce(pss.goals,0)=0
+         AND coalesce(pss.assists,0)=0
+         AND NOT EXISTS (
+           SELECT 1
+           FROM match_lineups ml
+           JOIN matches m ON m.id = ml.match_id
+           WHERE ml.player_id = pss.player_id
+             AND ml.side = 'csa'
+             AND m.season::text = pss.season::text
+         )
+       RETURNING pss.id`,
     );
     emptyDeleted = del.rowCount ?? 0;
   }
