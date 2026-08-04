@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { ChevronLeft, Plus, Trash2 } from "lucide-react";
+import { ChevronLeft, Plus, Trash2, ExternalLink } from "lucide-react";
 import { AdminEntityBadges } from "@/components/AdminEntityBadges";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { AdminNameDuplicateWarning } from "@/components/AdminNameDuplicateWarning";
@@ -953,11 +953,29 @@ export default function AdminPlayerDetail() {
           <ChevronLeft size={13} /> {returnLabel}
         </Link>
         <h1 className="text-xl font-bold text-gray-900">
-          {isNew ? "Novo jogador" : player!.name}
+          {isNew ? (
+            "Novo jogador"
+          ) : (
+            <Link
+              href={`/jogadores/${player!.id}`}
+              className="inline-flex items-center gap-2 hover:text-[#1B3A6B] hover:underline"
+              title="Abrir perfil público"
+            >
+              {player!.name}
+              <ExternalLink size={14} className="text-gray-400 shrink-0" aria-hidden />
+            </Link>
+          )}
         </h1>
         {!isNew && (
           <p className="text-sm text-gray-500 mt-0.5">
             {[player!.position, player!.nationality].filter(Boolean).join(" · ") || "Sem posição"}
+            {" · "}
+            <Link
+              href={`/jogadores/${player!.id}/jogos`}
+              className="text-[#1B3A6B] hover:underline"
+            >
+              ver jogos
+            </Link>
           </p>
         )}
         {savedMsg && <p className="text-sm text-green-700 mt-1">{savedMsg}</p>}

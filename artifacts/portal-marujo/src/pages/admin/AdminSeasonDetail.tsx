@@ -12,6 +12,7 @@ import {
 import { withAdminFrom } from "@/hooks/useAdminReturnTo";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { EntityPhoto } from "@/components/EntityPhoto";
+import { formatDateBr } from "@/lib/utils";
 
 type CompStat = {
   id: number;
@@ -183,6 +184,11 @@ export default function AdminSeasonDetail() {
       matchDate: string;
       opponentName: string;
       competitionId: number;
+      competitionName: string | null;
+      goalsFor: number | null;
+      goalsAgainst: number | null;
+      result: string | null;
+      homeAway: string | null;
       phase: string | null;
       round: string | null;
     }[]
@@ -252,6 +258,11 @@ export default function AdminSeasonDetail() {
           matchDate: string;
           opponentName: string;
           competitionId: number;
+          competitionName?: string | null;
+          goalsFor?: number | null;
+          goalsAgainst?: number | null;
+          result?: string | null;
+          homeAway?: string | null;
           phase?: string | null;
           round?: string | null;
         }[]).map((m) => ({
@@ -259,6 +270,11 @@ export default function AdminSeasonDetail() {
           matchDate: m.matchDate,
           opponentName: m.opponentName,
           competitionId: m.competitionId,
+          competitionName: m.competitionName ?? null,
+          goalsFor: m.goalsFor ?? null,
+          goalsAgainst: m.goalsAgainst ?? null,
+          result: m.result ?? null,
+          homeAway: m.homeAway ?? null,
           phase: m.phase ?? null,
           round: m.round ?? null,
         })),
@@ -1287,6 +1303,101 @@ export default function AdminSeasonDetail() {
             )}
           </div>
         )}
+      </section>
+
+      {/* ── Jogos ── */}
+      <section>
+        <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+          <div>
+            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
+              Jogos
+            </h2>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {seasonMatches.length} partida
+              {seasonMatches.length === 1 ? "" : "s"} cadastrada
+              {seasonMatches.length === 1 ? "" : "s"} nesta temporada
+            </p>
+          </div>
+          <Link
+            href={`/admin/partidas?season=${year}`}
+            className="text-xs text-[#1B3A6B] font-medium hover:underline"
+          >
+            Ver em Partidas
+          </Link>
+        </div>
+        <div className="bg-white border rounded-lg p-4">
+          {loading ? (
+            <p className="text-sm text-gray-400">Carregando jogos…</p>
+          ) : seasonMatches.length === 0 ? (
+            <p className="text-sm text-gray-400">
+              Nenhuma partida nesta temporada.
+            </p>
+          ) : (
+            <div className="overflow-x-auto max-h-[28rem] overflow-y-auto">
+              <table className="w-full text-sm min-w-[40rem]">
+                <thead className="sticky top-0 bg-white">
+                  <tr className="text-xs text-gray-400 border-b">
+                    <th className="text-left py-1.5 pr-2">Data</th>
+                    <th className="text-left py-1.5 pr-2">Adversário</th>
+                    <th className="text-left py-1.5 pr-2">Competição</th>
+                    <th className="text-center py-1.5 pr-2 w-16">Local</th>
+                    <th className="text-center py-1.5 pr-2 w-20">Placar</th>
+                    <th className="text-left py-1.5">Fase / Rodada</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...seasonMatches]
+                    .sort((a, b) => a.matchDate.localeCompare(b.matchDate) || a.id - b.id)
+                    .map((m) => {
+                      const venue =
+                        m.homeAway === "home"
+                          ? "C"
+                          : m.homeAway === "away"
+                            ? "F"
+                            : m.homeAway === "neutral"
+                              ? "N"
+                              : "–";
+                      const score =
+                        m.goalsFor != null && m.goalsAgainst != null
+                          ? `${m.goalsFor}×${m.goalsAgainst}`
+                          : "–";
+                      const phaseRound = [m.phase, m.round].filter(Boolean).join(" · ");
+                      return (
+                        <tr key={m.id} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-1.5 pr-2 whitespace-nowrap tabular-nums text-gray-600">
+                            <Link
+                              href={`/admin/partidas/${m.id}`}
+                              className="text-[#1B3A6B] hover:underline"
+                            >
+                              {formatDateBr(m.matchDate)}
+                            </Link>
+                          </td>
+                          <td className="py-1.5 pr-2">
+                            <Link
+                              href={`/admin/partidas/${m.id}`}
+                              className="font-medium text-gray-900 hover:text-[#1B3A6B] hover:underline"
+                            >
+                              {m.opponentName}
+                            </Link>
+                          </td>
+                          <td className="py-1.5 pr-2 text-gray-600">
+                            {m.competitionName ?? "–"}
+                          </td>
+                          <td className="py-1.5 pr-2 text-center text-gray-500">{venue}</td>
+                          <td className="py-1.5 pr-2 text-center tabular-nums font-medium">
+                            {score}
+                          </td>
+                          <td className="py-1.5 text-gray-500 text-xs">
+                            {phaseRound || "–"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* ── Elenco ── */}
