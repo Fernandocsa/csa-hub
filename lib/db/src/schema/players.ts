@@ -49,6 +49,29 @@ export const playerSeasonStatsTable = pgTable(
   ],
 );
 
+/**
+ * Season-scoped Ogol paste nicknames (e.g. "Ênio" → Ênio Oliveira in 2025 only).
+ * Does not apply to other seasons — avoids cross-season identity mistakes.
+ */
+export const playerSeasonNameAliasesTable = pgTable(
+  "player_season_name_aliases",
+  {
+    id: serial("id").primaryKey(),
+    playerId: integer("player_id").notNull().references(() => playersTable.id),
+    season: text("season").notNull(),
+    /** Raw pasted name as shown in Ogol. */
+    alias: text("alias").notNull(),
+    /** Normalized key used for matching (accent-insensitive). */
+    aliasNorm: text("alias_norm").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("player_season_name_aliases_season_norm_uidx").on(t.season, t.aliasNorm),
+    index("player_season_name_aliases_season_idx").on(t.season),
+    index("player_season_name_aliases_player_idx").on(t.playerId),
+  ],
+);
+
 export const insertPlayerSchema = createInsertSchema(playersTable).omit({ id: true });
 export type InsertPlayer = z.infer<typeof insertPlayerSchema>;
 export type Player = typeof playersTable.$inferSelect;
@@ -56,6 +79,8 @@ export type Player = typeof playersTable.$inferSelect;
 export const insertPlayerSeasonStatSchema = createInsertSchema(playerSeasonStatsTable).omit({ id: true });
 export type InsertPlayerSeasonStat = z.infer<typeof insertPlayerSeasonStatSchema>;
 export type PlayerSeasonStat = typeof playerSeasonStatsTable.$inferSelect;
+
+export type PlayerSeasonNameAlias = typeof playerSeasonNameAliasesTable.$inferSelect;
 
 export const seasonTopScorersTable = pgTable("season_top_scorers", {
   id: serial("id").primaryKey(),

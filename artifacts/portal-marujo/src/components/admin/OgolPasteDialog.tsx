@@ -270,12 +270,68 @@ export function OgolPasteDialog({
     return { id: m.id, name: m.name };
   }
 
+  /** Load season-scoped Ogol nicknames (e.g. "Ênio" → Ênio Oliveira in 2025 only). */
+  async function loadSeasonAliases(): Promise<
+    Map<string, OgolRosterPlayer & { alias: string }>
+  > {
+    const year = String(season ?? "").trim();
+    const map = new Map<string, OgolRosterPlayer & { alias: string }>();
+    if (!year || !/^\d{4}$/.test(year)) return map;
+    const r = await adminFetch(
+      `/admin/seasons/${encodeURIComponent(year)}/player-aliases`,
+    );
+    if (!r.ok) return map;
+    const data = await r.json();
+    const list = Array.isArray(data.data) ? data.data : [];
+    for (const row of list as {
+      aliasNorm: string;
+      alias: string;
+      playerId: number;
+      playerName: string;
+      position?: string | null;
+      photoUrl?: string | null;
+      fullName?: string | null;
+    }[]) {
+      const norm = String(row.aliasNorm ?? "").trim();
+      if (!norm) continue;
+      map.set(norm, {
+        id: row.playerId,
+        name: row.playerName,
+        position: row.position ?? null,
+        photoUrl: row.photoUrl ?? null,
+        fullName: row.fullName ?? null,
+        alias: row.alias,
+      });
+    }
+    return map;
+  }
+
+  /** Remember Ogol paste name → player for this season only. */
+  async function saveSeasonAlias(alias: string, playerId: number): Promise<void> {
+    const year = String(season ?? "").trim();
+    if (!year || !alias.trim() || !playerId) return;
+    const r = await adminFetch(
+      `/admin/seasons/${encodeURIComponent(year)}/player-aliases`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ alias: alias.trim(), playerId }),
+      },
+    );
+    if (!r.ok && r.status !== 409) {
+      // Non-fatal — confirmation already linked the player to the season.
+      console.warn("Failed to save season Ogol alias", await r.text().catch(() => ""));
+    }
+  }
+
   async function interpret() {
     setError("");
     setBusy(true);
     try {
       const result = parseOgolPaste(text);
       setParsed(result);
+
+      const seasonAliases = await loadSeasonAliases();
 
       const resMap: Record<string, NameResolution> = {};
       for (const p of result.players) {
@@ -292,6 +348,20 @@ export function OgolPasteDialog({
             playerName: exact[0].name,
             position: exact[0].position,
             outsideRoster: false,
+          };
+          continue;
+        }
+
+        // Season-learned nickname (confirmed earlier this year only).
+        const remembered = seasonAliases.get(key);
+        if (remembered) {
+          const onRoster = roster.some((x) => x.id === remembered.id);
+          resMap[key] = {
+            status: "matched",
+            playerId: remembered.id,
+            playerName: remembered.name,
+            position: remembered.position,
+            outsideRoster: !onRoster,
           };
           continue;
         }
@@ -315,6 +385,22 @@ export function OgolPasteDialog({
       }
       setResolutions(resMap);
       setPendingSearch({});
+
+      // Alias matches outside the local roster: keep season elenco + sheet roster in sync.
+      for (const r of Object.values(resMap)) {
+        if (r.status !== "matched" || !r.outsideRoster) continue;
+        const player: OgolRosterPlayer = {
+          id: r.playerId,
+          name: r.playerName,
+          position: r.position,
+        };
+        try {
+          await ensurePlayerInSeason(r.playerId);
+          onSeasonPlayerLinked?.(player);
+        } catch (e: unknown) {
+          console.warn("alias ensure season failed", e);
+        }
+      }
 
       // Manager
       if (result.managerName) {
@@ -488,6 +574,9 @@ export function OgolPasteDialog({
    */
   async function linkAndResolve(key: string, player: OgolRosterPlayer) {
     const outside = !roster.some((x) => x.id === player.id);
+    const pending = resolutions[key];
+    const alias =
+      pending?.status === "pending" ? pending.createName : key;
     setBusy(true);
     setError("");
     try {
@@ -495,6 +584,7 @@ export function OgolPasteDialog({
         await ensurePlayerInSeason(player.id);
         onSeasonPlayerLinked?.(player);
       }
+      await saveSeasonAlias(alias, player.id);
       // After linking, they belong to this season's elenco.
       resolveName(key, player, false);
     } catch (e: unknown) {
@@ -510,6 +600,7 @@ export function OgolPasteDialog({
       const p = await createPlayer(name);
       await ensurePlayerInSeason(p.id);
       onSeasonPlayerLinked?.(p);
+      await saveSeasonAlias(name, p.id);
       resolveName(key, p, false);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Erro ao criar jogador");
@@ -834,8 +925,10 @@ export function OgolPasteDialog({
                   </p>
                   <p className="text-[11px] text-amber-800">
                     Jogadores fora do elenco da temporada precisam ser confirmados (ou
-                    busque por outro nome). Ao escolher um jogador existente, a temporada{" "}
-                    <strong>{season || "deste jogo"}</strong> é adicionada ao perfil dele.
+                    busque por outro nome). Ao escolher um jogador, a temporada{" "}
+                    <strong>{season || "deste jogo"}</strong> é adicionada ao perfil e o
+                    apelido do Ogol fica lembrado só nesta temporada (ex.: “Ênio” → Ênio
+                    Oliveira).
                   </p>
                   {pendingNames.map(([key, r]) => {
                     if (r.status !== "pending") return null;

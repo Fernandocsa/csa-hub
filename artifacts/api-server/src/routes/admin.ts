@@ -4,6 +4,7 @@ import { db, pool as pgPool } from "@workspace/db";
 import {
   playersTable,
   playerSeasonStatsTable,
+  playerSeasonNameAliasesTable,
   matchesTable,
   opponentsTable,
   stadiumsTable,
@@ -4291,6 +4292,135 @@ router.post("/admin/seasons/:year/players", requireAdmin, async (req, res) => {
       }
       throw err;
     }
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+/** Normalize Ogol paste names the same way as the admin client. */
+function normalizeOgolAlias(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Season-scoped Ogol nicknames (valid only for that year). */
+router.get("/admin/seasons/:year/player-aliases", requireAdmin, async (req, res) => {
+  try {
+    const year = parseInt(req.params.year, 10);
+    if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+      return res.status(400).json({ error: "Ano inválido" });
+    }
+    const season = String(year);
+    const rows = await db
+      .select({
+        id: playerSeasonNameAliasesTable.id,
+        playerId: playerSeasonNameAliasesTable.playerId,
+        playerName: playersTable.name,
+        position: playersTable.position,
+        photoUrl: playersTable.photoUrl,
+        fullName: playersTable.fullName,
+        season: playerSeasonNameAliasesTable.season,
+        alias: playerSeasonNameAliasesTable.alias,
+        aliasNorm: playerSeasonNameAliasesTable.aliasNorm,
+      })
+      .from(playerSeasonNameAliasesTable)
+      .innerJoin(
+        playersTable,
+        eq(playerSeasonNameAliasesTable.playerId, playersTable.id),
+      )
+      .where(eq(playerSeasonNameAliasesTable.season, season))
+      .orderBy(asc(playerSeasonNameAliasesTable.aliasNorm));
+    res.json({
+      season,
+      data: rows.map((r) => ({
+        id: r.id,
+        playerId: r.playerId,
+        playerName: r.playerName,
+        position: r.position,
+        photoUrl: r.photoUrl ?? null,
+        fullName: r.fullName ?? null,
+        alias: r.alias,
+        aliasNorm: r.aliasNorm,
+      })),
+      total: rows.length,
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.post("/admin/seasons/:year/player-aliases", requireAdmin, async (req, res) => {
+  try {
+    const year = parseInt(req.params.year, 10);
+    if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+      return res.status(400).json({ error: "Ano inválido" });
+    }
+    const season = String(year);
+    const body = req.body as { alias?: unknown; playerId?: unknown };
+    const alias =
+      typeof body.alias === "string" ? body.alias.trim() : String(body.alias ?? "").trim();
+    const playerId =
+      typeof body.playerId === "number"
+        ? body.playerId
+        : parseInt(String(body.playerId ?? ""), 10);
+    if (!alias) return res.status(400).json({ error: "alias obrigatório" });
+    if (!Number.isInteger(playerId) || playerId < 1) {
+      return res.status(400).json({ error: "playerId inválido" });
+    }
+    const aliasNorm = normalizeOgolAlias(alias);
+    if (!aliasNorm) return res.status(400).json({ error: "alias inválido" });
+
+    const [player] = await db
+      .select({
+        id: playersTable.id,
+        name: playersTable.name,
+        position: playersTable.position,
+        photoUrl: playersTable.photoUrl,
+        fullName: playersTable.fullName,
+      })
+      .from(playersTable)
+      .where(eq(playersTable.id, playerId))
+      .limit(1);
+    if (!player) return res.status(404).json({ error: "Jogador não encontrado" });
+
+    const inserted = await db
+      .insert(playerSeasonNameAliasesTable)
+      .values({
+        playerId,
+        season,
+        alias,
+        aliasNorm,
+      })
+      .onConflictDoUpdate({
+        target: [
+          playerSeasonNameAliasesTable.season,
+          playerSeasonNameAliasesTable.aliasNorm,
+        ],
+        set: {
+          playerId,
+          alias,
+        },
+      })
+      .returning();
+
+    const row = inserted[0];
+    res.status(201).json({
+      id: row.id,
+      playerId: player.id,
+      playerName: player.name,
+      position: player.position,
+      photoUrl: player.photoUrl ?? null,
+      fullName: player.fullName ?? null,
+      season,
+      alias: row.alias,
+      aliasNorm: row.aliasNorm,
+    });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
