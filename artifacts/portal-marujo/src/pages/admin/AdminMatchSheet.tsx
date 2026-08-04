@@ -1052,6 +1052,50 @@ export default function AdminMatchSheet() {
           injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
         });
       }
+
+      // Two yellows for the same player ⇒ also send red at the 2nd yellow's minute.
+      {
+        const yellowsByPlayer = new Map<
+          number,
+          { minute: number; injuryTimeMinute: number | null }[]
+        >();
+        for (const c of cards) {
+          if (c.cardType !== "yellow" || c.playerId == null) continue;
+          const pid = Number(c.playerId);
+          const list = yellowsByPlayer.get(pid) ?? [];
+          list.push({
+            minute: Number(c.minute ?? 200),
+            injuryTimeMinute:
+              c.injuryTimeMinute == null ? null : Number(c.injuryTimeMinute),
+          });
+          yellowsByPlayer.set(pid, list);
+        }
+        for (const [playerId, yellows] of yellowsByPlayer) {
+          if (yellows.length < 2) continue;
+          yellows.sort(
+            (a, b) =>
+              a.minute - b.minute ||
+              (a.injuryTimeMinute ?? 0) - (b.injuryTimeMinute ?? 0),
+          );
+          const second = yellows[1];
+          const hasRed = cards.some(
+            (c) =>
+              c.cardType === "red" &&
+              Number(c.playerId) === playerId &&
+              Number(c.minute ?? 200) === second.minute &&
+              (c.injuryTimeMinute == null ? 0 : Number(c.injuryTimeMinute)) ===
+                (second.injuryTimeMinute ?? 0),
+          );
+          if (!hasRed) {
+            cards.push({
+              cardType: "red",
+              playerId,
+              minute: second.minute,
+              injuryTimeMinute: second.injuryTimeMinute,
+            });
+          }
+        }
+      }
       for (const row of assistRows) {
         if (!row.playerId) continue;
         const minute = normalizeEventMinute(row.minute);

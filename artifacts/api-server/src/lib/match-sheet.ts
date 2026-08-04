@@ -15,6 +15,83 @@ import {
   normalizeEventMinute,
 } from "./event-minute";
 
+type CardClock = {
+  minute: number | null;
+  injuryTimeMinute: number | null;
+};
+
+function sameCardClock(a: CardClock, b: CardClock): boolean {
+  return (
+    (a.minute ?? 200) === (b.minute ?? 200) &&
+    (a.injuryTimeMinute ?? 0) === (b.injuryTimeMinute ?? 0)
+  );
+}
+
+function compareCardClock(a: CardClock, b: CardClock): number {
+  const am = a.minute ?? 200;
+  const bm = b.minute ?? 200;
+  if (am !== bm) return am - bm;
+  return (a.injuryTimeMinute ?? 0) - (b.injuryTimeMinute ?? 0);
+}
+
+/**
+ * Two yellows for the same CSA player ⇒ ensure a red at the second yellow's clock.
+ * Idempotent: skips when a red already exists at that minute (+ stoppage).
+ */
+export async function ensureSecondYellowReds(
+  matchId: number,
+  lineupIdByPlayer?: Map<number, number>,
+) {
+  const rows = await db
+    .select()
+    .from(matchCardsTable)
+    .where(
+      and(eq(matchCardsTable.matchId, matchId), eq(matchCardsTable.side, "csa")),
+    );
+
+  const byPlayer = new Map<
+    number,
+    {
+      yellows: (typeof rows)[number][];
+      reds: (typeof rows)[number][];
+    }
+  >();
+
+  for (const row of rows) {
+    if (row.playerId == null) continue;
+    let bucket = byPlayer.get(row.playerId);
+    if (!bucket) {
+      bucket = { yellows: [], reds: [] };
+      byPlayer.set(row.playerId, bucket);
+    }
+    if (row.cardType === "yellow") bucket.yellows.push(row);
+    else if (row.cardType === "red") bucket.reds.push(row);
+  }
+
+  let added = 0;
+  for (const [playerId, { yellows, reds }] of byPlayer) {
+    if (yellows.length < 2) continue;
+    const sorted = [...yellows].sort(compareCardClock);
+    const second = sorted[1];
+    if (reds.some((r) => sameCardClock(r, second))) continue;
+
+    const playerName = second.playerName?.trim() || `Jogador #${playerId}`;
+    await db.insert(matchCardsTable).values({
+      matchId,
+      side: "csa",
+      cardType: "red",
+      lineupId:
+        lineupIdByPlayer?.get(playerId) ?? second.lineupId ?? null,
+      playerId,
+      playerName,
+      minute: second.minute,
+      injuryTimeMinute: second.injuryTimeMinute,
+    });
+    added += 1;
+  }
+  return added;
+}
+
 export type MatchSheetSide = "csa" | "opponent";
 
 export type LineupInput = {
@@ -795,6 +872,7 @@ export async function appendCsaEvents(
       .where(eq(matchesTable.id, matchId));
   }
 
+  await ensureSecondYellowReds(matchId, lineupIdByPlayer);
   await syncOwnGoalsForCount(matchId);
   return loadMatchSheet(matchId);
 }
@@ -984,6 +1062,7 @@ export async function replaceCsaMatchSheet(
   }
 
   await replaceCsaSubstitutions(matchId, input.substitutions ?? []);
+  await ensureSecondYellowReds(matchId, lineupIdByPlayer);
   await syncOwnGoalsForCount(matchId);
   return loadMatchSheet(matchId);
 }
