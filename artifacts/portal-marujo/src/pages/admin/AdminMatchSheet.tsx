@@ -2196,9 +2196,9 @@ export default function AdminMatchSheet() {
                         }
                       />
                     </td>
-                    <td className="px-2 py-1.5"></td>
-                    <td className="px-2 py-1.5"></td>
-                    <td className="px-2 py-1.5"></td>
+                    <td className="px-2 py-1.5 text-[10px] text-gray-500" colSpan={3}>
+                      Gol contra do CSA (na própria meta)
+                    </td>
                   </tr>
 
                   <tr className="border-t">
@@ -2235,9 +2235,9 @@ export default function AdminMatchSheet() {
                         }
                       />
                     </td>
-                    <td className="px-2 py-1.5"></td>
-                    <td className="px-2 py-1.5"></td>
-                    <td className="px-2 py-1.5"></td>
+                    <td className="px-2 py-1.5 text-[10px] text-gray-500" colSpan={3}>
+                      Gol contra do adversário (a favor do CSA)
+                    </td>
                   </tr>
 
                   <tr className="border-t">
@@ -2260,9 +2260,9 @@ export default function AdminMatchSheet() {
                     </td>
                     <td className="px-2 py-1.5"></td>
                     <td className="px-2 py-1.5"></td>
-                    <td className="px-2 py-1.5"></td>
-                    <td className="px-2 py-1.5"></td>
-                    <td className="px-2 py-1.5"></td>
+                    <td className="px-2 py-1.5 text-[10px] text-gray-500" colSpan={3}>
+                      Capitão da partida
+                    </td>
                   </tr>
                 </tbody>
               </table>
