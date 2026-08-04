@@ -5,6 +5,7 @@ import {
   parseOgolPaste,
   pairSubstitutions,
   normalizeOgolPlayerName,
+  formatOgolClock,
   type OgolParseResult,
   type OgolSubPair,
 } from "@/lib/ogol-paste";
@@ -29,12 +30,22 @@ export type OgolApplyPayload = {
   managerId: number | null;
   /** Players not in season roster — inject locally */
   extraPlayers: OgolRosterPlayer[];
-  goals: { playerId: number; minute: string }[];
-  assists: { playerId: number; minute: string }[];
-  yellows: { playerId: number; minute: string }[];
-  reds: { playerId: number; minute: string }[];
-  penalties: { playerId: number; minute: string; eventType: "missed" | "saved" }[];
-  substitutions: { playerOutId: number | null; playerInId: number | null; minute: string }[];
+  goals: { playerId: number; minute: string; injuryTimeMinute: string }[];
+  assists: { playerId: number; minute: string; injuryTimeMinute: string }[];
+  yellows: { playerId: number; minute: string; injuryTimeMinute: string }[];
+  reds: { playerId: number; minute: string; injuryTimeMinute: string }[];
+  penalties: {
+    playerId: number;
+    minute: string;
+    injuryTimeMinute: string;
+    eventType: "missed" | "saved";
+  }[];
+  substitutions: {
+    playerOutId: number | null;
+    playerInId: number | null;
+    minute: string;
+    injuryTimeMinute: string;
+  }[];
 };
 
 type NameResolution =
@@ -245,15 +256,27 @@ export function OgolPasteDialog({
       // Actually parseOgolPaste already paired without positions. Re-run pair from scratch:
       const outs = result.substitutions
         .filter((s) => s.playerOutName)
-        .map((s) => ({ playerName: s.playerOutName, minute: s.minute }));
+        .map((s) => ({
+          playerName: s.playerOutName,
+          minute: s.minute,
+          injuryTimeMinute: s.injuryTimeMinute,
+        }));
       const ins = result.substitutions
         .filter((s) => s.playerInName)
-        .map((s) => ({ playerName: s.playerInName, minute: s.minute }));
+        .map((s) => ({
+          playerName: s.playerInName,
+          minute: s.minute,
+          injuryTimeMinute: s.injuryTimeMinute,
+        }));
       // Dedupe outs/ins that were duplicated when unpaired
-      const dedupe = <T extends { playerName: string; minute: number }>(arr: T[]) => {
+      const dedupe = <
+        T extends { playerName: string; minute: number; injuryTimeMinute: number | null },
+      >(
+        arr: T[],
+      ) => {
         const seen = new Set<string>();
         return arr.filter((x) => {
-          const k = `${x.minute}|${normalizeOgolPlayerName(x.playerName)}`;
+          const k = `${x.minute}+${x.injuryTimeMinute ?? 0}|${normalizeOgolPlayerName(x.playerName)}`;
           if (seen.has(k)) return false;
           seen.add(k);
           return true;
@@ -433,41 +456,49 @@ export function OgolPasteDialog({
       }
     }
 
+    const clockFields = (c: { minute: number; injuryTimeMinute: number | null }) => ({
+      minute: String(c.minute),
+      injuryTimeMinute:
+        c.injuryTimeMinute != null && c.injuryTimeMinute > 0
+          ? String(c.injuryTimeMinute)
+          : "",
+    });
+
     const goals = parsed.goals
       .map((g) => {
         const id = idForName(g.playerName);
-        return id != null ? { playerId: id, minute: String(g.minute) } : null;
+        return id != null ? { playerId: id, ...clockFields(g) } : null;
       })
-      .filter(Boolean) as { playerId: number; minute: string }[];
+      .filter(Boolean) as OgolApplyPayload["goals"];
 
     const assists = parsed.assists
       .map((a) => {
         const id = idForName(a.playerName);
-        return id != null ? { playerId: id, minute: String(a.minute) } : null;
+        return id != null ? { playerId: id, ...clockFields(a) } : null;
       })
-      .filter(Boolean) as { playerId: number; minute: string }[];
+      .filter(Boolean) as OgolApplyPayload["assists"];
 
     const yellows = parsed.cards
       .filter((c) => c.cardType === "yellow")
       .map((c) => {
         const id = idForName(c.playerName);
-        return id != null ? { playerId: id, minute: String(c.minute) } : null;
+        return id != null ? { playerId: id, ...clockFields(c) } : null;
       })
-      .filter(Boolean) as { playerId: number; minute: string }[];
+      .filter(Boolean) as OgolApplyPayload["yellows"];
 
     const reds = parsed.cards
       .filter((c) => c.cardType === "red")
       .map((c) => {
         const id = idForName(c.playerName);
-        return id != null ? { playerId: id, minute: String(c.minute) } : null;
+        return id != null ? { playerId: id, ...clockFields(c) } : null;
       })
-      .filter(Boolean) as { playerId: number; minute: string }[];
+      .filter(Boolean) as OgolApplyPayload["reds"];
 
     const penalties = parsed.penalties
       .map((pe) => {
         const id = idForName(pe.playerName);
         return id != null
-          ? { playerId: id, minute: String(pe.minute), eventType: pe.eventType }
+          ? { playerId: id, ...clockFields(pe), eventType: pe.eventType }
           : null;
       })
       .filter(Boolean) as OgolApplyPayload["penalties"];
@@ -475,7 +506,7 @@ export function OgolPasteDialog({
     const substitutions = subs.map((s) => ({
       playerOutId: s.playerOutName ? idForName(s.playerOutName) : null,
       playerInId: s.playerInName ? idForName(s.playerInName) : null,
-      minute: String(s.minute),
+      ...clockFields(s),
     }));
 
     // Silence unused
@@ -600,29 +631,29 @@ export function OgolPasteDialog({
                   <ul className="text-xs max-h-40 overflow-y-auto space-y-0.5">
                     {parsed.goals.map((g, i) => (
                       <li key={`g-${i}`}>
-                        ⚽ {g.playerName} {g.minute}&apos;
+                        ⚽ {g.playerName} {formatOgolClock(g)}
                       </li>
                     ))}
                     {parsed.assists.map((a, i) => (
                       <li key={`a-${i}`}>
-                        B {a.playerName} {a.minute}&apos;
+                        B {a.playerName} {formatOgolClock(a)}
                       </li>
                     ))}
                     {parsed.cards.map((c, i) => (
                       <li key={`c-${i}`}>
                         {c.cardType === "yellow" ? "🟨" : "🟥"} {c.playerName}{" "}
-                        {c.minute}&apos;
+                        {formatOgolClock(c)}
                       </li>
                     ))}
                     {parsed.penalties.map((pe, i) => (
                       <li key={`p-${i}`}>
                         {pe.eventType === "missed" ? "A" : "C"} {pe.playerName}{" "}
-                        {pe.minute}&apos;
+                        {formatOgolClock(pe)}
                       </li>
                     ))}
                     {subs.map((s, i) => (
                       <li key={`s-${i}`} className={s.paired ? "" : "text-amber-700"}>
-                        {s.minute}&apos;{" "}
+                        {formatOgolClock(s)}{" "}
                         {s.playerOutName || "?"} → {s.playerInName || "?"}
                         {!s.paired ? " (solto)" : ""}
                       </li>

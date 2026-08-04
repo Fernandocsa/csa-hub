@@ -378,7 +378,7 @@ export default function AdminMatchSheet() {
 
   function fillEventSlots(
     current: EventRow[],
-    incoming: { playerId: number; minute: string }[],
+    incoming: { playerId: number; minute: string; injuryTimeMinute?: string }[],
     minRows: number,
   ): EventRow[] {
     const next = current.map((r) => ({ ...r }));
@@ -390,12 +390,14 @@ export default function AdminMatchSheet() {
           ...emptyEventRow(),
           playerId: String(item.playerId),
           minute: item.minute,
+          injuryTimeMinute: item.injuryTimeMinute ?? "",
         });
       } else {
         next[cursor] = {
           ...next[cursor],
           playerId: String(item.playerId),
           minute: item.minute,
+          injuryTimeMinute: item.injuryTimeMinute ?? "",
         };
       }
       cursor += 1;
@@ -514,7 +516,11 @@ export default function AdminMatchSheet() {
         rows,
         payload.penalties
           .filter((p) => p.eventType === "missed")
-          .map((p) => ({ playerId: p.playerId, minute: p.minute })),
+          .map((p) => ({
+            playerId: p.playerId,
+            minute: p.minute,
+            injuryTimeMinute: p.injuryTimeMinute,
+          })),
         3,
       ),
     );
@@ -523,7 +529,11 @@ export default function AdminMatchSheet() {
         rows,
         payload.penalties
           .filter((p) => p.eventType === "saved")
-          .map((p) => ({ playerId: p.playerId, minute: p.minute })),
+          .map((p) => ({
+            playerId: p.playerId,
+            minute: p.minute,
+            injuryTimeMinute: p.injuryTimeMinute,
+          })),
         3,
       ),
     );
@@ -544,7 +554,7 @@ export default function AdminMatchSheet() {
           playerOutId: s.playerOutId != null ? String(s.playerOutId) : "",
           playerInId: s.playerInId != null ? String(s.playerInId) : "",
           minute: s.minute,
-          injuryTimeMinute: "",
+          injuryTimeMinute: s.injuryTimeMinute ?? "",
         };
         if (cursor >= next.length) next.push(row);
         else next[cursor] = row;
