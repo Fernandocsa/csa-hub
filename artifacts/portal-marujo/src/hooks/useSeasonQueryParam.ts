@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useLocation, useSearch } from "wouter";
+import { useSearch } from "wouter";
 
 /** Read ?season=YYYY from the current search string; otherwise "all". */
 export function seasonFromSearch(search: string): string {
@@ -10,13 +10,19 @@ export function seasonFromSearch(search: string): string {
   return "all";
 }
 
+function currentPathWithSearch(): string {
+  return `${window.location.pathname}${window.location.search}`;
+}
+
 /**
  * Season filter synced with ?season= on the current path.
  * "all" clears the query param.
+ *
+ * Uses history.pushState directly: wouter's setLocation often no-ops when only
+ * the query string changes (same pathname), so browser Back skipped the filtered view.
  */
 export function useSeasonQueryParam(basePath: string) {
   const search = useSearch();
-  const [, setLocation] = useLocation();
   const [season, setSeasonState] = useState(() => seasonFromSearch(search));
 
   useEffect(() => {
@@ -28,9 +34,11 @@ export function useSeasonQueryParam(basePath: string) {
       setSeasonState(value);
       const next =
         value === "all" ? basePath : `${basePath}?season=${encodeURIComponent(value)}`;
-      setLocation(next);
+      if (currentPathWithSearch() === next) return;
+      window.history.pushState(window.history.state, "", next);
+      dispatchEvent(new PopStateEvent("popstate"));
     },
-    [basePath, setLocation],
+    [basePath],
   );
 
   return { season, setSeason } as const;

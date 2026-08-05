@@ -28,6 +28,8 @@ export function adminReturnLabel(path: string, fallback = "Voltar"): string {
     return "Técnicos";
   }
   if (path.startsWith("/admin/divergencias")) return "Divergências";
+  const partidasSeason = path.match(/^\/admin\/partidas\/?\?season=(\d{4})\b/);
+  if (partidasSeason) return `Partidas ${partidasSeason[1]}`;
   if (path.startsWith("/admin/partidas")) return "Partidas";
   return fallback;
 }

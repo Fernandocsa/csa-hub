@@ -17,7 +17,7 @@ import MatchGeneralForm, {
   type RelatedMatchOption,
 } from "./MatchGeneralForm";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
-import { withAdminFrom } from "@/hooks/useAdminReturnTo";
+import { useAdminReturnTo, withAdminFrom } from "@/hooks/useAdminReturnTo";
 import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
 import {
   eventMinuteToFormValue,
@@ -289,6 +289,11 @@ export default function AdminMatchSheet() {
   const matchId = isNew ? null : Number(params.id);
 
   const [match, setMatch] = useState<MatchMeta | null>(null);
+  const partidasListHref =
+    match?.season && /^\d{4}$/.test(String(match.season))
+      ? `/admin/partidas?season=${encodeURIComponent(String(match.season))}`
+      : "/admin/partidas";
+  const { returnTo, label: returnLabel } = useAdminReturnTo(partidasListHref);
   const [lookup, setLookup] = useState<MatchLookupData | null>(null);
   /** All managers (lookup) — only used to resolve names for a manager already on the match. */
   const [allManagers, setAllManagers] = useState<
@@ -892,7 +897,7 @@ export default function AdminMatchSheet() {
       const err = await r.json().catch(() => ({}));
       throw new Error((err as { error?: string }).error ?? "Erro ao excluir");
     }
-    setLocation("/admin/partidas");
+    setLocation(returnTo);
   }
 
   async function changeRosterSeason(season: string) {
@@ -1339,7 +1344,7 @@ export default function AdminMatchSheet() {
     return (
       <div>
         <p className="text-sm text-red-600">{error || "Partida não encontrada"}</p>
-        <Link href="/admin/partidas" className="text-sm text-[#1B3A6B] hover:underline mt-2 inline-block">
+        <Link href={returnTo} className="text-sm text-[#1B3A6B] hover:underline mt-2 inline-block">
           Voltar às partidas
         </Link>
       </div>
@@ -1350,7 +1355,7 @@ export default function AdminMatchSheet() {
     return (
       <div>
         <p className="text-sm text-red-600">{error || "Partida não encontrada"}</p>
-        <Link href="/admin/partidas" className="text-sm text-[#1B3A6B] hover:underline mt-2 inline-block">
+        <Link href={returnTo} className="text-sm text-[#1B3A6B] hover:underline mt-2 inline-block">
           Voltar às partidas
         </Link>
       </div>
@@ -1391,16 +1396,19 @@ export default function AdminMatchSheet() {
       <div>
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <Link
-            href="/admin/partidas"
+            href={returnTo}
             className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-[#1B3A6B]"
           >
-            <ChevronLeft size={13} /> Partidas
+            <ChevronLeft size={13} /> {returnLabel}
           </Link>
           {!isNew && match && (
             <div className="flex items-center gap-1">
               {match.previousMatch ? (
                 <Link
-                  href={`/admin/partidas/${match.previousMatch.id}`}
+                  href={withAdminFrom(
+                    `/admin/partidas/${match.previousMatch.id}`,
+                    returnTo,
+                  )}
                   className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-gray-600 hover:text-[#1B3A6B] hover:bg-gray-50"
                   title={`${match.previousMatch.matchDate} × ${match.previousMatch.opponentName}`}
                 >
@@ -1418,7 +1426,10 @@ export default function AdminMatchSheet() {
               )}
               {match.nextMatch ? (
                 <Link
-                  href={`/admin/partidas/${match.nextMatch.id}`}
+                  href={withAdminFrom(
+                    `/admin/partidas/${match.nextMatch.id}`,
+                    returnTo,
+                  )}
                   className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-gray-600 hover:text-[#1B3A6B] hover:bg-gray-50"
                   title={`${match.nextMatch.matchDate} × ${match.nextMatch.opponentName}`}
                 >

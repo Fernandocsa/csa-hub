@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { useSeasonQueryParam } from "@/hooks/useSeasonQueryParam";
+import { withAdminFrom } from "@/hooks/useAdminReturnTo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, Trash2, Plus } from "lucide-react";
@@ -112,7 +113,16 @@ export default function AdminMatches() {
           </p>
         </div>
         <Button className="bg-[#1B3A6B]" asChild>
-          <Link href="/admin/partidas/novo">
+          <Link
+            href={
+              seasonSelected
+                ? withAdminFrom(
+                    "/admin/partidas/novo",
+                    `/admin/partidas?season=${encodeURIComponent(season)}`,
+                  )
+                : "/admin/partidas/novo"
+            }
+          >
             <Plus size={14} className="mr-1" /> Adicionar
           </Link>
         </Button>
@@ -133,14 +143,17 @@ export default function AdminMatches() {
               <ul className="divide-y">
                 {filteredYears.map((y) => (
                   <li key={y}>
-                    <button
-                      type="button"
-                      onClick={() => setSeason(String(y))}
-                      className="w-full text-left px-4 py-3 text-sm font-medium text-[#1B3A6B] hover:bg-gray-50 transition-colors"
+                    <a
+                      href={`/admin/partidas?season=${y}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setSeason(String(y));
+                      }}
+                      className="block w-full text-left px-4 py-3 text-sm font-medium text-[#1B3A6B] hover:bg-gray-50 transition-colors"
                       data-testid={`link-admin-season-${y}`}
                     >
                       Temporada {y}
-                    </button>
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -202,7 +215,8 @@ export default function AdminMatches() {
                 </thead>
                 <tbody>
                   {paginated.map((m) => {
-                    const matchHref = `/admin/partidas/${m.id}`;
+                    const listHref = `/admin/partidas?season=${encodeURIComponent(season)}`;
+                    const matchHref = withAdminFrom(`/admin/partidas/${m.id}`, listHref);
                     const opponentHref = `/admin/adversarios/${m.opponentId}`;
                     const competitionHref = `/admin/competicoes/${m.competitionId}`;
                     return (
