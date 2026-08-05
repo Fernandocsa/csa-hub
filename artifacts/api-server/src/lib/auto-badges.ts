@@ -48,10 +48,6 @@ function labelFor(kind: "top_scorer" | "top_assister", year: number): string {
   return kind === "top_scorer" ? `Artilheiro ${year}` : `Garçom ${year}`;
 }
 
-function competitionLabel(competitionName: string, year: number): string {
-  return `Artilheiro ${competitionName} ${year}`;
-}
-
 type MatchGateRow = {
   id: number;
   competitionId: number;
@@ -218,8 +214,9 @@ export async function getSeasonCompetitionBadgeStatuses(
 }
 
 /**
- * Replace auto Artilheiro/Garçom (season) + Artilheiro {competição} {ano}.
- * Competition badges only when every non-friendly/non-W.O. match passes the sheet gate.
+ * Replace auto Artilheiro/Garçom (season totals for CSA).
+ * Competition golden-boot badges are not auto-awarded: we only have CSA goals,
+ * not the full competition table. Use manual `artilheiro_comp` when known.
  */
 export async function recalculateSeasonAutoBadges(
   year: number,
@@ -310,22 +307,8 @@ export async function recalculateSeasonAutoBadges(
   ];
 
   const details = await getSeasonCompetitionBadgeStatuses(year);
-  let competitionCreated = 0;
   for (const st of details) {
-    if (!st.eligible || st.topScorerIds.length === 0) continue;
-    for (const playerId of st.topScorerIds) {
-      toInsert.push({
-        entityType: "player",
-        entityId: playerId,
-        label: competitionLabel(st.competitionName, year),
-        source: "auto",
-        autoKind: "top_scorer_competition",
-        seasonYear: year,
-        competitionId: st.competitionId,
-      });
-      competitionCreated++;
-    }
-    st.badgesCreated = st.topScorerIds.length;
+    st.badgesCreated = 0;
   }
 
   if (toInsert.length > 0) {
@@ -343,7 +326,7 @@ export async function recalculateSeasonAutoBadges(
     competition: {
       eligible: details.filter((d) => d.eligible).length,
       incomplete: details.filter((d) => !d.eligible).length,
-      created: competitionCreated,
+      created: 0,
       details,
     },
   };

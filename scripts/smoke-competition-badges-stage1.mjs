@@ -165,7 +165,9 @@ try {
     `expected only p1 got ${okStatus.topScorerIds}`,
   );
   assert(okStatus.topGoals === 2, `topGoals 2 got ${okStatus.topGoals}`);
+  assert(okStatus.badgesCreated === 0, "no auto competition badge even when eligible");
   assert(badStatus.badgesCreated === 0, "no badge for incomplete");
+  assert(comp.created === 0, "competition.created should stay 0");
 
   const { rows: badges } = await pool.query(
     `SELECT label, auto_kind, competition_id, entity_id FROM entity_badges
@@ -175,12 +177,7 @@ try {
   const compBadges = badges.filter(
     (b) => b.auto_kind === "top_scorer_competition",
   );
-  assert(compBadges.length === 1, `comp badges 1 got ${compBadges.length}`);
-  assert(compBadges[0].competition_id === cOk.id, "competition_id");
-  assert(
-    compBadges[0].label === `Artilheiro ${cOk.name} ${YEAR}`,
-    `label ${compBadges[0].label}`,
-  );
+  assert(compBadges.length === 0, `comp badges 0 got ${compBadges.length}`);
   assert(
     badges.some((b) => b.auto_kind === "top_scorer" && b.entity_id === p1),
     "season artilheiro",
@@ -189,7 +186,7 @@ try {
     badges.some((b) => b.auto_kind === "top_assister" && b.entity_id === p2),
     "season garçom",
   );
-  console.log("OK competition badge + season badges; incomplete skipped");
+  console.log("OK no auto competition badge; season badges kept; incomplete skipped");
 
   await api("PUT", `/admin/seasons/${YEAR}/verification`, { verified: false });
 } finally {
