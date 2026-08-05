@@ -46,17 +46,36 @@ export default function PlayerMatches() {
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           {data.total === 0
-            ? "Nenhum jogo com participação em campo disponível"
-            : `${data.total} ${data.total === 1 ? "jogo" : "jogos"} em que atuou (titular ou reserva que entrou)`}
+            ? "Nenhum jogo relacionado nas fichas cadastradas"
+            : [
+                (data.playedTotal ?? data.total) > 0
+                  ? `${data.playedTotal ?? data.total} ${
+                      (data.playedTotal ?? data.total) === 1 ? "jogo" : "jogos"
+                    } em campo`
+                  : null,
+                (data.unusedBenchTotal ?? 0) > 0
+                  ? `${data.unusedBenchTotal} NU (reserva não utilizado)`
+                  : null,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
         </p>
       </div>
 
       {data.matches.length > 0 ? (
-        <PlayerMatchHistoryTable matches={data.matches} />
+        <div className="space-y-2">
+          <PlayerMatchHistoryTable matches={data.matches} />
+          {(data.unusedBenchTotal ?? 0) > 0 && (
+            <p className="text-xs text-muted-foreground">
+              NU = Reserva não utilizado. Esses jogos não entram nas estatísticas
+              do atleta.
+            </p>
+          )}
+        </div>
       ) : (
         <p className="text-sm text-muted-foreground">
-          Este jogador ainda não consta como titular ou substituto entrante em
-          nenhuma ficha cadastrada.
+          Este jogador ainda não consta como titular, reserva que entrou ou
+          reserva não utilizado em nenhuma ficha cadastrada.
         </p>
       )}
     </div>

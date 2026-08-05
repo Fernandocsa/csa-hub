@@ -20,7 +20,6 @@ import {
   flooredCareerRankings,
   sumFlooredSeasons,
 } from "../lib/player-stats-floor";
-import { csaLineupActuallyPlayedCondition } from "../lib/player-appeared";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
 import { countPlayerTitles, listPlayerTitles } from "../lib/titles";
 
@@ -64,7 +63,6 @@ async function loadPlayerSheetMatches(playerId: number, limit?: number) {
       and(
         eq(matchLineupsTable.playerId, playerId),
         eq(matchLineupsTable.side, "csa"),
-        csaLineupActuallyPlayedCondition(),
         officialPlayedMatchConditions(),
       ),
     )
@@ -185,6 +183,7 @@ async function loadPlayerSheetMatches(playerId: number, limit?: number) {
   return rows.map((r) => {
     const subIn = minuteInByMatch.get(r.matchId) ?? null;
     const subOut = minuteOutByMatch.get(r.matchId) ?? null;
+    const unusedBench = r.role === "bench" && subIn == null;
     return {
       matchId: r.matchId,
       date: r.date,
@@ -210,6 +209,7 @@ async function loadPlayerSheetMatches(playerId: number, limit?: number) {
       minuteInInjury: subIn?.injury ?? null,
       minuteOut: subOut?.minute ?? null,
       minuteOutInjury: subOut?.injury ?? null,
+      unusedBench,
     };
   });
 }
@@ -805,10 +805,13 @@ router.get("/players/:id/matches", async (req, res) => {
     const matches = await loadPlayerSheetMatches(id);
     const floors = await flooredPlayerSeasonStats(id);
     const career = sumFlooredSeasons(floors);
+    const unusedBenchTotal = matches.filter((m) => m.unusedBench).length;
     res.json({
       playerId: player.id,
       playerName: player.name,
       total: matches.length,
+      playedTotal: matches.length - unusedBenchTotal,
+      unusedBenchTotal,
       careerAppearances: career.appearances,
       matches,
     });

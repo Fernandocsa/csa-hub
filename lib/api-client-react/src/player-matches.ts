@@ -26,14 +26,20 @@ export interface PlayerSheetMatch {
   minuteInInjury: number | null;
   minuteOut: number | null;
   minuteOutInjury: number | null;
+  /** Named on the bench and never entered — listed but not an appearance. */
+  unusedBench?: boolean;
 }
 
 export interface PlayerMatchesResponse {
   playerId: number;
   playerName: string;
-  /** Matches with sheet participation (starter or sub who entered). */
+  /** All listed sheet rows (played + unused bench). */
   total: number;
-  /** Career total using season floors (may exceed `total` when sheets are incomplete). */
+  /** Starter or substitute who entered. */
+  playedTotal?: number;
+  /** Unused substitute (NU) rows — not counted in stats. */
+  unusedBenchTotal?: number;
+  /** Career total using season floors (may exceed `playedTotal` when sheets are incomplete). */
   careerAppearances?: number;
   matches: PlayerSheetMatch[];
 }

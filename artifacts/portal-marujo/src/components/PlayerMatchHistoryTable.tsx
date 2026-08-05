@@ -3,6 +3,7 @@ import type { PlayerSheetMatch } from "@workspace/api-client-react";
 import { ResultBadge } from "@/components/ui/result-badge";
 import { BrazilFlag } from "@/components/BrazilFlag";
 import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
+import { cn } from "@/lib/utils";
 import {
   competitionAbbreviation,
   matchRoundCompact,
@@ -42,7 +43,23 @@ function VenueMark({ homeAway }: { homeAway: string }) {
   return <span className="text-muted-foreground font-normal">(N)</span>;
 }
 
+export function isUnusedBenchMatch(m: PlayerSheetMatch): boolean {
+  if (m.unusedBench != null) return m.unusedBench;
+  return m.role === "bench" && m.minuteIn == null;
+}
+
 function MinutesCell({ m }: { m: PlayerSheetMatch }) {
+  if (isUnusedBenchMatch(m)) {
+    return (
+      <span
+        className="font-semibold tracking-wide text-muted-foreground"
+        title="Reserva não utilizado"
+      >
+        NU
+      </span>
+    );
+  }
+
   const parts: ReactNode[] = [];
 
   if (m.minuteIn != null) {
@@ -155,12 +172,18 @@ export function PlayerMatchHistoryTable({
             const rd = matchRoundCompact(m.phase, m.round);
             const isUnknown = m.result === "unknown";
             const assists = m.playerAssists ?? 0;
+            const unused = isUnusedBenchMatch(m);
 
             return (
               <TableRow
                 key={m.matchId}
-                className="text-sm hover:bg-muted/50"
+                className={cn(
+                  "text-sm hover:bg-muted/50",
+                  unused && "opacity-40 hover:opacity-55",
+                )}
+                title={unused ? "Reserva não utilizado" : undefined}
                 data-testid={`row-player-match-${m.matchId}`}
+                data-unused-bench={unused ? "true" : undefined}
               >
                 <TableCell className="py-2 px-2">
                   {!isUnknown ? (
