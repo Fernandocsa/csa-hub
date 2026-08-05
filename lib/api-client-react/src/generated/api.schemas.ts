@@ -252,6 +252,9 @@ export interface Season {
   topAppearances?: string | null;
   /** @nullable */
   topAppearancesCount?: number | null;
+  statsFullyVerified?: boolean;
+  /** @nullable */
+  statsVerifiedAt?: string | null;
 }
 
 export interface TopScorerEntry {
@@ -280,6 +283,9 @@ export interface SeasonDetail {
   /** @nullable */
   leagueName?: string | null;
   topScorers?: TopScorerEntry[];
+  statsFullyVerified?: boolean;
+  /** @nullable */
+  statsVerifiedAt?: string | null;
 }
 
 export interface LeaguePosition {

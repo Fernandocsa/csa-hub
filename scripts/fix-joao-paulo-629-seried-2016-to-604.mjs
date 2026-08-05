@@ -19,8 +19,8 @@ const COMP_ID = 8; // Série D
 
 async function remapPlayerOnMatch(matchId, fromId, toId, toName) {
   const lineup = await c.query(
-    `UPDATE match_lineups SET player_id=$2, player_name=$3
-     WHERE match_id=$1 AND player_id=$4 RETURNING id, role`,
+    `UPDATE match_lineups SET player_id=$2, player_name=$3, position='Goleiro'
+     WHERE match_id=$1 AND player_id=$4 RETURNING id, role, position`,
     [matchId, toId, toName, fromId],
   );
   await c.query(

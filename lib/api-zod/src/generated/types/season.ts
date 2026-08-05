@@ -22,4 +22,7 @@ export interface Season {
   topAppearances?: string | null;
   /** @nullable */
   topAppearancesCount?: number | null;
+  statsFullyVerified?: boolean;
+  /** @nullable */
+  statsVerifiedAt?: string | null;
 }

@@ -18,6 +18,7 @@ import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { EntityPhoto } from "@/components/EntityPhoto";
 import { OpponentHistoryLink, MatchScoreLink } from "@/components/MatchNavLinks";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
+import { VerificationCard } from "@/components/VerificationCard";
 import { groupPlayersByPosition } from "@/lib/position-groups";
 import { cn, formatDateBr } from "@/lib/utils";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
@@ -372,6 +373,11 @@ export default function SeasonDetail() {
             </Link>
           </div>
           <ShareButton title={`Temporada ${season.year}`} />
+          <VerificationCard
+            status={season.statsFullyVerified ? "verified" : null}
+            verifiedBy="Portal Marujo"
+            verifiedAt={season.statsVerifiedAt ?? null}
+          />
         </div>
       </div>
 

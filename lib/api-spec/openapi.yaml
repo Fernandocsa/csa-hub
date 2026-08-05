@@ -938,6 +938,12 @@ components:
           type: ["string", "null"]
         topAppearancesCount:
           type: ["integer", "null"]
+        statsFullyVerified:
+          type: boolean
+          description: Season sheets/stats marked fully verified
+        statsVerifiedAt:
+          type: ["string", "null"]
+          format: date-time
 
     TopScorerEntry:
       type: object
@@ -1004,6 +1010,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TopScorerEntry"
+        statsFullyVerified:
+          type: boolean
+          description: Season sheets/stats marked fully verified
+        statsVerifiedAt:
+          type: ["string", "null"]
+          format: date-time
 
     LeaguePosition:
       type: object

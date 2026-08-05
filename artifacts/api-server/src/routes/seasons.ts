@@ -66,12 +66,16 @@ function sumCompetitionRows(
 router.get("/seasons", async (req, res) => {
   try {
     const seasonRows = await db
-      .select({ season: seasonsTable.year })
+      .select({
+        season: seasonsTable.year,
+        statsFullyVerified: seasonsTable.statsFullyVerified,
+        statsVerifiedAt: seasonsTable.statsVerifiedAt,
+      })
       .from(seasonsTable)
       .orderBy(desc(seasonsTable.year));
 
     const seasons = await Promise.all(
-      seasonRows.map(async ({ season }) => {
+      seasonRows.map(async ({ season, statsFullyVerified, statsVerifiedAt }) => {
         const stats = await getSeasonStats(String(season));
 
         const topScorerRows = await db
@@ -100,6 +104,11 @@ router.get("/seasons", async (req, res) => {
           topScorerGoals: topGoals,
           topAppearances: null,
           topAppearancesCount: null,
+          statsFullyVerified: Boolean(statsFullyVerified),
+          statsVerifiedAt:
+            statsVerifiedAt instanceof Date
+              ? statsVerifiedAt.toISOString()
+              : (statsVerifiedAt as string | null) ?? null,
         };
       }),
     );
@@ -141,13 +150,18 @@ router.get("/seasons/:year", async (req, res) => {
     const seasonYear = parseInt(year, 10);
 
     const seasonExists = await db
-      .select({ year: seasonsTable.year })
+      .select({
+        year: seasonsTable.year,
+        statsFullyVerified: seasonsTable.statsFullyVerified,
+        statsVerifiedAt: seasonsTable.statsVerifiedAt,
+      })
       .from(seasonsTable)
       .where(eq(seasonsTable.year, seasonYear))
       .limit(1);
     if (seasonExists.length === 0) {
       return res.status(404).json({ error: "Temporada não encontrada" });
     }
+    const seasonMeta = seasonExists[0];
 
     const liveStats = await getSeasonStats(year);
 
@@ -353,6 +367,11 @@ router.get("/seasons/:year", async (req, res) => {
       leaguePosition: leaguePos[0]?.position ?? null,
       leagueName: leaguePos[0]?.league ?? null,
       topScorers,
+      statsFullyVerified: Boolean(seasonMeta.statsFullyVerified),
+      statsVerifiedAt:
+        seasonMeta.statsVerifiedAt instanceof Date
+          ? seasonMeta.statsVerifiedAt.toISOString()
+          : (seasonMeta.statsVerifiedAt as string | null) ?? null,
     });
   } catch (err) {
     req.log.error(err);

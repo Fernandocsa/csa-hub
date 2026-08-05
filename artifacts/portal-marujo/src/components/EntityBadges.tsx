@@ -8,6 +8,20 @@ export type PublicBadge = {
   seasonYear?: number | null;
 };
 
+function badgeTitle(b: PublicBadge): string {
+  const year = b.seasonYear;
+  if (b.autoKind === "top_assister" && year != null) {
+    return `Líder de assistências em ${year}`;
+  }
+  if (b.autoKind === "top_scorer" && year != null) {
+    return `Líder de gols em ${year}`;
+  }
+  if (b.autoKind === "top_scorer_competition") {
+    return year != null ? `${b.label} — líder de gols da competição em ${year}` : b.label;
+  }
+  return b.label;
+}
+
 /** Chips under the name. Omits the whole block when empty. */
 export function EntityBadges({
   badges,
@@ -33,7 +47,7 @@ export function EntityBadges({
               ? "border-amber-500/35 bg-amber-50 text-amber-900 dark:bg-amber-950/40 dark:text-amber-200"
               : "border-border bg-muted/60 text-foreground",
           )}
-          title={b.source === "auto" ? "Badge automático" : "Badge manual"}
+          title={badgeTitle(b)}
         >
           {b.label}
         </li>

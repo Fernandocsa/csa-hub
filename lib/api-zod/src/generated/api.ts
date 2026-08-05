@@ -350,7 +350,9 @@ export const ListSeasonsResponseItem = zod.object({
   "topScorer": zod.string().nullish(),
   "topScorerGoals": zod.number().nullish(),
   "topAppearances": zod.string().nullish(),
-  "topAppearancesCount": zod.number().nullish()
+  "topAppearancesCount": zod.number().nullish(),
+  "statsFullyVerified": zod.boolean().optional(),
+  "statsVerifiedAt": zod.string().nullish()
 })
 export const ListSeasonsResponse = zod.array(ListSeasonsResponseItem)
 
@@ -438,7 +440,9 @@ export const GetSeasonResponse = zod.object({
   "name": zod.string(),
   "goals": zod.number(),
   "verified": zod.boolean().optional()
-})).optional()
+})).optional(),
+  "statsFullyVerified": zod.boolean().optional(),
+  "statsVerifiedAt": zod.string().nullish()
 })
 
 

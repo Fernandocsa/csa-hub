@@ -31,4 +31,7 @@ export interface SeasonDetail {
   /** @nullable */
   leagueName?: string | null;
   topScorers?: TopScorerEntry[];
+  statsFullyVerified?: boolean;
+  /** @nullable */
+  statsVerifiedAt?: string | null;
 }

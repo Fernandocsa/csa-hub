@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { ListPagination } from "@/components/ListPagination";
 import { useClientPage } from "@/hooks/useClientPage";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -32,6 +33,7 @@ type Season = {
   goalsConceded: number;
   topScorer?: string | null;
   topScorerGoals?: number | null;
+  statsFullyVerified?: boolean;
 };
 
 function getSortValue(s: Season, key: SortKey): number | string {
@@ -167,8 +169,9 @@ export default function SeasonsList() {
                   return (
                     <TableRow key={s.year} className="text-sm" data-testid={`row-season-${s.year}`}>
                       <TableCell className="py-2 font-bold">
-                        <Link href={`/temporadas/${s.year}`} className="hover:text-primary hover:underline" data-testid={`link-season-${s.year}`}>
+                        <Link href={`/temporadas/${s.year}`} className="hover:text-primary hover:underline inline-flex items-center gap-1" data-testid={`link-season-${s.year}`}>
                           {s.year}
+                          <VerifiedBadge status={s.statsFullyVerified ? "verified" : null} />
                         </Link>
                       </TableCell>
                       <TableCell className="py-2 text-right">{s.matches}</TableCell>
