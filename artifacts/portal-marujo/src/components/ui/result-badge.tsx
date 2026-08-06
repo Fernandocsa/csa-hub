@@ -24,3 +24,20 @@ export function ResultBadge({ result, className }: { result: string; className?:
     </span>
   );
 }
+
+/** Compact W.O. (walkover) seal for match lists. */
+export function WalkoverBadge({ className }: { className?: string }) {
+  return (
+    <span
+      data-testid="badge-walkover"
+      title="Vitória/derrota por W.O. (walkover)"
+      className={cn(
+        "inline-flex items-center justify-center text-[10px] font-semibold tracking-wide",
+        "border border-muted-foreground/35 text-muted-foreground rounded px-1.5 py-0.5 leading-none",
+        className,
+      )}
+    >
+      W.O.
+    </span>
+  );
+}

@@ -12,7 +12,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, ChevronLeft as PrevIcon, ChevronRight } from "lucide-react";
-import { ResultBadge } from "@/components/ui/result-badge";
+import { ResultBadge, WalkoverBadge } from "@/components/ui/result-badge";
 import { Button } from "@/components/ui/button";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
@@ -446,7 +446,10 @@ export default function OpponentDetail() {
                     <TableCell className="py-2 text-muted-foreground text-xs">{fmtDate(match.date)}</TableCell>
                     <TableCell className="py-2 text-xs text-muted-foreground">{match.season}</TableCell>
                     <TableCell className="py-2 text-center">
-                      <ResultBadge result={match.result} />
+                      <div className="inline-flex items-center justify-center gap-1.5">
+                        <ResultBadge result={match.result} />
+                        {match.isWalkover ? <WalkoverBadge /> : null}
+                      </div>
                     </TableCell>
                     <TableCell className="py-2 text-center font-mono font-bold">{match.goalsFor}–{match.goalsAgainst}</TableCell>
                     <TableCell className="py-2 text-xs text-muted-foreground">{match.homeAway === "home" ? "Casa" : "Fora"}</TableCell>

@@ -859,6 +859,12 @@ components:
           type: string
         stadium:
           type: ["string", "null"]
+        phase:
+          type: ["string", "null"]
+        round:
+          type: ["string", "null"]
+        isWalkover:
+          type: boolean
 
     MatchDetail:
       type: object

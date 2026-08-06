@@ -8,7 +8,7 @@ import {
   type MatchSubstitutionRow,
 } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ResultBadge } from "@/components/ui/result-badge";
+import { ResultBadge, WalkoverBadge } from "@/components/ui/result-badge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { sortLineupByPosition } from "@/lib/position-groups";
 import { StarRating } from "@/components/StarRating";
@@ -589,7 +589,10 @@ export default function MatchDetail() {
               Ainda não jogado
             </span>
           ) : !isUnknown && match.result !== "unknown" ? (
-            <ResultBadge result={match.result as "win" | "draw" | "loss"} />
+            <span className="inline-flex items-center gap-1.5">
+              <ResultBadge result={match.result as "win" | "draw" | "loss"} />
+              {match.isWalkover ? <WalkoverBadge /> : null}
+            </span>
           ) : null}
         </div>
         {match.penaltiesFor != null && match.penaltiesAgainst != null && (

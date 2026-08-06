@@ -668,6 +668,7 @@ router.get("/opponents/:id", async (req, res) => {
         stadiumName: stadiumsTable.name,
         phase: matchesTable.phase,
         round: matchesTable.round,
+        isWalkover: matchesTable.isWalkover,
       })
       .from(matchesTable)
       .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
@@ -716,6 +717,7 @@ router.get("/opponents/:id", async (req, res) => {
         stadium: r.stadiumName ?? null,
         phase: r.phase ?? null,
         round: r.round ?? null,
+        isWalkover: r.isWalkover ?? false,
       })),
       biggestVictory,
       biggestDefeat,

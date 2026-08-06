@@ -188,6 +188,11 @@ export interface Match {
   season: string;
   /** @nullable */
   stadium?: string | null;
+  /** @nullable */
+  phase?: string | null;
+  /** @nullable */
+  round?: string | null;
+  isWalkover?: boolean;
 }
 
 export type MatchDetailResult = typeof MatchDetailResult[keyof typeof MatchDetailResult];
