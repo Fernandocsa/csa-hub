@@ -2385,7 +2385,7 @@ export default function AdminMatchSheet() {
                     {editingGoalId === g.id ? (
                       <div className="space-y-2">
                         <p className="font-medium">
-                          {g.isOwnGoal ? "Gol contra" : (g.scorerName ?? "—")}
+                          {g.scorerName ?? (g.isOwnGoal ? "Gol contra" : "—")}
                           {g.assistName ? (
                             <span className="ml-1 text-xs text-gray-400 font-normal">
                               assist.: {g.assistName}
@@ -2466,7 +2466,7 @@ export default function AdminMatchSheet() {
                       <div className="flex items-center justify-between gap-2">
                         <span>
                           {formatSavedMinute(g.minute, g.injuryTimeMinute)}{" "}
-                          {g.isOwnGoal ? "Gol contra" : (g.scorerName ?? "—")}
+                          {g.scorerName ?? (g.isOwnGoal ? "Gol contra" : "—")}
                           {g.isPenalty && (
                             <span className="ml-1 text-[10px] uppercase text-gray-400">(Pênalti)</span>
                           )}
