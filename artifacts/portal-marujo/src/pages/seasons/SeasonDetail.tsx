@@ -11,7 +11,7 @@ import type {
 } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ResultBadge } from "@/components/ui/result-badge";
+import { ResultBadge, WalkoverBadge } from "@/components/ui/result-badge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ShareButton } from "@/components/ShareButton";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
@@ -22,6 +22,7 @@ import { VerificationCard } from "@/components/VerificationCard";
 import { groupPlayersByPosition } from "@/lib/position-groups";
 import { cn, formatDateBr } from "@/lib/utils";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
+import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 
 function fmtDate(d: string) {
   return formatDateBr(d);
@@ -238,20 +239,21 @@ function SeasonRecentMatches({ year }: { year: string }) {
               <TableHead className="py-2">Adversário</TableHead>
               <TableHead className="py-2 text-center">Res.</TableHead>
               <TableHead className="py-2 text-center">Placar</TableHead>
+              <TableHead className="py-2">Competição</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
-                  <TableCell colSpan={4}>
+                  <TableCell colSpan={5}>
                     <Skeleton className="h-4" />
                   </TableCell>
                 </TableRow>
               ))
             ) : matches.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="h-16 text-center text-muted-foreground">
+                <TableCell colSpan={5} className="h-16 text-center text-muted-foreground">
                   Nenhuma partida nesta temporada.
                 </TableCell>
               </TableRow>
@@ -260,6 +262,10 @@ function SeasonRecentMatches({ year }: { year: string }) {
                 const isUnknown =
                   (match as { isUnknownResult?: boolean }).isUnknownResult === true ||
                   match.result === "unknown";
+                const phaseRound = matchPhaseRoundLabel(
+                  (match as { phase?: string | null }).phase,
+                  (match as { round?: string | null }).round,
+                );
                 return (
                   <TableRow key={match.id} className="text-sm" data-testid={`row-season-match-${match.id}`}>
                     <TableCell className="py-2 text-muted-foreground text-xs whitespace-nowrap">
@@ -286,7 +292,10 @@ function SeasonRecentMatches({ year }: { year: string }) {
                       {isUnknown ? (
                         <span className="text-xs text-muted-foreground">❓</span>
                       ) : (
-                        <ResultBadge result={match.result} />
+                        <span className="inline-flex items-center justify-center gap-1.5">
+                          <ResultBadge result={match.result} />
+                          {match.isWalkover ? <WalkoverBadge /> : null}
+                        </span>
                       )}
                     </TableCell>
                     <TableCell className="py-2 text-center">
@@ -297,6 +306,14 @@ function SeasonRecentMatches({ year }: { year: string }) {
                           {match.goalsFor}–{match.goalsAgainst}
                         </MatchScoreLink>
                       )}
+                    </TableCell>
+                    <TableCell className="py-2 text-muted-foreground text-xs">
+                      <div>{match.competition || "–"}</div>
+                      {phaseRound ? (
+                        <div className="text-[11px] text-muted-foreground/80 mt-0.5">
+                          {phaseRound}
+                        </div>
+                      ) : null}
                     </TableCell>
                   </TableRow>
                 );
