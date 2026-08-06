@@ -16,6 +16,7 @@ import { AdminEntityBadges } from "@/components/AdminEntityBadges";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { AdminNameDuplicateWarning } from "@/components/AdminNameDuplicateWarning";
 import { PLAYER_POSITIONS } from "@/lib/position-groups";
+import { includesFolded } from "@/lib/accent-fold";
 
 export interface Player {
   id: number;
@@ -164,10 +165,10 @@ function PlayerProfileForm({
   }, []);
 
   const filteredManagers = useMemo(() => {
-    const q = managerSearch.trim().toLowerCase();
+    const q = managerSearch.trim();
     if (!q) return managerOptions.slice(0, 30);
     return managerOptions
-      .filter((m) => m.name.toLowerCase().includes(q) || String(m.id) === q)
+      .filter((m) => includesFolded(m.name, q) || String(m.id) === q)
       .slice(0, 30);
   }, [managerOptions, managerSearch]);
 

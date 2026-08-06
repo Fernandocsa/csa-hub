@@ -8,14 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ListPagination } from "@/components/ListPagination";
 import { useClientPage } from "@/hooks/useClientPage";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
-
-function norm(s: string) {
-  return s
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .toLowerCase()
-    .trim();
-}
+import { foldAccents, includesFolded } from "@/lib/accent-fold";
 
 export default function ManagersList() {
   const { data: managers, isLoading } = useListManagers();
@@ -23,12 +16,12 @@ export default function ManagersList() {
 
   const rows = useMemo(() => {
     const all = managers ?? [];
-    const q = norm(search);
+    const q = foldAccents(search).trim();
     if (q.length < 1) return all;
     return all.filter(
       (m) =>
-        norm(m.name).includes(q) ||
-        (m.fullName != null && norm(m.fullName).includes(q)),
+        includesFolded(m.name, q) ||
+        (m.fullName != null && includesFolded(m.fullName, q)),
     );
   }, [managers, search]);
 

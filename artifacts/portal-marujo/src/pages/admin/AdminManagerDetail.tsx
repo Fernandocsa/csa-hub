@@ -15,6 +15,7 @@ import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { AdminEntityBadges } from "@/components/AdminEntityBadges";
 import { EntityPhoto } from "@/components/EntityPhoto";
 import { AdminNameDuplicateWarning } from "@/components/AdminNameDuplicateWarning";
+import { includesFolded } from "@/lib/accent-fold";
 
 export interface Manager {
   id: number;
@@ -171,10 +172,10 @@ function ManagerProfileForm({
   }, []);
 
   const filteredPlayers = useMemo(() => {
-    const q = playerSearch.trim().toLowerCase();
+    const q = playerSearch.trim();
     if (!q) return playerOptions.slice(0, 30);
     return playerOptions
-      .filter((p) => p.name.toLowerCase().includes(q) || String(p.id) === q)
+      .filter((p) => includesFolded(p.name, q) || String(p.id) === q)
       .slice(0, 30);
   }, [playerOptions, playerSearch]);
 

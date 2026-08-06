@@ -18,6 +18,7 @@ import {
   getOpponentMostRepeatedScorelines,
 } from "../lib/opponent-detail.js";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
+import { accentInsensitiveLike } from "../lib/accent-fold";
 
 const router = Router();
 
@@ -169,7 +170,7 @@ router.get("/opponents", async (req, res) => {
       .$dynamic();
 
     const conditions = [officialPlayedMatchConditions()];
-    if (search) conditions.push(ilike(opponentsTable.name, `%${search}%`));
+    if (search) conditions.push(accentInsensitiveLike(opponentsTable.name, search));
     query = query.where(and(...conditions));
 
     query = query.groupBy(opponentsTable.id, opponentsTable.name, opponentsTable.logoUrl);

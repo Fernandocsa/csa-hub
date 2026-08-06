@@ -4,6 +4,7 @@ import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft } from "lucide-react";
+import { includesFolded } from "@/lib/accent-fold";
 
 type PlayerOpt = { id: number; name: string };
 
@@ -77,10 +78,10 @@ export default function AdminTransferDetail() {
   }, [loadPlayers, load]);
 
   const filteredPlayers = useMemo(() => {
-    const q = playerSearch.trim().toLowerCase();
+    const q = playerSearch.trim();
     if (q.length < 1) return players.slice(0, 30);
     return players
-      .filter((p) => p.name.toLowerCase().includes(q))
+      .filter((p) => includesFolded(p.name, q))
       .slice(0, 30);
   }, [players, playerSearch]);
 

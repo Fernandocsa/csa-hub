@@ -22,6 +22,7 @@ import {
 } from "../lib/player-stats-floor";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
 import { countPlayerTitles, listPlayerTitles } from "../lib/titles";
+import { accentInsensitiveLike } from "../lib/accent-fold";
 
 const router = Router();
 
@@ -240,7 +241,7 @@ router.get("/players", async (req, res) => {
 
     const conditions = [];
     if (search) {
-      conditions.push(ilike(playersTable.name, `%${search}%`));
+      conditions.push(accentInsensitiveLike(playersTable.name, search));
     }
     if (season) {
       conditions.push(eq(playerSeasonStatsTable.season, season));

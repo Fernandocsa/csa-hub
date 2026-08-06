@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { OpponentCrest } from "@/components/OpponentCrest";
 import { withAdminFrom } from "@/hooks/useAdminReturnTo";
+import { includesFolded } from "@/lib/accent-fold";
 
 export interface MatchLookupData {
   opponents: { id: number; name: string; logoUrl?: string | null }[];
@@ -236,13 +237,12 @@ export default function MatchGeneralForm({
   }
 
   const sel = "w-full border rounded px-3 py-2 text-sm bg-white";
-  const q = refereeQuery.trim().toLowerCase();
+  const q = refereeQuery.trim();
   const allReferees = lookup.referees ?? [];
   const selectedReferee = allReferees.find((r) => String(r.id) === refereeId);
   const filteredReferees = allReferees.filter((r) => {
     if (!q) return true;
-    const hay = `${r.name} ${r.state ?? ""}`.toLowerCase();
-    return hay.includes(q);
+    return includesFolded(`${r.name} ${r.state ?? ""}`, q);
   });
   const refereeOptions =
     selectedReferee && !filteredReferees.some((r) => r.id === selectedReferee.id)

@@ -24,6 +24,7 @@ import {
 } from "@/lib/countries";
 import { ChevronLeft, X } from "lucide-react";
 import { EntityPhoto } from "@/components/EntityPhoto";
+import { includesFolded } from "@/lib/accent-fold";
 
 export type Stadium = {
   id: number;
@@ -448,10 +449,10 @@ function StadiumClubsSection({
   }, [selected, allOpponents]);
 
   const suggestions = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = query.trim();
     return allOpponents
       .filter((o) => !selected.includes(o.id))
-      .filter((o) => !q || o.name.toLowerCase().includes(q))
+      .filter((o) => !q || includesFolded(o.name, q))
       .slice(0, 12);
   }, [allOpponents, query, selected]);
 

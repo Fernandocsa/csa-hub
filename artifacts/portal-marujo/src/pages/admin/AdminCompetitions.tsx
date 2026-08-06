@@ -8,6 +8,7 @@ import {
   COMPETITION_TYPE_LABELS,
   type Competition,
 } from "./AdminCompetitionDetail";
+import { includesFolded } from "@/lib/accent-fold";
 
 function typeLabel(type: string | null) {
   if (!type) return "Sem nível";
@@ -51,9 +52,7 @@ export default function AdminCompetitions() {
     await load();
   }
 
-  const filtered = competitions.filter((c) =>
-    c.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = competitions.filter((c) => includesFolded(c.name, search));
 
   return (
     <div>

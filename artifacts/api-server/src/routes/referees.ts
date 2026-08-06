@@ -9,6 +9,7 @@ import {
 } from "@workspace/db";
 import { sql, eq, and, or, desc, asc, ilike, isNull } from "drizzle-orm";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
+import { accentInsensitiveLike } from "../lib/accent-fold";
 
 const router = Router();
 
@@ -87,7 +88,7 @@ router.get("/referees", async (req, res) => {
       .$dynamic();
 
     if (search?.trim()) {
-      query = query.where(ilike(refereesTable.name, `%${search.trim()}%`));
+      query = query.where(accentInsensitiveLike(refereesTable.name, search.trim()));
     }
 
     const rows = await query

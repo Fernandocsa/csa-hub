@@ -9,6 +9,7 @@ import {
   unknownResultMatchConditions,
 } from "../lib/match-filters";
 import { formatYmd, saoPauloYmd } from "../lib/birthdays";
+import { accentInsensitiveLike } from "../lib/accent-fold";
 
 const router = Router();
 
@@ -97,9 +98,9 @@ router.get("/matches", async (req, res) => {
       const cid = parseInt(competitionId, 10);
       if (!isNaN(cid)) conditions.push(eq(matchesTable.competitionId, cid));
     } else if (competition) {
-      conditions.push(ilike(competitionsTable.name, `%${competition}%`));
+      conditions.push(accentInsensitiveLike(competitionsTable.name, competition));
     }
-    if (opponent) conditions.push(ilike(opponentsTable.name, `%${opponent}%`));
+    if (opponent) conditions.push(accentInsensitiveLike(opponentsTable.name, opponent));
     if (home_away) conditions.push(eq(matchesTable.homeAway, home_away));
     if (result && result !== "unknown") conditions.push(eq(matchesTable.result, result));
 

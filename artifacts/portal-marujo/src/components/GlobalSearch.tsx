@@ -8,6 +8,7 @@ import {
   listSeasons,
 } from "@workspace/api-client-react";
 import { cn } from "@/lib/utils";
+import { foldAccents } from "@/lib/accent-fold";
 
 type SearchHit = {
   key: string;
@@ -31,14 +32,6 @@ const KIND_LABEL = {
   season: "Temporada",
 } as const;
 
-function norm(s: string) {
-  return s
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .toLowerCase()
-    .trim();
-}
-
 async function runSearch(q: string, signal: AbortSignal): Promise<SearchHit[]> {
   const query = q.trim();
   if (query.length < 2) return [];
@@ -52,7 +45,7 @@ async function runSearch(q: string, signal: AbortSignal): Promise<SearchHit[]> {
   ]);
 
   const hits: SearchHit[] = [];
-  const nq = norm(query);
+  const nq = foldAccents(query).trim();
 
   for (const p of playersRes?.data ?? []) {
     hits.push({
@@ -76,7 +69,7 @@ async function runSearch(q: string, signal: AbortSignal): Promise<SearchHit[]> {
 
   if (Array.isArray(managers)) {
     const matched = managers
-      .filter((m) => norm(m.name).includes(nq))
+      .filter((m) => foldAccents(m.name).includes(nq))
       .slice(0, 6);
     for (const m of matched) {
       hits.push({

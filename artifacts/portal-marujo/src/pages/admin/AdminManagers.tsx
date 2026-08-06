@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
 import { AdminMergeButton } from "@/components/AdminMergeButton";
 import type { Manager } from "./AdminManagerDetail";
+import { includesFolded } from "@/lib/accent-fold";
 
 export default function AdminManagers() {
   const [, setLocation] = useLocation();
@@ -24,9 +25,7 @@ export default function AdminManagers() {
     load();
   }, [load]);
 
-  const filtered = managers.filter((m) =>
-    m.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = managers.filter((m) => includesFolded(m.name, search));
 
   return (
     <div>

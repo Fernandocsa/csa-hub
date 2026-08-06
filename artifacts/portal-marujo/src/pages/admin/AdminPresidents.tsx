@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
 import { presidentTermLabel } from "@/lib/president-term";
+import { includesFolded } from "@/lib/accent-fold";
 
 export type AdminPresident = {
   id: number;
@@ -46,9 +47,7 @@ export default function AdminPresidents() {
     await load();
   }
 
-  const filtered = rows.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = rows.filter((p) => includesFolded(p.name, search));
 
   return (
     <div>

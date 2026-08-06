@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, Trash2, Plus } from "lucide-react";
 import { ResultBadge } from "@/components/ui/result-badge";
+import { includesFolded } from "@/lib/accent-fold";
 
 interface MatchRow {
   id: number;
@@ -84,10 +85,9 @@ export default function AdminMatches() {
 
   const filtered = matches.filter((m) => {
     if (!search) return true;
-    const q = search.toLowerCase();
     return (
-      m.opponentName.toLowerCase().includes(q) ||
-      m.competitionName.toLowerCase().includes(q)
+      includesFolded(m.opponentName, search) ||
+      includesFolded(m.competitionName, search)
     );
   });
 

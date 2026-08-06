@@ -8,6 +8,7 @@ import { AdminMergeButton } from "@/components/AdminMergeButton";
 import { OpponentCrest } from "@/components/OpponentCrest";
 import type { Opponent } from "./AdminOpponentDetail";
 import { countryDisplayName } from "@/lib/countries";
+import { includesFolded } from "@/lib/accent-fold";
 
 function opponentSubtitle(o: Opponent) {
   if (o.country) {
@@ -41,9 +42,7 @@ export default function AdminOpponents() {
     await load();
   }
 
-  const filtered = opponents.filter((o) =>
-    o.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = opponents.filter((o) => includesFolded(o.name, search));
 
   return (
     <div>

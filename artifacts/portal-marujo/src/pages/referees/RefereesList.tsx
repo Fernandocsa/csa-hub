@@ -8,18 +8,11 @@ import { ufDisplayName } from "@/lib/br-locations";
 import { ListPagination } from "@/components/ListPagination";
 import { useClientPage } from "@/hooks/useClientPage";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
+import { foldAccents, includesFolded } from "@/lib/accent-fold";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
   return ((wins / total) * 100).toFixed(1) + "%";
-}
-
-function norm(s: string) {
-  return s
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .toLowerCase()
-    .trim();
 }
 
 export default function RefereesList() {
@@ -28,12 +21,12 @@ export default function RefereesList() {
 
   const rows = useMemo(() => {
     const all = referees ?? [];
-    const q = norm(search);
+    const q = foldAccents(search).trim();
     if (q.length < 1) return all;
     return all.filter((r) => {
-      if (norm(r.name).includes(q)) return true;
-      if (r.state && norm(r.state).includes(q)) return true;
-      if (r.state && norm(ufDisplayName(r.state)).includes(q)) return true;
+      if (includesFolded(r.name, q)) return true;
+      if (r.state && includesFolded(r.state, q)) return true;
+      if (r.state && includesFolded(ufDisplayName(r.state), q)) return true;
       return false;
     });
   }, [referees, search]);

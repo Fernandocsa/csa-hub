@@ -6,6 +6,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
 import { AdminMergeButton } from "@/components/AdminMergeButton";
 import type { Player } from "./AdminPlayerDetail";
+import { includesFolded } from "@/lib/accent-fold";
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
@@ -39,9 +40,8 @@ export default function AdminPlayers() {
   }
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase();
     return players.filter((p) => {
-      if (q && !p.name.toLowerCase().includes(q)) return false;
+      if (search.trim() && !includesFolded(p.name, search)) return false;
       if (letter == null) return true;
       return nameInitial(p.name) === letter;
     });

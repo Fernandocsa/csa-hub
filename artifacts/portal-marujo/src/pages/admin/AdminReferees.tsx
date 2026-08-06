@@ -6,6 +6,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
 import { ufDisplayName } from "@/lib/br-locations";
 import type { Referee } from "./AdminRefereeDetail";
+import { includesFolded } from "@/lib/accent-fold";
 
 function refereeSubtitle(r: Referee) {
   return r.state ? ufDisplayName(r.state) : "Sem UF";
@@ -40,9 +41,7 @@ export default function AdminReferees() {
     await load();
   }
 
-  const filtered = referees.filter((r) =>
-    r.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = referees.filter((r) => includesFolded(r.name, search));
 
   return (
     <div>

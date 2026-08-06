@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
+import { includesFolded } from "@/lib/accent-fold";
 
 export type SearchableEntity = {
   id: number;
@@ -39,10 +40,10 @@ export function AdminEntitySearch({
   const rootRef = useRef<HTMLDivElement>(null);
 
   const suggestions = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = query.trim();
     if (!q) return [];
     return items
-      .filter((it) => it.name.toLowerCase().includes(q))
+      .filter((it) => includesFolded(it.name, q))
       .slice(0, maxSuggestions);
   }, [items, query, maxSuggestions]);
 

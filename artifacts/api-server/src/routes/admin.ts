@@ -36,6 +36,7 @@ import {
   replaceDailyPlayer,
 } from "../lib/guess-player";
 import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray, ne, isNull, lt, gt } from "drizzle-orm";
+import { accentInsensitiveLike } from "../lib/accent-fold";
 import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard, deleteMatchPenaltyEvent, updateMatchGoal } from "../lib/match-sheet";
 import { syncRelatedMatchLink, parsePenaltyShootoutFields } from "../lib/match-links";
 import { findDuplicateNameCandidates } from "../lib/admin-name-check";
@@ -368,7 +369,6 @@ router.get("/admin/players/search", requireAdmin, async (req, res) => {
     const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 40) : 20;
     if (q.length < 2) return res.json([]);
 
-    const pattern = `%${q.replace(/[%_]/g, "")}%`;
     const rows = await db
       .select({
         id: playersTable.id,
@@ -380,8 +380,8 @@ router.get("/admin/players/search", requireAdmin, async (req, res) => {
       .from(playersTable)
       .where(
         or(
-          ilike(playersTable.name, pattern),
-          ilike(playersTable.fullName, pattern),
+          accentInsensitiveLike(playersTable.name, q),
+          accentInsensitiveLike(playersTable.fullName, q),
         ),
       )
       .orderBy(asc(playersTable.name))
@@ -1053,8 +1053,8 @@ router.get("/admin/matches/search", requireAdmin, async (req, res) => {
     const lim = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 50);
     const whereClause = term
       ? or(
-          ilike(opponentsTable.name, `%${term}%`),
-          ilike(competitionsTable.name, `%${term}%`),
+          accentInsensitiveLike(opponentsTable.name, term),
+          accentInsensitiveLike(competitionsTable.name, term),
           sql`to_char(${matchesTable.matchDate}, 'YYYY-MM-DD') ilike ${`%${term}%`}`,
           ilike(matchesTable.season, `%${term}%`),
         )
@@ -1919,7 +1919,7 @@ router.get("/admin/matches/:id/roster", requireAdmin, async (req, res) => {
           assists: sql<number>`0`.as("assists"),
         })
         .from(playersTable)
-        .where(ilike(playersTable.name, `%${q}%`))
+        .where(accentInsensitiveLike(playersTable.name, q))
         .orderBy(asc(playersTable.name))
         .limit(30);
     }
@@ -2058,9 +2058,9 @@ router.get("/admin/stadiums/search", requireAdmin, async (req, res) => {
     const lim = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 50);
     const whereClause = term
       ? or(
-          ilike(stadiumsTable.name, `%${term}%`),
-          ilike(stadiumsTable.city, `%${term}%`),
-          ilike(stadiumsTable.state, `%${term}%`),
+          accentInsensitiveLike(stadiumsTable.name, term),
+          accentInsensitiveLike(stadiumsTable.city, term),
+          accentInsensitiveLike(stadiumsTable.state, term),
         )
       : undefined;
     const rows = await db

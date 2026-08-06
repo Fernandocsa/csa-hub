@@ -7,6 +7,7 @@ import { AdminEntitySearch } from "@/components/AdminEntitySearch";
 import { AdminMergeButton } from "@/components/AdminMergeButton";
 import type { Stadium } from "./AdminStadiumDetail";
 import { countryDisplayName } from "@/lib/countries";
+import { includesFolded } from "@/lib/accent-fold";
 
 function stadiumSubtitle(s: Stadium) {
   if (s.country) {
@@ -45,9 +46,7 @@ export default function AdminStadiums() {
     await load();
   }
 
-  const filtered = stadiums.filter((s) =>
-    s.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = stadiums.filter((s) => includesFolded(s.name, search));
 
   return (
     <div>

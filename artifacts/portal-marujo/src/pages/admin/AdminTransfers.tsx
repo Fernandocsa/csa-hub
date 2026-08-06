@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
 import { formatDateBr } from "@/lib/utils";
+import { includesFolded } from "@/lib/accent-fold";
 
 export type AdminTransferRow = {
   id: number;
@@ -42,11 +43,11 @@ export default function AdminTransfers() {
   }
 
   const filtered = rows.filter((t) => {
-    const q = search.toLowerCase();
+    if (!search.trim()) return true;
     return (
-      t.playerName.toLowerCase().includes(q) ||
-      t.season.toLowerCase().includes(q) ||
-      (t.club ?? "").toLowerCase().includes(q)
+      includesFolded(t.playerName, search) ||
+      includesFolded(t.season, search) ||
+      includesFolded(t.club, search)
     );
   });
 

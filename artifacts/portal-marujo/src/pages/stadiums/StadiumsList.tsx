@@ -7,18 +7,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ListPagination } from "@/components/ListPagination";
 import { useClientPage } from "@/hooks/useClientPage";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
+import { foldAccents, includesFolded } from "@/lib/accent-fold";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
   return ((wins / total) * 100).toFixed(1) + "%";
-}
-
-function norm(s: string) {
-  return s
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .toLowerCase()
-    .trim();
 }
 
 export default function StadiumsList() {
@@ -27,12 +20,12 @@ export default function StadiumsList() {
 
   const rows = useMemo(() => {
     const all = stadiums ?? [];
-    const q = norm(search);
+    const q = foldAccents(search).trim();
     if (q.length < 1) return all;
     return all.filter(
       (s) =>
-        norm(s.name).includes(q) ||
-        (s.city != null && norm(s.city).includes(q)),
+        includesFolded(s.name, q) ||
+        (s.city != null && includesFolded(s.city, q)),
     );
   }, [stadiums, search]);
 
