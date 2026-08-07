@@ -196,6 +196,41 @@ function NavLinks({ location, onClick }: { location: string; onClick?: () => voi
   );
 }
 
+function SiteBrand({
+  onClick,
+  logoClassName,
+  textClassName = "text-sm",
+}: {
+  onClick?: () => void;
+  logoClassName: string;
+  textClassName?: string;
+}) {
+  return (
+    <Link
+      href="/"
+      onClick={onClick}
+      className="flex items-center gap-2 min-w-0"
+      aria-label="Portal Marujo — início"
+    >
+      <span
+        className={cn(
+          "font-black tracking-tight shrink-0 leading-none",
+          textClassName,
+        )}
+      >
+        <span className="text-white">PORTAL</span>
+        <span className="text-[#F5A623] ml-1">MARUJO</span>
+      </span>
+      <img
+        src="/portal-marujo-logo.png"
+        alt=""
+        className={cn(logoClassName, "object-contain cursor-pointer shrink-0")}
+        data-testid="nav-logo"
+      />
+    </Link>
+  );
+}
+
 function SidebarContent({
   location,
   onClose,
@@ -207,17 +242,14 @@ function SidebarContent({
 }) {
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-3 h-16 border-b border-sidebar-border flex-shrink-0">
-        <Link href="/" onClick={onClose} className="flex items-center min-w-0">
-          <img
-            src="/portal-marujo-logo.png"
-            alt="Portal Marujo"
-            className="h-12 w-auto max-w-[11rem] object-contain cursor-pointer"
-            data-testid="nav-logo"
-          />
-        </Link>
+      <div className="flex items-center justify-between px-3 h-16 border-b border-sidebar-border flex-shrink-0 gap-1">
+        <SiteBrand
+          onClick={onClose}
+          logoClassName="h-10 w-auto max-w-[5.5rem]"
+          textClassName="text-xs sm:text-sm"
+        />
         {onClose && (
-          <button onClick={onClose} className="text-sidebar-foreground/70 hover:text-sidebar-foreground shrink-0 ml-2">
+          <button onClick={onClose} className="text-sidebar-foreground/70 hover:text-sidebar-foreground shrink-0 ml-1">
             <X className="h-5 w-5" />
           </button>
         )}
@@ -280,20 +312,19 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           <div className="h-12 flex items-center px-4 gap-2">
             <button
               onClick={() => setMobileOpen(true)}
-              className="text-sidebar-foreground/70 hover:text-sidebar-foreground mr-1"
+              className="text-sidebar-foreground/70 hover:text-sidebar-foreground mr-1 shrink-0"
               data-testid="button-mobile-menu"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <img
-              src="/portal-marujo-logo.png"
-              alt="Portal Marujo"
-              className="h-9 w-auto"
+            <SiteBrand
+              logoClassName="h-8 w-auto max-w-[4.5rem]"
+              textClassName="text-xs"
             />
             <button
               type="button"
               onClick={toggleTheme}
-              className="ml-auto text-sidebar-foreground/70 hover:text-sidebar-foreground p-1.5"
+              className="ml-auto text-sidebar-foreground/70 hover:text-sidebar-foreground p-1.5 shrink-0"
               title={isDark ? "Tema claro" : "Tema escuro"}
               data-testid="button-theme-toggle-mobile"
             >
