@@ -344,21 +344,23 @@ function TeamName({
   ) : (
     <OpponentCrest url={logoUrl} name={name} size="md" />
   );
-  const label = <span>{name}</span>;
-  const inner = (
-    <span className="inline-flex items-center gap-2">
+  const content = (
+    <>
       {!crestAfter && crest}
-      {label}
+      <span>{name}</span>
       {crestAfter && crest}
-    </span>
+    </>
   );
-  if (isCsa) return inner;
+  const className = "inline-flex items-center gap-2 align-middle shrink-0";
+  if (isCsa) {
+    return <span className={className}>{content}</span>;
+  }
   return (
     <Link
       href={`/adversarios/${opponentId}`}
-      className="inline-flex items-center gap-2 hover:text-primary hover:underline"
+      className={`${className} hover:text-primary hover:underline`}
     >
-      {inner}
+      {content}
     </Link>
   );
 }
@@ -556,19 +558,19 @@ export default function MatchDetail() {
           ) : null}
         </p>
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-xl font-bold">
+          <h1 className="text-xl font-bold flex flex-wrap items-center gap-x-2 gap-y-1">
             <TeamName
               name={leftName}
               isCsa={leftIsCsa}
               opponentId={match.opponentId}
               logoUrl={match.opponentLogoUrl}
               crestAfter={false}
-            />{" "}
-            <span className="font-mono tabular-nums mx-1">
+            />
+            <span className="font-mono tabular-nums shrink-0">
               {scoreLeft}
               <span className="text-muted-foreground font-normal mx-0.5">{scoreSep}</span>
               {scoreRight}
-            </span>{" "}
+            </span>
             <TeamName
               name={rightName}
               isCsa={rightIsCsa}
