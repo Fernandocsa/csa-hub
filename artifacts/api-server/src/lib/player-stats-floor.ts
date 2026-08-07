@@ -9,6 +9,7 @@ import {
 } from "@workspace/db";
 import { officialPlayedMatchConditions } from "./match-filters";
 import { csaLineupActuallyPlayedCondition } from "./player-appeared";
+import { ACCENT_FROM, ACCENT_TO, foldAccents } from "./accent-fold";
 
 export type PlayerSeasonFloor = {
   season: string;
@@ -159,9 +160,9 @@ export async function linkedPlayerSeasonStats(playerId: number) {
 
 /**
  * Sheet-derived season totals for writing back to `player_season_stats`.
- * Counts CSA appearances (starter or sub who entered) and goals/assists on any
- * match with a sheet — not limited to "official" filters — so the admin profile
- * stays in sync when fichas are edited.
+ * Counts CSA appearances (starter or sub who entered) and goals/assists on
+ * official played matches only — same rules as public career totals
+ * (friendliest / unknown / cancelled excluded; unused bench excluded).
  */
 export async function sheetDerivedPlayerSeasonStats(playerId: number) {
   const apps = await db
@@ -176,6 +177,7 @@ export async function sheetDerivedPlayerSeasonStats(playerId: number) {
         eq(matchLineupsTable.playerId, playerId),
         eq(matchLineupsTable.side, "csa"),
         csaLineupActuallyPlayedCondition(),
+        officialPlayedMatchConditions(),
       ),
     )
     .groupBy(matchesTable.season);
@@ -192,6 +194,7 @@ export async function sheetDerivedPlayerSeasonStats(playerId: number) {
         eq(matchGoalsTable.scorerPlayerId, playerId),
         eq(matchGoalsTable.side, "csa"),
         eq(matchGoalsTable.isOwnGoal, false),
+        officialPlayedMatchConditions(),
       ),
     )
     .groupBy(matchesTable.season);
@@ -207,6 +210,7 @@ export async function sheetDerivedPlayerSeasonStats(playerId: number) {
       and(
         eq(matchGoalsTable.assistPlayerId, playerId),
         eq(matchGoalsTable.side, "csa"),
+        officialPlayedMatchConditions(),
       ),
     )
     .groupBy(matchesTable.season);
@@ -255,8 +259,9 @@ export async function seasonsWithAnyCsaLineup(playerId: number): Promise<string[
 /**
  * Upsert `player_season_stats` apps/goals/assists from match sheets.
  * Preserves shirt_number. Creates missing season rows for any CSA lineup
- * season (including unused bench at 0/0/0). Never deletes other seasons.
- * Leaves pure-manual seasons (no sheet activity) untouched.
+ * season (including unused bench / friendlies at 0/0/0). Never deletes other
+ * seasons. Leaves pure-manual seasons (no sheet activity) untouched.
+ * Seasons that only have friendlies or unused bench are reset to 0 apps.
  */
 export async function syncPlayerSeasonStatsFromSheets(playerId: number): Promise<void> {
   if (!Number.isInteger(playerId) || playerId < 1) return;
@@ -298,19 +303,28 @@ export async function syncPlayerSeasonStatsFromSheets(playerId: number): Promise
     }
   }
 
-  // Keep elenco / profile seasons for unused-bench (and any sheet presence)
-  // so linking a player into a new season never "loses" prior ones.
+  // Sheet seasons without official appearances (unused bench / friendlies only)
+  // stay on the profile at 0/0/0 — and wipe inflated apps from older syncs.
   for (const season of lineupSeasons) {
-    if (bySeason.has(season)) continue;
-    await db.insert(playerSeasonStatsTable).values({
-      playerId,
-      season,
-      appearances: 0,
-      goals: 0,
-      assists: 0,
-      shirtNumber: null,
-    });
-    bySeason.set(season, -1);
+    const key = String(season);
+    if (derived.has(key)) continue;
+    const id = bySeason.get(key);
+    if (id != null && id !== -1) {
+      await db
+        .update(playerSeasonStatsTable)
+        .set({ appearances: 0, goals: 0, assists: 0 })
+        .where(eq(playerSeasonStatsTable.id, id));
+    } else if (!bySeason.has(key)) {
+      await db.insert(playerSeasonStatsTable).values({
+        playerId,
+        season: key,
+        appearances: 0,
+        goals: 0,
+        assists: 0,
+        shirtNumber: null,
+      });
+      bySeason.set(key, -1);
+    }
   }
 }
 
@@ -381,21 +395,53 @@ export type FlooredCareerRankRow = {
   seasons: number;
 };
 
-/**
- * Career rankings from linked sheets only (no manual player_season_stats floor).
- */
-export async function flooredCareerRankings(opts: {
-  sort: "appearances" | "goals" | "assists";
+export type FlooredCareerListOpts = {
+  sort?: "appearances" | "goals" | "assists" | "seasons";
   limit?: number;
+  offset?: number;
   season?: string;
-}): Promise<FlooredCareerRankRow[]> {
-  const lim = Math.min(Math.max(opts.limit ?? 20, 1), 200);
+  search?: string;
+};
+
+function mapFlooredCareerRow(r: FlooredCareerRankRow): FlooredCareerRankRow {
+  return {
+    id: Number(r.id),
+    name: String(r.name),
+    position: (r.position as string | null) ?? null,
+    nationality: (r.nationality as string | null) ?? null,
+    nationalityFlag: (r.nationalityFlag as string | null) ?? null,
+    photoUrl: (r.photoUrl as string | null)?.trim() || null,
+    verificationStatus: (r.verificationStatus as string | null) ?? null,
+    appearances: Number(r.appearances) || 0,
+    goals: Number(r.goals) || 0,
+    assists: Number(r.assists) || 0,
+    seasons: Number(r.seasons) || 0,
+  };
+}
+
+/**
+ * Career stats from linked sheets only — starter or sub who entered.
+ * Unused bench does not count toward appearances (same rule as player detail).
+ */
+export async function listFlooredCareerPlayers(
+  opts: FlooredCareerListOpts = {},
+): Promise<{ data: FlooredCareerRankRow[]; total: number }> {
+  const lim = Math.min(Math.max(opts.limit ?? 50, 1), 200);
+  const off = Math.max(opts.offset ?? 0, 0);
+  const sort = opts.sort ?? "appearances";
   const orderExpr =
-    opts.sort === "goals"
+    sort === "goals"
       ? sql`goals DESC, appearances DESC, name ASC`
-      : opts.sort === "assists"
+      : sort === "assists"
         ? sql`assists DESC, appearances DESC, name ASC`
-        : sql`appearances DESC, goals DESC, name ASC`;
+        : sort === "seasons"
+          ? sql`seasons DESC, appearances DESC, name ASC`
+          : sql`appearances DESC, goals DESC, name ASC`;
+
+  const search = opts.search?.trim();
+  const searchPattern = search
+    ? `%${foldAccents(search).replace(/([\\%_])/g, "\\$1")}%`
+    : null;
 
   const result = await db.execute(sql`
     WITH linked_apps AS (
@@ -488,38 +534,60 @@ export async function flooredCareerRankings(opts: {
         cast(count(DISTINCT season) as int) AS seasons
       FROM linked
       GROUP BY player_id
+    ),
+    filtered AS (
+      SELECT
+        p.id,
+        p.name,
+        p.position,
+        p.nationality,
+        p.nationality_flag AS "nationalityFlag",
+        p.photo_url AS "photoUrl",
+        p.verification_status AS "verificationStatus",
+        c.appearances,
+        c.goals,
+        c.assists,
+        c.seasons
+      FROM career c
+      INNER JOIN players p ON p.id = c.player_id
+      WHERE 1=1
+        ${
+          searchPattern
+            ? sql`AND translate(lower(coalesce(p.name, '')), ${ACCENT_FROM}, ${ACCENT_TO}) LIKE ${searchPattern} ESCAPE '\\'`
+            : sql``
+        }
     )
     SELECT
-      p.id,
-      p.name,
-      p.position,
-      p.nationality,
-      p.nationality_flag AS "nationalityFlag",
-      p.photo_url AS "photoUrl",
-      p.verification_status AS "verificationStatus",
-      c.appearances,
-      c.goals,
-      c.assists,
-      c.seasons
-    FROM career c
-    INNER JOIN players p ON p.id = c.player_id
+      *,
+      count(*) OVER()::int AS "__total"
+    FROM filtered
     ORDER BY ${orderExpr}
     LIMIT ${lim}
+    OFFSET ${off}
   `);
 
-  const rows = ((result as unknown as { rows: FlooredCareerRankRow[] }).rows ??
-    []) as FlooredCareerRankRow[];
-  return rows.map((r) => ({
-    id: Number(r.id),
-    name: String(r.name),
-    position: (r.position as string | null) ?? null,
-    nationality: (r.nationality as string | null) ?? null,
-    nationalityFlag: (r.nationalityFlag as string | null) ?? null,
-    photoUrl: (r.photoUrl as string | null)?.trim() || null,
-    verificationStatus: (r.verificationStatus as string | null) ?? null,
-    appearances: Number(r.appearances) || 0,
-    goals: Number(r.goals) || 0,
-    assists: Number(r.assists) || 0,
-    seasons: Number(r.seasons) || 0,
-  }));
+  const rows = ((result as unknown as { rows: (FlooredCareerRankRow & { __total?: number })[] })
+    .rows ?? []) as (FlooredCareerRankRow & { __total?: number })[];
+  const total = rows.length > 0 ? Number(rows[0].__total) || 0 : 0;
+  return {
+    data: rows.map((r) => mapFlooredCareerRow(r)),
+    total,
+  };
+}
+
+/**
+ * Career rankings from linked sheets only (no manual player_season_stats floor).
+ */
+export async function flooredCareerRankings(opts: {
+  sort: "appearances" | "goals" | "assists";
+  limit?: number;
+  season?: string;
+}): Promise<FlooredCareerRankRow[]> {
+  const { data } = await listFlooredCareerPlayers({
+    sort: opts.sort,
+    limit: opts.limit,
+    offset: 0,
+    season: opts.season,
+  });
+  return data;
 }

@@ -18,15 +18,19 @@ import { loadEntityBadges } from "../lib/entity-badges";
 import {
   flooredPlayerSeasonStats,
   flooredCareerRankings,
+  listFlooredCareerPlayers,
   sumFlooredSeasons,
 } from "../lib/player-stats-floor";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
 import { countPlayerTitles, listPlayerTitles } from "../lib/titles";
-import { accentInsensitiveLike } from "../lib/accent-fold";
 import {
   playerMostFacedOpponents,
   playerMostGoalsVsOpponents,
 } from "../lib/entity-opponent-stats";
+import {
+  enrichTransferOpponentFields,
+  loadOpponentCrestCatalog,
+} from "../lib/transfer-opponent";
 
 const router = Router();
 
@@ -225,55 +229,19 @@ router.get("/players", async (req, res) => {
     const { search, sort, season, limit = "50", offset = "0" } = req.query as Record<string, string>;
     const lim = Math.min(parseInt(limit) || 50, 200);
     const off = parseInt(offset) || 0;
+    const sortKey =
+      sort === "goals" || sort === "seasons" || sort === "appearances"
+        ? sort
+        : "appearances";
 
-    let baseQuery = db
-      .select({
-        id: playersTable.id,
-        name: playersTable.name,
-        position: playersTable.position,
-        nationality: playersTable.nationality,
-        nationalityFlag: playersTable.nationalityFlag,
-        verificationStatus: playersTable.verificationStatus,
-        appearances: sql<number>`cast(sum(${playerSeasonStatsTable.appearances}) as int)`,
-        goals: sql<number>`cast(sum(${playerSeasonStatsTable.goals}) as int)`,
-        assists: sql<number>`cast(sum(${playerSeasonStatsTable.assists}) as int)`,
-        seasons: sql<number>`cast(count(distinct ${playerSeasonStatsTable.season}) as int)`,
-      })
-      .from(playersTable)
-      .innerJoin(playerSeasonStatsTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
-      .$dynamic();
-
-    const conditions = [];
-    if (search) {
-      conditions.push(accentInsensitiveLike(playersTable.name, search));
-    }
-    if (season) {
-      conditions.push(eq(playerSeasonStatsTable.season, season));
-    }
-    if (conditions.length > 0) {
-      baseQuery = baseQuery.where(and(...conditions));
-    }
-
-    baseQuery = baseQuery.groupBy(
-      playersTable.id,
-      playersTable.name,
-      playersTable.position,
-      playersTable.nationality,
-      playersTable.nationalityFlag,
-      playersTable.verificationStatus,
-    );
-
-    if (sort === "goals") {
-      baseQuery = baseQuery.orderBy(sql`sum(${playerSeasonStatsTable.goals}) desc`);
-    } else if (sort === "seasons") {
-      baseQuery = baseQuery.orderBy(sql`count(distinct ${playerSeasonStatsTable.season}) desc`);
-    } else {
-      baseQuery = baseQuery.orderBy(sql`sum(${playerSeasonStatsTable.appearances}) desc`);
-    }
-
-    const allRows = await baseQuery;
-    const total = allRows.length;
-    const data = allRows.slice(off, off + lim);
+    // Sheet-linked appearances only (starter / sub who entered) — unused bench excluded.
+    const { data, total } = await listFlooredCareerPlayers({
+      search: search || undefined,
+      sort: sortKey,
+      season: season || undefined,
+      limit: lim,
+      offset: off,
+    });
 
     res.json({ data, total, limit: lim, offset: off });
   } catch (err) {
@@ -750,6 +718,20 @@ router.get("/players/:id", async (req, res) => {
       .where(eq(transfersTable.playerId, id))
       .orderBy(desc(transfersTable.season), desc(transfersTable.transferDate));
 
+    const opponentsCatalog = transfers.some((t) => !t.opponentId || !t.clubLogoUrl)
+      ? await loadOpponentCrestCatalog()
+      : [];
+    const transfersEnriched = transfers.map((t) =>
+      enrichTransferOpponentFields(
+        {
+          club: t.club ?? null,
+          opponentId: t.opponentId ?? null,
+          clubLogoUrl: t.clubLogoUrl ?? null,
+        },
+        opponentsCatalog,
+      ),
+    );
+
     res.json({
       id: player.id,
       name: player.name,
@@ -784,12 +766,12 @@ router.get("/players/:id", async (req, res) => {
       mostFacedOpponents,
       mostGoalsVsOpponents,
       linkedManager: linkedMgr ?? null,
-      transfers: transfers.map((t) => ({
+      transfers: transfers.map((t, i) => ({
         id: t.id,
         direction: t.direction === "out" ? "out" : "in",
         club: t.club ?? null,
-        opponentId: t.opponentId ?? null,
-        clubLogoUrl: t.clubLogoUrl ?? null,
+        opponentId: transfersEnriched[i]?.opponentId ?? null,
+        clubLogoUrl: transfersEnriched[i]?.clubLogoUrl ?? null,
         transferDate: t.transferDate ?? null,
         season: t.season,
         transferType: t.transferType ?? null,

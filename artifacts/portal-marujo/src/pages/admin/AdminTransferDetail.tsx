@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft } from "lucide-react";
 import { includesFolded } from "@/lib/accent-fold";
+import { OpponentCrest } from "@/components/OpponentCrest";
 
 type PlayerOpt = { id: number; name: string };
+type OpponentOpt = { id: number; name: string; logoUrl?: string | null };
 
 const TRANSFER_TYPE_PRESETS = [
   "empréstimo",
@@ -22,11 +24,14 @@ export default function AdminTransferDetail() {
   const transferId = isNew ? NaN : Number(params.id);
 
   const [players, setPlayers] = useState<PlayerOpt[]>([]);
+  const [opponents, setOpponents] = useState<OpponentOpt[]>([]);
   const [playerId, setPlayerId] = useState<number | "">("");
   const [playerSearch, setPlayerSearch] = useState("");
   const [newPlayerName, setNewPlayerName] = useState("");
   const [direction, setDirection] = useState<"in" | "out">("in");
   const [club, setClub] = useState("");
+  const [opponentId, setOpponentId] = useState<number | "">("");
+  const [opponentSearch, setOpponentSearch] = useState("");
   const [transferDate, setTransferDate] = useState("");
   const [season, setSeason] = useState("");
   const [transferType, setTransferType] = useState("");
@@ -41,6 +46,22 @@ export default function AdminTransferDetail() {
     if (r.ok) {
       const data = (await r.json()) as { id: number; name: string }[];
       setPlayers(data.map((p) => ({ id: p.id, name: p.name })));
+    }
+  }, []);
+
+  const loadOpponents = useCallback(async () => {
+    const r = await adminFetch("/admin/lookup");
+    if (r.ok) {
+      const data = (await r.json()) as {
+        opponents?: { id: number; name: string; logoUrl?: string | null }[];
+      };
+      setOpponents(
+        (data.opponents ?? []).map((o) => ({
+          id: o.id,
+          name: o.name,
+          logoUrl: o.logoUrl ?? null,
+        })),
+      );
     }
   }, []);
 
@@ -59,6 +80,8 @@ export default function AdminTransferDetail() {
     setPlayerSearch(data.playerName ?? "");
     setDirection(data.direction === "out" ? "out" : "in");
     setClub(data.club ?? "");
+    setOpponentId(data.opponentId ?? "");
+    setOpponentSearch(data.club ?? "");
     setTransferDate(data.transferDate ?? "");
     setSeason(data.season ?? "");
     setTransferType(data.transferType ?? "");
@@ -74,8 +97,15 @@ export default function AdminTransferDetail() {
 
   useEffect(() => {
     loadPlayers();
+    loadOpponents();
     load();
-  }, [loadPlayers, load]);
+  }, [loadPlayers, loadOpponents, load]);
+
+  useEffect(() => {
+    if (opponentId === "" || opponents.length === 0) return;
+    const opp = opponents.find((o) => o.id === opponentId);
+    if (opp) setOpponentSearch(opp.name);
+  }, [opponentId, opponents]);
 
   const filteredPlayers = useMemo(() => {
     const q = playerSearch.trim();
@@ -84,6 +114,19 @@ export default function AdminTransferDetail() {
       .filter((p) => includesFolded(p.name, q))
       .slice(0, 30);
   }, [players, playerSearch]);
+
+  const filteredOpponents = useMemo(() => {
+    const q = opponentSearch.trim();
+    if (q.length < 1) return opponents.slice(0, 30);
+    return opponents
+      .filter((o) => includesFolded(o.name, q))
+      .slice(0, 30);
+  }, [opponents, opponentSearch]);
+
+  const selectedOpponent =
+    opponentId !== ""
+      ? opponents.find((o) => o.id === opponentId) ?? null
+      : null;
 
   const transferTypeSelect = transferTypeOther
     ? "__other__"
@@ -117,10 +160,12 @@ export default function AdminTransferDetail() {
     setSaving(true);
     setError("");
     try {
+      const clubText = (club.trim() || opponentSearch.trim() || null);
       const body = {
         playerId: Number(playerId),
         direction,
-        club: club.trim() || null,
+        club: clubText,
+        opponentId: opponentId === "" ? null : Number(opponentId),
         transferDate: transferDate.trim() || null,
         season: season.trim(),
         transferType: transferType.trim() || null,
@@ -139,6 +184,10 @@ export default function AdminTransferDetail() {
       }
       const saved = await r.json();
       if (isNew) setLocation(`/admin/transferencias/${saved.id}`);
+      else {
+        setOpponentId(saved.opponentId ?? "");
+        setClub(saved.club ?? clubText ?? "");
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro ao salvar");
     }
@@ -246,7 +295,57 @@ export default function AdminTransferDetail() {
           <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
             Clube {direction === "in" ? "(origem)" : "(destino)"}
           </label>
-          <Input value={club} onChange={(e) => setClub(e.target.value)} />
+          <Input
+            value={opponentSearch}
+            onChange={(e) => {
+              setOpponentSearch(e.target.value);
+              setClub(e.target.value);
+              setOpponentId("");
+            }}
+            placeholder="Buscar adversário do catálogo…"
+          />
+          {opponentSearch.trim() && !opponentId && (
+            <ul className="mt-1 border rounded max-h-40 overflow-auto bg-white text-sm">
+              {filteredOpponents.map((o) => (
+                <li key={o.id}>
+                  <button
+                    type="button"
+                    className="w-full text-left px-3 py-1.5 hover:bg-gray-50 inline-flex items-center gap-2"
+                    onClick={() => {
+                      setOpponentId(o.id);
+                      setOpponentSearch(o.name);
+                      setClub(o.name);
+                    }}
+                  >
+                    <OpponentCrest url={o.logoUrl} name={o.name} size="sm" fallback />
+                    {o.name}
+                  </button>
+                </li>
+              ))}
+              {filteredOpponents.length === 0 && (
+                <li className="px-3 py-2 text-gray-400">
+                  Nenhum adversário — o texto será salvo sem escudo vinculado
+                </li>
+              )}
+            </ul>
+          )}
+          {selectedOpponent && (
+            <p className="text-xs text-green-700 mt-1 inline-flex items-center gap-1.5">
+              <OpponentCrest
+                url={selectedOpponent.logoUrl}
+                name={selectedOpponent.name}
+                size="sm"
+                fallback
+              />
+              Vinculado: {selectedOpponent.name} (ID {selectedOpponent.id})
+            </p>
+          )}
+          {!selectedOpponent && club.trim() && (
+            <p className="text-xs text-amber-700 mt-1">
+              Sem vínculo no catálogo — o escudo só aparece se o nome bater com um
+              adversário (ex.: “Volta Redonda” em vez de só texto solto).
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-3">

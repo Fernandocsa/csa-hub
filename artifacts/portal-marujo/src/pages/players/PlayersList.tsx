@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { PlayerFlag } from "@/components/PlayerFlag";
+import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { useListPlayers } from "@workspace/api-client-react";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -103,14 +104,22 @@ export default function PlayersList() {
                     <TableRow key={player.id} className="text-sm" data-testid={`row-player-${player.id}`}>
                       <TableCell className="py-2 text-muted-foreground text-xs">{formatCompetitionRank(ranks[i])}</TableCell>
                       <TableCell className="py-2 font-medium">
-                        <Link href={`/jogadores/${player.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-1" data-testid={`link-player-${player.id}`}>
-                          <PlayerFlag
-                            flag={(player as { nationalityFlag?: string | null }).nationalityFlag}
-                            nationality={player.nationality}
-                            showBrazil={false}
+                        <Link href={`/jogadores/${player.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-2 min-w-0" data-testid={`link-player-${player.id}`}>
+                          <PlayerPhoto
+                            url={player.photoUrl}
+                            name={player.name}
+                            size="sm"
+                            className="h-7 w-7 text-[9px]"
                           />
-                          {player.name}
-                          <VerifiedBadge status={(player as any).verificationStatus} />
+                          <span className="inline-flex items-center gap-1 min-w-0">
+                            <PlayerFlag
+                              flag={(player as { nationalityFlag?: string | null }).nationalityFlag}
+                              nationality={player.nationality}
+                              showBrazil={false}
+                            />
+                            <span className="truncate">{player.name}</span>
+                            <VerifiedBadge status={(player as any).verificationStatus} />
+                          </span>
                         </Link>
                       </TableCell>
                       <TableCell className="py-2 text-muted-foreground text-xs">{player.position ?? "–"}</TableCell>

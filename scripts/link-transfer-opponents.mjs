@@ -30,6 +30,7 @@ const CLUB_MAP = [
   { club: "Sousa", opponentId: 107 },
   { club: "Treze", opponentId: 41 },
   { club: "Volta Redonda", opponentId: 71 },
+  { club: "Volta Redonda-RJ", opponentId: 71 },
 ];
 
 /** Clubs that need a new opponent row. */

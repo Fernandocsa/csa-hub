@@ -83,6 +83,7 @@ import {
   recalculateSeasonCompetitionStats,
 } from "../lib/season-competition-stats";
 import { computeClubRecords } from "../lib/records";
+import { resolveTransferOpponentId } from "../lib/transfer-opponent";
 import {
   listChampionCampaigns,
   playerIdsForChampionCampaign,
@@ -6647,6 +6648,18 @@ function parseOptionalYmd(raw: unknown): string | null {
   return s;
 }
 
+function parseOptionalOpponentId(
+  raw: unknown,
+): { ok: true; value: number | null | undefined } | { ok: false; error: string } {
+  if (raw === undefined) return { ok: true, value: undefined };
+  if (raw == null || raw === "") return { ok: true, value: null };
+  const n = Number(raw);
+  if (!Number.isInteger(n) || n < 1) {
+    return { ok: false, error: "opponentId inválido" };
+  }
+  return { ok: true, value: n };
+}
+
 router.get("/admin/transfers", requireAdmin, async (req, res) => {
   try {
     const rows = await db
@@ -6656,6 +6669,7 @@ router.get("/admin/transfers", requireAdmin, async (req, res) => {
         playerName: playersTable.name,
         direction: transfersTable.direction,
         club: transfersTable.club,
+        opponentId: transfersTable.opponentId,
         transferDate: transfersTable.transferDate,
         season: transfersTable.season,
         transferType: transfersTable.transferType,
@@ -6682,6 +6696,7 @@ router.get("/admin/transfers/:id", requireAdmin, async (req, res) => {
         playerName: playersTable.name,
         direction: transfersTable.direction,
         club: transfersTable.club,
+        opponentId: transfersTable.opponentId,
         transferDate: transfersTable.transferDate,
         season: transfersTable.season,
         transferType: transfersTable.transferType,
@@ -6704,6 +6719,7 @@ router.post("/admin/transfers", requireAdmin, async (req, res) => {
       playerId?: number;
       direction?: string;
       club?: string | null;
+      opponentId?: number | null;
       transferDate?: string | null;
       season?: string;
       transferType?: string | null;
@@ -6725,12 +6741,25 @@ router.post("/admin/transfers", requireAdmin, async (req, res) => {
     const season = body.season?.trim();
     if (!season) return res.status(400).json({ error: "Temporada obrigatória" });
 
+    const oppParsed = parseOptionalOpponentId(body.opponentId);
+    if (!oppParsed.ok) return res.status(400).json({ error: oppParsed.error });
+
+    const club = body.club?.trim() || null;
+    const opponentId = await resolveTransferOpponentId({
+      opponentId: oppParsed.value === undefined ? null : oppParsed.value,
+      club,
+    });
+    if (oppParsed.value != null && opponentId == null) {
+      return res.status(400).json({ error: "Adversário não encontrado" });
+    }
+
     const [created] = await db
       .insert(transfersTable)
       .values({
         playerId,
         direction: dir.value,
-        club: body.club?.trim() || null,
+        club,
+        opponentId,
         transferDate: parseOptionalYmd(body.transferDate),
         season,
         transferType: body.transferType?.trim() || null,
@@ -6755,6 +6784,7 @@ router.put("/admin/transfers/:id", requireAdmin, async (req, res) => {
       playerId?: number;
       direction?: string;
       club?: string | null;
+      opponentId?: number | null;
       transferDate?: string | null;
       season?: string;
       transferType?: string | null;
@@ -6792,6 +6822,28 @@ router.put("/admin/transfers/:id", requireAdmin, async (req, res) => {
       values.transferType = body.transferType?.trim() || null;
     }
     if (body.notes !== undefined) values.notes = body.notes?.trim() || null;
+
+    const clubForResolve =
+      body.club !== undefined ? body.club?.trim() || null : current.club;
+    const oppParsed = parseOptionalOpponentId(body.opponentId);
+    if (!oppParsed.ok) return res.status(400).json({ error: oppParsed.error });
+
+    if (body.opponentId !== undefined || body.club !== undefined) {
+      const opponentId = await resolveTransferOpponentId({
+        opponentId:
+          oppParsed.value === undefined ? current.opponentId : oppParsed.value,
+        club: clubForResolve,
+      });
+      if (oppParsed.value != null && opponentId == null) {
+        return res.status(400).json({ error: "Adversário não encontrado" });
+      }
+      // Re-resolve from club text when opponentId omitted but club changed
+      if (body.opponentId !== undefined) {
+        values.opponentId = opponentId;
+      } else if (body.club !== undefined) {
+        values.opponentId = opponentId;
+      }
+    }
 
     const [updated] = await db
       .update(transfersTable)

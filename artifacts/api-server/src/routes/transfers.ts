@@ -2,6 +2,10 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { transfersTable, playersTable, opponentsTable } from "@workspace/db";
 import { asc, desc, eq, and, sql } from "drizzle-orm";
+import {
+  enrichTransferOpponentFields,
+  loadOpponentCrestCatalog,
+} from "../lib/transfer-opponent";
 
 const router = Router();
 
@@ -48,6 +52,15 @@ function mapRow(r: {
     transferType: r.transferType,
     notes: r.notes,
   };
+}
+
+async function mapRowsWithCrest(
+  rows: Parameters<typeof mapRow>[0][],
+): Promise<PublicTransfer[]> {
+  const needsEnrich = rows.some((r) => !r.opponentId || !r.clubLogoUrl);
+  if (!needsEnrich) return rows.map(mapRow);
+  const opponents = await loadOpponentCrestCatalog();
+  return rows.map((r) => mapRow(enrichTransferOpponentFields(r, opponents)));
 }
 
 const transferSelect = {
@@ -126,7 +139,7 @@ router.get("/transfers", async (req, res) => {
       .orderBy(desc(transfersTable.season));
 
     res.json({
-      transfers: rows.map(mapRow),
+      transfers: await mapRowsWithCrest(rows),
       seasons: seasons.map((s) => s.season),
     });
   } catch (err) {
@@ -157,7 +170,7 @@ router.get("/transfers/latest", async (req, res) => {
       res.json(null);
       return;
     }
-    res.json(mapRow(row));
+    res.json((await mapRowsWithCrest([row]))[0]);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno do servidor" });
@@ -180,7 +193,7 @@ router.get("/transfers/by-player/:playerId", async (req, res) => {
       .where(eq(transfersTable.playerId, playerId))
       .orderBy(desc(transfersTable.season), desc(transfersTable.transferDate));
 
-    res.json(rows.map(mapRow));
+    res.json(await mapRowsWithCrest(rows));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno do servidor" });
