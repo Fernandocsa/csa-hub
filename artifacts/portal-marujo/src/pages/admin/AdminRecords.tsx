@@ -162,6 +162,22 @@ function ManagerList({ rows }: { rows: ManagerRow[] }) {
   );
 }
 
+/**
+ * Sub-minute times known from match reports — admin records display only.
+ * Match sheets keep minute=1'; not updating match profiles.
+ */
+const ADMIN_FASTEST_GOAL_SECONDS: Record<string, number> = {
+  "2022-10-20|Rodrigo Rodrigues": 29,
+  "2026-05-02|Ailton Santos": 45,
+};
+
+function adminTimedGoalLabel(r: TimedGoalRow): string {
+  const date = String(r.matchDate).slice(0, 10);
+  const sec = ADMIN_FASTEST_GOAL_SECONDS[`${date}|${r.playerName}`];
+  if (sec != null) return `${sec}s`;
+  return r.minuteLabel;
+}
+
 function TimedGoalList({ rows }: { rows: TimedGoalRow[] }) {
   if (rows.length === 0) {
     return <p className="text-sm text-gray-400">Sem dados ainda.</p>;
@@ -196,7 +212,7 @@ function TimedGoalList({ rows }: { rows: TimedGoalRow[] }) {
             </span>
           </span>
           <span className="tabular-nums font-semibold shrink-0 text-[#1B3A6B]">
-            {r.minuteLabel}
+            {adminTimedGoalLabel(r)}
           </span>
         </li>
       ))}
