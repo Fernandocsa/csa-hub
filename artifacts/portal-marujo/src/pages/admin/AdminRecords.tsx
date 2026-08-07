@@ -30,6 +30,19 @@ type Streak = {
 };
 type PlayerStreak = Streak & { playerId: number; playerName: string };
 type ManagerStreak = Streak & { managerId: number; managerName: string };
+type TimedGoalRow = {
+  goalId: number;
+  playerId: number | null;
+  playerName: string;
+  minute: number;
+  injuryTimeMinute: number | null;
+  minuteLabel: string;
+  matchId: number;
+  matchDate: string;
+  season: string;
+  opponentName: string;
+  competitionName: string;
+};
 
 type RecordsPayload = {
   rules: {
@@ -42,6 +55,7 @@ type RecordsPayload = {
     captain?: string;
     penaltyEvents?: string;
     ownGoals?: string;
+    goalTiming?: string;
   };
   players: {
     topScorers: PlayerRow[];
@@ -69,6 +83,8 @@ type RecordsPayload = {
     topCaptainAppearances: PlayerRow[];
     topPenaltiesMissed: PlayerRow[];
     topPenaltiesSaved: PlayerRow[];
+    fastestGoals?: TimedGoalRow[];
+    latestStoppageGoals?: TimedGoalRow[];
   };
   managers: {
     topWins: ManagerRow[];
@@ -140,6 +156,48 @@ function ManagerList({ rows }: { rows: ManagerRow[] }) {
             </Link>
           </span>
           <span className="tabular-nums font-semibold shrink-0">{r.value}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function TimedGoalList({ rows }: { rows: TimedGoalRow[] }) {
+  if (rows.length === 0) {
+    return <p className="text-sm text-gray-400">Sem dados ainda.</p>;
+  }
+  return (
+    <ol className="space-y-2">
+      {rows.map((r, i) => (
+        <li
+          key={r.goalId}
+          className="flex items-baseline justify-between gap-3 text-sm"
+        >
+          <span className="min-w-0 truncate">
+            <span className="text-gray-400 tabular-nums mr-2">{i + 1}.</span>
+            {r.playerId != null ? (
+              <Link
+                href={`/admin/jogadores/${r.playerId}`}
+                className="text-[#1B3A6B] hover:underline font-medium"
+              >
+                {r.playerName}
+              </Link>
+            ) : (
+              <span className="font-medium text-gray-800">{r.playerName}</span>
+            )}
+            <span className="text-gray-400 text-xs ml-2">
+              <Link
+                href={`/admin/partidas/${r.matchId}`}
+                className="hover:underline"
+              >
+                {fmtDate(r.matchDate)} × {r.opponentName}
+              </Link>
+              <span className="ml-1.5">{r.season}</span>
+            </span>
+          </span>
+          <span className="tabular-nums font-semibold shrink-0 text-[#1B3A6B]">
+            {r.minuteLabel}
+          </span>
         </li>
       ))}
     </ol>
@@ -342,7 +400,13 @@ export default function AdminRecords() {
       ) : error ? (
         <p className="text-sm text-red-600">{error}</p>
       ) : !data ? null : (
-        <>
+        <Tabs defaultValue="geral" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="geral">Geral</TabsTrigger>
+            <TabsTrigger value="minutagem">Minutagem</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="geral" className="space-y-6 mt-0">
           <div className="bg-[#1B3A6B] border border-[#1B3A6B] rounded-lg px-3 py-2 text-xs text-white space-y-0.5">
             <p>{data.rules.matches}</p>
             <p>{data.rules.appearances}</p>
@@ -716,7 +780,29 @@ export default function AdminRecords() {
               </Card>
             </div>
           </div>
-        </>
+          </TabsContent>
+
+          <TabsContent value="minutagem" className="space-y-4 mt-0">
+            <div className="bg-[#1B3A6B] border border-[#1B3A6B] rounded-lg px-3 py-2 text-xs text-white space-y-0.5">
+              <p>{data.rules.matches}</p>
+              {data.rules.goalTiming ? <p>{data.rules.goalTiming}</p> : null}
+            </div>
+            <Card title="Gols por minutagem">
+              <Tabs defaultValue="fastest">
+                <TabsList className="mb-3">
+                  <TabsTrigger value="fastest">Mais rápidos</TabsTrigger>
+                  <TabsTrigger value="latest">Mais tardios (90+)</TabsTrigger>
+                </TabsList>
+                <TabsContent value="fastest">
+                  <TimedGoalList rows={data.players.fastestGoals ?? []} />
+                </TabsContent>
+                <TabsContent value="latest">
+                  <TimedGoalList rows={data.players.latestStoppageGoals ?? []} />
+                </TabsContent>
+              </Tabs>
+            </Card>
+          </TabsContent>
+        </Tabs>
       )}
     </div>
   );

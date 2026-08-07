@@ -14,6 +14,7 @@ import { PlayerFlag } from "@/components/PlayerFlag";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { OpponentHistoryLink } from "@/components/MatchNavLinks";
 import { ShareButton } from "@/components/ShareButton";
+import { OpponentCountList } from "@/components/OpponentCountList";
 import { formatDateBr } from "@/lib/utils";
 import type { ReactNode } from "react";
 
@@ -62,6 +63,18 @@ type PlayerProfile = {
     seasonYear?: number | null;
   }[];
   linkedManager?: { id: number; name: string } | null;
+  mostFacedOpponents?: {
+    opponentId: number;
+    opponentName: string;
+    logoUrl?: string | null;
+    value: number;
+  }[];
+  mostGoalsVsOpponents?: {
+    opponentId: number;
+    opponentName: string;
+    logoUrl?: string | null;
+    value: number;
+  }[];
   transfers?: {
     id: number;
     direction: "in" | "out";
@@ -368,6 +381,27 @@ export default function PlayerDetail() {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {((player.mostFacedOpponents?.length ?? 0) > 0 ||
+        (player.mostGoalsVsOpponents?.length ?? 0) > 0) && (
+        <div
+          className="grid sm:grid-cols-2 gap-6"
+          data-testid="player-opponent-stats"
+        >
+          <OpponentCountList
+            title="Adversário que mais enfrentou"
+            rows={player.mostFacedOpponents ?? []}
+            valueLabel={(n) => `${n} ${n === 1 ? "jogo" : "jogos"}`}
+            testId="player-most-faced"
+          />
+          <OpponentCountList
+            title="Adversário que mais fez gol"
+            rows={player.mostGoalsVsOpponents ?? []}
+            valueLabel={(n) => `${n} ${n === 1 ? "gol" : "gols"}`}
+            testId="player-most-goals-vs"
+          />
         </div>
       )}
 

@@ -21,6 +21,13 @@ import {
   topManagersByTitles,
   topPlayersByTitles,
 } from "./titles";
+import {
+  eventMinuteSortKey,
+  formatEventMinuteLabel,
+  isExtraTimeEventMinute,
+  isSecondHalfStoppageMinute,
+  isUnknownEventMinute,
+} from "./event-minute";
 
 /** Starting CSA goalkeeper: lineup position or player profile marked as Goleiro. */
 function csaStartingGoalkeeperCondition() {
@@ -83,6 +90,21 @@ export type PlayerStreakRecord = StreakRecord & {
 export type ManagerStreakRecord = StreakRecord & {
   managerId: number;
   managerName: string;
+};
+
+/** Single CSA goal timed for fastest / latest (90+) rankings. */
+export type TimedGoalRecord = {
+  goalId: number;
+  playerId: number | null;
+  playerName: string;
+  minute: number;
+  injuryTimeMinute: number | null;
+  minuteLabel: string;
+  matchId: number;
+  matchDate: string;
+  season: string;
+  opponentName: string;
+  competitionName: string;
 };
 
 type MatchRow = {
@@ -1371,6 +1393,89 @@ async function managerStreakRecords(
   };
 }
 
+/**
+ * CSA goals eligible for minutagem rankings:
+ * known minute (not n/d / 200 / 0), not extra time (prorrogação ≥100').
+ */
+async function loadTimedCsaGoals(): Promise<TimedGoalRecord[]> {
+  const rows = await db
+    .select({
+      goalId: matchGoalsTable.id,
+      playerId: matchGoalsTable.scorerPlayerId,
+      playerName: playersTable.name,
+      scorerName: matchGoalsTable.scorerName,
+      minute: matchGoalsTable.minute,
+      injuryTimeMinute: matchGoalsTable.injuryTimeMinute,
+      matchId: matchesTable.id,
+      matchDate: matchesTable.matchDate,
+      season: matchesTable.season,
+      opponentName: opponentsTable.name,
+      competitionName: competitionsTable.name,
+    })
+    .from(matchGoalsTable)
+    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
+    .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+    .innerJoin(
+      competitionsTable,
+      eq(matchesTable.competitionId, competitionsTable.id),
+    )
+    .leftJoin(playersTable, eq(matchGoalsTable.scorerPlayerId, playersTable.id))
+    .where(
+      and(
+        recordsMatchConditions(),
+        eq(matchGoalsTable.side, "csa"),
+        eq(matchGoalsTable.isOwnGoal, false),
+      ),
+    );
+
+  const out: TimedGoalRecord[] = [];
+  for (const r of rows) {
+    if (isUnknownEventMinute(r.minute)) continue;
+    if (isExtraTimeEventMinute(r.minute)) continue;
+    out.push({
+      goalId: r.goalId,
+      playerId: r.playerId,
+      playerName: r.playerName ?? r.scorerName,
+      minute: r.minute,
+      injuryTimeMinute: r.injuryTimeMinute,
+      minuteLabel: formatEventMinuteLabel(r.minute, r.injuryTimeMinute),
+      matchId: r.matchId,
+      matchDate: String(r.matchDate).slice(0, 10),
+      season: r.season,
+      opponentName: r.opponentName,
+      competitionName: r.competitionName,
+    });
+  }
+  return out;
+}
+
+async function fastestGoals(limit = 20): Promise<TimedGoalRecord[]> {
+  const goals = await loadTimedCsaGoals();
+  goals.sort((a, b) => {
+    const ka = eventMinuteSortKey(a.minute, a.injuryTimeMinute);
+    const kb = eventMinuteSortKey(b.minute, b.injuryTimeMinute);
+    if (ka !== kb) return ka - kb;
+    if (a.matchDate !== b.matchDate) return a.matchDate.localeCompare(b.matchDate);
+    return a.goalId - b.goalId;
+  });
+  return goals.slice(0, limit);
+}
+
+/** Latest regulation goals = second-half stoppage only (90+). */
+async function latestStoppageGoals(limit = 20): Promise<TimedGoalRecord[]> {
+  const goals = (await loadTimedCsaGoals()).filter((g) =>
+    isSecondHalfStoppageMinute(g.minute, g.injuryTimeMinute),
+  );
+  goals.sort((a, b) => {
+    const ka = eventMinuteSortKey(a.minute, a.injuryTimeMinute);
+    const kb = eventMinuteSortKey(b.minute, b.injuryTimeMinute);
+    if (ka !== kb) return kb - ka;
+    if (a.matchDate !== b.matchDate) return b.matchDate.localeCompare(a.matchDate);
+    return b.goalId - a.goalId;
+  });
+  return goals.slice(0, limit);
+}
+
 export async function computeClubRecords() {
   const matches = await loadRecordsMatches();
   const unbeaten = bestTeamStreak(matches, (m) => m.result === "win" || m.result === "draw");
@@ -1413,6 +1518,8 @@ export async function computeClubRecords() {
     captainApps,
     penaltiesMissed,
     penaltiesSaved,
+    fastest,
+    latestStoppage,
   ] = await Promise.all([
     topScorers(),
     topAssists(),
@@ -1450,6 +1557,8 @@ export async function computeClubRecords() {
     topCaptainAppearances(),
     topPenaltyEvents("missed"),
     topPenaltyEvents("saved"),
+    fastestGoals(),
+    latestStoppageGoals(),
   ]);
 
   const topHatTricks =
@@ -1472,6 +1581,8 @@ export async function computeClubRecords() {
         "Pênaltis perdidos/defendidos: eventos próprios da ficha (A/C) — não entram na artilharia nem em gols",
       ownGoals:
         "Gols contra (GPD): jogador do CSA que marcou na própria meta — não entram na artilharia",
+      goalTiming:
+        "Minutagem: exclui n/d (200), minuto desconhecido e gols na prorrogação (≥100'). Mais tardios = só acréscimos do 2º tempo (90+)",
     },
     players: {
       topScorers: goals,
@@ -1505,6 +1616,8 @@ export async function computeClubRecords() {
       topCaptainAppearances: captainApps,
       topPenaltiesMissed: penaltiesMissed,
       topPenaltiesSaved: penaltiesSaved,
+      fastestGoals: fastest,
+      latestStoppageGoals: latestStoppage,
     },
     managers: {
       topWins: managerWins,

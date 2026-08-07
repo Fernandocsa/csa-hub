@@ -13,6 +13,7 @@ import { PlayerFlag } from "@/components/PlayerFlag";
 import { ShareButton } from "@/components/ShareButton";
 import { EntityPhoto } from "@/components/EntityPhoto";
 import { MatchRows } from "@/components/MatchRows";
+import { OpponentCountList } from "@/components/OpponentCountList";
 import type { ReactNode } from "react";
 
 function pct(wins: number, total: number) {
@@ -82,6 +83,18 @@ type ManagerProfile = {
   titleCount?: number;
   titles?: { season: string; competitionId: number; competitionName: string }[];
   linkedPlayer?: { id: number; name: string } | null;
+  mostFacedOpponents?: {
+    opponentId: number;
+    opponentName: string;
+    logoUrl?: string | null;
+    value: number;
+  }[];
+  mostWinsVsOpponents?: {
+    opponentId: number;
+    opponentName: string;
+    logoUrl?: string | null;
+    value: number;
+  }[];
 };
 
 export default function ManagerDetail() {
@@ -280,6 +293,27 @@ export default function ManagerDetail() {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {((manager.mostFacedOpponents?.length ?? 0) > 0 ||
+        (manager.mostWinsVsOpponents?.length ?? 0) > 0) && (
+        <div
+          className="grid sm:grid-cols-2 gap-6"
+          data-testid="manager-opponent-stats"
+        >
+          <OpponentCountList
+            title="Adversários que mais enfrentou"
+            rows={manager.mostFacedOpponents ?? []}
+            valueLabel={(n) => `${n} ${n === 1 ? "jogo" : "jogos"}`}
+            testId="manager-most-faced"
+          />
+          <OpponentCountList
+            title="Adversários que mais venceu"
+            rows={manager.mostWinsVsOpponents ?? []}
+            valueLabel={(n) => `${n} ${n === 1 ? "vitória" : "vitórias"}`}
+            testId="manager-most-wins-vs"
+          />
         </div>
       )}
 

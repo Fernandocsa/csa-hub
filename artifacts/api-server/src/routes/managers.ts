@@ -17,6 +17,10 @@ import {
 } from "../lib/manager-stats";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
 import { countManagerTitles, listManagerTitles } from "../lib/titles";
+import {
+  managerMostFacedOpponents,
+  managerMostWinsVsOpponents,
+} from "../lib/entity-opponent-stats";
 
 const router = Router();
 
@@ -185,10 +189,13 @@ router.get("/managers/:id", async (req, res) => {
     };
     const stats = resolveManagerCareerStats(computed, manager);
     const badges = await loadEntityBadges("manager", id);
-    const [titleCount, titles] = await Promise.all([
-      countManagerTitles(id),
-      listManagerTitles(id),
-    ]);
+    const [titleCount, titles, mostFacedOpponents, mostWinsVsOpponents] =
+      await Promise.all([
+        countManagerTitles(id),
+        listManagerTitles(id),
+        managerMostFacedOpponents(id),
+        managerMostWinsVsOpponents(id),
+      ]);
     const linkedSeasons = await computeManagerSeasonStatsFromMatches(id);
     const flooredSeasons = resolveManagerSeasonStatsPublic({
       linkedSeasons,
@@ -237,6 +244,8 @@ router.get("/managers/:id", async (req, res) => {
       titles,
       seasonStats: flooredSeasons,
       recentMatches,
+      mostFacedOpponents,
+      mostWinsVsOpponents,
       linkedPlayer,
     });
   } catch (err) {
