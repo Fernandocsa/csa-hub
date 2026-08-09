@@ -35,14 +35,16 @@ export interface MatchGeneralInitial {
   penaltiesAgainst?: number | null;
   isWalkover?: boolean;
   isFriendly?: boolean;
+  /** "scheduled" = jogo futuro; placar pode ficar vazio até o resultado. */
+  status?: string;
 }
 
 export interface MatchGeneralFormData {
   matchDate: string;
   season: string;
   opponentId: number;
-  goalsFor: number;
-  goalsAgainst: number;
+  goalsFor: number | null;
+  goalsAgainst: number | null;
   result: string;
   homeAway: string;
   competitionId: number;
@@ -90,12 +92,24 @@ export default function MatchGeneralForm({
   onSave: (data: MatchGeneralFormData) => Promise<void>;
   onDelete?: () => Promise<void>;
 }) {
+  const isScheduled = initial?.status === "scheduled";
+  const scoreDefaultsEmpty =
+    isScheduled && initial?.goalsFor == null && initial?.goalsAgainst == null;
+
   const [matchDate, setMatchDate] = useState(initial?.matchDate ?? "");
   const [season, setSeason] = useState(initial?.season ?? "");
   const [opponentId, setOpponentId] = useState(String(initial?.opponentId ?? ""));
-  const [goalsFor, setGoalsFor] = useState(String(initial?.goalsFor ?? "0"));
-  const [goalsAgainst, setGoalsAgainst] = useState(String(initial?.goalsAgainst ?? "0"));
-  const [result, setResult] = useState(initial?.result ?? "");
+  const [goalsFor, setGoalsFor] = useState(
+    scoreDefaultsEmpty ? "" : String(initial?.goalsFor ?? "0"),
+  );
+  const [goalsAgainst, setGoalsAgainst] = useState(
+    scoreDefaultsEmpty ? "" : String(initial?.goalsAgainst ?? "0"),
+  );
+  const [result, setResult] = useState(
+    scoreDefaultsEmpty || initial?.result === "unknown"
+      ? ""
+      : (initial?.result ?? ""),
+  );
   const [homeAway, setHomeAway] = useState(initial?.homeAway ?? "home");
   const [competitionId, setCompetitionId] = useState(String(initial?.competitionId ?? ""));
   const [stadiumId, setStadiumId] = useState(String(initial?.stadiumId ?? ""));
@@ -136,12 +150,18 @@ export default function MatchGeneralForm({
   );
 
   useEffect(() => {
+    const emptyScore =
+      initial?.status === "scheduled" &&
+      initial?.goalsFor == null &&
+      initial?.goalsAgainst == null;
     setMatchDate(initial?.matchDate ?? "");
     setSeason(initial?.season ?? "");
     setOpponentId(String(initial?.opponentId ?? ""));
-    setGoalsFor(String(initial?.goalsFor ?? "0"));
-    setGoalsAgainst(String(initial?.goalsAgainst ?? "0"));
-    setResult(initial?.result ?? "");
+    setGoalsFor(emptyScore ? "" : String(initial?.goalsFor ?? "0"));
+    setGoalsAgainst(emptyScore ? "" : String(initial?.goalsAgainst ?? "0"));
+    setResult(
+      emptyScore || initial?.result === "unknown" ? "" : (initial?.result ?? ""),
+    );
     setHomeAway(initial?.homeAway ?? "home");
     setCompetitionId(String(initial?.competitionId ?? ""));
     setStadiumId(String(initial?.stadiumId ?? ""));
@@ -166,6 +186,7 @@ export default function MatchGeneralForm({
 
   useEffect(() => {
     if (!result) {
+      if (goalsFor === "" || goalsAgainst === "") return;
       const gf = parseInt(goalsFor, 10);
       const ga = parseInt(goalsAgainst, 10);
       if (!Number.isNaN(gf) && !Number.isNaN(ga)) {
@@ -194,13 +215,39 @@ export default function MatchGeneralForm({
           throw new Error("Informe os dois placares de pênaltis (números ≥ 0).");
         }
       }
+
+      const gfEmpty = goalsFor.trim() === "";
+      const gaEmpty = goalsAgainst.trim() === "";
+      let gf: number | null;
+      let ga: number | null;
+      let resolvedResult = result;
+
+      if (isScheduled && gfEmpty && gaEmpty) {
+        // Still a future fixture — keep without score.
+        gf = null;
+        ga = null;
+        resolvedResult = "unknown";
+      } else {
+        if (gfEmpty || gaEmpty) {
+          throw new Error("Informe o placar completo (gols pró e contra).");
+        }
+        gf = parseInt(goalsFor, 10);
+        ga = parseInt(goalsAgainst, 10);
+        if (!Number.isInteger(gf) || gf < 0 || !Number.isInteger(ga) || ga < 0) {
+          throw new Error("Placar inválido.");
+        }
+        if (!resolvedResult || resolvedResult === "unknown") {
+          resolvedResult = gf > ga ? "win" : gf < ga ? "loss" : "draw";
+        }
+      }
+
       await onSave({
         matchDate,
         season,
         opponentId: parseInt(opponentId, 10),
-        goalsFor: parseInt(goalsFor, 10) || 0,
-        goalsAgainst: parseInt(goalsAgainst, 10) || 0,
-        result,
+        goalsFor: gf,
+        goalsAgainst: ga,
+        result: resolvedResult,
         homeAway,
         competitionId: parseInt(competitionId, 10),
         stadiumId: stadiumId ? parseInt(stadiumId, 10) : null,
@@ -251,6 +298,12 @@ export default function MatchGeneralForm({
 
   return (
     <form onSubmit={submit} className="space-y-3 max-w-xl">
+      {isScheduled && (
+        <p className="text-sm rounded-md border border-amber-200 bg-amber-50 text-amber-900 px-3 py-2">
+          Jogo futuro. Preencha o placar e salve para registrar o resultado — ele sai de
+          Jogos futuros e passa a aparecer como última partida na Home.
+        </p>
+      )}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
@@ -326,6 +379,7 @@ export default function MatchGeneralForm({
             min={0}
             value={goalsFor}
             onChange={(e) => setGoalsFor(e.target.value)}
+            placeholder={isScheduled ? "—" : "0"}
             className="h-9"
           />
         </div>
@@ -338,6 +392,7 @@ export default function MatchGeneralForm({
             min={0}
             value={goalsAgainst}
             onChange={(e) => setGoalsAgainst(e.target.value)}
+            placeholder={isScheduled ? "—" : "0"}
             className="h-9"
           />
         </div>
@@ -349,13 +404,13 @@ export default function MatchGeneralForm({
             className={sel}
             value={result}
             onChange={(e) => setResult(e.target.value)}
-            required
+            required={!isScheduled}
           >
-            <option value="">Auto</option>
+            <option value="">{isScheduled ? "Aguardando" : "Auto"}</option>
             <option value="win">Vitória</option>
             <option value="draw">Empate</option>
             <option value="loss">Derrota</option>
-            <option value="unknown">Desconhecido</option>
+            {!isScheduled && <option value="unknown">Desconhecido</option>}
           </select>
         </div>
       </div>
@@ -638,7 +693,13 @@ export default function MatchGeneralForm({
 
       <div className="flex flex-wrap gap-2 pt-1">
         <Button type="submit" className="bg-[#1B3A6B]" disabled={saving || deleting}>
-          {saving ? "Salvando…" : isNew ? "Criar partida" : "Salvar"}
+          {saving
+            ? "Salvando…"
+            : isNew
+              ? "Criar partida"
+              : isScheduled && goalsFor.trim() !== "" && goalsAgainst.trim() !== ""
+                ? "Registrar resultado"
+                : "Salvar"}
         </Button>
         {!isNew && onDelete && (
           <Button

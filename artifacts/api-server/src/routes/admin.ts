@@ -1610,13 +1610,26 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
       patch.penaltiesAgainst = penaltiesPatch.penaltiesAgainst;
     }
     if (body.status === "scheduled" || body.status === "played") {
-      patch.status = body.status;
-      if (body.status === "scheduled") {
-        patch.goalsFor = null;
-        patch.goalsAgainst = null;
-        patch.result = "unknown";
-        patch.penaltiesFor = null;
-        patch.penaltiesAgainst = null;
+      const knownResult =
+        body.result === "win" || body.result === "draw" || body.result === "loss";
+      const hasScore =
+        body.goalsFor != null &&
+        body.goalsAgainst != null &&
+        Number.isFinite(Number(body.goalsFor)) &&
+        Number.isFinite(Number(body.goalsAgainst));
+      // Safety: if client still sends status=scheduled but also a real score,
+      // promote to played instead of wiping the placar (legacy admin bug).
+      if (body.status === "scheduled" && knownResult && hasScore) {
+        patch.status = "played";
+      } else {
+        patch.status = body.status;
+        if (body.status === "scheduled") {
+          patch.goalsFor = null;
+          patch.goalsAgainst = null;
+          patch.result = "unknown";
+          patch.penaltiesFor = null;
+          patch.penaltiesAgainst = null;
+        }
       }
     }
     // Only update flags when explicitly sent — never default missing to false

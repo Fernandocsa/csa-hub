@@ -874,12 +874,33 @@ export default function AdminMatchSheet() {
       return;
     }
     if (!match) return;
+    // Jogos futuros: ao registrar V/E/D + placar, promove a "played"
+    // (sai de jogos-futuros e passa a contar como última partida).
+    // Se o resultado ainda for unknown, permanece scheduled.
+    const knownResult =
+      data.result === "win" || data.result === "draw" || data.result === "loss";
+    const hasScore =
+      data.goalsFor != null &&
+      data.goalsAgainst != null &&
+      Number.isFinite(data.goalsFor) &&
+      Number.isFinite(data.goalsAgainst);
+    const status =
+      match.status === "scheduled"
+        ? knownResult && hasScore
+          ? "played"
+          : "scheduled"
+        : match.status === "played"
+          ? "played"
+          : undefined;
     const r = await adminFetch(`/admin/matches/${match.id}`, {
       method: "PUT",
       body: JSON.stringify({
         ...data,
         managerId: match.managerId,
-        ...(match.status === "scheduled" ? { status: "scheduled" } : {}),
+        ...(status ? { status } : {}),
+        ...(status === "scheduled"
+          ? { goalsFor: null, goalsAgainst: null, result: "unknown" }
+          : {}),
       }),
     });
     if (!r.ok) {
