@@ -6,6 +6,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
 import { AdminMergeButton } from "@/components/AdminMergeButton";
 import { withAdminFrom } from "@/hooks/useAdminReturnTo";
+import { PlayerPhoto } from "@/components/PlayerPhoto";
 import type { Player } from "./AdminPlayerDetail";
 import { includesFolded } from "@/lib/accent-fold";
 import { formatSeasonSpans } from "@/lib/format-season-spans";
@@ -217,14 +218,25 @@ export default function AdminPlayers() {
                 return (
                   <tr key={player.id} className="border-b hover:bg-gray-50">
                     <td className="px-4 py-2 font-medium">
-                      <Link href={href} className="text-[#1B3A6B] hover:underline">
-                        {player.name}
+                      <Link
+                        href={href}
+                        className="inline-flex items-center gap-2 min-w-0 text-[#1B3A6B] hover:underline"
+                      >
+                        <PlayerPhoto
+                          url={player.photoUrl}
+                          name={player.name}
+                          size="sm"
+                          className="h-7 w-7 text-[9px]"
+                        />
+                        <span className="min-w-0">
+                          <span className="block truncate">{player.name}</span>
+                          {player.fullName && player.fullName !== player.name ? (
+                            <span className="block text-xs text-gray-400 font-normal truncate max-w-[16rem]">
+                              {player.fullName}
+                            </span>
+                          ) : null}
+                        </span>
                       </Link>
-                      {player.fullName && player.fullName !== player.name ? (
-                        <div className="text-xs text-gray-400 font-normal truncate max-w-[16rem]">
-                          {player.fullName}
-                        </div>
-                      ) : null}
                     </td>
                     <td
                       className="px-4 py-2 text-gray-600 whitespace-nowrap"

@@ -4,6 +4,7 @@ import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
+import { EntityPhoto } from "@/components/EntityPhoto";
 import { ufDisplayName } from "@/lib/br-locations";
 import type { Referee } from "./AdminRefereeDetail";
 import { includesFolded } from "@/lib/accent-fold";
@@ -95,9 +96,16 @@ export default function AdminReferees() {
                   <td className="px-4 py-2 font-medium">
                     <Link
                       href={`/admin/arbitros/${r.id}`}
-                      className="text-[#1B3A6B] hover:underline"
+                      className="inline-flex items-center gap-2 min-w-0 text-[#1B3A6B] hover:underline"
                     >
-                      {r.name}
+                      <EntityPhoto
+                        url={r.photoUrl}
+                        name={r.name}
+                        size="sm"
+                        className="h-7 w-7 text-[9px]"
+                        label="Foto do árbitro"
+                      />
+                      <span className="truncate">{r.name}</span>
                     </Link>
                   </td>
                   <td className="px-4 py-2 text-gray-600">

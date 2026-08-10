@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
 import { AdminMergeButton } from "@/components/AdminMergeButton";
+import { EntityPhoto } from "@/components/EntityPhoto";
 import type { Manager } from "./AdminManagerDetail";
 import { includesFolded } from "@/lib/accent-fold";
 
@@ -74,9 +75,16 @@ export default function AdminManagers() {
                   <td className="px-3 py-2 font-medium">
                     <Link
                       href={`/admin/tecnicos/${m.id}`}
-                      className="text-[#1B3A6B] hover:underline"
+                      className="inline-flex items-center gap-2 min-w-0 text-[#1B3A6B] hover:underline"
                     >
-                      {m.name}
+                      <EntityPhoto
+                        url={m.photoUrl}
+                        name={m.name}
+                        size="sm"
+                        className="h-7 w-7 text-[9px]"
+                        label="Foto do técnico"
+                      />
+                      <span className="truncate">{m.name}</span>
                     </Link>
                   </td>
                   <td className="px-3 py-2 text-gray-500">{m.nationality ?? "–"}</td>
