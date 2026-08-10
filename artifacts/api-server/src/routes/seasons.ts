@@ -74,23 +74,39 @@ router.get("/seasons", async (req, res) => {
       .from(seasonsTable)
       .orderBy(desc(seasonsTable.year));
 
+    // Live leaders from roster stats (same source as season detail / auto badges).
+    const scorerRows = await db
+      .select({
+        season: playerSeasonStatsTable.season,
+        name: playersTable.name,
+        goals: playerSeasonStatsTable.goals,
+      })
+      .from(playerSeasonStatsTable)
+      .innerJoin(playersTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
+      .where(sql`${playerSeasonStatsTable.goals} > 0`);
+
+    const topBySeason = new Map<string, { names: string[]; goals: number }>();
+    for (const r of scorerRows) {
+      const goals = Number(r.goals) || 0;
+      if (goals <= 0) continue;
+      const key = String(r.season);
+      const prev = topBySeason.get(key);
+      if (!prev || goals > prev.goals) {
+        topBySeason.set(key, { names: [r.name], goals });
+      } else if (goals === prev.goals) {
+        prev.names.push(r.name);
+      }
+    }
+
     const seasons = await Promise.all(
       seasonRows.map(async ({ season, statsFullyVerified, statsVerifiedAt }) => {
         const stats = await getSeasonStats(String(season));
-
-        const topScorerRows = await db
-          .select({
-            name: seasonTopScorersTable.playerName,
-            goals: seasonTopScorersTable.goals,
-          })
-          .from(seasonTopScorersTable)
-          .where(eq(seasonTopScorersTable.season, String(season)))
-          .orderBy(desc(seasonTopScorersTable.goals));
-
-        const topGoals = topScorerRows[0]?.goals ?? null;
-        const topNames = topScorerRows
-          .filter((r) => r.goals === topGoals)
-          .map((r) => r.name);
+        const top = topBySeason.get(String(season));
+        const topNames = top
+          ? [...new Set(top.names)].sort((a, b) =>
+              a.localeCompare(b, "pt-BR", { sensitivity: "base" }),
+            )
+          : [];
 
         return {
           year: String(season),
@@ -101,7 +117,7 @@ router.get("/seasons", async (req, res) => {
           goalsScored: stats?.goalsScored || 0,
           goalsConceded: stats?.goalsConceded || 0,
           topScorer: topNames.length > 0 ? topNames.join(" / ") : null,
-          topScorerGoals: topGoals,
+          topScorerGoals: top?.goals ?? null,
           topAppearances: null,
           topAppearancesCount: null,
           statsFullyVerified: Boolean(statsFullyVerified),

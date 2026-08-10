@@ -2,10 +2,12 @@ import { db } from "@workspace/db";
 import {
   entityBadgesTable,
   playerSeasonStatsTable,
+  playersTable,
   seasonsTable,
   matchesTable,
   matchGoalsTable,
   competitionsTable,
+  seasonTopScorersTable,
 } from "@workspace/db";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { officialPlayedMatchConditions } from "./match-filters";
@@ -315,6 +317,29 @@ export async function recalculateSeasonAutoBadges(
     await db.insert(entityBadgesTable).values(toInsert);
   }
 
+  // Keep legacy season_top_scorers in sync (used by /temporadas list).
+  await db
+    .delete(seasonTopScorersTable)
+    .where(eq(seasonTopScorersTable.season, seasonKey));
+  if (maxGoals > 0 && topScorerIds.length > 0) {
+    const nameRows = await db
+      .select({ id: playersTable.id, name: playersTable.name })
+      .from(playersTable)
+      .where(inArray(playersTable.id, topScorerIds));
+    const byId = new Map(nameRows.map((r) => [r.id, r.name]));
+    await db.insert(seasonTopScorersTable).values(
+      topScorerIds
+        .map((playerId) => byId.get(playerId))
+        .filter((name): name is string => Boolean(name?.trim()))
+        .map((playerName) => ({
+          season: seasonKey,
+          playerName,
+          goals: maxGoals,
+          verified: true,
+        })),
+    );
+  }
+
   return {
     year,
     removed: deleted.length,
@@ -342,6 +367,9 @@ export async function clearSeasonAutoBadges(year: number): Promise<number> {
       ),
     )
     .returning({ id: entityBadgesTable.id });
+  await db
+    .delete(seasonTopScorersTable)
+    .where(eq(seasonTopScorersTable.season, String(year)));
   return deleted.length;
 }
 
