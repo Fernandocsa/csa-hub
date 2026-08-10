@@ -11,6 +11,10 @@ import {
 } from "@workspace/db";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { officialPlayedMatchConditions } from "./match-filters";
+import {
+  syncExclusiveSeasonVerification,
+  type ExclusiveSeasonVerificationResult,
+} from "./season-exclusive-verification";
 
 export type AutoBadgeKind =
   | "top_scorer"
@@ -381,6 +385,7 @@ export async function setSeasonStatsVerification(
   statsFullyVerified: boolean;
   statsVerifiedAt: Date | null;
   badges: RecalcAutoBadgesResult | { cleared: number };
+  exclusive: ExclusiveSeasonVerificationResult;
 }> {
   const [season] = await db
     .select({ year: seasonsTable.year })
@@ -403,19 +408,23 @@ export async function setSeasonStatsVerification(
 
   if (verified) {
     const badges = await recalculateSeasonAutoBadges(year);
+    const exclusive = await syncExclusiveSeasonVerification(year, true);
     return {
       year,
       statsFullyVerified: updated.statsFullyVerified,
       statsVerifiedAt: updated.statsVerifiedAt,
       badges,
+      exclusive,
     };
   }
 
   const cleared = await clearSeasonAutoBadges(year);
+  const exclusive = await syncExclusiveSeasonVerification(year, false);
   return {
     year,
     statsFullyVerified: updated.statsFullyVerified,
     statsVerifiedAt: updated.statsVerifiedAt,
     badges: { cleared },
+    exclusive,
   };
 }

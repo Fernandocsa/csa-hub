@@ -768,6 +768,14 @@ export default function AdminSeasonDetail() {
           details?: CompetitionBadgeStatus[];
         };
       };
+      const exclusive = (
+        data as {
+          exclusive?: {
+            playersVerified?: number;
+            managersVerified?: number;
+          };
+        }
+      ).exclusive;
       setVerifyMessage(
         `Verificada. Badges auto: ${b?.created ?? 0}` +
           (b?.topScorerIds?.length
@@ -778,6 +786,9 @@ export default function AdminSeasonDetail() {
             : "") +
           (b?.competition
             ? ` · competições elegíveis: ${b.competition.eligible ?? 0}, incompletas: ${b.competition.incomplete ?? 0}, badges competição: ${b.competition.created ?? 0}`
+            : "") +
+          (exclusive
+            ? ` · exclusivos verificados: ${exclusive.playersVerified ?? 0} jogador(es), ${exclusive.managersVerified ?? 0} técnico(s)`
             : ""),
       );
       if (b?.competition?.details) {
@@ -788,7 +799,20 @@ export default function AdminSeasonDetail() {
     } else {
       const cleared =
         (data as { badges?: { cleared?: number } }).badges?.cleared ?? 0;
-      setVerifyMessage(`Verificação removida. Badges auto apagados: ${cleared}`);
+      const exclusive = (
+        data as {
+          exclusive?: {
+            playersUnverified?: number;
+            managersUnverified?: number;
+          };
+        }
+      ).exclusive;
+      setVerifyMessage(
+        `Verificação removida. Badges auto apagados: ${cleared}` +
+          (exclusive
+            ? ` · selos exclusivos removidos: ${exclusive.playersUnverified ?? 0} jogador(es), ${exclusive.managersUnverified ?? 0} técnico(s)`
+            : ""),
+      );
       await loadCompetitionBadges();
     }
     await loadVerification();
@@ -1013,6 +1037,10 @@ export default function AdminSeasonDetail() {
                 Stats completamente verificadas
               </span>
             </label>
+            <p className="text-xs text-gray-400 max-w-md">
+              Ao marcar, jogadores e técnicos que só atuaram nesta temporada recebem o selo
+              de verificação automaticamente.
+            </p>
             {verifiedAt && (
               <span className="text-xs text-gray-400">
                 Verificado em {new Date(verifiedAt).toLocaleString("pt-BR")}
