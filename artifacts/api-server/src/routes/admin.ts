@@ -4763,11 +4763,20 @@ router.post("/admin/seasons/:year/managers", requireAdmin, async (req, res) => {
       return res.status(400).json({ error: "managerId inválido" });
     }
     const [manager] = await db
-      .select({ id: managersTable.id, name: managersTable.name })
+      .select({
+        id: managersTable.id,
+        name: managersTable.name,
+        staffRole: managersTable.staffRole,
+      })
       .from(managersTable)
       .where(eq(managersTable.id, managerId))
       .limit(1);
     if (!manager) return res.status(404).json({ error: "Técnico não encontrado" });
+    if (manager.staffRole !== "manager") {
+      return res.status(400).json({
+        error: "Só técnicos (treinadores) podem ser vinculados à temporada aqui",
+      });
+    }
 
     const games = parseNonNegInt(body.games, 0);
     const wins = parseNonNegInt(body.wins, 0);

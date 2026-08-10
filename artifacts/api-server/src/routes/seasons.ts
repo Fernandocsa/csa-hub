@@ -275,7 +275,12 @@ router.get("/seasons/:year", async (req, res) => {
       })
       .from(managerSeasonStatsTable)
       .innerJoin(managersTable, eq(managerSeasonStatsTable.managerId, managersTable.id))
-      .where(eq(managerSeasonStatsTable.season, year))
+      .where(
+        and(
+          eq(managerSeasonStatsTable.season, year),
+          eq(managersTable.staffRole, "manager"),
+        ),
+      )
       .orderBy(desc(managerSeasonStatsTable.games), asc(managersTable.name));
 
     const managers = managerRows.map((m) => ({
