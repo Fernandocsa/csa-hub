@@ -27,6 +27,10 @@ export function adminReturnLabel(path: string, fallback = "Voltar"): string {
   if (path === "/admin/tecnicos" || path.startsWith("/admin/tecnicos?")) {
     return "Técnicos";
   }
+  if (path.startsWith("/admin/comissao/auxiliares")) return "Auxiliares";
+  if (path.startsWith("/admin/comissao/preparadores")) return "Preparadores";
+  if (path.startsWith("/admin/comissao/medicos")) return "Médicos";
+  if (path.startsWith("/admin/comissao/massagistas")) return "Massagistas";
   if (path.startsWith("/admin/divergencias")) return "Divergências";
   const partidasSeason = path.match(/^\/admin\/partidas\/?\?season=(\d{4})\b/);
   if (partidasSeason) return `Partidas ${partidasSeason[1]}`;

@@ -36,7 +36,7 @@ import {
   replaceDailyPlayer,
 } from "../lib/guess-player";
 import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray, ne, isNull, lt, gt } from "drizzle-orm";
-import { accentInsensitiveLike } from "../lib/accent-fold";
+import { isStaffRole, type StaffRole } from "../lib/staff-roles";
 import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard, deleteMatchPenaltyEvent, updateMatchGoal } from "../lib/match-sheet";
 import { syncRelatedMatchLink, parsePenaltyShootoutFields } from "../lib/match-links";
 import { findDuplicateNameCandidates } from "../lib/admin-name-check";
@@ -304,7 +304,11 @@ router.get("/admin/lookup", requireAdmin, async (req, res) => {
       db.select().from(opponentsTable).orderBy(asc(opponentsTable.name)),
       db.select().from(competitionsTable).orderBy(asc(competitionsTable.name)),
       db.select().from(stadiumsTable).orderBy(asc(stadiumsTable.name)),
-      db.select().from(managersTable).orderBy(asc(managersTable.name)),
+      db
+        .select()
+        .from(managersTable)
+        .where(eq(managersTable.staffRole, "manager"))
+        .orderBy(asc(managersTable.name)),
       db
         .select({
           id: refereesTable.id,
@@ -486,6 +490,7 @@ router.post("/admin/players", requireAdmin, async (req, res) => {
       secondaryPositions?: string[] | null;
       nationality?: string | null;
       photoUrl?: string | null;
+      cbfRegistration?: string | null;
       birthYear?: number | null;
       birthDate?: string | null;
       birthCity?: string | null;
@@ -538,6 +543,7 @@ router.post("/admin/players", requireAdmin, async (req, res) => {
         secondaryPositions,
         nationality,
         photoUrl: body.photoUrl?.trim() || null,
+        cbfRegistration: body.cbfRegistration?.trim() || null,
         birthYear,
         birthDate,
         birthCity: body.birthCity?.trim() || null,
@@ -601,6 +607,7 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
       secondaryPositions?: string[] | null;
       nationality?: string | null;
       photoUrl?: string | null;
+      cbfRegistration?: string | null;
       birthYear?: number | null;
       birthDate?: string | null;
       birthCity?: string | null;
@@ -653,6 +660,7 @@ router.put("/admin/players/:id", requireAdmin, async (req, res) => {
         secondaryPositions,
         nationality,
         photoUrl: body.photoUrl?.trim() || null,
+        cbfRegistration: body.cbfRegistration?.trim() || null,
         birthYear,
         birthDate,
         birthCity: body.birthCity?.trim() || null,
@@ -2846,7 +2854,13 @@ function serializeManagerAdmin<T extends Record<string, unknown>>(manager: T) {
 
 router.get("/admin/managers", requireAdmin, async (req, res) => {
   try {
-    const rows = await db.select().from(managersTable).orderBy(asc(managersTable.name));
+    const roleRaw = String((req.query as { role?: string }).role ?? "manager").trim();
+    const role: StaffRole = isStaffRole(roleRaw) ? roleRaw : "manager";
+    const rows = await db
+      .select()
+      .from(managersTable)
+      .where(eq(managersTable.staffRole, role))
+      .orderBy(asc(managersTable.name));
     const seasonsMap = await seasonsByManagerIds(rows.map((r) => r.id));
     res.json(
       rows.map((r) =>
@@ -2926,11 +2940,15 @@ router.post("/admin/managers", requireAdmin, async (req, res) => {
       birthCountry?: string | null;
       isDeceased?: boolean;
       photoUrl?: string | null;
+      staffRole?: string | null;
+      registrationType?: string | null;
+      registrationNumber?: string | null;
       verificationStatus?: string | null;
       verifiedBy?: string | null;
       playerId?: number | null;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+    const staffRole: StaffRole = isStaffRole(body.staffRole) ? body.staffRole : "manager";
     const birthDate = body.birthDate?.trim() || null;
     if (birthDate && !/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) {
       return res.status(400).json({ error: "birthDate inválida (YYYY-MM-DD)" });
@@ -2969,6 +2987,9 @@ router.post("/admin/managers", requireAdmin, async (req, res) => {
         birthCountry: body.birthCountry?.trim() || null,
         isDeceased: body.isDeceased ?? false,
         photoUrl: parseOptionalUrl(body.photoUrl),
+        staffRole,
+        registrationType: body.registrationType?.trim() || null,
+        registrationNumber: body.registrationNumber?.trim() || null,
         playerId,
         verificationStatus,
         verifiedBy,
@@ -3001,6 +3022,9 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
       birthCountry?: string | null;
       isDeceased?: boolean;
       photoUrl?: string | null;
+      staffRole?: string | null;
+      registrationType?: string | null;
+      registrationNumber?: string | null;
       verificationStatus?: string | null;
       verifiedBy?: string | null;
       playerId?: number | null;
@@ -3084,6 +3108,14 @@ router.put("/admin/managers/:id", requireAdmin, async (req, res) => {
         }),
         ...(body.isDeceased !== undefined && { isDeceased: !!body.isDeceased }),
         ...(body.photoUrl !== undefined && { photoUrl: parseOptionalUrl(body.photoUrl) }),
+        ...(body.staffRole !== undefined &&
+          isStaffRole(body.staffRole) && { staffRole: body.staffRole }),
+        ...(body.registrationType !== undefined && {
+          registrationType: body.registrationType?.trim() || null,
+        }),
+        ...(body.registrationNumber !== undefined && {
+          registrationNumber: body.registrationNumber?.trim() || null,
+        }),
         ...(verificationStatus !== undefined && {
           verificationStatus,
           verifiedBy,
@@ -4630,7 +4662,12 @@ async function listSeasonManagerStats(season: string) {
     })
     .from(managerSeasonStatsTable)
     .innerJoin(managersTable, eq(managerSeasonStatsTable.managerId, managersTable.id))
-    .where(eq(managerSeasonStatsTable.season, season))
+    .where(
+      and(
+        eq(managerSeasonStatsTable.season, season),
+        eq(managersTable.staffRole, "manager"),
+      ),
+    )
     .orderBy(desc(managerSeasonStatsTable.games), asc(managersTable.name));
 }
 

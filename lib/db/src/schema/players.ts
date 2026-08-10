@@ -17,6 +17,11 @@ export const playersTable = pgTable("players", {
   nationalityFlag: text("nationality_flag"),
   /** Profile photo: absolute HTTPS URL or site path (e.g. /players/192.jpg). */
   photoUrl: text("photo_url"),
+  /**
+   * CBF athlete registration number (inscrição).
+   * Used to disambiguate same/similar display names.
+   */
+  cbfRegistration: text("cbf_registration"),
   birthYear: integer("birth_year"),
   birthDate: date("birth_date", { mode: "string" }),
   birthCity: text("birth_city"),

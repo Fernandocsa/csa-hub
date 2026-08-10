@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { useAdminReturnTo, withAdminFrom } from "@/hooks/useAdminReturnTo";
+import { STAFF_ROLE_META, staffRoleFromAdminPath } from "@/lib/staff-roles";
+import type { StaffRole } from "@/lib/staff-roles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,6 +30,9 @@ export interface Manager {
   birthCountry: string | null;
   isDeceased: boolean;
   photoUrl: string | null;
+  staffRole: "manager" | "assistant" | "fitness" | "doctor" | "masseur";
+  registrationType: string | null;
+  registrationNumber: string | null;
   playerId: number | null;
   playerName?: string | null;
   verificationStatus: "verified" | "unverified";
@@ -55,6 +60,9 @@ type ManagerPayload = {
   birthCountry: string | null;
   isDeceased: boolean;
   photoUrl: string | null;
+  staffRole: "manager" | "assistant" | "fitness" | "doctor" | "masseur";
+  registrationType: string | null;
+  registrationNumber: string | null;
   playerId: number | null;
   verificationStatus: "verified" | "unverified";
   verifiedBy: string | null;
@@ -115,17 +123,27 @@ function ManagerProfileForm({
   onSave,
   isNew,
   cancelHref = "/admin/tecnicos",
+  staffRole = "manager",
+  roleLabel = "Técnico",
+  registrationHint = "CREF …",
   onMerged,
 }: {
   initial?: Partial<Manager>;
   onSave: (data: ManagerPayload) => Promise<void>;
   isNew: boolean;
   cancelHref?: string;
+  staffRole?: Manager["staffRole"];
+  roleLabel?: string;
+  registrationHint?: string;
   onMerged?: (result: { keptId: number; removedId: number }) => void;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [fullName, setFullName] = useState(initial?.fullName ?? "");
   const [photoUrl, setPhotoUrl] = useState(initial?.photoUrl ?? "");
+  const [registrationType, setRegistrationType] = useState(initial?.registrationType ?? "");
+  const [registrationNumber, setRegistrationNumber] = useState(
+    initial?.registrationNumber ?? "",
+  );
   const [nationality, setNationality] = useState(initial?.nationality ?? "Brasil");
   const [birthDate, setBirthDate] = useState(initial?.birthDate ?? "");
   const [birthCity, setBirthCity] = useState(initial?.birthCity ?? "");
@@ -147,6 +165,8 @@ function ManagerProfileForm({
     setName(initial?.name ?? "");
     setFullName(initial?.fullName ?? "");
     setPhotoUrl(initial?.photoUrl ?? "");
+    setRegistrationType(initial?.registrationType ?? "");
+    setRegistrationNumber(initial?.registrationNumber ?? "");
     setNationality(initial?.nationality ?? "Brasil");
     setBirthDate(initial?.birthDate ?? "");
     setBirthCity(initial?.birthCity ?? "");
@@ -212,6 +232,9 @@ function ManagerProfileForm({
         birthCountry: birthCountry.trim() || null,
         isDeceased,
         photoUrl: photoUrl.trim() || null,
+        staffRole,
+        registrationType: registrationType.trim() || null,
+        registrationNumber: registrationNumber.trim() || null,
         playerId: parsedPlayerId,
         verificationStatus: isVerified ? "verified" : "unverified",
         verifiedBy: isVerified ? verifiedBy.trim() || null : null,
@@ -231,9 +254,9 @@ function ManagerProfileForm({
         <div className="flex items-start gap-3">
           <EntityPhoto
             url={photoUrl.trim() || null}
-            name={name || "Técnico"}
+            name={name || roleLabel}
             size="md"
-            label="Foto do técnico"
+            label={`Foto do ${roleLabel.toLowerCase()}`}
           />
           <div className="flex-1 min-w-0">
             <Input
@@ -263,18 +286,40 @@ function ManagerProfileForm({
           placeholder="Se diferente do nome de exibição"
         />
       </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Tipo de registro
+          </label>
+          <Input
+            value={registrationType}
+            onChange={(e) => setRegistrationType(e.target.value)}
+            placeholder="CREF, CRM, RG…"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+            Nº do registro
+          </label>
+          <Input
+            value={registrationNumber}
+            onChange={(e) => setRegistrationNumber(e.target.value)}
+            placeholder={registrationHint}
+          />
+        </div>
+      </div>
       <AdminNameDuplicateWarning
         kind="manager"
         name={name}
         fullName={fullName}
         excludeId={initial?.id ?? null}
-        hrefForId={(id) => `/admin/tecnicos/${id}`}
+        hrefForId={(id) => `${cancelHref.replace(/\/$/, "")}/${id}`}
         onBlockChange={setNameBlocked}
         merge={
           !isNew && initial?.id != null && onMerged
             ? {
                 keepId: initial.id,
-                keepName: name.trim() || initial.name || `Técnico #${initial.id}`,
+                keepName: name.trim() || initial.name || `${roleLabel} #${initial.id}`,
                 keepPhotoUrl: photoUrl.trim() || initial.photoUrl || null,
                 endpoint: "/admin/managers/merge",
                 onMerged,
@@ -544,10 +589,12 @@ function SeasonStatForm({
 
 export default function AdminManagerDetail() {
   const params = useParams<{ id?: string }>();
-  const [, setLocation] = useLocation();
-  const { returnTo, label: returnLabel } = useAdminReturnTo("/admin/tecnicos");
-  const isNew = !params.id;
-  const managerId = params.id ? Number(params.id) : NaN;
+  const [location, setLocation] = useLocation();
+  const staffRole = staffRoleFromAdminPath(location) as StaffRole;
+  const roleMeta = STAFF_ROLE_META[staffRole];
+  const { returnTo, label: returnLabel } = useAdminReturnTo(roleMeta.adminPath);
+  const isNew = !params.id || params.id === "novo";
+  const managerId = !isNew && params.id ? Number(params.id) : NaN;
 
   const [manager, setManager] = useState<Manager | null>(null);
   const [stats, setStats] = useState<SeasonStatRow[]>([]);
@@ -568,7 +615,7 @@ export default function AdminManagerDetail() {
     setError("");
     const r = await adminFetch(`/admin/managers/${managerId}`);
     if (!r.ok) {
-      setError("Técnico não encontrado");
+      setError(`${roleMeta.label} não encontrado`);
       setManager(null);
       setLoading(false);
       return;
@@ -590,6 +637,15 @@ export default function AdminManagerDetail() {
   useEffect(() => {
     loadManager();
   }, [loadManager]);
+
+  // Keep coaches and commission on separate admin areas.
+  useEffect(() => {
+    if (!manager || isNew) return;
+    const actual = (manager.staffRole || "manager") as StaffRole;
+    if (actual === staffRole) return;
+    const dest = STAFF_ROLE_META[actual]?.adminPath ?? "/admin/tecnicos";
+    setLocation(`${dest}/${manager.id}`);
+  }, [manager, isNew, staffRole, setLocation]);
 
   useEffect(() => {
     if (!isNew) loadStats();
@@ -659,7 +715,7 @@ export default function AdminManagerDetail() {
     }
     const saved = (await r.json()) as Manager;
     if (isNew) {
-      setLocation(`/admin/tecnicos/${saved.id}`);
+      setLocation(`${roleMeta.adminPath}/${saved.id}`);
       return;
     }
     setManager(saved);
@@ -675,7 +731,7 @@ export default function AdminManagerDetail() {
       void loadStats();
       return;
     }
-    setLocation(withAdminFrom(`/admin/tecnicos/${keptId}`, returnTo));
+    setLocation(withAdminFrom(`${roleMeta.adminPath}/${keptId}`, returnTo));
   }
 
   async function addStat(data: {
@@ -806,7 +862,7 @@ export default function AdminManagerDetail() {
   if (!isNew && (error || !manager)) {
     return (
       <div>
-        <p className="text-sm text-red-600">{error || "Técnico não encontrado"}</p>
+        <p className="text-sm text-red-600">{error || `${roleMeta.label} não encontrado`}</p>
         <Link
           href={returnTo}
           className="text-sm text-[#1B3A6B] hover:underline mt-2 inline-block"
@@ -838,7 +894,7 @@ export default function AdminManagerDetail() {
           <ChevronLeft size={13} /> {returnLabel}
         </Link>
         <h1 className="text-xl font-bold text-gray-900">
-          {isNew ? "Novo técnico" : manager!.name}
+          {isNew ? `Novo ${roleMeta.label.toLowerCase()}` : manager!.name}
         </h1>
         {!isNew && (
           <p className="text-sm text-gray-500 mt-0.5">
@@ -878,10 +934,13 @@ export default function AdminManagerDetail() {
       {tab === "perfil" && (
         <ManagerProfileForm
           key={isNew ? "new" : manager!.id}
-          initial={isNew ? undefined : manager!}
+          initial={isNew ? { staffRole } : manager!}
           isNew={isNew}
           onSave={saveManager}
           cancelHref={returnTo}
+          staffRole={staffRole}
+          roleLabel={roleMeta.label}
+          registrationHint={roleMeta.registrationHint}
           onMerged={isNew ? undefined : handleMerged}
         />
       )}

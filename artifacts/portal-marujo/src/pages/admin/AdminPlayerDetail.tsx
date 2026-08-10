@@ -26,6 +26,7 @@ export interface Player {
   secondaryPositions: string[];
   nationality: string | null;
   photoUrl: string | null;
+  cbfRegistration: string | null;
   birthYear: number | null;
   birthDate: string | null;
   birthCity: string | null;
@@ -88,6 +89,7 @@ function PlayerProfileForm({
   const [name, setName] = useState(initial?.name ?? "");
   const [fullName, setFullName] = useState(initial?.fullName ?? "");
   const [photoUrl, setPhotoUrl] = useState(initial?.photoUrl ?? "");
+  const [cbfRegistration, setCbfRegistration] = useState(initial?.cbfRegistration ?? "");
   const [position, setPosition] = useState(initial?.position ?? "");
   const [secondaryPositions, setSecondaryPositions] = useState<string[]>(
     initial?.secondaryPositions ?? [],
@@ -128,6 +130,7 @@ function PlayerProfileForm({
     setName(initial?.name ?? "");
     setFullName(initial?.fullName ?? "");
     setPhotoUrl(initial?.photoUrl ?? "");
+    setCbfRegistration(initial?.cbfRegistration ?? "");
     setPosition(initial?.position ?? "");
     setSecondaryPositions(initial?.secondaryPositions ?? []);
     setBirthYear(String(initial?.birthYear ?? ""));
@@ -210,6 +213,7 @@ function PlayerProfileForm({
         name,
         fullName: fullName.trim() || null,
         photoUrl: photoUrl.trim() || null,
+        cbfRegistration: cbfRegistration.trim() || null,
         position: position || null,
         secondaryPositions: secondaryPositions.filter((p) => p && p !== position),
         nationality: birthCountry.trim() || null,
@@ -280,6 +284,20 @@ function PlayerProfileForm({
           onChange={(e) => setFullName(e.target.value)}
           placeholder="Se diferente do nome de exibição"
         />
+      </div>
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+          Inscrição CBF
+        </label>
+        <Input
+          value={cbfRegistration}
+          onChange={(e) => setCbfRegistration(e.target.value)}
+          placeholder="Ex.: 165400"
+          inputMode="numeric"
+        />
+        <p className="text-xs text-gray-400 mt-1">
+          Número de registro na CBF — ajuda a separar homônimos.
+        </p>
       </div>
       <AdminNameDuplicateWarning
         kind="player"

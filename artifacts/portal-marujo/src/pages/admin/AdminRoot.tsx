@@ -65,6 +65,18 @@ export default function AdminRoot() {
         <Route path="/admin/tecnicos/novo" component={AdminManagerDetail} />
         <Route path="/admin/tecnicos/:id" component={AdminManagerDetail} />
         <Route path="/admin/tecnicos" component={AdminManagers} />
+        <Route path="/admin/comissao/auxiliares/novo" component={AdminManagerDetail} />
+        <Route path="/admin/comissao/auxiliares/:id" component={AdminManagerDetail} />
+        <Route path="/admin/comissao/auxiliares" component={AdminManagers} />
+        <Route path="/admin/comissao/preparadores/novo" component={AdminManagerDetail} />
+        <Route path="/admin/comissao/preparadores/:id" component={AdminManagerDetail} />
+        <Route path="/admin/comissao/preparadores" component={AdminManagers} />
+        <Route path="/admin/comissao/medicos/novo" component={AdminManagerDetail} />
+        <Route path="/admin/comissao/medicos/:id" component={AdminManagerDetail} />
+        <Route path="/admin/comissao/medicos" component={AdminManagers} />
+        <Route path="/admin/comissao/massagistas/novo" component={AdminManagerDetail} />
+        <Route path="/admin/comissao/massagistas/:id" component={AdminManagerDetail} />
+        <Route path="/admin/comissao/massagistas" component={AdminManagers} />
         <Route path="/admin/temporadas/:year" component={AdminSeasonDetail} />
         <Route path="/admin/temporadas" component={AdminSeasons} />
         <Route path="/admin/partidas/novo" component={AdminMatchSheet} />

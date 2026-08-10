@@ -46,6 +46,12 @@ const navItems = [
   { href: "/admin/divergencias", label: "Divergências", icon: AlertTriangle },
   { href: "/admin/jogadores", label: "Jogadores", icon: Users },
   { href: "/admin/tecnicos", label: "Técnicos", icon: UserCog },
+  {
+    href: "/admin/comissao/auxiliares",
+    label: "Comissão",
+    icon: ClipboardList,
+    matchPrefix: "/admin/comissao",
+  },
   { href: "/admin/aniversariantes", label: "Aniversariantes", icon: Cake },
   { href: "/admin/temporadas", label: "Temporadas", icon: CalendarRange },
   { href: "/admin/partidas", label: "Partidas", icon: Trophy },
@@ -109,7 +115,9 @@ function SidebarContent({
         {navItems.map((item) => {
           const active = item.exact
             ? location === item.href
-            : location === item.href || location.startsWith(`${item.href}/`);
+            : "matchPrefix" in item && item.matchPrefix
+              ? location === item.matchPrefix || location.startsWith(`${item.matchPrefix}/`)
+              : location === item.href || location.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.href}

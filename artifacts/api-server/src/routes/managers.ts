@@ -87,6 +87,7 @@ router.get("/managers", async (req, res) => {
         matchesTable,
         and(eq(matchesTable.managerId, managersTable.id), officialPlayedMatchConditions()),
       )
+      .where(eq(managersTable.staffRole, "manager"))
       .groupBy(
         managersTable.id,
         managersTable.name,
@@ -165,7 +166,9 @@ router.get("/managers/:id", async (req, res) => {
     const manager = await db.query.managersTable.findFirst({
       where: eq(managersTable.id, id),
     });
-    if (!manager) return res.status(404).json({ error: "Técnico não encontrado" });
+    if (!manager || manager.staffRole !== "manager") {
+      return res.status(404).json({ error: "Técnico não encontrado" });
+    }
 
     const overall = await db
       .select({

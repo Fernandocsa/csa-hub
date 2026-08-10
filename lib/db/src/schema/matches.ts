@@ -44,6 +44,15 @@ export const managersTable = pgTable("managers", {
   /** Profile photo: absolute HTTPS URL or site path. */
   photoUrl: text("photo_url"),
   /**
+   * Staff role in the technical commission.
+   * manager = head coach (técnico); assistant | fitness | doctor | masseur for other roles.
+   */
+  staffRole: text("staff_role").notNull().default("manager"),
+  /** Professional registry kind: CREF, CRM, RG, etc. */
+  registrationType: text("registration_type"),
+  /** Professional registry number/value (e.g. 94720-P/RS). */
+  registrationNumber: text("registration_number"),
+  /**
    * Optional link to the same person as a CSA player (ex-jogador → treinador).
    * Unique when set — one manager career per player profile.
    */

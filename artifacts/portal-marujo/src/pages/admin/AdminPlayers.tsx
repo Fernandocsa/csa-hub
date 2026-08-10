@@ -14,7 +14,7 @@ import { formatSeasonSpans } from "@/lib/format-season-spans";
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 const LIST_PATH = "/admin/jogadores";
 
-type AdminPlayerRow = Player & { seasons?: string[] };
+type AdminPlayerRow = Player & { seasons?: string[]; cbfRegistration?: string | null };
 
 function nameInitial(name: string): string {
   const ch = name.trim().charAt(0).toUpperCase();
@@ -106,7 +106,8 @@ export default function AdminPlayers() {
       if (
         search.trim() &&
         !includesFolded(p.name, search) &&
-        !includesFolded(p.fullName, search)
+        !includesFolded(p.fullName, search) &&
+        !includesFolded(p.cbfRegistration, search)
       ) {
         return false;
       }
@@ -133,13 +134,18 @@ export default function AdminPlayers() {
         items={players.map((p) => ({
           id: p.id,
           name: p.name,
-          searchExtra: p.fullName,
+          searchExtra: [p.fullName, p.cbfRegistration].filter(Boolean).join(" "),
           subtitle:
-            [p.fullName && p.fullName !== p.name ? p.fullName : null, p.position, p.nationality]
+            [
+              p.fullName && p.fullName !== p.name ? p.fullName : null,
+              p.cbfRegistration ? `CBF ${p.cbfRegistration}` : null,
+              p.position,
+              p.nationality,
+            ]
               .filter(Boolean)
               .join(" · ") || null,
         }))}
-        placeholder="Buscar por nome ou nome completo…"
+        placeholder="Buscar por nome, nome completo ou CBF…"
         value={search}
         onValueChange={onSearchChange}
         preserveQueryOnSelect
@@ -197,6 +203,9 @@ export default function AdminPlayers() {
                   Nome
                 </th>
                 <th className="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
+                  CBF
+                </th>
+                <th className="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
                   Temporadas
                 </th>
                 <th className="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
@@ -237,6 +246,9 @@ export default function AdminPlayers() {
                           ) : null}
                         </span>
                       </Link>
+                    </td>
+                    <td className="px-4 py-2 text-gray-600 font-mono text-xs whitespace-nowrap">
+                      {player.cbfRegistration || "–"}
                     </td>
                     <td
                       className="px-4 py-2 text-gray-600 whitespace-nowrap"
