@@ -304,6 +304,14 @@ function PlayerProfileForm({
         name={name}
         fullName={fullName}
         excludeId={initial?.id ?? null}
+        cbfRegistration={cbfRegistration}
+        birthYear={(() => {
+          const fromDate =
+            birthDate.trim().length >= 4 ? parseInt(birthDate.slice(0, 4), 10) : NaN;
+          const fromYear = birthYear.trim() ? parseInt(birthYear, 10) : NaN;
+          const y = Number.isFinite(fromDate) ? fromDate : fromYear;
+          return Number.isFinite(y) ? y : null;
+        })()}
         hrefForId={(id) => `/admin/jogadores/${id}`}
         onBlockChange={setNameBlocked}
         merge={

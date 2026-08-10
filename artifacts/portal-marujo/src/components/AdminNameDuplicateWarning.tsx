@@ -35,6 +35,8 @@ export function AdminNameDuplicateWarning({
   name,
   fullName,
   excludeId,
+  cbfRegistration,
+  birthYear,
   hrefForId,
   onBlockChange,
   merge,
@@ -43,6 +45,9 @@ export function AdminNameDuplicateWarning({
   name: string;
   fullName: string;
   excludeId?: number | null;
+  /** Players only — drops other athletes with a different CBF + full name. */
+  cbfRegistration?: string | null;
+  birthYear?: number | null;
   hrefForId: (id: number) => string;
   /** Called when an exact duplicate should block save. */
   onBlockChange?: (blocked: boolean) => void;
@@ -70,6 +75,13 @@ export function AdminNameDuplicateWarning({
         if (q) params.set("q", q);
         if (fn) params.set("fullName", fn);
         if (excludeId != null) params.set("excludeId", String(excludeId));
+        if (kind === "player") {
+          const cbf = String(cbfRegistration ?? "").trim();
+          if (cbf) params.set("cbfRegistration", cbf);
+          if (birthYear != null && Number.isFinite(birthYear)) {
+            params.set("birthYear", String(birthYear));
+          }
+        }
         const path =
           kind === "player"
             ? `/admin/players/name-check?${params}`
@@ -89,7 +101,7 @@ export function AdminNameDuplicateWarning({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [kind, name, fullName, excludeId]);
+  }, [kind, name, fullName, excludeId, cbfRegistration, birthYear]);
 
   const exactMatches = matches.filter((m) => m.match === "exact");
   const similarMatches = matches.filter((m) => m.match === "similar");

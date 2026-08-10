@@ -39,7 +39,10 @@ import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray, ne, isNull, lt
 import { isStaffRole, type StaffRole } from "../lib/staff-roles";
 import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard, deleteMatchPenaltyEvent, updateMatchGoal } from "../lib/match-sheet";
 import { syncRelatedMatchLink, parsePenaltyShootoutFields } from "../lib/match-links";
-import { findDuplicateNameCandidates } from "../lib/admin-name-check";
+import {
+  findDuplicateNameCandidates,
+  seasonYearsFromList,
+} from "../lib/admin-name-check";
 import {
   buildAndWriteCsaSheet,
   computeOwnGoalsForCount,
@@ -380,6 +383,12 @@ router.get("/admin/players/name-check", requireAdmin, async (req, res) => {
   try {
     const q = String((req.query as { q?: string }).q ?? "").trim();
     const fullName = String((req.query as { fullName?: string }).fullName ?? "").trim();
+    const cbfRegistration = String(
+      (req.query as { cbfRegistration?: string }).cbfRegistration ?? "",
+    ).trim();
+    const birthYearRaw = (req.query as { birthYear?: string }).birthYear;
+    const birthYearParsed =
+      birthYearRaw != null && birthYearRaw !== "" ? parseInt(String(birthYearRaw), 10) : null;
     const excludeRaw = (req.query as { excludeId?: string }).excludeId;
     const excludeId = excludeRaw != null && excludeRaw !== "" ? parseInt(excludeRaw, 10) : null;
     if (!q && !fullName) {
@@ -393,15 +402,54 @@ router.get("/admin/players/name-check", requireAdmin, async (req, res) => {
         photoUrl: playersTable.photoUrl,
         birthYear: playersTable.birthYear,
         birthDate: playersTable.birthDate,
+        cbfRegistration: playersTable.cbfRegistration,
       })
       .from(playersTable);
+
+    const seasonRows = await db
+      .select({
+        playerId: playerSeasonStatsTable.playerId,
+        season: playerSeasonStatsTable.season,
+      })
+      .from(playerSeasonStatsTable);
+    const seasonsByPlayer = new Map<number, string[]>();
+    for (const r of seasonRows) {
+      const list = seasonsByPlayer.get(r.playerId) ?? [];
+      list.push(r.season);
+      seasonsByPlayer.set(r.playerId, list);
+    }
+    const catalog = rows.map((r) => ({
+      ...r,
+      seasonYears: seasonYearsFromList(seasonsByPlayer.get(r.id) ?? []),
+    }));
+
+    let queryCbf = cbfRegistration;
+    let queryBirthYear =
+      birthYearParsed != null && Number.isFinite(birthYearParsed) ? birthYearParsed : null;
+    let querySeasonYears: number[] = [];
+    if (Number.isInteger(excludeId) && excludeId != null) {
+      const self = catalog.find((r) => r.id === excludeId);
+      if (self) {
+        if (!queryCbf) queryCbf = self.cbfRegistration?.trim() || "";
+        if (queryBirthYear == null) queryBirthYear = self.birthYear ?? null;
+        querySeasonYears = self.seasonYears;
+      } else {
+        querySeasonYears = seasonYearsFromList(seasonsByPlayer.get(excludeId) ?? []);
+      }
+    }
+
     const matches = findDuplicateNameCandidates(
-      { name: q, fullName },
-      rows,
+      {
+        name: q,
+        fullName,
+        cbfRegistration: queryCbf || null,
+        birthYear: queryBirthYear,
+        seasonYears: querySeasonYears,
+      },
+      catalog,
       Number.isInteger(excludeId) ? excludeId : null,
     ).slice(0, 8);
     const byId = new Map(rows.map((r) => [r.id, r]));
-    const seasonsMap = await seasonsByPlayerIds(matches.map((m) => m.id));
     res.json({
       matches: matches.map((m) => {
         const row = byId.get(m.id);
@@ -409,7 +457,8 @@ router.get("/admin/players/name-check", requireAdmin, async (req, res) => {
           ...m,
           birthYear: row?.birthYear ?? null,
           birthDate: row?.birthDate ?? null,
-          seasons: seasonsMap.get(m.id) ?? [],
+          cbfRegistration: row?.cbfRegistration ?? null,
+          seasons: (seasonsByPlayer.get(m.id) ?? []).slice().sort((a, b) => a.localeCompare(b)),
         };
       }),
     });

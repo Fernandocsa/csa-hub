@@ -16,10 +16,118 @@ type CatalogRow = {
   name: string;
   fullName: string | null;
   photoUrl?: string | null;
+  cbfRegistration?: string | null;
+  birthYear?: number | null;
+  /** Season years (e.g. 2015 from "2015" or "2015/16"). */
+  seasonYears?: number[] | null;
 };
+
+export type NameCheckQuery = {
+  name?: string;
+  fullName?: string;
+  /** Current form / profile CBF — used to drop distinct registered athletes. */
+  cbfRegistration?: string | null;
+  birthYear?: number | null;
+  seasonYears?: number[] | null;
+};
+
+/** Max gap (years) between career ranges before we treat them as unrelated eras. */
+export const NAME_CHECK_MAX_SEASON_GAP = 10;
+/** Max birth-year distance when seasons are missing on one/both sides. */
+export const NAME_CHECK_MAX_BIRTH_GAP = 15;
 
 function hasPhoto(url: string | null | undefined): boolean {
   return Boolean(url?.trim());
+}
+
+function normCbf(value: string | null | undefined): string {
+  return String(value ?? "")
+    .trim()
+    .replace(/\D/g, "");
+}
+
+function hasFullName(value: string | null | undefined): boolean {
+  return String(value ?? "").trim().length >= 2;
+}
+
+export function parseSeasonYear(season: string): number | null {
+  const m = String(season ?? "").trim().match(/^(\d{4})/);
+  if (!m) return null;
+  const y = parseInt(m[1], 10);
+  return Number.isFinite(y) ? y : null;
+}
+
+export function seasonYearsFromList(seasons: string[]): number[] {
+  const years: number[] = [];
+  for (const s of seasons) {
+    const y = parseSeasonYear(s);
+    if (y != null) years.push(y);
+  }
+  return years;
+}
+
+function careerRange(years: number[] | null | undefined): { min: number; max: number } | null {
+  if (!years?.length) return null;
+  let min = years[0];
+  let max = years[0];
+  for (const y of years) {
+    if (y < min) min = y;
+    if (y > max) max = y;
+  }
+  return { min, max };
+}
+
+/**
+ * Whether two careers are close enough to be the same person.
+ * Returns null when either side lacks season data (caller may fall back to birth year).
+ */
+export function careersNear(
+  aYears: number[] | null | undefined,
+  bYears: number[] | null | undefined,
+  maxGap = NAME_CHECK_MAX_SEASON_GAP,
+): boolean | null {
+  const a = careerRange(aYears);
+  const b = careerRange(bYears);
+  if (!a || !b) return null;
+  const gap = a.max < b.min ? b.min - a.max : b.max < a.min ? a.min - b.max : 0;
+  return gap <= maxGap;
+}
+
+function birthYearsNear(
+  a: number | null | undefined,
+  b: number | null | undefined,
+  maxGap = NAME_CHECK_MAX_BIRTH_GAP,
+): boolean | null {
+  if (a == null || b == null || !Number.isFinite(a) || !Number.isFinite(b)) return null;
+  return Math.abs(a - b) <= maxGap;
+}
+
+/**
+ * Drop lookalikes that are clearly different people:
+ * - both have full name + different CBF inscriptions
+ * - careers (or birth years) are decades apart
+ */
+export function isDistinctIdentityCandidate(
+  query: NameCheckQuery,
+  row: CatalogRow,
+): boolean {
+  const qFull = String(query.fullName ?? "").trim();
+  const qCbf = normCbf(query.cbfRegistration);
+  const rowCbf = normCbf(row.cbfRegistration);
+
+  if (qFull.length >= 2 && qCbf && hasFullName(row.fullName) && rowCbf && qCbf !== rowCbf) {
+    return true;
+  }
+
+  const nearSeasons = careersNear(query.seasonYears, row.seasonYears);
+  if (nearSeasons === false) return true;
+
+  if (nearSeasons === null) {
+    const nearBirth = birthYearsNear(query.birthYear, row.birthYear);
+    if (nearBirth === false) return true;
+  }
+
+  return false;
 }
 
 function fieldsOf(row: CatalogRow): Array<{ value: string; matchedOn: "name" | "fullName" }> {
@@ -65,9 +173,11 @@ function isSimilarName(query: string, fieldValue: string): boolean {
  * `exact` (blocks save) = typed full name equals an existing full name.
  * Display-name matches are only `similar` (warning).
  * Results with a photo are listed first within the same match strength.
+ *
+ * Optional query context (CBF / seasons / birth year) drops clear false positives.
  */
 export function findDuplicateNameCandidates(
-  queries: { name?: string; fullName?: string },
+  queries: NameCheckQuery,
   catalog: CatalogRow[],
   excludeId?: number | null,
 ): NameCheckCandidate[] {
@@ -93,6 +203,7 @@ export function findDuplicateNameCandidates(
 
   for (const row of catalog) {
     if (excludeId != null && row.id === excludeId) continue;
+    if (isDistinctIdentityCandidate(queries, row)) continue;
 
     // Block only when both sides have a full name and they match exactly.
     if (fullQ.length >= 2 && row.fullName?.trim()) {
