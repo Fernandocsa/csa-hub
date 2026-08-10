@@ -6,7 +6,13 @@ export type SearchableEntity = {
   id: number;
   name: string;
   subtitle?: string | null;
+  /** Extra haystack for search (e.g. full legal name). */
+  searchExtra?: string | null;
 };
+
+function matchesSearch(it: SearchableEntity, q: string): boolean {
+  return includesFolded(it.name, q) || includesFolded(it.searchExtra, q);
+}
 
 /**
  * Typeahead search: typing filters suggestions; clicking selects the entity
@@ -19,6 +25,8 @@ export function AdminEntitySearch({
   value,
   onValueChange,
   maxSuggestions = 12,
+  /** Keep typed query on select (e.g. navigate away; browser Back restores search). */
+  preserveQueryOnSelect = false,
 }: {
   items: SearchableEntity[];
   placeholder: string;
@@ -27,6 +35,7 @@ export function AdminEntitySearch({
   value?: string;
   onValueChange?: (value: string) => void;
   maxSuggestions?: number;
+  preserveQueryOnSelect?: boolean;
 }) {
   const [inner, setInner] = useState("");
   const query = value !== undefined ? value : inner;
@@ -43,7 +52,7 @@ export function AdminEntitySearch({
     const q = query.trim();
     if (!q) return [];
     return items
-      .filter((it) => includesFolded(it.name, q))
+      .filter((it) => matchesSearch(it, q))
       .slice(0, maxSuggestions);
   }, [items, query, maxSuggestions]);
 
@@ -60,7 +69,7 @@ export function AdminEntitySearch({
   }, []);
 
   function pick(item: SearchableEntity) {
-    setQuery(item.name);
+    if (!preserveQueryOnSelect) setQuery(item.name);
     setOpen(false);
     onSelect(item);
   }

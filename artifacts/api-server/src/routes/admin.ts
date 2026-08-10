@@ -323,10 +323,49 @@ router.get("/admin/lookup", requireAdmin, async (req, res) => {
 
 // ── Players ───────────────────────────────────────────────────────────────────
 
+async function seasonsByPlayerIds(ids: number[]): Promise<Map<number, string[]>> {
+  const map = new Map<number, string[]>();
+  const unique = [...new Set(ids.filter((id) => Number.isInteger(id) && id > 0))];
+  if (!unique.length) return map;
+  const seasonRows = await db
+    .select({
+      playerId: playerSeasonStatsTable.playerId,
+      season: playerSeasonStatsTable.season,
+    })
+    .from(playerSeasonStatsTable)
+    .where(inArray(playerSeasonStatsTable.playerId, unique));
+  for (const r of seasonRows) {
+    const list = map.get(r.playerId) ?? [];
+    list.push(r.season);
+    map.set(r.playerId, list);
+  }
+  for (const [, list] of map) {
+    list.sort((a, b) => a.localeCompare(b));
+  }
+  return map;
+}
+
 router.get("/admin/players", requireAdmin, async (req, res) => {
   try {
     const rows = await db.select().from(playersTable).orderBy(asc(playersTable.name));
-    res.json(rows);
+    const seasonRows = await db
+      .select({
+        playerId: playerSeasonStatsTable.playerId,
+        season: playerSeasonStatsTable.season,
+      })
+      .from(playerSeasonStatsTable);
+    const seasonsByPlayer = new Map<number, string[]>();
+    for (const r of seasonRows) {
+      const list = seasonsByPlayer.get(r.playerId) ?? [];
+      list.push(r.season);
+      seasonsByPlayer.set(r.playerId, list);
+    }
+    res.json(
+      rows.map((p) => ({
+        ...p,
+        seasons: (seasonsByPlayer.get(p.id) ?? []).sort((a, b) => a.localeCompare(b)),
+      })),
+    );
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -348,6 +387,8 @@ router.get("/admin/players/name-check", requireAdmin, async (req, res) => {
         name: playersTable.name,
         fullName: playersTable.fullName,
         photoUrl: playersTable.photoUrl,
+        birthYear: playersTable.birthYear,
+        birthDate: playersTable.birthDate,
       })
       .from(playersTable);
     const matches = findDuplicateNameCandidates(
@@ -355,7 +396,19 @@ router.get("/admin/players/name-check", requireAdmin, async (req, res) => {
       rows,
       Number.isInteger(excludeId) ? excludeId : null,
     ).slice(0, 8);
-    res.json({ matches });
+    const byId = new Map(rows.map((r) => [r.id, r]));
+    const seasonsMap = await seasonsByPlayerIds(matches.map((m) => m.id));
+    res.json({
+      matches: matches.map((m) => {
+        const row = byId.get(m.id);
+        return {
+          ...m,
+          birthYear: row?.birthYear ?? null,
+          birthDate: row?.birthDate ?? null,
+          seasons: seasonsMap.get(m.id) ?? [],
+        };
+      }),
+    });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -377,6 +430,8 @@ router.get("/admin/players/search", requireAdmin, async (req, res) => {
         fullName: playersTable.fullName,
         position: playersTable.position,
         photoUrl: playersTable.photoUrl,
+        birthYear: playersTable.birthYear,
+        birthDate: playersTable.birthDate,
       })
       .from(playersTable)
       .where(
@@ -387,7 +442,13 @@ router.get("/admin/players/search", requireAdmin, async (req, res) => {
       )
       .orderBy(asc(playersTable.name))
       .limit(limit);
-    res.json(rows);
+    const seasonsMap = await seasonsByPlayerIds(rows.map((r) => r.id));
+    res.json(
+      rows.map((r) => ({
+        ...r,
+        seasons: seasonsMap.get(r.id) ?? [],
+      })),
+    );
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });

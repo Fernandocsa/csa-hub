@@ -1,26 +1,83 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { AdminEntitySearch } from "@/components/AdminEntitySearch";
 import { AdminMergeButton } from "@/components/AdminMergeButton";
+import { withAdminFrom } from "@/hooks/useAdminReturnTo";
 import type { Player } from "./AdminPlayerDetail";
 import { includesFolded } from "@/lib/accent-fold";
+import { formatSeasonSpans } from "@/lib/format-season-spans";
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const LIST_PATH = "/admin/jogadores";
+
+type AdminPlayerRow = Player & { seasons?: string[] };
 
 function nameInitial(name: string): string {
   const ch = name.trim().charAt(0).toUpperCase();
   return /^[A-Z]$/.test(ch) ? ch : "#";
 }
 
+function filtersFromSearch(search: string): { q: string; letter: string | null } {
+  const qs = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
+  const q = qs.get("q") ?? "";
+  const letterRaw = qs.get("letter");
+  if (letterRaw === "#") return { q, letter: "#" };
+  if (letterRaw && /^[A-Za-z]$/.test(letterRaw)) {
+    return { q, letter: letterRaw.toUpperCase() };
+  }
+  return { q, letter: null };
+}
+
+function buildListPath(q: string, letter: string | null): string {
+  const params = new URLSearchParams();
+  if (q) params.set("q", q);
+  if (letter) params.set("letter", letter);
+  const qs = params.toString();
+  return qs ? `${LIST_PATH}?${qs}` : LIST_PATH;
+}
+
+function currentPathWithSearch(): string {
+  return `${window.location.pathname}${window.location.search}`;
+}
+
 export default function AdminPlayers() {
   const [, setLocation] = useLocation();
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [search, setSearch] = useState("");
-  const [letter, setLetter] = useState<string | null>(null);
+  const urlSearch = useSearch();
+  const [players, setPlayers] = useState<AdminPlayerRow[]>([]);
+  const [search, setSearch] = useState(() => filtersFromSearch(urlSearch).q);
+  const [letter, setLetter] = useState<string | null>(
+    () => filtersFromSearch(urlSearch).letter,
+  );
   const [loading, setLoading] = useState(true);
+
+  // Browser Back / Forward restores ?q= / ?letter=
+  useEffect(() => {
+    const next = filtersFromSearch(urlSearch);
+    setSearch(next.q);
+    setLetter(next.letter);
+  }, [urlSearch]);
+
+  const listPath = useMemo(() => buildListPath(search, letter), [search, letter]);
+
+  const syncUrl = useCallback((q: string, nextLetter: string | null) => {
+    const next = buildListPath(q, nextLetter);
+    if (currentPathWithSearch() === next) return;
+    // replaceState: typing must not flood history; Back from a profile returns here
+    window.history.replaceState(window.history.state, "", next);
+  }, []);
+
+  function onSearchChange(value: string) {
+    setSearch(value);
+    syncUrl(value, letter);
+  }
+
+  function onLetterChange(next: string | null) {
+    setLetter(next);
+    syncUrl(search, next);
+  }
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -39,9 +96,19 @@ export default function AdminPlayers() {
     await load();
   }
 
+  function openPlayer(id: number) {
+    setLocation(withAdminFrom(`${LIST_PATH}/${id}`, listPath));
+  }
+
   const filtered = useMemo(() => {
     return players.filter((p) => {
-      if (search.trim() && !includesFolded(p.name, search)) return false;
+      if (
+        search.trim() &&
+        !includesFolded(p.name, search) &&
+        !includesFolded(p.fullName, search)
+      ) {
+        return false;
+      }
       if (letter == null) return true;
       return nameInitial(p.name) === letter;
     });
@@ -55,7 +122,7 @@ export default function AdminPlayers() {
           <p className="text-sm text-gray-500">{players.length} cadastrados</p>
         </div>
         <Button className="bg-[#1B3A6B]" asChild>
-          <Link href="/admin/jogadores/novo">
+          <Link href={withAdminFrom(`${LIST_PATH}/novo`, listPath)}>
             <Plus size={14} className="mr-1" /> Adicionar
           </Link>
         </Button>
@@ -65,18 +132,23 @@ export default function AdminPlayers() {
         items={players.map((p) => ({
           id: p.id,
           name: p.name,
-          subtitle: [p.position, p.nationality].filter(Boolean).join(" · ") || null,
+          searchExtra: p.fullName,
+          subtitle:
+            [p.fullName && p.fullName !== p.name ? p.fullName : null, p.position, p.nationality]
+              .filter(Boolean)
+              .join(" · ") || null,
         }))}
-        placeholder="Buscar jogador…"
+        placeholder="Buscar por nome ou nome completo…"
         value={search}
-        onValueChange={setSearch}
-        onSelect={(item) => setLocation(`/admin/jogadores/${item.id}`)}
+        onValueChange={onSearchChange}
+        preserveQueryOnSelect
+        onSelect={(item) => openPlayer(item.id)}
       />
 
       <div className="flex flex-wrap items-center gap-1 mb-3">
         <button
           type="button"
-          onClick={() => setLetter(null)}
+          onClick={() => onLetterChange(null)}
           className={`px-2 py-1 text-xs rounded border ${
             letter == null
               ? "bg-[#1B3A6B] text-white border-[#1B3A6B]"
@@ -89,7 +161,7 @@ export default function AdminPlayers() {
           <button
             key={L}
             type="button"
-            onClick={() => setLetter(L)}
+            onClick={() => onLetterChange(L)}
             className={`w-7 h-7 text-xs rounded border ${
               letter === L
                 ? "bg-[#1B3A6B] text-white border-[#1B3A6B]"
@@ -101,7 +173,7 @@ export default function AdminPlayers() {
         ))}
         <button
           type="button"
-          onClick={() => setLetter("#")}
+          onClick={() => onLetterChange("#")}
           className={`w-7 h-7 text-xs rounded border ${
             letter === "#"
               ? "bg-[#1B3A6B] text-white border-[#1B3A6B]"
@@ -124,6 +196,9 @@ export default function AdminPlayers() {
                   Nome
                 </th>
                 <th className="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
+                  Temporadas
+                </th>
+                <th className="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
                   Posição
                 </th>
                 <th className="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
@@ -136,39 +211,51 @@ export default function AdminPlayers() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((player) => (
-                <tr key={player.id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-2 font-medium">
-                    <Link
-                      href={`/admin/jogadores/${player.id}`}
-                      className="text-[#1B3A6B] hover:underline"
+              {filtered.map((player) => {
+                const seasonsLabel = formatSeasonSpans(player.seasons);
+                const href = withAdminFrom(`${LIST_PATH}/${player.id}`, listPath);
+                return (
+                  <tr key={player.id} className="border-b hover:bg-gray-50">
+                    <td className="px-4 py-2 font-medium">
+                      <Link href={href} className="text-[#1B3A6B] hover:underline">
+                        {player.name}
+                      </Link>
+                      {player.fullName && player.fullName !== player.name ? (
+                        <div className="text-xs text-gray-400 font-normal truncate max-w-[16rem]">
+                          {player.fullName}
+                        </div>
+                      ) : null}
+                    </td>
+                    <td
+                      className="px-4 py-2 text-gray-600 whitespace-nowrap"
+                      title={player.seasons?.join(", ") || undefined}
                     >
-                      {player.name}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-2 text-gray-600">{player.position ?? "–"}</td>
-                  <td className="px-4 py-2 text-gray-600">{player.nationality ?? "–"}</td>
-                  <td className="px-4 py-2 text-gray-600">{player.birthYear ?? "–"}</td>
-                  <td className="px-4 py-2">
-                    <div className="flex items-center justify-end gap-1">
-                      <AdminMergeButton
-                        keepId={player.id}
-                        keepName={player.name}
-                        mode={{ kind: "pair", endpoint: "/admin/players/merge" }}
-                        onDone={load}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => deletePlayer(player.id)}
-                        className="p-1 text-gray-400 hover:text-red-600 rounded"
-                        title="Excluir"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                      {seasonsLabel || "–"}
+                    </td>
+                    <td className="px-4 py-2 text-gray-600">{player.position ?? "–"}</td>
+                    <td className="px-4 py-2 text-gray-600">{player.nationality ?? "–"}</td>
+                    <td className="px-4 py-2 text-gray-600">{player.birthYear ?? "–"}</td>
+                    <td className="px-4 py-2">
+                      <div className="flex items-center justify-end gap-1">
+                        <AdminMergeButton
+                          keepId={player.id}
+                          keepName={player.name}
+                          mode={{ kind: "pair", endpoint: "/admin/players/merge" }}
+                          onDone={load}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => deletePlayer(player.id)}
+                          className="p-1 text-gray-400 hover:text-red-600 rounded"
+                          title="Excluir"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
           {filtered.length === 0 && (

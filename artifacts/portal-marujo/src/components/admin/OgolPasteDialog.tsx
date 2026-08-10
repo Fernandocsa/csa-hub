@@ -9,6 +9,7 @@ import {
   type OgolParseResult,
   type OgolSubPair,
 } from "@/lib/ogol-paste";
+import { formatSeasonSpans } from "@/lib/format-season-spans";
 import { positionGroup } from "@/lib/position-groups";
 
 export type OgolRosterPlayer = {
@@ -17,6 +18,9 @@ export type OgolRosterPlayer = {
   position: string | null;
   photoUrl?: string | null;
   fullName?: string | null;
+  birthYear?: number | null;
+  birthDate?: string | null;
+  seasons?: string[];
 };
 
 export type OgolManagerOption = {
@@ -160,21 +164,7 @@ export function OgolPasteDialog({
     if (!r.ok) return [];
     const data = await r.json();
     const list = Array.isArray(data.matches) ? data.matches : [];
-    return list.map(
-      (p: {
-        id: number;
-        name: string;
-        fullName?: string | null;
-        position?: string | null;
-        photoUrl?: string | null;
-      }) => ({
-        id: p.id,
-        name: p.name,
-        fullName: p.fullName ?? null,
-        position: p.position ?? null,
-        photoUrl: p.photoUrl ?? null,
-      }),
-    );
+    return list.map(mapPlayerHit);
   }
 
   /** Broad substring search (name + full name) for the confirm picker. */
@@ -185,29 +175,75 @@ export function OgolPasteDialog({
     if (!r.ok) return [];
     const list = await r.json();
     if (!Array.isArray(list)) return [];
-    return list.map(
-      (p: {
-        id: number;
-        name: string;
-        fullName?: string | null;
-        position?: string | null;
-        photoUrl?: string | null;
-      }) => ({
-        id: p.id,
-        name: p.name,
-        fullName: p.fullName ?? null,
-        position: p.position ?? null,
-        photoUrl: p.photoUrl ?? null,
-      }),
-    );
+    return list.map(mapPlayerHit);
   }
 
-  function playerOptionLabel(p: OgolRosterPlayer, tag?: string): string {
+  function mapPlayerHit(p: {
+    id: number;
+    name: string;
+    fullName?: string | null;
+    position?: string | null;
+    photoUrl?: string | null;
+    birthYear?: number | null;
+    birthDate?: string | null;
+    seasons?: string[];
+  }): OgolRosterPlayer {
+    return {
+      id: p.id,
+      name: p.name,
+      fullName: p.fullName ?? null,
+      position: p.position ?? null,
+      photoUrl: p.photoUrl ?? null,
+      birthYear: p.birthYear ?? null,
+      birthDate: p.birthDate ?? null,
+      seasons: Array.isArray(p.seasons) ? p.seasons : [],
+    };
+  }
+
+  function playerAgeLabel(p: OgolRosterPlayer): string {
+    let birthYear = p.birthYear ?? null;
+    if (birthYear == null && p.birthDate) {
+      const y = parseInt(String(p.birthDate).slice(0, 4), 10);
+      if (Number.isFinite(y)) birthYear = y;
+    }
+    if (birthYear == null) return "";
+    const seasonYear = parseInt(String(season || ""), 10);
+    if (Number.isFinite(seasonYear)) {
+      const age = seasonYear - birthYear;
+      if (age >= 12 && age <= 70) return `${age} anos`;
+    }
+    return `n. ${birthYear}`;
+  }
+
+  function playerOptionLabel(p: OgolRosterPlayer, inRoster: boolean): string {
     const full = p.fullName?.trim();
-    const base = full && normalizeOgolPlayerName(full) !== normalizeOgolPlayerName(p.name)
-      ? `${p.name} — ${full}`
-      : p.name;
-    return `${base} #${p.id}${tag ? ` ${tag}` : ""}`;
+    const base =
+      full && normalizeOgolPlayerName(full) !== normalizeOgolPlayerName(p.name)
+        ? `${p.name} — ${full}`
+        : p.name;
+    const bits = [`${base} #${p.id}`];
+    const age = playerAgeLabel(p);
+    if (age) bits.push(age);
+    if (inRoster) {
+      bits.push(season ? `elenco ${season}` : "elenco");
+    } else {
+      const seasonsLabel = formatSeasonSpans(p.seasons);
+      bits.push(seasonsLabel || "sem temporada");
+    }
+    return bits.join(" · ");
+  }
+
+  function playerHitSecondary(p: OgolRosterPlayer): string {
+    const bits: string[] = [`#${p.id}`];
+    const age = playerAgeLabel(p);
+    if (age) bits.push(age);
+    if (roster.some((x) => x.id === p.id)) {
+      bits.push(season ? `elenco ${season}` : "elenco");
+    } else {
+      const seasonsLabel = formatSeasonSpans(p.seasons);
+      bits.push(seasonsLabel || "sem temporada");
+    }
+    return bits.join(" · ");
   }
 
   async function searchPending(key: string, q: string) {
@@ -965,7 +1001,7 @@ export function OgolPasteDialog({
                         <p className="font-medium">&quot;{r.createName}&quot;</p>
                         <div className="flex flex-wrap gap-2 items-center">
                           <select
-                            className="border rounded px-2 py-1 text-sm bg-white min-w-[18rem] max-w-full"
+                            className="border rounded px-2 py-1 text-sm bg-white w-full min-w-[18rem] max-w-2xl"
                             defaultValue=""
                             disabled={busy}
                             onChange={(e) => {
@@ -979,9 +1015,7 @@ export function OgolPasteDialog({
                               <option key={c.id} value={c.id}>
                                 {playerOptionLabel(
                                   c,
-                                  roster.some((x) => x.id === c.id)
-                                    ? "(elenco)"
-                                    : "(outra temporada)",
+                                  roster.some((x) => x.id === c.id),
                                 )}
                               </option>
                             ))}
@@ -989,7 +1023,7 @@ export function OgolPasteDialog({
                               .filter((h) => !r.candidates.some((c) => c.id === h.id))
                               .map((c) => (
                                 <option key={`s-${c.id}`} value={c.id}>
-                                  {playerOptionLabel(c, "(busca)")}
+                                  {playerOptionLabel(c, roster.some((x) => x.id === c.id))}
                                 </option>
                               ))}
                           </select>
@@ -1029,10 +1063,9 @@ export function OgolPasteDialog({
                                   {h.fullName ? (
                                     <span className="text-gray-500"> — {h.fullName}</span>
                                   ) : null}
-                                  <span className="text-gray-400"> #{h.id}</span>
-                                  {roster.some((x) => x.id === h.id) ? (
-                                    <span className="text-emerald-700"> · elenco</span>
-                                  ) : null}
+                                  <span className="block text-[11px] text-gray-500 mt-0.5">
+                                    {playerHitSecondary(h)}
+                                  </span>
                                 </button>
                               </li>
                             ))}
