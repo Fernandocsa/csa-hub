@@ -1107,12 +1107,12 @@ export default function AdminPlayerDetail() {
                     <th className="text-right py-1.5 w-24">Assist.</th>
                     {showYellowCards && (
                       <th className="text-right py-1.5 w-12" title="Cartões amarelos">
-                        CA
+                        <span aria-label="Cartões amarelos">🟨</span>
                       </th>
                     )}
                     {showRedCards && (
                       <th className="text-right py-1.5 w-12" title="Cartões vermelhos">
-                        CV
+                        <span aria-label="Cartões vermelhos">🟥</span>
                       </th>
                     )}
                     {showOwnGoals && (

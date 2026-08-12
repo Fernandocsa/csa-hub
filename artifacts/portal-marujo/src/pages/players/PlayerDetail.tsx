@@ -538,12 +538,12 @@ export default function PlayerDetail() {
                 )}
                 {showYellowCards && (
                   <TableHead className="py-2 text-right" title="Cartões amarelos">
-                    CA
+                    <span aria-label="Cartões amarelos">🟨</span>
                   </TableHead>
                 )}
                 {showRedCards && (
                   <TableHead className="py-2 text-right" title="Cartões vermelhos">
-                    CV
+                    <span aria-label="Cartões vermelhos">🟥</span>
                   </TableHead>
                 )}
                 {showOwnGoals && (
