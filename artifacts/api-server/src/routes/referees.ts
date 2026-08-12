@@ -33,11 +33,12 @@ function semRefereeStateCondition() {
   );
 }
 
-/** Only official played matches that have a linked referee (omit unassigned). */
+/** Only official played matches that have a linked active (non-merged) referee. */
 function linkedNonFriendlyMatch() {
   return and(
     officialPlayedMatchConditions(),
     sql`${matchesTable.refereeId} is not null`,
+    isNull(refereesTable.mergedIntoId),
   );
 }
 type RecordRow = {
@@ -68,7 +69,12 @@ router.get("/referees", async (req, res) => {
   try {
     const { search } = req.query as Record<string, string>;
 
-    let query = db
+    const filters = [isNull(refereesTable.mergedIntoId)];
+    if (search?.trim()) {
+      filters.push(accentInsensitiveLike(refereesTable.name, search.trim()));
+    }
+
+    const rows = await db
       .select({
         id: refereesTable.id,
         name: refereesTable.name,
@@ -86,13 +92,7 @@ router.get("/referees", async (req, res) => {
         matchesTable,
         and(eq(matchesTable.refereeId, refereesTable.id), officialPlayedMatchConditions()),
       )
-      .$dynamic();
-
-    if (search?.trim()) {
-      query = query.where(accentInsensitiveLike(refereesTable.name, search.trim()));
-    }
-
-    const rows = await query
+      .where(and(...filters))
       .groupBy(
         refereesTable.id,
         refereesTable.name,
@@ -283,14 +283,24 @@ router.get("/referees/:id", async (req, res) => {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
 
-    const [referee] = await db
+    let [referee] = await db
       .select()
       .from(refereesTable)
       .where(eq(refereesTable.id, id))
       .limit(1);
     if (!referee) return res.status(404).json({ error: "Árbitro não encontrado" });
+    if (referee.mergedIntoId != null) {
+      const keepId = referee.mergedIntoId;
+      const [keep] = await db
+        .select()
+        .from(refereesTable)
+        .where(and(eq(refereesTable.id, keepId), isNull(refereesTable.mergedIntoId)))
+        .limit(1);
+      if (!keep) return res.status(404).json({ error: "Árbitro não encontrado" });
+      referee = keep;
+    }
 
-    const baseWhere = and(eq(matchesTable.refereeId, id), officialPlayedMatchConditions());
+    const baseWhere = and(eq(matchesTable.refereeId, referee.id), officialPlayedMatchConditions());
 
     const overall = await db
       .select({

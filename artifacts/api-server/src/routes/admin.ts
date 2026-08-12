@@ -322,6 +322,7 @@ router.get("/admin/lookup", requireAdmin, async (req, res) => {
           state: refereesTable.state,
         })
         .from(refereesTable)
+        .where(isNull(refereesTable.mergedIntoId))
         .orderBy(asc(refereesTable.name)),
     ]);
     res.json({ opponents, competitions, stadiums, managers, referees });
@@ -2738,7 +2739,11 @@ router.delete("/admin/opponents/:id", requireAdmin, async (req, res) => {
 
 router.get("/admin/referees", requireAdmin, async (req, res) => {
   try {
-    const rows = await db.select().from(refereesTable).orderBy(asc(refereesTable.name));
+    const rows = await db
+      .select()
+      .from(refereesTable)
+      .where(isNull(refereesTable.mergedIntoId))
+      .orderBy(asc(refereesTable.name));
     res.json(rows);
   } catch (err) {
     req.log.error(err);
@@ -5257,7 +5262,10 @@ async function runMatchesCsvImport(
   const opponentMap = new Map(allOpponents.map((o) => [o.name.toLowerCase(), o.id]));
   const competitionMap = new Map(allCompetitions.map((c) => [c.name.toLowerCase(), c.id]));
   const stadiumMap = new Map(allStadiums.map((s) => [s.name.toLowerCase(), s.id]));
-  const refereeMap = new Map(allReferees.map((r) => [r.name.toLowerCase(), r.id]));
+  // Resolve soft-merged aliases to the keep id so historical spellings still match.
+  const refereeMap = new Map(
+    allReferees.map((r) => [r.name.toLowerCase(), r.mergedIntoId ?? r.id]),
+  );
 
   for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
     if (opts?.onlyRowIndexes && !opts.onlyRowIndexes.has(rowIndex)) continue;
