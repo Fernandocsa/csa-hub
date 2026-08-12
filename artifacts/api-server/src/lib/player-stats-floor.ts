@@ -10,6 +10,7 @@ import {
 } from "@workspace/db";
 import { officialPlayedMatchConditions } from "./match-filters";
 import { csaLineupActuallyPlayedCondition } from "./player-appeared";
+import { concededGoalsBySeasonForPlayer } from "./goalkeeper-conceded";
 import { ACCENT_FROM, ACCENT_TO, foldAccents } from "./accent-fold";
 
 export type PlayerSeasonFloor = {
@@ -25,6 +26,8 @@ export type PlayerSeasonFloor = {
   redCards: number;
   /** Own goals scored against CSA (GPD). */
   ownGoals: number;
+  /** Goals conceded while appearing as goalkeeper. */
+  goalsConceded: number;
   /** @deprecated Always 0 — manual floors removed; kept for API shape. */
   manualAppearances: number;
   /** @deprecated Always 0 */
@@ -173,6 +176,8 @@ export async function linkedPlayerSeasonStats(playerId: number) {
     )
     .groupBy(matchesTable.season);
 
+  const concededBySeason = await concededGoalsBySeasonForPlayer(playerId);
+
   type SeasonAgg = {
     appearances: number;
     goals: number;
@@ -182,6 +187,7 @@ export async function linkedPlayerSeasonStats(playerId: number) {
     yellowCards: number;
     redCards: number;
     ownGoals: number;
+    goalsConceded: number;
   };
   const empty = (): SeasonAgg => ({
     appearances: 0,
@@ -192,6 +198,7 @@ export async function linkedPlayerSeasonStats(playerId: number) {
     yellowCards: 0,
     redCards: 0,
     ownGoals: 0,
+    goalsConceded: 0,
   });
   const map = new Map<string, SeasonAgg>();
   for (const r of apps) {
@@ -231,6 +238,11 @@ export async function linkedPlayerSeasonStats(playerId: number) {
     const cur = map.get(r.season) ?? empty();
     cur.ownGoals = r.count ?? 0;
     map.set(r.season, cur);
+  }
+  for (const [season, goalsConceded] of concededBySeason) {
+    const cur = map.get(season) ?? empty();
+    cur.goalsConceded = goalsConceded;
+    map.set(season, cur);
   }
   return map;
 }
@@ -445,6 +457,7 @@ export async function flooredPlayerSeasonStats(
       yellowCards: link.yellowCards,
       redCards: link.redCards,
       ownGoals: link.ownGoals,
+      goalsConceded: link.goalsConceded,
     }));
 }
 
@@ -459,6 +472,7 @@ export function sumFlooredSeasons(rows: PlayerSeasonFloor[]) {
       yellowCards: acc.yellowCards + r.yellowCards,
       redCards: acc.redCards + r.redCards,
       ownGoals: acc.ownGoals + r.ownGoals,
+      goalsConceded: acc.goalsConceded + r.goalsConceded,
     }),
     {
       appearances: 0,
@@ -469,6 +483,7 @@ export function sumFlooredSeasons(rows: PlayerSeasonFloor[]) {
       yellowCards: 0,
       redCards: 0,
       ownGoals: 0,
+      goalsConceded: 0,
     },
   );
 }

@@ -53,6 +53,8 @@ interface StatRow {
   yellowCards?: number;
   redCards?: number;
   ownGoals?: number;
+  penaltiesSaved?: number;
+  goalsConceded?: number;
 }
 
 type PlayerPayload = Omit<Player, "id" | "linkedManagerName">;
@@ -798,6 +800,8 @@ export default function AdminPlayerDetail() {
     let yellowCards = 0;
     let redCards = 0;
     let ownGoals = 0;
+    let penaltiesSaved = 0;
+    let goalsConceded = 0;
     for (const s of stats) {
       const d = statDrafts[s.id];
       appearances += parseInt(d?.appearances ?? String(s.appearances), 10) || 0;
@@ -806,13 +810,30 @@ export default function AdminPlayerDetail() {
       yellowCards += s.yellowCards ?? 0;
       redCards += s.redCards ?? 0;
       ownGoals += s.ownGoals ?? 0;
+      penaltiesSaved += s.penaltiesSaved ?? 0;
+      goalsConceded += s.goalsConceded ?? 0;
     }
-    return { appearances, goals, assists, yellowCards, redCards, ownGoals };
+    return {
+      appearances,
+      goals,
+      assists,
+      yellowCards,
+      redCards,
+      ownGoals,
+      penaltiesSaved,
+      goalsConceded,
+    };
   }, [stats, statDrafts]);
 
+  const isGk =
+    (player?.position ?? "").toLowerCase().includes("goleiro") ||
+    (player?.secondaryPositions ?? []).some((p) => p.toLowerCase().includes("goleiro"));
   const showYellowCards = stats.some((s) => (s.yellowCards ?? 0) > 0);
   const showRedCards = stats.some((s) => (s.redCards ?? 0) > 0);
   const showOwnGoals = stats.some((s) => (s.ownGoals ?? 0) > 0);
+  const showPenaltiesSaved =
+    isGk || stats.some((s) => (s.penaltiesSaved ?? 0) > 0);
+  const showGoalsConceded = isGk || stats.some((s) => (s.goalsConceded ?? 0) > 0);
   const showDisciplineCols = showYellowCards || showRedCards || showOwnGoals;
 
   useEffect(() => {
@@ -1020,8 +1041,20 @@ export default function AdminPlayerDetail() {
           </p>
         )}
         {savedMsg && <p className="text-sm text-green-700 mt-1">{savedMsg}</p>}
-        {!isNew && showDisciplineCols && (
+        {!isNew && (showDisciplineCols || showPenaltiesSaved || showGoalsConceded) && (
           <p className="text-sm text-gray-600 mt-2 flex flex-wrap gap-x-4 gap-y-1">
+            {showGoalsConceded && (
+              <span>
+                Gols sofridos:{" "}
+                <span className="font-semibold tabular-nums">{draftTotals.goalsConceded}</span>
+              </span>
+            )}
+            {showPenaltiesSaved && (
+              <span>
+                Pênaltis defendidos:{" "}
+                <span className="font-semibold tabular-nums">{draftTotals.penaltiesSaved}</span>
+              </span>
+            )}
             {showYellowCards && (
               <span>
                 Cartões amarelos:{" "}
@@ -1103,6 +1136,11 @@ export default function AdminPlayerDetail() {
                   <tr className="text-xs text-gray-400 border-b">
                     <th className="text-left py-1.5">Temporada</th>
                     <th className="text-right py-1.5 w-24">Partidas</th>
+                    {showGoalsConceded && (
+                      <th className="text-right py-1.5 w-16" title="Gols sofridos">
+                        GS
+                      </th>
+                    )}
                     <th className="text-right py-1.5 w-24">Gols</th>
                     <th className="text-right py-1.5 w-24">Assist.</th>
                     {showYellowCards && (
@@ -1118,6 +1156,11 @@ export default function AdminPlayerDetail() {
                     {showOwnGoals && (
                       <th className="text-right py-1.5 w-12" title="Gols contra">
                         GC
+                      </th>
+                    )}
+                    {showPenaltiesSaved && (
+                      <th className="text-right py-1.5 w-16" title="Pênaltis defendidos">
+                        Pên. def.
                       </th>
                     )}
                     <th className="py-1.5 w-10" />
@@ -1144,6 +1187,11 @@ export default function AdminPlayerDetail() {
                             className="h-8 w-[4.25rem] ml-auto text-right px-2"
                           />
                         </td>
+                        {showGoalsConceded && (
+                          <td className="py-2 text-right tabular-nums text-gray-700">
+                            {stat.goalsConceded ?? 0}
+                          </td>
+                        )}
                         <td className="py-1.5 text-right">
                           <Input
                             type="number"
@@ -1177,6 +1225,11 @@ export default function AdminPlayerDetail() {
                             {stat.ownGoals ?? 0}
                           </td>
                         )}
+                        {showPenaltiesSaved && (
+                          <td className="py-2 text-right tabular-nums text-gray-700">
+                            {stat.penaltiesSaved ?? 0}
+                          </td>
+                        )}
                         <td className="py-2">
                           <div className="flex justify-end">
                             <button
@@ -1197,6 +1250,11 @@ export default function AdminPlayerDetail() {
                     <td className="py-2 text-right font-semibold tabular-nums">
                       {draftTotals.appearances}
                     </td>
+                    {showGoalsConceded && (
+                      <td className="py-2 text-right font-semibold tabular-nums">
+                        {draftTotals.goalsConceded}
+                      </td>
+                    )}
                     <td className="py-2 text-right font-semibold tabular-nums">
                       {draftTotals.goals}
                     </td>
@@ -1216,6 +1274,11 @@ export default function AdminPlayerDetail() {
                     {showOwnGoals && (
                       <td className="py-2 text-right font-semibold tabular-nums">
                         {draftTotals.ownGoals}
+                      </td>
+                    )}
+                    {showPenaltiesSaved && (
+                      <td className="py-2 text-right font-semibold tabular-nums">
+                        {draftTotals.penaltiesSaved}
                       </td>
                     )}
                     <td />

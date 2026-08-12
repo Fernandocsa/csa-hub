@@ -16,6 +16,7 @@ import { OpponentHistoryLink } from "@/components/MatchNavLinks";
 import { ShareButton } from "@/components/ShareButton";
 import { OpponentCountList } from "@/components/OpponentCountList";
 import { formatDateBr } from "@/lib/utils";
+import { lineupPositionSlot } from "@/lib/position-groups";
 import type { ReactNode } from "react";
 
 type PlayerProfile = {
@@ -47,6 +48,7 @@ type PlayerProfile = {
   totalYellowCards?: number;
   totalRedCards?: number;
   totalOwnGoals?: number;
+  totalGoalsConceded?: number;
   titleCount?: number;
   titles?: { season: string; competitionId: number; competitionName: string }[];
   seasonStats: {
@@ -59,6 +61,7 @@ type PlayerProfile = {
     yellowCards?: number;
     redCards?: number;
     ownGoals?: number;
+    goalsConceded?: number;
   }[];
   recentMatches?: PlayerSheetMatch[];
   badges?: {
@@ -137,6 +140,11 @@ function birthPlaceParts(p: PlayerProfile): {
   return { locality: locality || null, country };
 }
 
+function isGoalkeeper(p: PlayerProfile): boolean {
+  if (lineupPositionSlot(p.position) === "Goleiro") return true;
+  return (p.secondaryPositions ?? []).some((x) => lineupPositionSlot(x) === "Goleiro");
+}
+
 function PersonalRow({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex gap-2 text-sm">
@@ -170,17 +178,24 @@ export default function PlayerDetail() {
 
   const player = raw as unknown as PlayerProfile;
 
+  const isGk = isGoalkeeper(player);
+  const showGoalsCol = !isGk || (player.totalGoals ?? 0) > 0;
+  const showAssistsCol = !isGk || (player.totalAssists ?? 0) > 0;
   const avgGoals =
     player.totalAppearances > 0
       ? (player.totalGoals / player.totalAppearances).toFixed(2)
+      : "–";
+  const avgGoalsConceded =
+    player.totalAppearances > 0
+      ? ((player.totalGoalsConceded ?? 0) / player.totalAppearances).toFixed(2)
       : "–";
   const showPenaltiesMissed =
     (player.totalPenaltiesMissed ?? 0) > 0 ||
     player.seasonStats.some((s) => (s.penaltiesMissed ?? 0) > 0);
   const showPenaltiesSaved =
+    isGk ||
     (player.totalPenaltiesSaved ?? 0) > 0 ||
     player.seasonStats.some((s) => (s.penaltiesSaved ?? 0) > 0);
-  const showPenaltyCols = showPenaltiesMissed || showPenaltiesSaved;
   const showYellowCards =
     (player.totalYellowCards ?? 0) > 0 ||
     player.seasonStats.some((s) => (s.yellowCards ?? 0) > 0);
@@ -331,17 +346,51 @@ export default function PlayerDetail() {
 
       <StarRating entityType="player" entityId={player.id} />
 
-      {/* Stat bar — unchanged */}
+      {/* Stat bar — GKs swap zero gols/assists for gols sofridos + pênaltis def. */}
       <div
-        className="grid grid-cols-5 gap-px bg-border rounded overflow-hidden"
+        className={`grid gap-px bg-border rounded overflow-hidden ${
+          isGk
+            ? showGoalsCol || showAssistsCol
+              ? "grid-cols-3 sm:grid-cols-6 lg:grid-cols-7"
+              : "grid-cols-2 sm:grid-cols-5"
+            : showPenaltiesSaved
+              ? "grid-cols-3 sm:grid-cols-6"
+              : "grid-cols-5"
+        }`}
         data-testid="player-stat-bar"
       >
         {[
           { label: "Partidas", value: player.totalAppearances, highlight: true },
-          { label: "Gols", value: player.totalGoals },
-          { label: "Assistências", value: player.totalAssists ?? "–" },
+          ...(isGk
+            ? [
+                {
+                  label: "Gols sofridos",
+                  value: player.totalGoalsConceded ?? 0,
+                },
+                {
+                  label: "Pênaltis def.",
+                  value: player.totalPenaltiesSaved ?? 0,
+                  highlight: true,
+                },
+              ]
+            : []),
+          ...(showGoalsCol ? [{ label: "Gols", value: player.totalGoals }] : []),
+          ...(showAssistsCol
+            ? [{ label: "Assistências", value: player.totalAssists ?? "–" }]
+            : []),
+          ...(!isGk && showPenaltiesSaved
+            ? [
+                {
+                  label: "Pênaltis def.",
+                  value: player.totalPenaltiesSaved ?? 0,
+                  highlight: true,
+                },
+              ]
+            : []),
+          isGk
+            ? { label: "GS/Jogo", value: avgGoalsConceded }
+            : { label: "Gols/Jogo", value: avgGoals },
           { label: "Títulos", value: player.titleCount ?? 0, highlight: true },
-          { label: "Gols/Jogo", value: avgGoals },
         ].map(({ label, value, highlight }) => (
           <div key={label} className="bg-background p-3">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
@@ -352,21 +401,13 @@ export default function PlayerDetail() {
         ))}
       </div>
 
-      {(showPenaltyCols || showDisciplineCols) && (
+      {(showPenaltiesMissed || showDisciplineCols) && (
         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
           {showPenaltiesMissed && (
             <p>
               Pênaltis perdidos:{" "}
               <span className="font-semibold text-foreground tabular-nums">
                 {player.totalPenaltiesMissed ?? 0}
-              </span>
-            </p>
-          )}
-          {showPenaltiesSaved && (
-            <p>
-              Pênaltis defendidos:{" "}
-              <span className="font-semibold text-foreground tabular-nums">
-                {player.totalPenaltiesSaved ?? 0}
               </span>
             </p>
           )}
@@ -524,8 +565,17 @@ export default function PlayerDetail() {
               <TableRow className="text-xs">
                 <TableHead className="py-2">Temporada</TableHead>
                 <TableHead className="py-2 text-right">Jogos</TableHead>
-                <TableHead className="py-2 text-right">Gols</TableHead>
-                <TableHead className="py-2 text-right">Assistências</TableHead>
+                {isGk && (
+                  <TableHead className="py-2 text-right" title="Gols sofridos">
+                    GS
+                  </TableHead>
+                )}
+                {showGoalsCol && (
+                  <TableHead className="py-2 text-right">Gols</TableHead>
+                )}
+                {showAssistsCol && (
+                  <TableHead className="py-2 text-right">Assistências</TableHead>
+                )}
                 {showPenaltiesMissed && (
                   <TableHead className="py-2 text-right" title="Pênaltis perdidos">
                     Pên. perd.
@@ -551,7 +601,9 @@ export default function PlayerDetail() {
                     GC
                   </TableHead>
                 )}
-                <TableHead className="py-2 text-right">Média</TableHead>
+                <TableHead className="py-2 text-right">
+                  {isGk ? "GS/J" : "Média"}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -559,7 +611,10 @@ export default function PlayerDetail() {
                 <TableRow>
                   <TableCell
                     colSpan={
-                      5 +
+                      3 +
+                      (isGk ? 1 : 0) +
+                      (showGoalsCol ? 1 : 0) +
+                      (showAssistsCol ? 1 : 0) +
                       (showPenaltiesMissed ? 1 : 0) +
                       (showPenaltiesSaved ? 1 : 0) +
                       (showYellowCards ? 1 : 0) +
@@ -587,8 +642,17 @@ export default function PlayerDetail() {
                       </Link>
                     </TableCell>
                     <TableCell className="py-2 text-right">{stat.appearances}</TableCell>
-                    <TableCell className="py-2 text-right font-medium">{stat.goals}</TableCell>
-                    <TableCell className="py-2 text-right">{stat.assists ?? "–"}</TableCell>
+                    {isGk && (
+                      <TableCell className="py-2 text-right">
+                        {stat.goalsConceded ?? 0}
+                      </TableCell>
+                    )}
+                    {showGoalsCol && (
+                      <TableCell className="py-2 text-right font-medium">{stat.goals}</TableCell>
+                    )}
+                    {showAssistsCol && (
+                      <TableCell className="py-2 text-right">{stat.assists ?? "–"}</TableCell>
+                    )}
                     {showPenaltiesMissed && (
                       <TableCell className="py-2 text-right">
                         {stat.penaltiesMissed ?? 0}
@@ -610,7 +674,10 @@ export default function PlayerDetail() {
                     )}
                     <TableCell className="py-2 text-right text-muted-foreground text-xs">
                       {stat.appearances > 0
-                        ? (stat.goals / stat.appearances).toFixed(2)
+                        ? (
+                            (isGk ? (stat.goalsConceded ?? 0) : stat.goals) /
+                            stat.appearances
+                          ).toFixed(2)
                         : "–"}
                     </TableCell>
                   </TableRow>

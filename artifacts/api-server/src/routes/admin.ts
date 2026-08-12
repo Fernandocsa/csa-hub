@@ -815,6 +815,8 @@ router.get("/admin/players/:id/stats", requireAdmin, async (req, res) => {
           yellowCards: disc?.yellowCards ?? 0,
           redCards: disc?.redCards ?? 0,
           ownGoals: disc?.ownGoals ?? 0,
+          penaltiesSaved: disc?.penaltiesSaved ?? 0,
+          goalsConceded: disc?.goalsConceded ?? 0,
         };
       }),
     );

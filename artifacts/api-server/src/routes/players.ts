@@ -684,6 +684,7 @@ router.get("/players/:id", async (req, res) => {
       yellowCards: r.yellowCards,
       redCards: r.redCards,
       ownGoals: r.ownGoals,
+      goalsConceded: r.goalsConceded,
     }));
     const recentMatches = await loadPlayerSheetMatches(id, 5);
     const badges = await loadEntityBadges("player", id);
@@ -764,6 +765,7 @@ router.get("/players/:id", async (req, res) => {
       totalYellowCards: totals.yellowCards,
       totalRedCards: totals.redCards,
       totalOwnGoals: totals.ownGoals,
+      totalGoalsConceded: totals.goalsConceded,
       titleCount,
       titles,
       seasonStats,
