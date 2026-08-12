@@ -50,6 +50,9 @@ interface StatRow {
   appearances: number;
   goals: number;
   assists: number;
+  yellowCards?: number;
+  redCards?: number;
+  ownGoals?: number;
 }
 
 type PlayerPayload = Omit<Player, "id" | "linkedManagerName">;
@@ -792,14 +795,25 @@ export default function AdminPlayerDetail() {
     let appearances = 0;
     let goals = 0;
     let assists = 0;
+    let yellowCards = 0;
+    let redCards = 0;
+    let ownGoals = 0;
     for (const s of stats) {
       const d = statDrafts[s.id];
       appearances += parseInt(d?.appearances ?? String(s.appearances), 10) || 0;
       goals += parseInt(d?.goals ?? String(s.goals), 10) || 0;
       assists += parseInt(d?.assists ?? String(s.assists), 10) || 0;
+      yellowCards += s.yellowCards ?? 0;
+      redCards += s.redCards ?? 0;
+      ownGoals += s.ownGoals ?? 0;
     }
-    return { appearances, goals, assists };
+    return { appearances, goals, assists, yellowCards, redCards, ownGoals };
   }, [stats, statDrafts]);
+
+  const showYellowCards = stats.some((s) => (s.yellowCards ?? 0) > 0);
+  const showRedCards = stats.some((s) => (s.redCards ?? 0) > 0);
+  const showOwnGoals = stats.some((s) => (s.ownGoals ?? 0) > 0);
+  const showDisciplineCols = showYellowCards || showRedCards || showOwnGoals;
 
   useEffect(() => {
     if (!statsDirty) return;
@@ -1006,6 +1020,28 @@ export default function AdminPlayerDetail() {
           </p>
         )}
         {savedMsg && <p className="text-sm text-green-700 mt-1">{savedMsg}</p>}
+        {!isNew && showDisciplineCols && (
+          <p className="text-sm text-gray-600 mt-2 flex flex-wrap gap-x-4 gap-y-1">
+            {showYellowCards && (
+              <span>
+                Cartões amarelos:{" "}
+                <span className="font-semibold tabular-nums">{draftTotals.yellowCards}</span>
+              </span>
+            )}
+            {showRedCards && (
+              <span>
+                Cartões vermelhos:{" "}
+                <span className="font-semibold tabular-nums">{draftTotals.redCards}</span>
+              </span>
+            )}
+            {showOwnGoals && (
+              <span>
+                Gols contra:{" "}
+                <span className="font-semibold tabular-nums">{draftTotals.ownGoals}</span>
+              </span>
+            )}
+          </p>
+        )}
       </div>
 
       <div className="flex gap-1 border-b">
@@ -1047,7 +1083,7 @@ export default function AdminPlayerDetail() {
       )}
 
       {tab === "temporadas" && !isNew && (
-        <div className="bg-white border rounded-lg p-4 max-w-2xl">
+        <div className="bg-white border rounded-lg p-4 max-w-4xl">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-gray-700">Estatísticas por temporada</h2>
             <button
@@ -1069,6 +1105,21 @@ export default function AdminPlayerDetail() {
                     <th className="text-right py-1.5 w-24">Partidas</th>
                     <th className="text-right py-1.5 w-24">Gols</th>
                     <th className="text-right py-1.5 w-24">Assist.</th>
+                    {showYellowCards && (
+                      <th className="text-right py-1.5 w-12" title="Cartões amarelos">
+                        CA
+                      </th>
+                    )}
+                    {showRedCards && (
+                      <th className="text-right py-1.5 w-12" title="Cartões vermelhos">
+                        CV
+                      </th>
+                    )}
+                    {showOwnGoals && (
+                      <th className="text-right py-1.5 w-12" title="Gols contra">
+                        GC
+                      </th>
+                    )}
                     <th className="py-1.5 w-10" />
                   </tr>
                 </thead>
@@ -1111,6 +1162,21 @@ export default function AdminPlayerDetail() {
                             className="h-8 w-[4.25rem] ml-auto text-right px-2"
                           />
                         </td>
+                        {showYellowCards && (
+                          <td className="py-2 text-right tabular-nums text-gray-700">
+                            {stat.yellowCards ?? 0}
+                          </td>
+                        )}
+                        {showRedCards && (
+                          <td className="py-2 text-right tabular-nums text-gray-700">
+                            {stat.redCards ?? 0}
+                          </td>
+                        )}
+                        {showOwnGoals && (
+                          <td className="py-2 text-right tabular-nums text-gray-700">
+                            {stat.ownGoals ?? 0}
+                          </td>
+                        )}
                         <td className="py-2">
                           <div className="flex justify-end">
                             <button
@@ -1137,6 +1203,21 @@ export default function AdminPlayerDetail() {
                     <td className="py-2 text-right font-semibold tabular-nums">
                       {draftTotals.assists}
                     </td>
+                    {showYellowCards && (
+                      <td className="py-2 text-right font-semibold tabular-nums">
+                        {draftTotals.yellowCards}
+                      </td>
+                    )}
+                    {showRedCards && (
+                      <td className="py-2 text-right font-semibold tabular-nums">
+                        {draftTotals.redCards}
+                      </td>
+                    )}
+                    {showOwnGoals && (
+                      <td className="py-2 text-right font-semibold tabular-nums">
+                        {draftTotals.ownGoals}
+                      </td>
+                    )}
                     <td />
                   </tr>
                 </tbody>

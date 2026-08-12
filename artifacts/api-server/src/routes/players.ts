@@ -681,6 +681,9 @@ router.get("/players/:id", async (req, res) => {
       assists: r.assists,
       penaltiesMissed: r.penaltiesMissed,
       penaltiesSaved: r.penaltiesSaved,
+      yellowCards: r.yellowCards,
+      redCards: r.redCards,
+      ownGoals: r.ownGoals,
     }));
     const recentMatches = await loadPlayerSheetMatches(id, 5);
     const badges = await loadEntityBadges("player", id);
@@ -758,6 +761,9 @@ router.get("/players/:id", async (req, res) => {
       totalAssists: totals.assists,
       totalPenaltiesMissed: totals.penaltiesMissed,
       totalPenaltiesSaved: totals.penaltiesSaved,
+      totalYellowCards: totals.yellowCards,
+      totalRedCards: totals.redCards,
+      totalOwnGoals: totals.ownGoals,
       titleCount,
       titles,
       seasonStats,

@@ -44,6 +44,9 @@ type PlayerProfile = {
   totalAssists?: number | null;
   totalPenaltiesMissed?: number;
   totalPenaltiesSaved?: number;
+  totalYellowCards?: number;
+  totalRedCards?: number;
+  totalOwnGoals?: number;
   titleCount?: number;
   titles?: { season: string; competitionId: number; competitionName: string }[];
   seasonStats: {
@@ -53,6 +56,9 @@ type PlayerProfile = {
     assists?: number | null;
     penaltiesMissed?: number;
     penaltiesSaved?: number;
+    yellowCards?: number;
+    redCards?: number;
+    ownGoals?: number;
   }[];
   recentMatches?: PlayerSheetMatch[];
   badges?: {
@@ -175,6 +181,16 @@ export default function PlayerDetail() {
     (player.totalPenaltiesSaved ?? 0) > 0 ||
     player.seasonStats.some((s) => (s.penaltiesSaved ?? 0) > 0);
   const showPenaltyCols = showPenaltiesMissed || showPenaltiesSaved;
+  const showYellowCards =
+    (player.totalYellowCards ?? 0) > 0 ||
+    player.seasonStats.some((s) => (s.yellowCards ?? 0) > 0);
+  const showRedCards =
+    (player.totalRedCards ?? 0) > 0 ||
+    player.seasonStats.some((s) => (s.redCards ?? 0) > 0);
+  const showOwnGoals =
+    (player.totalOwnGoals ?? 0) > 0 ||
+    player.seasonStats.some((s) => (s.ownGoals ?? 0) > 0);
+  const showDisciplineCols = showYellowCards || showRedCards || showOwnGoals;
 
   const age = player.isDeceased ? null : calcAge(player.birthDate, player.birthYear);
   const showFullName =
@@ -336,7 +352,7 @@ export default function PlayerDetail() {
         ))}
       </div>
 
-      {showPenaltyCols && (
+      {(showPenaltyCols || showDisciplineCols) && (
         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
           {showPenaltiesMissed && (
             <p>
@@ -351,6 +367,30 @@ export default function PlayerDetail() {
               Pênaltis defendidos:{" "}
               <span className="font-semibold text-foreground tabular-nums">
                 {player.totalPenaltiesSaved ?? 0}
+              </span>
+            </p>
+          )}
+          {showYellowCards && (
+            <p>
+              Cartões amarelos:{" "}
+              <span className="font-semibold text-foreground tabular-nums">
+                {player.totalYellowCards ?? 0}
+              </span>
+            </p>
+          )}
+          {showRedCards && (
+            <p>
+              Cartões vermelhos:{" "}
+              <span className="font-semibold text-foreground tabular-nums">
+                {player.totalRedCards ?? 0}
+              </span>
+            </p>
+          )}
+          {showOwnGoals && (
+            <p>
+              Gols contra:{" "}
+              <span className="font-semibold text-foreground tabular-nums">
+                {player.totalOwnGoals ?? 0}
               </span>
             </p>
           )}
@@ -496,6 +536,21 @@ export default function PlayerDetail() {
                     Pên. def.
                   </TableHead>
                 )}
+                {showYellowCards && (
+                  <TableHead className="py-2 text-right" title="Cartões amarelos">
+                    CA
+                  </TableHead>
+                )}
+                {showRedCards && (
+                  <TableHead className="py-2 text-right" title="Cartões vermelhos">
+                    CV
+                  </TableHead>
+                )}
+                {showOwnGoals && (
+                  <TableHead className="py-2 text-right" title="Gols contra">
+                    GC
+                  </TableHead>
+                )}
                 <TableHead className="py-2 text-right">Média</TableHead>
               </TableRow>
             </TableHeader>
@@ -503,7 +558,14 @@ export default function PlayerDetail() {
               {player.seasonStats.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={5 + (showPenaltiesMissed ? 1 : 0) + (showPenaltiesSaved ? 1 : 0)}
+                    colSpan={
+                      5 +
+                      (showPenaltiesMissed ? 1 : 0) +
+                      (showPenaltiesSaved ? 1 : 0) +
+                      (showYellowCards ? 1 : 0) +
+                      (showRedCards ? 1 : 0) +
+                      (showOwnGoals ? 1 : 0)
+                    }
                     className="h-16 text-center text-muted-foreground"
                   >
                     Sem estatísticas por temporada.
@@ -536,6 +598,15 @@ export default function PlayerDetail() {
                       <TableCell className="py-2 text-right">
                         {stat.penaltiesSaved ?? 0}
                       </TableCell>
+                    )}
+                    {showYellowCards && (
+                      <TableCell className="py-2 text-right">{stat.yellowCards ?? 0}</TableCell>
+                    )}
+                    {showRedCards && (
+                      <TableCell className="py-2 text-right">{stat.redCards ?? 0}</TableCell>
+                    )}
+                    {showOwnGoals && (
+                      <TableCell className="py-2 text-right">{stat.ownGoals ?? 0}</TableCell>
                     )}
                     <TableCell className="py-2 text-right text-muted-foreground text-xs">
                       {stat.appearances > 0

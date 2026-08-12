@@ -80,7 +80,10 @@ import {
   recalculateManagerSeasonStats,
   syncManagerCareerFromSeasonRows,
 } from "../lib/manager-stats";
-import { syncPlayerSeasonStatsFromSheets } from "../lib/player-stats-floor";
+import {
+  flooredPlayerSeasonStats,
+  syncPlayerSeasonStatsFromSheets,
+} from "../lib/player-stats-floor";
 import {
   listSeasonCompetitionStats,
   recalculateSeasonCompetitionStats,
@@ -802,7 +805,19 @@ router.get("/admin/players/:id/stats", requireAdmin, async (req, res) => {
       .from(playerSeasonStatsTable)
       .where(eq(playerSeasonStatsTable.playerId, id))
       .orderBy(desc(playerSeasonStatsTable.season));
-    res.json(stats);
+    const sheet = await flooredPlayerSeasonStats(id);
+    const bySeason = new Map(sheet.map((r) => [String(r.season), r]));
+    res.json(
+      stats.map((s) => {
+        const disc = bySeason.get(String(s.season));
+        return {
+          ...s,
+          yellowCards: disc?.yellowCards ?? 0,
+          redCards: disc?.redCards ?? 0,
+          ownGoals: disc?.ownGoals ?? 0,
+        };
+      }),
+    );
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });

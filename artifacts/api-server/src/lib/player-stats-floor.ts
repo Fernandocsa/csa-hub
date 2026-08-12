@@ -1,6 +1,7 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@workspace/db";
 import {
+  matchCardsTable,
   matchGoalsTable,
   matchLineupsTable,
   matchPenaltyEventsTable,
@@ -20,6 +21,10 @@ export type PlayerSeasonFloor = {
   penaltiesMissed: number;
   /** Saved penalties as goalkeeper — never counted as goals. */
   penaltiesSaved: number;
+  yellowCards: number;
+  redCards: number;
+  /** Own goals scored against CSA (GPD). */
+  ownGoals: number;
   /** @deprecated Always 0 — manual floors removed; kept for API shape. */
   manualAppearances: number;
   /** @deprecated Always 0 */
@@ -117,12 +122,66 @@ export async function linkedPlayerSeasonStats(playerId: number) {
     )
     .groupBy(matchesTable.season);
 
+  const yellowCards = await db
+    .select({
+      season: matchesTable.season,
+      count: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchCardsTable)
+    .innerJoin(matchesTable, eq(matchCardsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        eq(matchCardsTable.playerId, playerId),
+        eq(matchCardsTable.side, "csa"),
+        eq(matchCardsTable.cardType, "yellow"),
+        officialPlayedMatchConditions(),
+      ),
+    )
+    .groupBy(matchesTable.season);
+
+  const redCards = await db
+    .select({
+      season: matchesTable.season,
+      count: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchCardsTable)
+    .innerJoin(matchesTable, eq(matchCardsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        eq(matchCardsTable.playerId, playerId),
+        eq(matchCardsTable.side, "csa"),
+        eq(matchCardsTable.cardType, "red"),
+        officialPlayedMatchConditions(),
+      ),
+    )
+    .groupBy(matchesTable.season);
+
+  const ownGoals = await db
+    .select({
+      season: matchesTable.season,
+      count: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchGoalsTable)
+    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        eq(matchGoalsTable.scorerPlayerId, playerId),
+        eq(matchGoalsTable.isOwnGoal, true),
+        eq(matchGoalsTable.ownGoalDirection, "against"),
+        officialPlayedMatchConditions(),
+      ),
+    )
+    .groupBy(matchesTable.season);
+
   type SeasonAgg = {
     appearances: number;
     goals: number;
     assists: number;
     penaltiesMissed: number;
     penaltiesSaved: number;
+    yellowCards: number;
+    redCards: number;
+    ownGoals: number;
   };
   const empty = (): SeasonAgg => ({
     appearances: 0,
@@ -130,6 +189,9 @@ export async function linkedPlayerSeasonStats(playerId: number) {
     assists: 0,
     penaltiesMissed: 0,
     penaltiesSaved: 0,
+    yellowCards: 0,
+    redCards: 0,
+    ownGoals: 0,
   });
   const map = new Map<string, SeasonAgg>();
   for (const r of apps) {
@@ -153,6 +215,21 @@ export async function linkedPlayerSeasonStats(playerId: number) {
   for (const r of penaltiesSaved) {
     const cur = map.get(r.season) ?? empty();
     cur.penaltiesSaved = r.count ?? 0;
+    map.set(r.season, cur);
+  }
+  for (const r of yellowCards) {
+    const cur = map.get(r.season) ?? empty();
+    cur.yellowCards = r.count ?? 0;
+    map.set(r.season, cur);
+  }
+  for (const r of redCards) {
+    const cur = map.get(r.season) ?? empty();
+    cur.redCards = r.count ?? 0;
+    map.set(r.season, cur);
+  }
+  for (const r of ownGoals) {
+    const cur = map.get(r.season) ?? empty();
+    cur.ownGoals = r.count ?? 0;
     map.set(r.season, cur);
   }
   return map;
@@ -365,6 +442,9 @@ export async function flooredPlayerSeasonStats(
       assists: link.assists,
       penaltiesMissed: link.penaltiesMissed,
       penaltiesSaved: link.penaltiesSaved,
+      yellowCards: link.yellowCards,
+      redCards: link.redCards,
+      ownGoals: link.ownGoals,
     }));
 }
 
@@ -376,8 +456,20 @@ export function sumFlooredSeasons(rows: PlayerSeasonFloor[]) {
       assists: acc.assists + r.assists,
       penaltiesMissed: acc.penaltiesMissed + r.penaltiesMissed,
       penaltiesSaved: acc.penaltiesSaved + r.penaltiesSaved,
+      yellowCards: acc.yellowCards + r.yellowCards,
+      redCards: acc.redCards + r.redCards,
+      ownGoals: acc.ownGoals + r.ownGoals,
     }),
-    { appearances: 0, goals: 0, assists: 0, penaltiesMissed: 0, penaltiesSaved: 0 },
+    {
+      appearances: 0,
+      goals: 0,
+      assists: 0,
+      penaltiesMissed: 0,
+      penaltiesSaved: 0,
+      yellowCards: 0,
+      redCards: 0,
+      ownGoals: 0,
+    },
   );
 }
 
