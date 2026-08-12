@@ -773,6 +773,8 @@ export default function AdminSeasonDetail() {
           exclusive?: {
             playersVerified?: number;
             managersVerified?: number;
+            playersUnverified?: number;
+            managersUnverified?: number;
           };
         }
       ).exclusive;
@@ -788,7 +790,10 @@ export default function AdminSeasonDetail() {
             ? ` · competições elegíveis: ${b.competition.eligible ?? 0}, incompletas: ${b.competition.incomplete ?? 0}, badges competição: ${b.competition.created ?? 0}`
             : "") +
           (exclusive
-            ? ` · exclusivos verificados: ${exclusive.playersVerified ?? 0} jogador(es), ${exclusive.managersVerified ?? 0} técnico(s)`
+            ? ` · selos: +${exclusive.playersVerified ?? 0} jogador(es), +${exclusive.managersVerified ?? 0} técnico(s)` +
+              ((exclusive.playersUnverified ?? 0) + (exclusive.managersUnverified ?? 0) > 0
+                ? `; −${exclusive.playersUnverified ?? 0} jogador(es), −${exclusive.managersUnverified ?? 0} técnico(s)`
+                : "")
             : ""),
       );
       if (b?.competition?.details) {
@@ -802,6 +807,8 @@ export default function AdminSeasonDetail() {
       const exclusive = (
         data as {
           exclusive?: {
+            playersVerified?: number;
+            managersVerified?: number;
             playersUnverified?: number;
             managersUnverified?: number;
           };
@@ -810,7 +817,7 @@ export default function AdminSeasonDetail() {
       setVerifyMessage(
         `Verificação removida. Badges auto apagados: ${cleared}` +
           (exclusive
-            ? ` · selos exclusivos removidos: ${exclusive.playersUnverified ?? 0} jogador(es), ${exclusive.managersUnverified ?? 0} técnico(s)`
+            ? ` · selos: −${exclusive.playersUnverified ?? 0} jogador(es), −${exclusive.managersUnverified ?? 0} técnico(s)`
             : ""),
       );
       await loadCompetitionBadges();
@@ -1038,8 +1045,8 @@ export default function AdminSeasonDetail() {
               </span>
             </label>
             <p className="text-xs text-gray-400 max-w-md">
-              Ao marcar, jogadores e técnicos que só atuaram nesta temporada recebem o selo
-              de verificação automaticamente.
+              Ao marcar, jogadores e técnicos cuja história CSA está toda em temporadas
+              verificadas recebem o selo automaticamente (uma ou várias temporadas).
             </p>
             {verifiedAt && (
               <span className="text-xs text-gray-400">

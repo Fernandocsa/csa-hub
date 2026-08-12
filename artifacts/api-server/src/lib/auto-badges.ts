@@ -12,7 +12,7 @@ import {
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { officialPlayedMatchConditions } from "./match-filters";
 import {
-  syncExclusiveSeasonVerification,
+  syncCareerVerificationFromSeasons,
   type ExclusiveSeasonVerificationResult,
 } from "./season-exclusive-verification";
 
@@ -408,7 +408,7 @@ export async function setSeasonStatsVerification(
 
   if (verified) {
     const badges = await recalculateSeasonAutoBadges(year);
-    const exclusive = await syncExclusiveSeasonVerification(year, true);
+    const exclusive = await syncCareerVerificationFromSeasons();
     return {
       year,
       statsFullyVerified: updated.statsFullyVerified,
@@ -419,7 +419,7 @@ export async function setSeasonStatsVerification(
   }
 
   const cleared = await clearSeasonAutoBadges(year);
-  const exclusive = await syncExclusiveSeasonVerification(year, false);
+  const exclusive = await syncCareerVerificationFromSeasons();
   return {
     year,
     statsFullyVerified: updated.statsFullyVerified,
