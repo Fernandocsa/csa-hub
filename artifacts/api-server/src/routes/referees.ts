@@ -73,6 +73,7 @@ router.get("/referees", async (req, res) => {
         id: refereesTable.id,
         name: refereesTable.name,
         state: refereesTable.state,
+        photoUrl: refereesTable.photoUrl,
         matches: sql<number>`cast(count(${matchesTable.id}) as int)`,
         wins: sql<number>`cast(coalesce(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end), 0) as int)`,
         draws: sql<number>`cast(coalesce(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end), 0) as int)`,
@@ -92,7 +93,12 @@ router.get("/referees", async (req, res) => {
     }
 
     const rows = await query
-      .groupBy(refereesTable.id, refereesTable.name, refereesTable.state)
+      .groupBy(
+        refereesTable.id,
+        refereesTable.name,
+        refereesTable.state,
+        refereesTable.photoUrl,
+      )
       .orderBy(sql`count(${matchesTable.id}) desc`, asc(refereesTable.name));
 
     res.json(
@@ -234,6 +240,7 @@ router.get("/referees/by-state/:uf", async (req, res) => {
         id: refereesTable.id,
         name: refereesTable.name,
         state: refereesTable.state,
+        photoUrl: refereesTable.photoUrl,
         matches: sql<number>`cast(count(*) as int)`,
         wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
         draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
@@ -244,7 +251,12 @@ router.get("/referees/by-state/:uf", async (req, res) => {
       .from(matchesTable)
       .innerJoin(refereesTable, eq(matchesTable.refereeId, refereesTable.id))
       .where(where)
-      .groupBy(refereesTable.id, refereesTable.name, refereesTable.state)
+      .groupBy(
+        refereesTable.id,
+        refereesTable.name,
+        refereesTable.state,
+        refereesTable.photoUrl,
+      )
       .orderBy(desc(sql`count(*)`), asc(refereesTable.name));
 
     res.json({

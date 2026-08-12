@@ -9,6 +9,7 @@ import { ListPagination } from "@/components/ListPagination";
 import { useClientPage } from "@/hooks/useClientPage";
 import { assignCompetitionRanks, formatCompetitionRank } from "@/lib/competition-rank";
 import { foldAccents, includesFolded } from "@/lib/accent-fold";
+import { EntityPhoto } from "@/components/EntityPhoto";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -99,9 +100,16 @@ export default function RefereesList() {
                     <TableCell className="py-2 font-medium">
                       <Link
                         href={`/arbitros/${r.id}`}
-                        className="hover:text-primary hover:underline"
+                        className="hover:text-primary hover:underline inline-flex items-center gap-2 min-w-0"
                       >
-                        {r.name}
+                        <EntityPhoto
+                          url={r.photoUrl}
+                          name={r.name}
+                          size="sm"
+                          className="h-7 w-7 text-[9px]"
+                          label="Foto do árbitro"
+                        />
+                        <span className="truncate">{r.name}</span>
                       </Link>
                     </TableCell>
                     <TableCell className="py-2 text-right text-muted-foreground text-xs">

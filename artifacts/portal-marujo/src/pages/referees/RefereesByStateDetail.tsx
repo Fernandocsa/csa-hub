@@ -11,6 +11,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 import { ufDisplayName } from "@/lib/br-locations";
+import { EntityPhoto } from "@/components/EntityPhoto";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -161,9 +162,16 @@ export default function RefereesByStateDetail() {
                   <TableCell className="py-2 font-medium">
                     <Link
                       href={`/arbitros/${ref.id}`}
-                      className="hover:text-primary hover:underline"
+                      className="hover:text-primary hover:underline inline-flex items-center gap-2 min-w-0"
                     >
-                      {ref.name}
+                      <EntityPhoto
+                        url={ref.photoUrl}
+                        name={ref.name}
+                        size="sm"
+                        className="h-7 w-7 text-[9px]"
+                        label="Foto do árbitro"
+                      />
+                      <span className="truncate">{ref.name}</span>
                     </Link>
                   </TableCell>
                   <TableCell className="py-2 text-right font-semibold">{ref.matches}</TableCell>

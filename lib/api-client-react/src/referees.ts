@@ -5,6 +5,7 @@ export type RefereeListItem = {
   id: number;
   name: string;
   state: string | null;
+  photoUrl?: string | null;
   matches: number;
   wins: number;
   draws: number;
@@ -105,6 +106,7 @@ export type RefereeStateReferee = {
   id: number;
   name: string;
   state: string | null;
+  photoUrl?: string | null;
   matches: number;
   wins: number;
   draws: number;
