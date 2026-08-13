@@ -1039,45 +1039,28 @@ async function consecutiveStartsRecords(): Promise<{
 }
 
 /**
- * Consecutive official matches in which a player scored for CSA.
- * Own goals do not count. Missing a match or playing without scoring breaks the streak.
+ * Consecutive official club-calendar matches in which a player is present
+ * in `presenceRows`. Missing a match or a match without the event breaks the streak.
  */
-async function scoringStreakRecords(): Promise<{
-  historical: PlayerStreakRecord[];
-  active: PlayerStreakRecord[];
-}> {
+async function consecutivePlayerCalendarStreaks(
+  presenceRows: Array<{ matchId: number; playerId: number | null }>,
+): Promise<{ historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] }> {
   const matches = await loadRecordsMatches();
   if (matches.length === 0) {
     return { historical: [], active: [] };
   }
 
-  const goals = await db
-    .select({
-      matchId: matchGoalsTable.matchId,
-      playerId: matchGoalsTable.scorerPlayerId,
-    })
-    .from(matchGoalsTable)
-    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
-    .where(
-      and(
-        recordsMatchConditions(),
-        eq(matchGoalsTable.side, "csa"),
-        eq(matchGoalsTable.isOwnGoal, false),
-        isNotNull(matchGoalsTable.scorerPlayerId),
-      ),
-    );
-
-  const scorersByMatch = new Map<number, Set<number>>();
+  const presentByMatch = new Map<number, Set<number>>();
   const allPlayerIds = new Set<number>();
-  for (const g of goals) {
-    if (g.playerId == null) continue;
-    allPlayerIds.add(g.playerId);
-    let set = scorersByMatch.get(g.matchId);
+  for (const row of presenceRows) {
+    if (row.playerId == null) continue;
+    allPlayerIds.add(row.playerId);
+    let set = presentByMatch.get(row.matchId);
     if (!set) {
       set = new Set();
-      scorersByMatch.set(g.matchId, set);
+      presentByMatch.set(row.matchId, set);
     }
-    set.add(g.playerId);
+    set.add(row.playerId);
   }
 
   if (allPlayerIds.size === 0) return { historical: [], active: [] };
@@ -1109,10 +1092,10 @@ async function scoringStreakRecords(): Promise<{
   }
 
   for (const m of matches) {
-    const scored = scorersByMatch.get(m.id) ?? new Set<number>();
+    const present = presentByMatch.get(m.id) ?? new Set<number>();
     for (const playerId of allPlayerIds) {
       const a = acc.get(playerId)!;
-      if (scored.has(playerId)) {
+      if (present.has(playerId)) {
         if (a.curLen === 0) a.curStart = m;
         a.curLen += 1;
         a.curEnd = m;
@@ -1163,6 +1146,196 @@ async function scoringStreakRecords(): Promise<{
     historical: historical.slice(0, 10),
     active: active.slice(0, 10),
   };
+}
+
+/**
+ * Consecutive official matches in which a player scored for CSA.
+ * Own goals do not count. Missing a match or playing without scoring breaks the streak.
+ */
+async function scoringStreakRecords(): Promise<{
+  historical: PlayerStreakRecord[];
+  active: PlayerStreakRecord[];
+}> {
+  const goals = await db
+    .select({
+      matchId: matchGoalsTable.matchId,
+      playerId: matchGoalsTable.scorerPlayerId,
+    })
+    .from(matchGoalsTable)
+    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        recordsMatchConditions(),
+        eq(matchGoalsTable.side, "csa"),
+        eq(matchGoalsTable.isOwnGoal, false),
+        isNotNull(matchGoalsTable.scorerPlayerId),
+      ),
+    );
+  return consecutivePlayerCalendarStreaks(goals);
+}
+
+/**
+ * Consecutive official matches in which a player assisted a CSA goal.
+ * Missing a match or not assisting breaks the streak.
+ */
+async function assistStreakRecords(): Promise<{
+  historical: PlayerStreakRecord[];
+  active: PlayerStreakRecord[];
+}> {
+  const assists = await db
+    .select({
+      matchId: matchGoalsTable.matchId,
+      playerId: matchGoalsTable.assistPlayerId,
+    })
+    .from(matchGoalsTable)
+    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        recordsMatchConditions(),
+        eq(matchGoalsTable.side, "csa"),
+        eq(matchGoalsTable.isOwnGoal, false),
+        isNotNull(matchGoalsTable.assistPlayerId),
+      ),
+    );
+  return consecutivePlayerCalendarStreaks(assists);
+}
+
+/**
+ * Consecutive official matches in which a player received a yellow card.
+ * Missing a match or playing without a yellow breaks the streak.
+ */
+async function yellowCardStreakRecords(): Promise<{
+  historical: PlayerStreakRecord[];
+  active: PlayerStreakRecord[];
+}> {
+  const cards = await db
+    .select({
+      matchId: matchCardsTable.matchId,
+      playerId: matchCardsTable.playerId,
+    })
+    .from(matchCardsTable)
+    .innerJoin(matchesTable, eq(matchCardsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        recordsMatchConditions(),
+        eq(matchCardsTable.side, "csa"),
+        eq(matchCardsTable.cardType, "yellow"),
+        isNotNull(matchCardsTable.playerId),
+      ),
+    );
+  return consecutivePlayerCalendarStreaks(cards);
+}
+
+/**
+ * Rankings of players by how many matches they recorded exactly N assists in
+ * (N = 2, 3, …). Only buckets with at least one haul are returned.
+ */
+async function multiAssistHaulsByCount(limit = 10): Promise<MultiGoalHaulBucket[]> {
+  const perMatch = await db
+    .select({
+      playerId: matchGoalsTable.assistPlayerId,
+      matchId: matchGoalsTable.matchId,
+      assists: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchGoalsTable)
+    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        recordsMatchConditions(),
+        eq(matchGoalsTable.side, "csa"),
+        eq(matchGoalsTable.isOwnGoal, false),
+        isNotNull(matchGoalsTable.assistPlayerId),
+      ),
+    )
+    .groupBy(matchGoalsTable.assistPlayerId, matchGoalsTable.matchId)
+    .having(sql`count(*) >= 2`);
+
+  const byAssists = new Map<number, Map<number, number>>();
+  for (const row of perMatch) {
+    if (row.playerId == null) continue;
+    const n = Number(row.assists);
+    let playerCounts = byAssists.get(n);
+    if (!playerCounts) {
+      playerCounts = new Map();
+      byAssists.set(n, playerCounts);
+    }
+    playerCounts.set(row.playerId, (playerCounts.get(row.playerId) ?? 0) + 1);
+  }
+
+  const levels = [...byAssists.keys()].sort((a, b) => a - b);
+  if (levels.length === 0) return [];
+
+  const allPlayerIds = [
+    ...new Set([...byAssists.values()].flatMap((m) => [...m.keys()])),
+  ];
+  const players = await db
+    .select({ id: playersTable.id, name: playersTable.name })
+    .from(playersTable)
+    .where(inArray(playersTable.id, allPlayerIds));
+  const nameById = new Map(players.map((p) => [p.id, p.name]));
+
+  return levels.map((assistsInMatch) => {
+    const counts = byAssists.get(assistsInMatch)!;
+    const ranked = [...counts.entries()]
+      .map(([playerId, value]) => ({
+        playerId,
+        playerName: nameById.get(playerId) ?? `#${playerId}`,
+        value,
+      }))
+      .sort(
+        (a, b) =>
+          b.value - a.value || a.playerName.localeCompare(b.playerName),
+      )
+      .slice(0, limit);
+    return { goalsInMatch: assistsInMatch, players: ranked };
+  });
+}
+
+/** Highest assist count in a single official match. */
+async function topAssistsInOneMatch(limit = 10): Promise<PlayerRecordHolder[]> {
+  const perMatch = await db
+    .select({
+      playerId: matchGoalsTable.assistPlayerId,
+      playerName: playersTable.name,
+      assists: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchGoalsTable)
+    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
+    .innerJoin(playersTable, eq(matchGoalsTable.assistPlayerId, playersTable.id))
+    .where(
+      and(
+        recordsMatchConditions(),
+        eq(matchGoalsTable.side, "csa"),
+        eq(matchGoalsTable.isOwnGoal, false),
+        isNotNull(matchGoalsTable.assistPlayerId),
+      ),
+    )
+    .groupBy(
+      matchGoalsTable.assistPlayerId,
+      matchGoalsTable.matchId,
+      playersTable.name,
+    );
+
+  const best = new Map<number, { playerName: string; value: number }>();
+  for (const row of perMatch) {
+    if (row.playerId == null) continue;
+    const n = Number(row.assists);
+    const prev = best.get(row.playerId);
+    if (!prev || n > prev.value) {
+      best.set(row.playerId, { playerName: row.playerName, value: n });
+    }
+  }
+
+  return [...best.entries()]
+    .map(([playerId, r]) => ({
+      playerId,
+      playerName: r.playerName,
+      value: r.value,
+    }))
+    .sort(
+      (a, b) => b.value - a.value || a.playerName.localeCompare(b.playerName),
+    )
+    .slice(0, limit);
 }
 
 /**
@@ -1511,6 +1684,10 @@ export async function computeClubRecords() {
     starts,
     gkCleanSheetStreaks,
     scoringStreaks,
+    assistStreaks,
+    yellowCardStreaks,
+    topAssistsOneMatch,
+    multiAssistHauls,
     playerTitles,
     managerTitles,
     managerWinStreaks,
@@ -1547,6 +1724,10 @@ export async function computeClubRecords() {
     consecutiveStartsRecords(),
     goalkeeperCleanSheetStreaks(),
     scoringStreakRecords(),
+    assistStreakRecords(),
+    yellowCardStreakRecords(),
+    topAssistsInOneMatch(),
+    multiAssistHaulsByCount(),
     topPlayersByTitles(10),
     topManagersByTitles(10),
     managerStreakRecords(matches, (m) => m.result === "win"),
@@ -1576,6 +1757,10 @@ export async function computeClubRecords() {
         "Banco sem entrar: relacionado como reserva e não entrou (não conta quem começou ou foi substituído para dentro)",
       scoringStreak:
         "Jogos seguidos marcando: gol(s) pelo CSA em partidas oficiais consecutivas (gol contra não conta; ficar de fora ou não marcar quebra)",
+      assistStreak:
+        "Jogos seguidos com assistência: assistência em partidas oficiais consecutivas (ficar de fora ou não assistir quebra)",
+      yellowCardStreak:
+        "Jogos seguidos com cartão amarelo: amarelo em partidas oficiais consecutivas (ficar de fora ou jogar sem amarelo quebra)",
       captain: "Capitão: partidas oficiais com o jogador marcado como capitão na ficha",
       penaltyEvents:
         "Pênaltis perdidos/defendidos: eventos próprios da ficha (A/C) — não entram na artilharia nem em gols",
@@ -1613,6 +1798,10 @@ export async function computeClubRecords() {
       consecutiveStarts: starts,
       cleanSheetStreak: gkCleanSheetStreaks,
       scoringStreak: scoringStreaks,
+      assistStreak: assistStreaks,
+      yellowCardStreak: yellowCardStreaks,
+      topAssistsInOneMatch: topAssistsOneMatch,
+      multiAssistHauls,
       topCaptainAppearances: captainApps,
       topPenaltiesMissed: penaltiesMissed,
       topPenaltiesSaved: penaltiesSaved,
