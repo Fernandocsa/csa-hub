@@ -4096,22 +4096,42 @@ router.delete(
 );
 
 router.get("/admin/records", requireAdmin, async (req, res) => {
+  const t0 = Date.now();
+  console.log("[records] GET /admin/records start");
   try {
     const data = await getClubRecords();
+    const ms = Date.now() - t0;
+    console.log(`[records] GET /admin/records ok ${ms}ms`);
+    if (res.headersSent) return;
+    res.setHeader("X-Records-Duration-Ms", String(ms));
     res.json(data);
   } catch (err) {
+    const ms = Date.now() - t0;
+    console.log(`[records] GET /admin/records fail ${ms}ms`);
     req.log.error(err);
-    res.status(500).json({ error: "Erro interno" });
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Erro interno" });
+    }
   }
 });
 
 router.get("/admin/records/streaks", requireAdmin, async (req, res) => {
+  const t0 = Date.now();
+  console.log("[records] GET /admin/records/streaks start");
   try {
     const data = await getClubRecordStreaks();
+    const ms = Date.now() - t0;
+    console.log(`[records] GET /admin/records/streaks ok ${ms}ms`);
+    if (res.headersSent) return;
+    res.setHeader("X-Records-Duration-Ms", String(ms));
     res.json(data);
   } catch (err) {
+    const ms = Date.now() - t0;
+    console.log(`[records] GET /admin/records/streaks fail ${ms}ms`);
     req.log.error(err);
-    res.status(500).json({ error: "Erro interno" });
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Erro interno" });
+    }
   }
 });
 
