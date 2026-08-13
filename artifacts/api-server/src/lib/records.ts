@@ -1261,54 +1261,28 @@ export async function computeClubRecords() {
   const [
     goals,
     assists,
-    appearances,
     penalties,
     ownGoals,
     freeKicks,
-    multiGoalHauls,
     yellowCards,
     redCards,
-    playerWins,
-    goalsAsSub,
-    appsAsSub,
-    unusedBench,
-    unusedBenchSeason,
-    cleanSheets,
     managerWins,
     thrashings,
-    playerTitles,
-    managerTitles,
     managerWinStreaks,
     managerUnbeatenStreaks,
     captainApps,
     penaltiesMissed,
     penaltiesSaved,
-    timedGoals,
   ] = await allBatched([
     () => topScorers(),
     () => topAssists(),
-    () => topAppearances(),
     () => topPenaltyGoals(),
     () => topOwnGoals(),
     () => topFreeKickGoals(),
-    () => multiGoalHaulsByCount(),
     () => topCards("yellow"),
     () => topCards("red"),
-    () => topPlayerWins(),
-    () => topGoalsAsSubstitute(),
-    () => topAppearancesAsSubstitute(),
-    () => topUnusedBenchAppearances(),
-    async () => {
-      const season = await latestRecordsSeason();
-      return season
-        ? { season, rows: await topUnusedBenchAppearances(10, season) }
-        : { season: null as string | null, rows: [] as PlayerRecordHolder[] };
-    },
-    () => topCleanSheets(),
     () => topManagerWins(),
     () => biggestWins(),
-    () => topPlayersByTitles(10),
-    () => topManagersByTitles(10),
     () => managerStreakRecords(matches, (m) => m.result === "win"),
     () =>
       managerStreakRecords(
@@ -1318,16 +1292,13 @@ export async function computeClubRecords() {
     () => topCaptainAppearances(),
     () => topPenaltyEvents("missed"),
     () => topPenaltyEvents("saved"),
-    () => loadTimedCsaGoals(),
   ]);
 
-  const emptyPlayerStreaks = { historical: [] as PlayerStreakRecord[], active: [] as PlayerStreakRecord[] };
-
-  const fastest = rankFastestGoals(timedGoals);
-  const latestStoppage = rankLatestStoppageGoals(timedGoals);
-
-  const topHatTricks =
-    multiGoalHauls.find((b) => b.goalsInMatch === 3)?.players ?? [];
+  const emptyList: PlayerRecordHolder[] = [];
+  const emptyPlayerStreaks = {
+    historical: [] as PlayerStreakRecord[],
+    active: [] as PlayerStreakRecord[],
+  };
 
   return {
     rules: {
@@ -1352,45 +1323,35 @@ export async function computeClubRecords() {
     players: {
       topScorers: goals,
       topAssists: assists,
-      topAppearances: appearances,
+      topAppearances: emptyList,
       topPenaltyGoals: penalties,
       topOwnGoals: ownGoals,
       topFreeKickGoals: freeKicks,
-      /** Exact 3-goal hauls only (kept for compatibility). */
-      topHatTricks,
-      /** Buckets for exact N goals in a match (3, 4, 5, …). */
-      multiGoalHauls,
+      topHatTricks: emptyList,
+      multiGoalHauls: [],
       topYellowCards: yellowCards,
       topRedCards: redCards,
-      topWins: playerWins,
-      topGoalsAsSubstitute: goalsAsSub,
-      topAppearancesAsSubstitute: appsAsSub,
-      topUnusedBenchAppearances: unusedBench,
-      topUnusedBenchAppearancesCurrent: unusedBenchSeason.rows,
-      unusedBenchCurrentSeason: unusedBenchSeason.season,
+      topWins: emptyList,
+      topGoalsAsSubstitute: emptyList,
+      topAppearancesAsSubstitute: emptyList,
+      topUnusedBenchAppearances: emptyList,
+      topUnusedBenchAppearancesCurrent: emptyList,
+      unusedBenchCurrentSeason: null,
       unusedBenchStreak: emptyPlayerStreaks,
-      topCleanSheets: cleanSheets,
-      topTitles: playerTitles.map((r) => ({
-        playerId: r.id,
-        playerName: r.name,
-        value: r.titleCount,
-      })),
+      topCleanSheets: emptyList,
+      topTitles: emptyList,
       consecutiveStarts: emptyPlayerStreaks,
       cleanSheetStreak: emptyPlayerStreaks,
       scoringStreak: emptyPlayerStreaks,
       topCaptainAppearances: captainApps,
       topPenaltiesMissed: penaltiesMissed,
       topPenaltiesSaved: penaltiesSaved,
-      fastestGoals: fastest,
-      latestStoppageGoals: latestStoppage,
+      fastestGoals: [],
+      latestStoppageGoals: [],
     },
     managers: {
       topWins: managerWins,
-      topTitles: managerTitles.map((r) => ({
-        managerId: r.id,
-        managerName: r.name,
-        value: r.titleCount,
-      })),
+      topTitles: [] as Array<{ managerId: number; managerName: string; value: number }>,
       winStreak: managerWinStreaks,
       unbeatenStreak: managerUnbeatenStreaks,
     },
@@ -1432,6 +1393,20 @@ export type ClubPlayerStreaksPayload = {
   consecutiveStarts: { historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] };
   cleanSheetStreak: { historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] };
   scoringStreak: { historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] };
+  topAppearances: PlayerRecordHolder[];
+  topWins: PlayerRecordHolder[];
+  topGoalsAsSubstitute: PlayerRecordHolder[];
+  topAppearancesAsSubstitute: PlayerRecordHolder[];
+  topUnusedBenchAppearances: PlayerRecordHolder[];
+  topUnusedBenchAppearancesCurrent: PlayerRecordHolder[];
+  unusedBenchCurrentSeason: string | null;
+  topCleanSheets: PlayerRecordHolder[];
+  topTitles: PlayerRecordHolder[];
+  managerTitles: Array<{ managerId: number; managerName: string; value: number }>;
+  multiGoalHauls: MultiGoalHaulBucket[];
+  topHatTricks: PlayerRecordHolder[];
+  fastestGoals: TimedGoalRecord[];
+  latestStoppageGoals: TimedGoalRecord[];
 };
 
 let streakCache: { at: number; data: ClubPlayerStreaksPayload } | null = null;
@@ -1444,17 +1419,68 @@ async function computeClubRecordStreaks(): Promise<ClubPlayerStreaksPayload> {
     consecutiveStarts,
     cleanSheetStreak,
     scoringStreak,
+    appearances,
+    playerWins,
+    goalsAsSub,
+    appsAsSub,
+    unusedBench,
+    unusedBenchSeason,
+    cleanSheets,
+    playerTitles,
+    managerTitles,
+    multiGoalHauls,
+    timedGoals,
   ] = await allBatched([
     () => unusedBenchStreakRecords(matches),
     () => consecutiveStartsRecords(matches),
     () => goalkeeperCleanSheetStreaks(matches),
     () => scoringStreakRecords(matches),
+    () => topAppearances(),
+    () => topPlayerWins(),
+    () => topGoalsAsSubstitute(),
+    () => topAppearancesAsSubstitute(),
+    () => topUnusedBenchAppearances(),
+    async () => {
+      const season = await latestRecordsSeason();
+      return season
+        ? { season, rows: await topUnusedBenchAppearances(10, season) }
+        : { season: null as string | null, rows: [] as PlayerRecordHolder[] };
+    },
+    () => topCleanSheets(),
+    () => topPlayersByTitles(10),
+    () => topManagersByTitles(10),
+    () => multiGoalHaulsByCount(),
+    () => loadTimedCsaGoals(),
   ]);
+  const topHatTricks =
+    multiGoalHauls.find((b) => b.goalsInMatch === 3)?.players ?? [];
   return {
     unusedBenchStreak,
     consecutiveStarts,
     cleanSheetStreak,
     scoringStreak,
+    topAppearances: appearances,
+    topWins: playerWins,
+    topGoalsAsSubstitute: goalsAsSub,
+    topAppearancesAsSubstitute: appsAsSub,
+    topUnusedBenchAppearances: unusedBench,
+    topUnusedBenchAppearancesCurrent: unusedBenchSeason.rows,
+    unusedBenchCurrentSeason: unusedBenchSeason.season,
+    topCleanSheets: cleanSheets,
+    topTitles: playerTitles.map((r) => ({
+      playerId: r.id,
+      playerName: r.name,
+      value: r.titleCount,
+    })),
+    managerTitles: managerTitles.map((r) => ({
+      managerId: r.id,
+      managerName: r.name,
+      value: r.titleCount,
+    })),
+    multiGoalHauls,
+    topHatTricks,
+    fastestGoals: rankFastestGoals(timedGoals),
+    latestStoppageGoals: rankLatestStoppageGoals(timedGoals),
   };
 }
 

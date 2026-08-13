@@ -363,7 +363,7 @@ export default function AdminRecords() {
     setError("");
     try {
       const r = await adminFetch("/admin/records", {
-        signal: AbortSignal.timeout(20_000),
+        signal: AbortSignal.timeout(45_000),
       });
       if (!r.ok) {
         setError("Falha ao carregar recordes");
@@ -388,6 +388,29 @@ export default function AdminRecords() {
                   consecutiveStarts: streaks.consecutiveStarts ?? prev.players.consecutiveStarts,
                   cleanSheetStreak: streaks.cleanSheetStreak ?? prev.players.cleanSheetStreak,
                   scoringStreak: streaks.scoringStreak ?? prev.players.scoringStreak,
+                  topAppearances: streaks.topAppearances ?? prev.players.topAppearances,
+                  topWins: streaks.topWins ?? prev.players.topWins,
+                  topGoalsAsSubstitute: streaks.topGoalsAsSubstitute ?? prev.players.topGoalsAsSubstitute,
+                  topAppearancesAsSubstitute:
+                    streaks.topAppearancesAsSubstitute ?? prev.players.topAppearancesAsSubstitute,
+                  topUnusedBenchAppearances:
+                    streaks.topUnusedBenchAppearances ?? prev.players.topUnusedBenchAppearances,
+                  topUnusedBenchAppearancesCurrent:
+                    streaks.topUnusedBenchAppearancesCurrent ??
+                    prev.players.topUnusedBenchAppearancesCurrent,
+                  unusedBenchCurrentSeason:
+                    streaks.unusedBenchCurrentSeason ?? prev.players.unusedBenchCurrentSeason,
+                  topCleanSheets: streaks.topCleanSheets ?? prev.players.topCleanSheets,
+                  topTitles: streaks.topTitles ?? prev.players.topTitles,
+                  multiGoalHauls: streaks.multiGoalHauls ?? prev.players.multiGoalHauls,
+                  topHatTricks: streaks.topHatTricks ?? prev.players.topHatTricks,
+                  fastestGoals: streaks.fastestGoals ?? prev.players.fastestGoals,
+                  latestStoppageGoals:
+                    streaks.latestStoppageGoals ?? prev.players.latestStoppageGoals,
+                },
+                managers: {
+                  ...prev.managers,
+                  topTitles: streaks.managerTitles ?? prev.managers.topTitles,
                 },
               }
             : prev,
