@@ -52,8 +52,6 @@ type RecordsPayload = {
     cleanSheets?: string;
     unusedBench?: string;
     scoringStreak?: string;
-    assistStreak?: string;
-    yellowCardStreak?: string;
     captain?: string;
     penaltyEvents?: string;
     ownGoals?: string;
@@ -82,10 +80,6 @@ type RecordsPayload = {
     consecutiveStarts: { historical: PlayerStreak[]; active: PlayerStreak[] };
     cleanSheetStreak: { historical: PlayerStreak[]; active: PlayerStreak[] };
     scoringStreak: { historical: PlayerStreak[]; active: PlayerStreak[] };
-    assistStreak?: { historical: PlayerStreak[]; active: PlayerStreak[] };
-    yellowCardStreak?: { historical: PlayerStreak[]; active: PlayerStreak[] };
-    topAssistsInOneMatch?: PlayerRow[];
-    multiAssistHauls?: MultiGoalBucket[];
     topCaptainAppearances: PlayerRow[];
     topPenaltiesMissed: PlayerRow[];
     topPenaltiesSaved: PlayerRow[];
@@ -111,12 +105,6 @@ function fmtDate(d: string | null) {
   if (!d) return "—";
   const [y, m, day] = d.slice(0, 10).split("-");
   return `${day}/${m}/${y}`;
-}
-
-function multiAssistTitle(assistsInMatch: number) {
-  if (assistsInMatch === 2) return "Duas assistências no mesmo jogo";
-  if (assistsInMatch === 3) return "Três assistências no mesmo jogo";
-  return `${assistsInMatch} assistências no mesmo jogo`;
 }
 
 function PlayerList({ rows }: { rows: PlayerRow[] }) {
@@ -400,8 +388,6 @@ export default function AdminRecords() {
                   consecutiveStarts: streaks.consecutiveStarts ?? prev.players.consecutiveStarts,
                   cleanSheetStreak: streaks.cleanSheetStreak ?? prev.players.cleanSheetStreak,
                   scoringStreak: streaks.scoringStreak ?? prev.players.scoringStreak,
-                  assistStreak: streaks.assistStreak ?? prev.players.assistStreak,
-                  yellowCardStreak: streaks.yellowCardStreak ?? prev.players.yellowCardStreak,
                 },
               }
             : prev,
@@ -468,8 +454,6 @@ export default function AdminRecords() {
             {data.rules.cleanSheets ? <p>{data.rules.cleanSheets}</p> : null}
             {data.rules.unusedBench ? <p>{data.rules.unusedBench}</p> : null}
             {data.rules.scoringStreak ? <p>{data.rules.scoringStreak}</p> : null}
-            {data.rules.assistStreak ? <p>{data.rules.assistStreak}</p> : null}
-            {data.rules.yellowCardStreak ? <p>{data.rules.yellowCardStreak}</p> : null}
             {data.rules.captain ? <p>{data.rules.captain}</p> : null}
             {data.rules.penaltyEvents ? <p>{data.rules.penaltyEvents}</p> : null}
             {data.rules.ownGoals ? <p>{data.rules.ownGoals}</p> : null}
@@ -481,9 +465,6 @@ export default function AdminRecords() {
             </Card>
             <Card title="Mais assistências">
               <PlayerList rows={data.players.topAssists} />
-            </Card>
-            <Card title="Mais assistências em um jogo">
-              <PlayerList rows={data.players.topAssistsInOneMatch ?? []} />
             </Card>
             <Card title="Mais jogos">
               <PlayerList rows={data.players.topAppearances} />
@@ -575,57 +556,17 @@ export default function AdminRecords() {
             </div>
           </div>
 
-          {(data.players.multiAssistHauls ?? []).length > 0 ? (
-            <div>
-              <h2 className="text-sm font-semibold text-gray-800 mb-3">
-                Assistências no mesmo jogo
-              </h2>
-              <div className="grid md:grid-cols-2 gap-4">
-                {data.players.multiAssistHauls!.map((bucket) => (
-                  <Card
-                    key={`a-${bucket.goalsInMatch}`}
-                    title={multiAssistTitle(bucket.goalsInMatch)}
-                  >
-                    <PlayerList rows={bucket.players} />
-                  </Card>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
           <Card title="Cartões">
             <Tabs defaultValue="yellow">
               <TabsList className="mb-3">
                 <TabsTrigger value="yellow">Mais cartões amarelos</TabsTrigger>
                 <TabsTrigger value="red">Mais cartões vermelhos</TabsTrigger>
-                <TabsTrigger value="yellow-streak">Amarelos em sequência</TabsTrigger>
               </TabsList>
               <TabsContent value="yellow">
                 <PlayerList rows={data.players.topYellowCards ?? []} />
               </TabsContent>
               <TabsContent value="red">
                 <PlayerList rows={data.players.topRedCards ?? []} />
-              </TabsContent>
-              <TabsContent value="yellow-streak">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-[11px] uppercase tracking-wider text-gray-400 mb-2">
-                      Histórico
-                    </p>
-                    <PlayerStreakList
-                      rows={data.players.yellowCardStreak?.historical ?? []}
-                    />
-                  </div>
-                  <div>
-                    <p className="text-[11px] uppercase tracking-wider text-gray-400 mb-2">
-                      Em andamento
-                    </p>
-                    <PlayerStreakList
-                      rows={data.players.yellowCardStreak?.active ?? []}
-                      activeTone
-                    />
-                  </div>
-                </div>
               </TabsContent>
             </Tabs>
           </Card>
@@ -775,17 +716,6 @@ export default function AdminRecords() {
             <Card title="Mais jogos seguidos marcando (em andamento)">
               <PlayerStreakList
                 rows={data.players.scoringStreak?.active ?? []}
-                activeTone
-              />
-            </Card>
-            <Card title="Mais jogos seguidos com assistência (histórico)">
-              <PlayerStreakList
-                rows={data.players.assistStreak?.historical ?? []}
-              />
-            </Card>
-            <Card title="Mais jogos seguidos com assistência (em andamento)">
-              <PlayerStreakList
-                rows={data.players.assistStreak?.active ?? []}
                 activeTone
               />
             </Card>

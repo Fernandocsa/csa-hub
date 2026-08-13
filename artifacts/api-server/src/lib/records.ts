@@ -1013,170 +1013,6 @@ async function scoringStreakRecords(matches: MatchRow[]): Promise<{
 }
 
 /**
- * Consecutive official matches in which a player assisted a CSA goal.
- * Missing a match or not assisting breaks the streak.
- */
-async function assistStreakRecords(matches: MatchRow[]): Promise<{
-  historical: PlayerStreakRecord[];
-  active: PlayerStreakRecord[];
-}> {
-  const assists = await db
-    .select({
-      matchId: matchGoalsTable.matchId,
-      playerId: matchGoalsTable.assistPlayerId,
-    })
-    .from(matchGoalsTable)
-    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
-    .where(
-      and(
-        recordsMatchConditions(),
-        eq(matchGoalsTable.side, "csa"),
-        eq(matchGoalsTable.isOwnGoal, false),
-        isNotNull(matchGoalsTable.assistPlayerId),
-      ),
-    );
-  return consecutivePlayerCalendarStreaks(matches, assists);
-}
-
-/**
- * Consecutive official matches in which a player received a yellow card.
- * Missing a match or playing without a yellow breaks the streak.
- */
-async function yellowCardStreakRecords(matches: MatchRow[]): Promise<{
-  historical: PlayerStreakRecord[];
-  active: PlayerStreakRecord[];
-}> {
-  const cards = await db
-    .select({
-      matchId: matchCardsTable.matchId,
-      playerId: matchCardsTable.playerId,
-    })
-    .from(matchCardsTable)
-    .innerJoin(matchesTable, eq(matchCardsTable.matchId, matchesTable.id))
-    .where(
-      and(
-        recordsMatchConditions(),
-        eq(matchCardsTable.side, "csa"),
-        eq(matchCardsTable.cardType, "yellow"),
-        isNotNull(matchCardsTable.playerId),
-      ),
-    );
-  return consecutivePlayerCalendarStreaks(matches, cards);
-}
-
-/**
- * Rankings of players by how many matches they recorded exactly N assists in
- * (N = 2, 3, …). Only buckets with at least one haul are returned.
- */
-async function multiAssistHaulsByCount(limit = 10): Promise<MultiGoalHaulBucket[]> {
-  const perMatch = await db
-    .select({
-      playerId: matchGoalsTable.assistPlayerId,
-      matchId: matchGoalsTable.matchId,
-      assists: sql<number>`cast(count(*) as int)`,
-    })
-    .from(matchGoalsTable)
-    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
-    .where(
-      and(
-        recordsMatchConditions(),
-        eq(matchGoalsTable.side, "csa"),
-        eq(matchGoalsTable.isOwnGoal, false),
-        isNotNull(matchGoalsTable.assistPlayerId),
-      ),
-    )
-    .groupBy(matchGoalsTable.assistPlayerId, matchGoalsTable.matchId)
-    .having(sql`count(*) >= 2`);
-
-  const byAssists = new Map<number, Map<number, number>>();
-  for (const row of perMatch) {
-    if (row.playerId == null) continue;
-    const n = Number(row.assists);
-    let playerCounts = byAssists.get(n);
-    if (!playerCounts) {
-      playerCounts = new Map();
-      byAssists.set(n, playerCounts);
-    }
-    playerCounts.set(row.playerId, (playerCounts.get(row.playerId) ?? 0) + 1);
-  }
-
-  const levels = [...byAssists.keys()].sort((a, b) => a - b);
-  if (levels.length === 0) return [];
-
-  const allPlayerIds = [
-    ...new Set([...byAssists.values()].flatMap((m) => [...m.keys()])),
-  ];
-  const players = await db
-    .select({ id: playersTable.id, name: playersTable.name })
-    .from(playersTable)
-    .where(inArray(playersTable.id, allPlayerIds));
-  const nameById = new Map(players.map((p) => [p.id, p.name]));
-
-  return levels.map((assistsInMatch) => {
-    const counts = byAssists.get(assistsInMatch)!;
-    const ranked = [...counts.entries()]
-      .map(([playerId, value]) => ({
-        playerId,
-        playerName: nameById.get(playerId) ?? `#${playerId}`,
-        value,
-      }))
-      .sort(
-        (a, b) =>
-          b.value - a.value || a.playerName.localeCompare(b.playerName),
-      )
-      .slice(0, limit);
-    return { goalsInMatch: assistsInMatch, players: ranked };
-  });
-}
-
-/** Highest assist count in a single official match. */
-async function topAssistsInOneMatch(limit = 10): Promise<PlayerRecordHolder[]> {
-  const perMatch = await db
-    .select({
-      playerId: matchGoalsTable.assistPlayerId,
-      playerName: playersTable.name,
-      assists: sql<number>`cast(count(*) as int)`,
-    })
-    .from(matchGoalsTable)
-    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
-    .innerJoin(playersTable, eq(matchGoalsTable.assistPlayerId, playersTable.id))
-    .where(
-      and(
-        recordsMatchConditions(),
-        eq(matchGoalsTable.side, "csa"),
-        eq(matchGoalsTable.isOwnGoal, false),
-        isNotNull(matchGoalsTable.assistPlayerId),
-      ),
-    )
-    .groupBy(
-      matchGoalsTable.assistPlayerId,
-      matchGoalsTable.matchId,
-      playersTable.name,
-    );
-
-  const best = new Map<number, { playerName: string; value: number }>();
-  for (const row of perMatch) {
-    if (row.playerId == null) continue;
-    const n = Number(row.assists);
-    const prev = best.get(row.playerId);
-    if (!prev || n > prev.value) {
-      best.set(row.playerId, { playerName: row.playerName, value: n });
-    }
-  }
-
-  return [...best.entries()]
-    .map(([playerId, r]) => ({
-      playerId,
-      playerName: r.playerName,
-      value: r.value,
-    }))
-    .sort(
-      (a, b) => b.value - a.value || a.playerName.localeCompare(b.playerName),
-    )
-    .slice(0, limit);
-}
-
-/**
  * Consecutive unused-bench appearances across the club calendar.
  * Missing a match, starting, or coming on as a sub breaks the streak.
  */
@@ -1440,8 +1276,6 @@ export async function computeClubRecords() {
     cleanSheets,
     managerWins,
     thrashings,
-    topAssistsOneMatch,
-    multiAssistHauls,
     playerTitles,
     managerTitles,
     managerWinStreaks,
@@ -1473,8 +1307,6 @@ export async function computeClubRecords() {
     () => topCleanSheets(),
     () => topManagerWins(),
     () => biggestWins(),
-    () => topAssistsInOneMatch(),
-    () => multiAssistHaulsByCount(),
     () => topPlayersByTitles(10),
     () => topManagersByTitles(10),
     () => managerStreakRecords(matches, (m) => m.result === "win"),
@@ -1509,10 +1341,6 @@ export async function computeClubRecords() {
         "Banco sem entrar: relacionado como reserva e não entrou (não conta quem começou ou foi substituído para dentro)",
       scoringStreak:
         "Jogos seguidos marcando: gol(s) pelo CSA em partidas oficiais consecutivas (gol contra não conta; ficar de fora ou não marcar quebra)",
-      assistStreak:
-        "Jogos seguidos com assistência: assistência em partidas oficiais consecutivas (ficar de fora ou não assistir quebra)",
-      yellowCardStreak:
-        "Jogos seguidos com cartão amarelo: amarelo em partidas oficiais consecutivas (ficar de fora ou jogar sem amarelo quebra)",
       captain: "Capitão: partidas oficiais com o jogador marcado como capitão na ficha",
       penaltyEvents:
         "Pênaltis perdidos/defendidos: eventos próprios da ficha (A/C) — não entram na artilharia nem em gols",
@@ -1550,10 +1378,6 @@ export async function computeClubRecords() {
       consecutiveStarts: emptyPlayerStreaks,
       cleanSheetStreak: emptyPlayerStreaks,
       scoringStreak: emptyPlayerStreaks,
-      assistStreak: emptyPlayerStreaks,
-      yellowCardStreak: emptyPlayerStreaks,
-      topAssistsInOneMatch: topAssistsOneMatch,
-      multiAssistHauls,
       topCaptainAppearances: captainApps,
       topPenaltiesMissed: penaltiesMissed,
       topPenaltiesSaved: penaltiesSaved,
@@ -1608,8 +1432,6 @@ export type ClubPlayerStreaksPayload = {
   consecutiveStarts: { historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] };
   cleanSheetStreak: { historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] };
   scoringStreak: { historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] };
-  assistStreak: { historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] };
-  yellowCardStreak: { historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] };
 };
 
 let streakCache: { at: number; data: ClubPlayerStreaksPayload } | null = null;
@@ -1622,23 +1444,17 @@ async function computeClubRecordStreaks(): Promise<ClubPlayerStreaksPayload> {
     consecutiveStarts,
     cleanSheetStreak,
     scoringStreak,
-    assistStreak,
-    yellowCardStreak,
   ] = await allBatched([
     () => unusedBenchStreakRecords(matches),
     () => consecutiveStartsRecords(matches),
     () => goalkeeperCleanSheetStreaks(matches),
     () => scoringStreakRecords(matches),
-    () => assistStreakRecords(matches),
-    () => yellowCardStreakRecords(matches),
   ]);
   return {
     unusedBenchStreak,
     consecutiveStarts,
     cleanSheetStreak,
     scoringStreak,
-    assistStreak,
-    yellowCardStreak,
   };
 }
 
