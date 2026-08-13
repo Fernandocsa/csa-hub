@@ -1232,21 +1232,6 @@ function rankLatestStoppageGoals(
     .slice(0, limit);
 }
 
-function timedStep<T>(name: string, fn: () => Promise<T>): () => Promise<T> {
-  return async () => {
-    const t0 = Date.now();
-    console.log(`[records] start ${name}`);
-    try {
-      const value = await fn();
-      console.log(`[records] end ${name} ${Date.now() - t0}ms`);
-      return value;
-    } catch (err) {
-      console.log(`[records] fail ${name} ${Date.now() - t0}ms`);
-      throw err;
-    }
-  };
-}
-
 async function allBatched<T extends readonly unknown[]>(
   tasks: { [K in keyof T]: () => Promise<T[K]> },
   batchSize = 1,
@@ -1261,9 +1246,7 @@ async function allBatched<T extends readonly unknown[]>(
 }
 
 export async function computeClubRecords() {
-  const t0 = Date.now();
-  console.log("[records] computeClubRecords start");
-  const matches = await timedStep("loadRecordsMatches", loadRecordsMatches)();
+  const matches = await loadRecordsMatches();
   const unbeaten = bestTeamStreak(matches, (m) => m.result === "win" || m.result === "draw");
   const winStreak = bestTeamStreak(matches, (m) => m.result === "win");
   const cleanSheet = bestTeamStreak(
@@ -1291,27 +1274,24 @@ export async function computeClubRecords() {
     penaltiesMissed,
     penaltiesSaved,
   ] = await allBatched([
-    timedStep("topScorers", () => topScorers()),
-    timedStep("topAssists", () => topAssists()),
-    timedStep("topPenaltyGoals", () => topPenaltyGoals()),
-    timedStep("topOwnGoals", () => topOwnGoals()),
-    timedStep("topFreeKickGoals", () => topFreeKickGoals()),
-    timedStep("topCards.yellow", () => topCards("yellow")),
-    timedStep("topCards.red", () => topCards("red")),
-    timedStep("topManagerWins", () => topManagerWins()),
-    timedStep("biggestWins", () => biggestWins()),
-    timedStep("managerWinStreaks", () =>
-      managerStreakRecords(matches, (m) => m.result === "win"),
-    ),
-    timedStep("managerUnbeatenStreaks", () =>
+    () => topScorers(),
+    () => topAssists(),
+    () => topPenaltyGoals(),
+    () => topOwnGoals(),
+    () => topFreeKickGoals(),
+    () => topCards("yellow"),
+    () => topCards("red"),
+    () => topManagerWins(),
+    () => biggestWins(),
+    () => managerStreakRecords(matches, (m) => m.result === "win"),
+    () =>
       managerStreakRecords(
         matches,
         (m) => m.result === "win" || m.result === "draw",
       ),
-    ),
-    timedStep("topCaptainAppearances", () => topCaptainAppearances()),
-    timedStep("topPenaltyEvents.missed", () => topPenaltyEvents("missed")),
-    timedStep("topPenaltyEvents.saved", () => topPenaltyEvents("saved")),
+    () => topCaptainAppearances(),
+    () => topPenaltyEvents("missed"),
+    () => topPenaltyEvents("saved"),
   ]);
 
   const emptyList: PlayerRecordHolder[] = [];
@@ -1320,7 +1300,7 @@ export async function computeClubRecords() {
     active: [] as PlayerStreakRecord[],
   };
 
-  const payload = {
+  return {
     rules: {
       matches: "Somente partidas oficiais (sem amistosos nem W.O.)",
       appearances: "Titular ou reserva que entrou",
@@ -1383,8 +1363,6 @@ export async function computeClubRecords() {
       scoringStreak: scoring,
     },
   };
-  console.log(`[records] computeClubRecords done ${Date.now() - t0}ms`);
-  return payload;
 }
 
 type ClubRecordsPayload = Awaited<ReturnType<typeof computeClubRecords>>;
@@ -1396,19 +1374,12 @@ let recordsInflight: Promise<ClubRecordsPayload> | null = null;
 /** Cached club records — avoids repeating the heavy compute on Vercel warm instances. */
 export async function getClubRecords(): Promise<ClubRecordsPayload> {
   if (recordsCache && Date.now() - recordsCache.at < RECORDS_CACHE_TTL_MS) {
-    console.log("[records] getClubRecords cache-hit");
     return recordsCache.data;
   }
-  if (recordsInflight) {
-    console.log("[records] getClubRecords inflight");
-    return recordsInflight;
-  }
-  const t0 = Date.now();
-  console.log("[records] getClubRecords miss");
+  if (recordsInflight) return recordsInflight;
   recordsInflight = computeClubRecords()
     .then((data) => {
       recordsCache = { at: Date.now(), data };
-      console.log(`[records] getClubRecords stored ${Date.now() - t0}ms`);
       return data;
     })
     .finally(() => {
@@ -1442,9 +1413,7 @@ let streakCache: { at: number; data: ClubPlayerStreaksPayload } | null = null;
 let streakInflight: Promise<ClubPlayerStreaksPayload> | null = null;
 
 async function computeClubRecordStreaks(): Promise<ClubPlayerStreaksPayload> {
-  const t0 = Date.now();
-  console.log("[records] computeClubRecordStreaks start");
-  const matches = await timedStep("streaks.loadRecordsMatches", loadRecordsMatches)();
+  const matches = await loadRecordsMatches();
   const [
     unusedBenchStreak,
     consecutiveStarts,
@@ -1462,30 +1431,30 @@ async function computeClubRecordStreaks(): Promise<ClubPlayerStreaksPayload> {
     multiGoalHauls,
     timedGoals,
   ] = await allBatched([
-    timedStep("unusedBenchStreak", () => unusedBenchStreakRecords(matches)),
-    timedStep("consecutiveStarts", () => consecutiveStartsRecords(matches)),
-    timedStep("gkCleanSheetStreaks", () => goalkeeperCleanSheetStreaks(matches)),
-    timedStep("scoringStreak", () => scoringStreakRecords(matches)),
-    timedStep("topAppearances", () => topAppearances()),
-    timedStep("topPlayerWins", () => topPlayerWins()),
-    timedStep("topGoalsAsSubstitute", () => topGoalsAsSubstitute()),
-    timedStep("topAppearancesAsSubstitute", () => topAppearancesAsSubstitute()),
-    timedStep("topUnusedBenchAppearances", () => topUnusedBenchAppearances()),
-    timedStep("topUnusedBenchCurrent", async () => {
+    () => unusedBenchStreakRecords(matches),
+    () => consecutiveStartsRecords(matches),
+    () => goalkeeperCleanSheetStreaks(matches),
+    () => scoringStreakRecords(matches),
+    () => topAppearances(),
+    () => topPlayerWins(),
+    () => topGoalsAsSubstitute(),
+    () => topAppearancesAsSubstitute(),
+    () => topUnusedBenchAppearances(),
+    async () => {
       const season = await latestRecordsSeason();
       return season
         ? { season, rows: await topUnusedBenchAppearances(10, season) }
         : { season: null as string | null, rows: [] as PlayerRecordHolder[] };
-    }),
-    timedStep("topCleanSheets", () => topCleanSheets()),
-    timedStep("topPlayersByTitles", () => topPlayersByTitles(10)),
-    timedStep("topManagersByTitles", () => topManagersByTitles(10)),
-    timedStep("multiGoalHaulsByCount", () => multiGoalHaulsByCount()),
-    timedStep("loadTimedCsaGoals", () => loadTimedCsaGoals()),
+    },
+    () => topCleanSheets(),
+    () => topPlayersByTitles(10),
+    () => topManagersByTitles(10),
+    () => multiGoalHaulsByCount(),
+    () => loadTimedCsaGoals(),
   ]);
   const topHatTricks =
     multiGoalHauls.find((b) => b.goalsInMatch === 3)?.players ?? [];
-  const out = {
+  return {
     unusedBenchStreak,
     consecutiveStarts,
     cleanSheetStreak,
@@ -1513,20 +1482,13 @@ async function computeClubRecordStreaks(): Promise<ClubPlayerStreaksPayload> {
     fastestGoals: rankFastestGoals(timedGoals),
     latestStoppageGoals: rankLatestStoppageGoals(timedGoals),
   };
-  console.log(`[records] computeClubRecordStreaks done ${Date.now() - t0}ms`);
-  return out;
 }
 
 export async function getClubRecordStreaks(): Promise<ClubPlayerStreaksPayload> {
   if (streakCache && Date.now() - streakCache.at < RECORDS_CACHE_TTL_MS) {
-    console.log("[records] getClubRecordStreaks cache-hit");
     return streakCache.data;
   }
-  if (streakInflight) {
-    console.log("[records] getClubRecordStreaks inflight");
-    return streakInflight;
-  }
-  console.log("[records] getClubRecordStreaks miss");
+  if (streakInflight) return streakInflight;
   streakInflight = computeClubRecordStreaks()
     .then((data) => {
       streakCache = { at: Date.now(), data };
