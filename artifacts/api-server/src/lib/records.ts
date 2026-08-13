@@ -878,12 +878,6 @@ async function consecutivePlayerCalendarStreaks(
 
   if (allPlayerIds.size === 0) return { historical: [], active: [] };
 
-  const players = await db
-    .select({ id: playersTable.id, name: playersTable.name })
-    .from(playersTable)
-    .where(inArray(playersTable.id, [...allPlayerIds]));
-  const nameById = new Map(players.map((p) => [p.id, p.name]));
-
   type Acc = {
     bestLen: number;
     bestStart: MatchRow | null;
@@ -940,7 +934,7 @@ async function consecutivePlayerCalendarStreaks(
     if (a.bestLen > 0 && a.bestStart && a.bestEnd) {
       historical.push({
         playerId,
-        playerName: nameById.get(playerId) ?? `#${playerId}`,
+        playerName: `#${playerId}`,
         length: a.bestLen,
         startDate: a.bestStart.matchDate,
         endDate: a.bestEnd.matchDate,
@@ -951,7 +945,7 @@ async function consecutivePlayerCalendarStreaks(
     if (a.curLen > 0 && a.curStart && a.curEnd) {
       active.push({
         playerId,
-        playerName: nameById.get(playerId) ?? `#${playerId}`,
+        playerName: `#${playerId}`,
         length: a.curLen,
         startDate: a.curStart.matchDate,
         endDate: a.curEnd.matchDate,
@@ -961,12 +955,34 @@ async function consecutivePlayerCalendarStreaks(
     }
   }
 
-  historical.sort((a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName));
-  active.sort((a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName));
+  historical.sort((a, b) => b.length - a.length || a.playerId - b.playerId);
+  active.sort((a, b) => b.length - a.length || a.playerId - b.playerId);
+  const topHistorical = historical.slice(0, 10);
+  const topActive = active.slice(0, 10);
+
+  const nameIds = [
+    ...new Set([...topHistorical, ...topActive].map((r) => r.playerId)),
+  ];
+  if (nameIds.length > 0) {
+    const players = await db
+      .select({ id: playersTable.id, name: playersTable.name })
+      .from(playersTable)
+      .where(inArray(playersTable.id, nameIds));
+    const nameById = new Map(players.map((p) => [p.id, p.name]));
+    for (const row of [...topHistorical, ...topActive]) {
+      row.playerName = nameById.get(row.playerId) ?? row.playerName;
+    }
+    topHistorical.sort(
+      (a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName),
+    );
+    topActive.sort(
+      (a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName),
+    );
+  }
 
   return {
-    historical: historical.slice(0, 10),
-    active: active.slice(0, 10),
+    historical: topHistorical,
+    active: topActive,
   };
 }
 
@@ -1382,7 +1398,7 @@ function rankLatestStoppageGoals(
 
 async function allBatched<T extends readonly unknown[]>(
   tasks: { [K in keyof T]: () => Promise<T[K]> },
-  batchSize = 8,
+  batchSize = 1,
 ): Promise<{ [K in keyof T]: T[K] }> {
   const fns = tasks as Array<() => Promise<unknown>>;
   const out: unknown[] = [];

@@ -3,6 +3,9 @@ import type { ConnectionOptions } from "tls";
 export type PgPoolOptions = {
   connectionString: string;
   ssl?: ConnectionOptions | boolean;
+  max?: number;
+  idleTimeoutMillis?: number;
+  connectionTimeoutMillis?: number;
 };
 
 export type DrizzleKitCredentials = {
@@ -30,9 +33,19 @@ function requiresSsl(url: URL): boolean {
 
 export function getPgPoolOptions(connectionString: string): PgPoolOptions {
   const url = new URL(connectionString);
+  const local =
+    url.hostname === "localhost" || url.hostname === "127.0.0.1";
   return {
     connectionString,
     ...(requiresSsl(url) ? { ssl: { rejectUnauthorized: false } } : {}),
+    // Vercel lambdas: default max 10 exhausts Supabase and waits forever.
+    ...(local
+      ? {}
+      : {
+          max: 1,
+          idleTimeoutMillis: 10_000,
+          connectionTimeoutMillis: 8_000,
+        }),
   };
 }
 

@@ -287,11 +287,13 @@ export async function topManagersByTitles(
     LIMIT ${limit}
   `);
 
-  return (result.rows as Array<{ id: number; name: string; title_count: number }>).map(
-    (r) => ({
-      id: Number(r.id),
-      name: r.name,
-      titleCount: Number(r.title_count),
-    }),
-  );
+  const rows = Array.isArray(result)
+    ? result
+    : ((result as { rows?: Array<{ id: number; name: string; title_count: number }> })
+        .rows ?? []);
+  return rows.map((r) => ({
+    id: Number(r.id),
+    name: r.name,
+    titleCount: Number(r.title_count),
+  }));
 }

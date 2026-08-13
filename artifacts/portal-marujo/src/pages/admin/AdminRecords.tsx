@@ -374,7 +374,9 @@ export default function AdminRecords() {
     setLoading(true);
     setError("");
     try {
-      const r = await adminFetch("/admin/records");
+      const r = await adminFetch("/admin/records", {
+        signal: AbortSignal.timeout(25_000),
+      });
       if (!r.ok) {
         setError("Falha ao carregar recordes");
         return;
