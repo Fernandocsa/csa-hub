@@ -44,7 +44,7 @@ export function getPgPoolOptions(connectionString: string): PgPoolOptions {
       : {
           max: 1,
           idleTimeoutMillis: 10_000,
-          connectionTimeoutMillis: 8_000,
+          connectionTimeoutMillis: 20_000,
         }),
   };
 }

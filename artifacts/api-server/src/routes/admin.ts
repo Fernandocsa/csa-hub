@@ -88,7 +88,7 @@ import {
   listSeasonCompetitionStats,
   recalculateSeasonCompetitionStats,
 } from "../lib/season-competition-stats";
-import { getClubRecords } from "../lib/records";
+import { getClubRecords, getClubRecordStreaks } from "../lib/records";
 import { resolveTransferOpponentId } from "../lib/transfer-opponent";
 import {
   listChampionCampaigns,
@@ -4098,6 +4098,16 @@ router.delete(
 router.get("/admin/records", requireAdmin, async (req, res) => {
   try {
     const data = await getClubRecords();
+    res.json(data);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.get("/admin/records/streaks", requireAdmin, async (req, res) => {
+  try {
+    const data = await getClubRecordStreaks();
     res.json(data);
   } catch (err) {
     req.log.error(err);

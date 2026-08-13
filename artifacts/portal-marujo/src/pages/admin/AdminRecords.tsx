@@ -375,13 +375,40 @@ export default function AdminRecords() {
     setError("");
     try {
       const r = await adminFetch("/admin/records", {
-        signal: AbortSignal.timeout(25_000),
+        signal: AbortSignal.timeout(20_000),
       });
       if (!r.ok) {
         setError("Falha ao carregar recordes");
         return;
       }
-      setData(await r.json());
+      const payload = (await r.json()) as RecordsPayload;
+      setData(payload);
+      setLoading(false);
+      try {
+        const streaksRes = await adminFetch("/admin/records/streaks", {
+          signal: AbortSignal.timeout(50_000),
+        });
+        if (!streaksRes.ok) return;
+        const streaks = await streaksRes.json();
+        setData((prev) =>
+          prev
+            ? {
+                ...prev,
+                players: {
+                  ...prev.players,
+                  unusedBenchStreak: streaks.unusedBenchStreak ?? prev.players.unusedBenchStreak,
+                  consecutiveStarts: streaks.consecutiveStarts ?? prev.players.consecutiveStarts,
+                  cleanSheetStreak: streaks.cleanSheetStreak ?? prev.players.cleanSheetStreak,
+                  scoringStreak: streaks.scoringStreak ?? prev.players.scoringStreak,
+                  assistStreak: streaks.assistStreak ?? prev.players.assistStreak,
+                  yellowCardStreak: streaks.yellowCardStreak ?? prev.players.yellowCardStreak,
+                },
+              }
+            : prev,
+        );
+      } catch {
+        // Rankings already on screen; streaks can stay empty.
+      }
     } catch {
       setError("Falha ao carregar recordes");
     } finally {

@@ -1437,15 +1437,9 @@ export async function computeClubRecords() {
     appsAsSub,
     unusedBench,
     unusedBenchSeason,
-    unusedBenchStreaks,
     cleanSheets,
     managerWins,
     thrashings,
-    starts,
-    gkCleanSheetStreaks,
-    scoringStreaks,
-    assistStreaks,
-    yellowCardStreaks,
     topAssistsOneMatch,
     multiAssistHauls,
     playerTitles,
@@ -1476,15 +1470,9 @@ export async function computeClubRecords() {
         ? { season, rows: await topUnusedBenchAppearances(10, season) }
         : { season: null as string | null, rows: [] as PlayerRecordHolder[] };
     },
-    () => unusedBenchStreakRecords(matches),
     () => topCleanSheets(),
     () => topManagerWins(),
     () => biggestWins(),
-    () => consecutiveStartsRecords(matches),
-    () => goalkeeperCleanSheetStreaks(matches),
-    () => scoringStreakRecords(matches),
-    () => assistStreakRecords(matches),
-    () => yellowCardStreakRecords(matches),
     () => topAssistsInOneMatch(),
     () => multiAssistHaulsByCount(),
     () => topPlayersByTitles(10),
@@ -1500,6 +1488,8 @@ export async function computeClubRecords() {
     () => topPenaltyEvents("saved"),
     () => loadTimedCsaGoals(),
   ]);
+
+  const emptyPlayerStreaks = { historical: [] as PlayerStreakRecord[], active: [] as PlayerStreakRecord[] };
 
   const fastest = rankFastestGoals(timedGoals);
   const latestStoppage = rankLatestStoppageGoals(timedGoals);
@@ -1550,18 +1540,18 @@ export async function computeClubRecords() {
       topUnusedBenchAppearances: unusedBench,
       topUnusedBenchAppearancesCurrent: unusedBenchSeason.rows,
       unusedBenchCurrentSeason: unusedBenchSeason.season,
-      unusedBenchStreak: unusedBenchStreaks,
+      unusedBenchStreak: emptyPlayerStreaks,
       topCleanSheets: cleanSheets,
       topTitles: playerTitles.map((r) => ({
         playerId: r.id,
         playerName: r.name,
         value: r.titleCount,
       })),
-      consecutiveStarts: starts,
-      cleanSheetStreak: gkCleanSheetStreaks,
-      scoringStreak: scoringStreaks,
-      assistStreak: assistStreaks,
-      yellowCardStreak: yellowCardStreaks,
+      consecutiveStarts: emptyPlayerStreaks,
+      cleanSheetStreak: emptyPlayerStreaks,
+      scoringStreak: emptyPlayerStreaks,
+      assistStreak: emptyPlayerStreaks,
+      yellowCardStreak: emptyPlayerStreaks,
       topAssistsInOneMatch: topAssistsOneMatch,
       multiAssistHauls,
       topCaptainAppearances: captainApps,
@@ -1611,4 +1601,59 @@ export async function getClubRecords(): Promise<ClubRecordsPayload> {
       recordsInflight = null;
     });
   return recordsInflight;
+}
+
+export type ClubPlayerStreaksPayload = {
+  unusedBenchStreak: { historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] };
+  consecutiveStarts: { historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] };
+  cleanSheetStreak: { historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] };
+  scoringStreak: { historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] };
+  assistStreak: { historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] };
+  yellowCardStreak: { historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] };
+};
+
+let streakCache: { at: number; data: ClubPlayerStreaksPayload } | null = null;
+let streakInflight: Promise<ClubPlayerStreaksPayload> | null = null;
+
+async function computeClubRecordStreaks(): Promise<ClubPlayerStreaksPayload> {
+  const matches = await loadRecordsMatches();
+  const [
+    unusedBenchStreak,
+    consecutiveStarts,
+    cleanSheetStreak,
+    scoringStreak,
+    assistStreak,
+    yellowCardStreak,
+  ] = await allBatched([
+    () => unusedBenchStreakRecords(matches),
+    () => consecutiveStartsRecords(matches),
+    () => goalkeeperCleanSheetStreaks(matches),
+    () => scoringStreakRecords(matches),
+    () => assistStreakRecords(matches),
+    () => yellowCardStreakRecords(matches),
+  ]);
+  return {
+    unusedBenchStreak,
+    consecutiveStarts,
+    cleanSheetStreak,
+    scoringStreak,
+    assistStreak,
+    yellowCardStreak,
+  };
+}
+
+export async function getClubRecordStreaks(): Promise<ClubPlayerStreaksPayload> {
+  if (streakCache && Date.now() - streakCache.at < RECORDS_CACHE_TTL_MS) {
+    return streakCache.data;
+  }
+  if (streakInflight) return streakInflight;
+  streakInflight = computeClubRecordStreaks()
+    .then((data) => {
+      streakCache = { at: Date.now(), data };
+      return data;
+    })
+    .finally(() => {
+      streakInflight = null;
+    });
+  return streakInflight;
 }
