@@ -107,6 +107,13 @@ function fmtDate(d: string | null) {
   return `${day}/${m}/${y}`;
 }
 
+function multiGoalTitle(goalsInMatch: number) {
+  if (goalsInMatch === 3) return "Hat-tricks (exatos 3 gols)";
+  if (goalsInMatch === 4) return "Poker (exatos 4 gols)";
+  if (goalsInMatch === 5) return "Repóquer (exatos 5 gols)";
+  return `${goalsInMatch} gols no mesmo jogo`;
+}
+
 function PlayerList({ rows }: { rows: PlayerRow[] }) {
   if (rows.length === 0) {
     return <p className="text-sm text-gray-400">Sem dados ainda.</p>;
