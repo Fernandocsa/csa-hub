@@ -1043,9 +1043,9 @@ async function consecutiveStartsRecords(): Promise<{
  * in `presenceRows`. Missing a match or a match without the event breaks the streak.
  */
 async function consecutivePlayerCalendarStreaks(
+  matches: MatchRow[],
   presenceRows: Array<{ matchId: number; playerId: number | null }>,
 ): Promise<{ historical: PlayerStreakRecord[]; active: PlayerStreakRecord[] }> {
-  const matches = await loadRecordsMatches();
   if (matches.length === 0) {
     return { historical: [], active: [] };
   }
@@ -1091,24 +1091,33 @@ async function consecutivePlayerCalendarStreaks(
     });
   }
 
+  const empty = new Set<number>();
+  const currentlyActive = new Set<number>();
+
   for (const m of matches) {
-    const present = presentByMatch.get(m.id) ?? new Set<number>();
-    for (const playerId of allPlayerIds) {
-      const a = acc.get(playerId)!;
-      if (present.has(playerId)) {
-        if (a.curLen === 0) a.curStart = m;
-        a.curLen += 1;
-        a.curEnd = m;
-        if (a.curLen > a.bestLen) {
-          a.bestLen = a.curLen;
-          a.bestStart = a.curStart;
-          a.bestEnd = a.curEnd;
+    const present = presentByMatch.get(m.id) ?? empty;
+    if (currentlyActive.size) {
+      for (const playerId of [...currentlyActive]) {
+        if (!present.has(playerId)) {
+          currentlyActive.delete(playerId);
+          const a = acc.get(playerId)!;
+          a.curLen = 0;
+          a.curStart = null;
+          a.curEnd = null;
         }
-      } else {
-        a.curLen = 0;
-        a.curStart = null;
-        a.curEnd = null;
       }
+    }
+    for (const playerId of present) {
+      const a = acc.get(playerId)!;
+      if (a.curLen === 0) a.curStart = m;
+      a.curLen += 1;
+      a.curEnd = m;
+      if (a.curLen > a.bestLen) {
+        a.bestLen = a.curLen;
+        a.bestStart = a.curStart;
+        a.bestEnd = a.curEnd;
+      }
+      currentlyActive.add(playerId);
     }
   }
 
@@ -1152,7 +1161,7 @@ async function consecutivePlayerCalendarStreaks(
  * Consecutive official matches in which a player scored for CSA.
  * Own goals do not count. Missing a match or playing without scoring breaks the streak.
  */
-async function scoringStreakRecords(): Promise<{
+async function scoringStreakRecords(matches: MatchRow[]): Promise<{
   historical: PlayerStreakRecord[];
   active: PlayerStreakRecord[];
 }> {
@@ -1171,14 +1180,14 @@ async function scoringStreakRecords(): Promise<{
         isNotNull(matchGoalsTable.scorerPlayerId),
       ),
     );
-  return consecutivePlayerCalendarStreaks(goals);
+  return consecutivePlayerCalendarStreaks(matches, goals);
 }
 
 /**
  * Consecutive official matches in which a player assisted a CSA goal.
  * Missing a match or not assisting breaks the streak.
  */
-async function assistStreakRecords(): Promise<{
+async function assistStreakRecords(matches: MatchRow[]): Promise<{
   historical: PlayerStreakRecord[];
   active: PlayerStreakRecord[];
 }> {
@@ -1197,14 +1206,14 @@ async function assistStreakRecords(): Promise<{
         isNotNull(matchGoalsTable.assistPlayerId),
       ),
     );
-  return consecutivePlayerCalendarStreaks(assists);
+  return consecutivePlayerCalendarStreaks(matches, assists);
 }
 
 /**
  * Consecutive official matches in which a player received a yellow card.
  * Missing a match or playing without a yellow breaks the streak.
  */
-async function yellowCardStreakRecords(): Promise<{
+async function yellowCardStreakRecords(matches: MatchRow[]): Promise<{
   historical: PlayerStreakRecord[];
   active: PlayerStreakRecord[];
 }> {
@@ -1223,7 +1232,7 @@ async function yellowCardStreakRecords(): Promise<{
         isNotNull(matchCardsTable.playerId),
       ),
     );
-  return consecutivePlayerCalendarStreaks(cards);
+  return consecutivePlayerCalendarStreaks(matches, cards);
 }
 
 /**
@@ -1723,9 +1732,9 @@ export async function computeClubRecords() {
     biggestWins(),
     consecutiveStartsRecords(),
     goalkeeperCleanSheetStreaks(),
-    scoringStreakRecords(),
-    assistStreakRecords(),
-    yellowCardStreakRecords(),
+    scoringStreakRecords(matches),
+    assistStreakRecords(matches),
+    yellowCardStreakRecords(matches),
     topAssistsInOneMatch(),
     multiAssistHaulsByCount(),
     topPlayersByTitles(10),
