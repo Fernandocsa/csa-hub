@@ -4,11 +4,10 @@ import {
   competitionsTable,
   matchesTable,
   matchLineupsTable,
-  managersTable,
   playersTable,
   opponentsTable,
 } from "@workspace/db";
-import { and, asc, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, isNotNull, sql } from "drizzle-orm";
 import { officialPlayedMatchConditions } from "./match-filters";
 
 export type ChampionCampaign = {
@@ -221,71 +220,78 @@ export type TitleHolderRow = {
 export async function topPlayersByTitles(
   limit = 20,
 ): Promise<TitleHolderRow[]> {
-  const champions = await listChampionCampaigns();
-  if (champions.length === 0) return [];
-
-  const counts = new Map<number, number>();
-  for (const c of champions) {
-    const ids = await playerIdsForChampionCampaign(c.season, c.competitionId);
-    for (const id of ids) {
-      counts.set(id, (counts.get(id) ?? 0) + 1);
-    }
-  }
-
-  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0]);
-  const top = sorted.slice(0, limit);
-  if (top.length === 0) return [];
-
-  const players = await db
-    .select({ id: playersTable.id, name: playersTable.name })
-    .from(playersTable)
-    .where(
-      inArray(
-        playersTable.id,
-        top.map(([id]) => id),
+  const titleCountExpr = sql<number>`cast(count(distinct (${matchesTable.season} || ':' || ${matchesTable.competitionId}::text)) as int)`;
+  const rows = await db
+    .select({
+      id: matchLineupsTable.playerId,
+      name: playersTable.name,
+      titleCount: titleCountExpr,
+    })
+    .from(matchLineupsTable)
+    .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
+    .innerJoin(
+      seasonCompetitionStatsTable,
+      and(
+        eq(seasonCompetitionStatsTable.season, matchesTable.season),
+        eq(
+          seasonCompetitionStatsTable.competitionId,
+          matchesTable.competitionId,
+        ),
+        eq(seasonCompetitionStatsTable.isChampion, true),
       ),
-    );
-  const nameById = new Map(players.map((p) => [p.id, p.name]));
+    )
+    .innerJoin(playersTable, eq(matchLineupsTable.playerId, playersTable.id))
+    .where(
+      and(
+        officialPlayedMatchConditions(),
+        eq(matchLineupsTable.side, "csa"),
+        isNotNull(matchLineupsTable.playerId),
+      ),
+    )
+    .groupBy(matchLineupsTable.playerId, playersTable.name)
+    .orderBy(desc(titleCountExpr), asc(playersTable.name))
+    .limit(limit);
 
-  return top.map(([id, titleCount]) => ({
-    id,
-    name: nameById.get(id) ?? `#${id}`,
-    titleCount,
-  }));
+  return rows
+    .filter((r): r is typeof r & { id: number } => r.id != null)
+    .map((r) => ({
+      id: r.id,
+      name: r.name,
+      titleCount: Number(r.titleCount),
+    }));
 }
 
 export async function topManagersByTitles(
   limit = 20,
 ): Promise<TitleHolderRow[]> {
-  const champions = await listChampionCampaigns();
-  if (champions.length === 0) return [];
+  const result = await db.execute(sql`
+    WITH last_matches AS (
+      SELECT DISTINCT ON (m.season, m.competition_id)
+        m.manager_id AS manager_id
+      FROM matches m
+      INNER JOIN season_competition_stats scs
+        ON scs.season = m.season
+        AND scs.competition_id = m.competition_id
+        AND scs.is_champion = true
+      WHERE m.is_friendly = false
+        AND m.status <> 'scheduled'
+        AND m.result <> 'unknown'
+        AND m.manager_id IS NOT NULL
+      ORDER BY m.season, m.competition_id, m.match_date DESC, m.id DESC
+    )
+    SELECT mgr.id, mgr.name, count(*)::int AS title_count
+    FROM last_matches lm
+    INNER JOIN managers mgr ON mgr.id = lm.manager_id
+    GROUP BY mgr.id, mgr.name
+    ORDER BY title_count DESC, mgr.name ASC
+    LIMIT ${limit}
+  `);
 
-  const counts = new Map<number, number>();
-  for (const c of champions) {
-    const ids = await managerIdsForChampionCampaign(c.season, c.competitionId);
-    for (const id of ids) {
-      counts.set(id, (counts.get(id) ?? 0) + 1);
-    }
-  }
-
-  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0]);
-  const top = sorted.slice(0, limit);
-  if (top.length === 0) return [];
-
-  const managers = await db
-    .select({ id: managersTable.id, name: managersTable.name })
-    .from(managersTable)
-    .where(
-      inArray(
-        managersTable.id,
-        top.map(([id]) => id),
-      ),
-    );
-  const nameById = new Map(managers.map((m) => [m.id, m.name]));
-
-  return top.map(([id, titleCount]) => ({
-    id,
-    name: nameById.get(id) ?? `#${id}`,
-    titleCount,
-  }));
+  return (result.rows as Array<{ id: number; name: string; title_count: number }>).map(
+    (r) => ({
+      id: Number(r.id),
+      name: r.name,
+      titleCount: Number(r.title_count),
+    }),
+  );
 }

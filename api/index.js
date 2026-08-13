@@ -21,5 +21,5 @@ module.exports.config = {
   api: {
     bodyParser: false,
   },
-  maxDuration: 30,
+  maxDuration: 60,
 };

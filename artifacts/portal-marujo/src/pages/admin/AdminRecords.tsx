@@ -373,14 +373,18 @@ export default function AdminRecords() {
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
-    const r = await adminFetch("/admin/records");
-    if (!r.ok) {
+    try {
+      const r = await adminFetch("/admin/records");
+      if (!r.ok) {
+        setError("Falha ao carregar recordes");
+        return;
+      }
+      setData(await r.json());
+    } catch {
       setError("Falha ao carregar recordes");
+    } finally {
       setLoading(false);
-      return;
     }
-    setData(await r.json());
-    setLoading(false);
   }, []);
 
   useEffect(() => {

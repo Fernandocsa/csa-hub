@@ -793,11 +793,10 @@ async function topCleanSheets(limit = 10): Promise<PlayerRecordHolder[]> {
  * Consecutive clean sheets for starting goalkeepers across the club calendar.
  * Missing a match, not starting as GK, or conceding breaks the streak.
  */
-async function goalkeeperCleanSheetStreaks(): Promise<{
+async function goalkeeperCleanSheetStreaks(matches: MatchRow[]): Promise<{
   historical: PlayerStreakRecord[];
   active: PlayerStreakRecord[];
 }> {
-  const matches = await loadRecordsMatches();
   if (matches.length === 0) {
     return { historical: [], active: [] };
   }
@@ -812,114 +811,23 @@ async function goalkeeperCleanSheetStreaks(): Promise<{
     .innerJoin(playersTable, eq(matchLineupsTable.playerId, playersTable.id))
     .where(and(recordsMatchConditions(), csaStartingGoalkeeperCondition()));
 
-  const gkByMatch = new Map<number, Set<number>>();
-  const allPlayerIds = new Set<number>();
-  for (const s of gkStarters) {
-    if (s.playerId == null) continue;
-    allPlayerIds.add(s.playerId);
-    let set = gkByMatch.get(s.matchId);
-    if (!set) {
-      set = new Set();
-      gkByMatch.set(s.matchId, set);
-    }
-    set.add(s.playerId);
-  }
-
-  if (allPlayerIds.size === 0) return { historical: [], active: [] };
-
-  const players = await db
-    .select({ id: playersTable.id, name: playersTable.name })
-    .from(playersTable)
-    .where(inArray(playersTable.id, [...allPlayerIds]));
-  const nameById = new Map(players.map((p) => [p.id, p.name]));
-
-  type Acc = {
-    bestLen: number;
-    bestStart: MatchRow | null;
-    bestEnd: MatchRow | null;
-    curLen: number;
-    curStart: MatchRow | null;
-    curEnd: MatchRow | null;
-  };
-  const acc = new Map<number, Acc>();
-  for (const id of allPlayerIds) {
-    acc.set(id, {
-      bestLen: 0,
-      bestStart: null,
-      bestEnd: null,
-      curLen: 0,
-      curStart: null,
-      curEnd: null,
-    });
-  }
-
-  for (const m of matches) {
-    const startedAsGk = gkByMatch.get(m.id) ?? new Set<number>();
-    const isCleanSheet = m.goalsAgainst != null && m.goalsAgainst === 0;
-    for (const playerId of allPlayerIds) {
-      const a = acc.get(playerId)!;
-      if (startedAsGk.has(playerId) && isCleanSheet) {
-        if (a.curLen === 0) a.curStart = m;
-        a.curLen += 1;
-        a.curEnd = m;
-        if (a.curLen > a.bestLen) {
-          a.bestLen = a.curLen;
-          a.bestStart = a.curStart;
-          a.bestEnd = a.curEnd;
-        }
-      } else {
-        a.curLen = 0;
-        a.curStart = null;
-        a.curEnd = null;
-      }
-    }
-  }
-
-  const historical: PlayerStreakRecord[] = [];
-  const active: PlayerStreakRecord[] = [];
-  for (const [playerId, a] of acc) {
-    if (a.bestLen > 0 && a.bestStart && a.bestEnd) {
-      historical.push({
-        playerId,
-        playerName: nameById.get(playerId) ?? `#${playerId}`,
-        length: a.bestLen,
-        startDate: a.bestStart.matchDate,
-        endDate: a.bestEnd.matchDate,
-        startMatchId: a.bestStart.id,
-        endMatchId: a.bestEnd.id,
-      });
-    }
-    if (a.curLen > 0 && a.curStart && a.curEnd) {
-      active.push({
-        playerId,
-        playerName: nameById.get(playerId) ?? `#${playerId}`,
-        length: a.curLen,
-        startDate: a.curStart.matchDate,
-        endDate: a.curEnd.matchDate,
-        startMatchId: a.curStart.id,
-        endMatchId: a.curEnd.id,
-      });
-    }
-  }
-
-  historical.sort((a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName));
-  active.sort((a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName));
-
-  return {
-    historical: historical.slice(0, 10),
-    active: active.slice(0, 10),
-  };
+  const cleanSheetMatchIds = new Set(
+    matches
+      .filter((m) => m.goalsAgainst != null && m.goalsAgainst === 0)
+      .map((m) => m.id),
+  );
+  const presence = gkStarters.filter((s) => cleanSheetMatchIds.has(s.matchId));
+  return consecutivePlayerCalendarStreaks(matches, presence);
 }
 
 /**
  * Consecutive starts across the club's official match calendar.
  * Missing a match or not starting breaks the streak.
  */
-async function consecutiveStartsRecords(): Promise<{
+async function consecutiveStartsRecords(matches: MatchRow[]): Promise<{
   historical: PlayerStreakRecord[];
   active: PlayerStreakRecord[];
 }> {
-  const matches = await loadRecordsMatches();
   if (matches.length === 0) {
     return { historical: [], active: [] };
   }
@@ -940,102 +848,7 @@ async function consecutiveStartsRecords(): Promise<{
       ),
     );
 
-  const startersByMatch = new Map<number, Set<number>>();
-  const allPlayerIds = new Set<number>();
-  for (const s of starters) {
-    if (s.playerId == null) continue;
-    allPlayerIds.add(s.playerId);
-    let set = startersByMatch.get(s.matchId);
-    if (!set) {
-      set = new Set();
-      startersByMatch.set(s.matchId, set);
-    }
-    set.add(s.playerId);
-  }
-
-  if (allPlayerIds.size === 0) return { historical: [], active: [] };
-
-  const players = await db
-    .select({ id: playersTable.id, name: playersTable.name })
-    .from(playersTable)
-    .where(inArray(playersTable.id, [...allPlayerIds]));
-  const nameById = new Map(players.map((p) => [p.id, p.name]));
-
-  type Acc = {
-    bestLen: number;
-    bestStart: MatchRow | null;
-    bestEnd: MatchRow | null;
-    curLen: number;
-    curStart: MatchRow | null;
-    curEnd: MatchRow | null;
-  };
-  const acc = new Map<number, Acc>();
-  for (const id of allPlayerIds) {
-    acc.set(id, {
-      bestLen: 0,
-      bestStart: null,
-      bestEnd: null,
-      curLen: 0,
-      curStart: null,
-      curEnd: null,
-    });
-  }
-
-  for (const m of matches) {
-    const started = startersByMatch.get(m.id) ?? new Set<number>();
-    for (const playerId of allPlayerIds) {
-      const a = acc.get(playerId)!;
-      if (started.has(playerId)) {
-        if (a.curLen === 0) a.curStart = m;
-        a.curLen += 1;
-        a.curEnd = m;
-        if (a.curLen > a.bestLen) {
-          a.bestLen = a.curLen;
-          a.bestStart = a.curStart;
-          a.bestEnd = a.curEnd;
-        }
-      } else {
-        a.curLen = 0;
-        a.curStart = null;
-        a.curEnd = null;
-      }
-    }
-  }
-
-  const historical: PlayerStreakRecord[] = [];
-  const active: PlayerStreakRecord[] = [];
-  for (const [playerId, a] of acc) {
-    if (a.bestLen > 0 && a.bestStart && a.bestEnd) {
-      historical.push({
-        playerId,
-        playerName: nameById.get(playerId) ?? `#${playerId}`,
-        length: a.bestLen,
-        startDate: a.bestStart.matchDate,
-        endDate: a.bestEnd.matchDate,
-        startMatchId: a.bestStart.id,
-        endMatchId: a.bestEnd.id,
-      });
-    }
-    if (a.curLen > 0 && a.curStart && a.curEnd) {
-      active.push({
-        playerId,
-        playerName: nameById.get(playerId) ?? `#${playerId}`,
-        length: a.curLen,
-        startDate: a.curStart.matchDate,
-        endDate: a.curEnd.matchDate,
-        startMatchId: a.curStart.id,
-        endMatchId: a.curEnd.id,
-      });
-    }
-  }
-
-  historical.sort((a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName));
-  active.sort((a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName));
-
-  return {
-    historical: historical.slice(0, 10),
-    active: active.slice(0, 10),
-  };
+  return consecutivePlayerCalendarStreaks(matches, starters);
 }
 
 /**
@@ -1351,11 +1164,10 @@ async function topAssistsInOneMatch(limit = 10): Promise<PlayerRecordHolder[]> {
  * Consecutive unused-bench appearances across the club calendar.
  * Missing a match, starting, or coming on as a sub breaks the streak.
  */
-async function unusedBenchStreakRecords(): Promise<{
+async function unusedBenchStreakRecords(matches: MatchRow[]): Promise<{
   historical: PlayerStreakRecord[];
   active: PlayerStreakRecord[];
 }> {
-  const matches = await loadRecordsMatches();
   if (matches.length === 0) {
     return { historical: [], active: [] };
   }
@@ -1376,102 +1188,7 @@ async function unusedBenchStreakRecords(): Promise<{
       ),
     );
 
-  const unusedByMatch = new Map<number, Set<number>>();
-  const allPlayerIds = new Set<number>();
-  for (const s of unused) {
-    if (s.playerId == null) continue;
-    allPlayerIds.add(s.playerId);
-    let set = unusedByMatch.get(s.matchId);
-    if (!set) {
-      set = new Set();
-      unusedByMatch.set(s.matchId, set);
-    }
-    set.add(s.playerId);
-  }
-
-  if (allPlayerIds.size === 0) return { historical: [], active: [] };
-
-  const players = await db
-    .select({ id: playersTable.id, name: playersTable.name })
-    .from(playersTable)
-    .where(inArray(playersTable.id, [...allPlayerIds]));
-  const nameById = new Map(players.map((p) => [p.id, p.name]));
-
-  type Acc = {
-    bestLen: number;
-    bestStart: MatchRow | null;
-    bestEnd: MatchRow | null;
-    curLen: number;
-    curStart: MatchRow | null;
-    curEnd: MatchRow | null;
-  };
-  const acc = new Map<number, Acc>();
-  for (const id of allPlayerIds) {
-    acc.set(id, {
-      bestLen: 0,
-      bestStart: null,
-      bestEnd: null,
-      curLen: 0,
-      curStart: null,
-      curEnd: null,
-    });
-  }
-
-  for (const m of matches) {
-    const onUnusedBench = unusedByMatch.get(m.id) ?? new Set<number>();
-    for (const playerId of allPlayerIds) {
-      const a = acc.get(playerId)!;
-      if (onUnusedBench.has(playerId)) {
-        if (a.curLen === 0) a.curStart = m;
-        a.curLen += 1;
-        a.curEnd = m;
-        if (a.curLen > a.bestLen) {
-          a.bestLen = a.curLen;
-          a.bestStart = a.curStart;
-          a.bestEnd = a.curEnd;
-        }
-      } else {
-        a.curLen = 0;
-        a.curStart = null;
-        a.curEnd = null;
-      }
-    }
-  }
-
-  const historical: PlayerStreakRecord[] = [];
-  const active: PlayerStreakRecord[] = [];
-  for (const [playerId, a] of acc) {
-    if (a.bestLen > 0 && a.bestStart && a.bestEnd) {
-      historical.push({
-        playerId,
-        playerName: nameById.get(playerId) ?? `#${playerId}`,
-        length: a.bestLen,
-        startDate: a.bestStart.matchDate,
-        endDate: a.bestEnd.matchDate,
-        startMatchId: a.bestStart.id,
-        endMatchId: a.bestEnd.id,
-      });
-    }
-    if (a.curLen > 0 && a.curStart && a.curEnd) {
-      active.push({
-        playerId,
-        playerName: nameById.get(playerId) ?? `#${playerId}`,
-        length: a.curLen,
-        startDate: a.curStart.matchDate,
-        endDate: a.curEnd.matchDate,
-        startMatchId: a.curStart.id,
-        endMatchId: a.curEnd.id,
-      });
-    }
-  }
-
-  historical.sort((a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName));
-  active.sort((a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName));
-
-  return {
-    historical: historical.slice(0, 10),
-    active: active.slice(0, 10),
-  };
+  return consecutivePlayerCalendarStreaks(matches, unused);
 }
 
 /**
@@ -1631,31 +1348,49 @@ async function loadTimedCsaGoals(): Promise<TimedGoalRecord[]> {
   return out;
 }
 
-async function fastestGoals(limit = 20): Promise<TimedGoalRecord[]> {
-  const goals = await loadTimedCsaGoals();
-  goals.sort((a, b) => {
-    const ka = eventMinuteSortKey(a.minute, a.injuryTimeMinute);
-    const kb = eventMinuteSortKey(b.minute, b.injuryTimeMinute);
-    if (ka !== kb) return ka - kb;
-    if (a.matchDate !== b.matchDate) return a.matchDate.localeCompare(b.matchDate);
-    return a.goalId - b.goalId;
-  });
-  return goals.slice(0, limit);
+function rankFastestGoals(
+  goals: TimedGoalRecord[],
+  limit = 20,
+): TimedGoalRecord[] {
+  return [...goals]
+    .sort((a, b) => {
+      const ka = eventMinuteSortKey(a.minute, a.injuryTimeMinute);
+      const kb = eventMinuteSortKey(b.minute, b.injuryTimeMinute);
+      if (ka !== kb) return ka - kb;
+      if (a.matchDate !== b.matchDate) return a.matchDate.localeCompare(b.matchDate);
+      return a.goalId - b.goalId;
+    })
+    .slice(0, limit);
 }
 
 /** Latest regulation goals = second-half stoppage only (90+). */
-async function latestStoppageGoals(limit = 20): Promise<TimedGoalRecord[]> {
-  const goals = (await loadTimedCsaGoals()).filter((g) =>
-    isSecondHalfStoppageMinute(g.minute, g.injuryTimeMinute),
-  );
-  goals.sort((a, b) => {
-    const ka = eventMinuteSortKey(a.minute, a.injuryTimeMinute);
-    const kb = eventMinuteSortKey(b.minute, b.injuryTimeMinute);
-    if (ka !== kb) return kb - ka;
-    if (a.matchDate !== b.matchDate) return b.matchDate.localeCompare(a.matchDate);
-    return b.goalId - a.goalId;
-  });
-  return goals.slice(0, limit);
+function rankLatestStoppageGoals(
+  goals: TimedGoalRecord[],
+  limit = 20,
+): TimedGoalRecord[] {
+  return goals
+    .filter((g) => isSecondHalfStoppageMinute(g.minute, g.injuryTimeMinute))
+    .sort((a, b) => {
+      const ka = eventMinuteSortKey(a.minute, a.injuryTimeMinute);
+      const kb = eventMinuteSortKey(b.minute, b.injuryTimeMinute);
+      if (ka !== kb) return kb - ka;
+      if (a.matchDate !== b.matchDate) return b.matchDate.localeCompare(a.matchDate);
+      return b.goalId - a.goalId;
+    })
+    .slice(0, limit);
+}
+
+async function allBatched<T extends readonly unknown[]>(
+  tasks: { [K in keyof T]: () => Promise<T[K]> },
+  batchSize = 8,
+): Promise<{ [K in keyof T]: T[K] }> {
+  const fns = tasks as Array<() => Promise<unknown>>;
+  const out: unknown[] = [];
+  for (let i = 0; i < fns.length; i += batchSize) {
+    const chunk = fns.slice(i, i + batchSize);
+    out.push(...(await Promise.all(chunk.map((fn) => fn()))));
+  }
+  return out as { [K in keyof T]: T[K] };
 }
 
 export async function computeClubRecords() {
@@ -1704,52 +1439,54 @@ export async function computeClubRecords() {
     captainApps,
     penaltiesMissed,
     penaltiesSaved,
-    fastest,
-    latestStoppage,
-  ] = await Promise.all([
-    topScorers(),
-    topAssists(),
-    topAppearances(),
-    topPenaltyGoals(),
-    topOwnGoals(),
-    topFreeKickGoals(),
-    multiGoalHaulsByCount(),
-    topCards("yellow"),
-    topCards("red"),
-    topPlayerWins(),
-    topGoalsAsSubstitute(),
-    topAppearancesAsSubstitute(),
-    topUnusedBenchAppearances(),
-    (async () => {
+    timedGoals,
+  ] = await allBatched([
+    () => topScorers(),
+    () => topAssists(),
+    () => topAppearances(),
+    () => topPenaltyGoals(),
+    () => topOwnGoals(),
+    () => topFreeKickGoals(),
+    () => multiGoalHaulsByCount(),
+    () => topCards("yellow"),
+    () => topCards("red"),
+    () => topPlayerWins(),
+    () => topGoalsAsSubstitute(),
+    () => topAppearancesAsSubstitute(),
+    () => topUnusedBenchAppearances(),
+    async () => {
       const season = await latestRecordsSeason();
       return season
         ? { season, rows: await topUnusedBenchAppearances(10, season) }
         : { season: null as string | null, rows: [] as PlayerRecordHolder[] };
-    })(),
-    unusedBenchStreakRecords(),
-    topCleanSheets(),
-    topManagerWins(),
-    biggestWins(),
-    consecutiveStartsRecords(),
-    goalkeeperCleanSheetStreaks(),
-    scoringStreakRecords(matches),
-    assistStreakRecords(matches),
-    yellowCardStreakRecords(matches),
-    topAssistsInOneMatch(),
-    multiAssistHaulsByCount(),
-    topPlayersByTitles(10),
-    topManagersByTitles(10),
-    managerStreakRecords(matches, (m) => m.result === "win"),
-    managerStreakRecords(
-      matches,
-      (m) => m.result === "win" || m.result === "draw",
-    ),
-    topCaptainAppearances(),
-    topPenaltyEvents("missed"),
-    topPenaltyEvents("saved"),
-    fastestGoals(),
-    latestStoppageGoals(),
+    },
+    () => unusedBenchStreakRecords(matches),
+    () => topCleanSheets(),
+    () => topManagerWins(),
+    () => biggestWins(),
+    () => consecutiveStartsRecords(matches),
+    () => goalkeeperCleanSheetStreaks(matches),
+    () => scoringStreakRecords(matches),
+    () => assistStreakRecords(matches),
+    () => yellowCardStreakRecords(matches),
+    () => topAssistsInOneMatch(),
+    () => multiAssistHaulsByCount(),
+    () => topPlayersByTitles(10),
+    () => topManagersByTitles(10),
+    () => managerStreakRecords(matches, (m) => m.result === "win"),
+    () =>
+      managerStreakRecords(
+        matches,
+        (m) => m.result === "win" || m.result === "draw",
+      ),
+    () => topCaptainAppearances(),
+    () => topPenaltyEvents("missed"),
+    () => topPenaltyEvents("saved"),
+    () => loadTimedCsaGoals(),
   ]);
+
+  const fastest = rankFastestGoals(timedGoals);
+  const latestStoppage = rankLatestStoppageGoals(timedGoals);
 
   const topHatTricks =
     multiGoalHauls.find((b) => b.goalsInMatch === 3)?.players ?? [];
@@ -1835,4 +1572,27 @@ export async function computeClubRecords() {
       scoringStreak: scoring,
     },
   };
+}
+
+type ClubRecordsPayload = Awaited<ReturnType<typeof computeClubRecords>>;
+
+const RECORDS_CACHE_TTL_MS = 120_000;
+let recordsCache: { at: number; data: ClubRecordsPayload } | null = null;
+let recordsInflight: Promise<ClubRecordsPayload> | null = null;
+
+/** Cached club records — avoids repeating the heavy compute on Vercel warm instances. */
+export async function getClubRecords(): Promise<ClubRecordsPayload> {
+  if (recordsCache && Date.now() - recordsCache.at < RECORDS_CACHE_TTL_MS) {
+    return recordsCache.data;
+  }
+  if (recordsInflight) return recordsInflight;
+  recordsInflight = computeClubRecords()
+    .then((data) => {
+      recordsCache = { at: Date.now(), data };
+      return data;
+    })
+    .finally(() => {
+      recordsInflight = null;
+    });
+  return recordsInflight;
 }

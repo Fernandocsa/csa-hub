@@ -88,7 +88,7 @@ import {
   listSeasonCompetitionStats,
   recalculateSeasonCompetitionStats,
 } from "../lib/season-competition-stats";
-import { computeClubRecords } from "../lib/records";
+import { getClubRecords } from "../lib/records";
 import { resolveTransferOpponentId } from "../lib/transfer-opponent";
 import {
   listChampionCampaigns,
@@ -4097,7 +4097,7 @@ router.delete(
 
 router.get("/admin/records", requireAdmin, async (req, res) => {
   try {
-    const data = await computeClubRecords();
+    const data = await getClubRecords();
     res.json(data);
   } catch (err) {
     req.log.error(err);
