@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import {
   Users,
@@ -6,6 +7,8 @@ import {
   Shield,
   Trophy,
   Award,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import {
   useGetSummary,
@@ -214,6 +217,24 @@ function formatDayMonth(month: number, day: number) {
   });
 }
 
+function saoPauloMonthDay() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Sao_Paulo",
+    month: "numeric",
+    day: "numeric",
+  }).formatToParts(new Date());
+  return {
+    month: Number(parts.find((p) => p.type === "month")?.value),
+    day: Number(parts.find((p) => p.type === "day")?.value),
+  };
+}
+
+function shiftMonthDay(month: number, day: number, delta: number) {
+  const d = new Date(Date.UTC(2000, month - 1, day));
+  d.setUTCDate(d.getUTCDate() + delta);
+  return { month: d.getUTCMonth() + 1, day: d.getUTCDate() };
+}
+
 function OnThisDayMatchRow({ match }: { match: OnThisDayMatch }) {
   const ago = yearsAgoLabel(match.yearsAgo);
   const scoreReady = match.goalsFor != null && match.goalsAgainst != null;
@@ -256,26 +277,43 @@ function OnThisDayMatchRow({ match }: { match: OnThisDayMatch }) {
 }
 
 function OnThisDaySection() {
-  const { data, isLoading } = useGetOnThisDay();
+  const [{ month, day }, setDate] = useState(saoPauloMonthDay);
+  const { data, isLoading } = useGetOnThisDay({ month, day });
   const matches = data?.matches ?? [];
-
-  if (!isLoading && matches.length === 0) return null;
-
-  const titleDate =
-    data != null ? formatDayMonth(data.month, data.day) : null;
+  const titleDate = formatDayMonth(month, day);
 
   return (
     <section
       className="space-y-3 rounded-lg border border-primary/25 bg-gradient-to-br from-primary/10 via-background to-background p-4"
       data-testid="section-on-this-day"
     >
-      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <h2 className="text-base font-bold tracking-tight text-primary">
           Neste dia
         </h2>
-        {titleDate && (
-          <span className="text-sm font-medium text-foreground/80">{titleDate}</span>
-        )}
+        <div className="inline-flex items-center">
+          <button
+            type="button"
+            aria-label="Dia anterior"
+            data-testid="button-on-this-day-prev"
+            className="inline-flex items-center justify-center h-8 w-8 rounded-md text-primary hover:bg-primary/10"
+            onClick={() => setDate((d) => shiftMonthDay(d.month, d.day, -1))}
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <span className="text-sm font-medium text-foreground/80 min-w-[8.5rem] text-center">
+            {titleDate}
+          </span>
+          <button
+            type="button"
+            aria-label="Próximo dia"
+            data-testid="button-on-this-day-next"
+            className="inline-flex items-center justify-center h-8 w-8 rounded-md text-primary hover:bg-primary/10"
+            onClick={() => setDate((d) => shiftMonthDay(d.month, d.day, 1))}
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
         <span className="text-xs text-muted-foreground italic">
           Jogos oficiais do CSA nesta data, em outros anos
         </span>
@@ -292,6 +330,10 @@ function OnThisDaySection() {
             </div>
           ))}
         </div>
+      ) : matches.length === 0 ? (
+        <p className="rounded-md border bg-background/80 p-3 text-sm text-muted-foreground">
+          Nenhum jogo oficial do CSA nesta data.
+        </p>
       ) : (
         <ul className="rounded-md border bg-background/80 p-3 divide-y divide-border/60">
           {matches.map((m) => (

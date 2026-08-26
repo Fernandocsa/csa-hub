@@ -25,15 +25,25 @@ export type OnThisDayPayload = {
   matches: OnThisDayMatch[];
 };
 
-export const getOnThisDay = () =>
-  customFetch<OnThisDayPayload>("/api/matches/on-this-day");
+export type OnThisDayParams = {
+  month?: number;
+  day?: number;
+};
 
-export const getOnThisDayQueryKey = () =>
-  ["/api/matches/on-this-day"] as const;
+export const getOnThisDay = (params?: OnThisDayParams) => {
+  const qs = new URLSearchParams();
+  if (params?.month != null) qs.set("month", String(params.month));
+  if (params?.day != null) qs.set("day", String(params.day));
+  const q = qs.toString();
+  return customFetch<OnThisDayPayload>(`/api/matches/on-this-day${q ? `?${q}` : ""}`);
+};
 
-export const useGetOnThisDay = () =>
+export const getOnThisDayQueryKey = (params?: OnThisDayParams) =>
+  ["/api/matches/on-this-day", params?.month ?? null, params?.day ?? null] as const;
+
+export const useGetOnThisDay = (params?: OnThisDayParams) =>
   useQuery({
-    queryKey: getOnThisDayQueryKey(),
-    queryFn: getOnThisDay,
+    queryKey: getOnThisDayQueryKey(params),
+    queryFn: () => getOnThisDay(params),
     staleTime: 60_000,
   });
