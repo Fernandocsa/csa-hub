@@ -397,7 +397,7 @@ router.get("/records/home-away", async (req, res) => {
 });
 
 // Streaks
-type StreakType = "winning" | "unbeaten" | "losing";
+type StreakType = "winning" | "unbeaten" | "winless" | "losing";
 
 type StreakMatchRow = {
   id: number;
@@ -426,6 +426,7 @@ function findBestStreakRange(
   const continues = (result: string) => {
     if (type === "winning") return result === "win";
     if (type === "losing") return result === "loss";
+    if (type === "winless") return result === "draw" || result === "loss";
     // unbeaten: only known non-losses (win/draw). Unknown breaks the streak.
     return result === "win" || result === "draw";
   };
@@ -456,6 +457,7 @@ function streakSummary(
   const descriptions: Record<StreakType, string> = {
     winning: `Melhor sequência de vitórias consecutivas: ${range.length} jogos`,
     unbeaten: `Melhor invencibilidade: ${range.length} jogos sem derrota`,
+    winless: `Mais jogos sem vencer: ${range.length} jogos (empates e derrotas)`,
     losing: `Pior sequência de derrotas: ${range.length} jogos`,
   };
   return {
@@ -493,7 +495,7 @@ router.get("/records/streaks", async (req, res) => {
   try {
     const matches = await loadOfficialMatchesForStreaks();
     const streaks = [];
-    for (const type of ["winning", "unbeaten", "losing"] as StreakType[]) {
+    for (const type of ["winning", "unbeaten", "winless", "losing"] as StreakType[]) {
       const range = findBestStreakRange(matches, type);
       if (range) streaks.push(streakSummary(type, matches, range));
     }
@@ -507,7 +509,7 @@ router.get("/records/streaks", async (req, res) => {
 router.get("/records/streaks/:type", async (req, res) => {
   try {
     const type = req.params.type as string;
-    if (type !== "winning" && type !== "unbeaten" && type !== "losing") {
+    if (type !== "winning" && type !== "unbeaten" && type !== "winless" && type !== "losing") {
       return res.status(400).json({ error: "Tipo de sequência inválido" });
     }
     const matches = await loadOfficialMatchesForStreaks();

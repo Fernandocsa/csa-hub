@@ -30,6 +30,11 @@ const META: Record<
     subtitle: "Jogos da pior sequência de derrotas consecutivas do CSA",
     color: "text-red-600",
   },
+  winless: {
+    title: "Mais Jogos Sem Vencer",
+    subtitle: "Jogos da maior sequência sem vitória do CSA (empates e derrotas)",
+    color: "text-amber-600",
+  },
 };
 
 export default function StreakDetailPage({ type }: { type: StreakDetailType }) {

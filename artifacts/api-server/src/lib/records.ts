@@ -854,6 +854,7 @@ async function consecutiveStartsRecords(matches: MatchRow[]): Promise<{
 /**
  * Consecutive official club-calendar matches in which a player is present
  * in `presenceRows`. Missing a match or a match without the event breaks the streak.
+ * Historical ranking is by streak (a player may appear more than once).
  */
 async function consecutivePlayerCalendarStreaks(
   matches: MatchRow[],
@@ -878,10 +879,9 @@ async function consecutivePlayerCalendarStreaks(
 
   if (allPlayerIds.size === 0) return { historical: [], active: [] };
 
+  type Closed = { len: number; start: MatchRow; end: MatchRow };
   type Acc = {
-    bestLen: number;
-    bestStart: MatchRow | null;
-    bestEnd: MatchRow | null;
+    closed: Closed[];
     curLen: number;
     curStart: MatchRow | null;
     curEnd: MatchRow | null;
@@ -889,9 +889,7 @@ async function consecutivePlayerCalendarStreaks(
   const acc = new Map<number, Acc>();
   for (const id of allPlayerIds) {
     acc.set(id, {
-      bestLen: 0,
-      bestStart: null,
-      bestEnd: null,
+      closed: [],
       curLen: 0,
       curStart: null,
       curEnd: null,
@@ -901,16 +899,22 @@ async function consecutivePlayerCalendarStreaks(
   const empty = new Set<number>();
   const currentlyActive = new Set<number>();
 
+  function closeStreak(a: Acc) {
+    if (a.curLen > 0 && a.curStart && a.curEnd) {
+      a.closed.push({ len: a.curLen, start: a.curStart, end: a.curEnd });
+    }
+    a.curLen = 0;
+    a.curStart = null;
+    a.curEnd = null;
+  }
+
   for (const m of matches) {
     const present = presentByMatch.get(m.id) ?? empty;
     if (currentlyActive.size) {
       for (const playerId of [...currentlyActive]) {
         if (!present.has(playerId)) {
           currentlyActive.delete(playerId);
-          const a = acc.get(playerId)!;
-          a.curLen = 0;
-          a.curStart = null;
-          a.curEnd = null;
+          closeStreak(acc.get(playerId)!);
         }
       }
     }
@@ -919,39 +923,31 @@ async function consecutivePlayerCalendarStreaks(
       if (a.curLen === 0) a.curStart = m;
       a.curLen += 1;
       a.curEnd = m;
-      if (a.curLen > a.bestLen) {
-        a.bestLen = a.curLen;
-        a.bestStart = a.curStart;
-        a.bestEnd = a.curEnd;
-      }
       currentlyActive.add(playerId);
     }
   }
 
+  const toRecord = (
+    playerId: number,
+    s: Closed,
+  ): PlayerStreakRecord => ({
+    playerId,
+    playerName: `#${playerId}`,
+    length: s.len,
+    startDate: s.start.matchDate,
+    endDate: s.end.matchDate,
+    startMatchId: s.start.id,
+    endMatchId: s.end.id,
+  });
+
   const historical: PlayerStreakRecord[] = [];
   const active: PlayerStreakRecord[] = [];
   for (const [playerId, a] of acc) {
-    if (a.bestLen > 0 && a.bestStart && a.bestEnd) {
-      historical.push({
-        playerId,
-        playerName: `#${playerId}`,
-        length: a.bestLen,
-        startDate: a.bestStart.matchDate,
-        endDate: a.bestEnd.matchDate,
-        startMatchId: a.bestStart.id,
-        endMatchId: a.bestEnd.id,
-      });
-    }
+    for (const s of a.closed) historical.push(toRecord(playerId, s));
     if (a.curLen > 0 && a.curStart && a.curEnd) {
-      active.push({
-        playerId,
-        playerName: `#${playerId}`,
-        length: a.curLen,
-        startDate: a.curStart.matchDate,
-        endDate: a.curEnd.matchDate,
-        startMatchId: a.curStart.id,
-        endMatchId: a.curEnd.id,
-      });
+      const current = { len: a.curLen, start: a.curStart, end: a.curEnd };
+      historical.push(toRecord(playerId, current));
+      active.push(toRecord(playerId, current));
     }
   }
 
@@ -973,7 +969,10 @@ async function consecutivePlayerCalendarStreaks(
       row.playerName = nameById.get(row.playerId) ?? row.playerName;
     }
     topHistorical.sort(
-      (a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName),
+      (a, b) =>
+        b.length - a.length ||
+        a.playerName.localeCompare(b.playerName) ||
+        String(a.startDate ?? "").localeCompare(String(b.startDate ?? "")),
     );
     topActive.sort(
       (a, b) => b.length - a.length || a.playerName.localeCompare(b.playerName),
@@ -1015,6 +1014,7 @@ async function scoringStreakRecords(matches: MatchRow[]): Promise<{
 /**
  * Consecutive unused-bench appearances across the club calendar.
  * Missing a match, starting, or coming on as a sub breaks the streak.
+ * Historical ranking lists distinct streaks (the same player can appear twice).
  */
 async function unusedBenchStreakRecords(matches: MatchRow[]): Promise<{
   historical: PlayerStreakRecord[];

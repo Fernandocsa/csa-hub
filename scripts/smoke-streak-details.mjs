@@ -4,7 +4,7 @@
  */
 
 const API = process.env.API_URL ?? "http://127.0.0.1:8080";
-const TYPES = ["winning", "unbeaten", "losing"];
+const TYPES = ["winning", "unbeaten", "winless", "losing"];
 
 async function check(type) {
   const res = await fetch(`${API}/api/records/streaks/${type}`);

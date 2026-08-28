@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { customFetch } from "./custom-fetch";
 
-export type StreakDetailType = "winning" | "unbeaten" | "losing";
+export type StreakDetailType = "winning" | "unbeaten" | "winless" | "losing";
 
 export interface StreakDetailMatch {
   id: number;

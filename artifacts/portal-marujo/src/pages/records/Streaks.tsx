@@ -21,6 +21,12 @@ const typeConfig = {
     bg: "border-blue-200 bg-blue-50",
     href: "/registros/sequencias/invencibilidade",
   },
+  winless: {
+    label: "Jogos Sem Vencer",
+    color: "text-amber-600",
+    bg: "border-amber-200 bg-amber-50",
+    href: "/registros/sequencias/sem-vencer",
+  },
   losing: {
     label: "Derrotas Consecutivas",
     color: "text-red-600",
@@ -36,7 +42,7 @@ export default function Streaks() {
     <RecordsLayout title="Sequências Históricas" subtitle="Maiores sequências positivas e negativas do CSA">
       {isLoading ? (
         <div className="space-y-4">
-          {Array.from({ length: 3 }).map((_, i) => (
+          {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="border rounded p-6">
               <Skeleton className="h-20" />
             </div>

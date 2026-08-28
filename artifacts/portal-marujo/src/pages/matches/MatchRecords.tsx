@@ -15,6 +15,7 @@ export default function MatchRecords() {
 
   const winStreak = streaks?.find((s) => s.type === "winning");
   const unbeatenStreak = streaks?.find((s) => s.type === "unbeaten");
+  const winlessStreak = streaks?.find((s) => s.type === "winless");
   const losingStreak = streaks?.find((s) => s.type === "losing");
 
   return (
@@ -26,9 +27,9 @@ export default function MatchRecords() {
 
       <section>
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Sequências</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {lS
-            ? Array.from({ length: 3 }).map((_, i) => (
+            ? Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="border rounded p-4">
                   <Skeleton className="h-12" />
                 </div>
@@ -64,6 +65,22 @@ export default function MatchRecords() {
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
                       {fmtDate(unbeatenStreak.startDate)} — {fmtDate(unbeatenStreak.endDate)}
+                    </p>
+                  </Link>
+                )}
+                {winlessStreak && (
+                  <Link
+                    href="/registros/sequencias/sem-vencer"
+                    className="border rounded p-4 block hover:bg-muted/40 transition-colors"
+                    data-testid="streak-winless"
+                  >
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Mais Jogos Sem Vencer</p>
+                    <p className="text-3xl font-black text-amber-600 mt-1">
+                      {winlessStreak.length}{" "}
+                      <span className="text-sm font-normal text-muted-foreground">jogos</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {fmtDate(winlessStreak.startDate)} — {fmtDate(winlessStreak.endDate)}
                     </p>
                   </Link>
                 )}
