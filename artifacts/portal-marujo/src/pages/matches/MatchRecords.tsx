@@ -74,7 +74,7 @@ export default function MatchRecords() {
                     className="border rounded p-4 block hover:bg-muted/40 transition-colors"
                     data-testid="streak-winless"
                   >
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Mais Jogos Sem Vencer</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Mais jogos sem vencer</p>
                     <p className="text-3xl font-black text-amber-600 mt-1">
                       {winlessStreak.length}{" "}
                       <span className="text-sm font-normal text-muted-foreground">jogos</span>

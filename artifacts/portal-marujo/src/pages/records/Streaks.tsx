@@ -10,30 +10,39 @@ function fmtDate(d: string) {
 
 const typeConfig = {
   winning: {
-    label: "Vitórias Consecutivas",
+    label: "Vitórias consecutivas",
     color: "text-green-600",
     bg: "border-green-200 bg-green-50",
     href: "/registros/sequencias/vitorias",
   },
   unbeaten: {
-    label: "Jogos Sem Derrota",
+    label: "Jogos sem derrota",
     color: "text-primary",
     bg: "border-blue-200 bg-blue-50",
     href: "/registros/sequencias/invencibilidade",
   },
   winless: {
-    label: "Jogos Sem Vencer",
+    label: "Jogos sem vencer",
     color: "text-amber-600",
     bg: "border-amber-200 bg-amber-50",
     href: "/registros/sequencias/sem-vencer",
   },
   losing: {
-    label: "Derrotas Consecutivas",
+    label: "Derrotas consecutivas",
     color: "text-red-600",
     bg: "border-red-200 bg-red-50",
     href: "/registros/sequencias/derrotas",
   },
-};
+} as const;
+
+function streakUi(type: string) {
+  const key = type.trim().toLowerCase().replace(/_/g, "-");
+  if (key === "winning" || key === "vitorias") return typeConfig.winning;
+  if (key === "unbeaten" || key === "invencibilidade") return typeConfig.unbeaten;
+  if (key === "winless" || key === "sem-vencer") return typeConfig.winless;
+  if (key === "losing" || key === "derrotas") return typeConfig.losing;
+  return null;
+}
 
 export default function Streaks() {
   const { data: streaks, isLoading } = useGetStreaks();
@@ -51,21 +60,19 @@ export default function Streaks() {
       ) : (
         <div className="space-y-4">
           {streaks?.map((streak, i) => {
-            const cfg =
-              typeConfig[streak.type as keyof typeof typeConfig] ?? {
-                label: streak.type,
-                color: "text-foreground",
-                bg: "border bg-background",
-                href: null,
-              };
+            const cfg = streakUi(streak.type);
+            const label =
+              ("label" in streak && typeof streak.label === "string" && streak.label) ||
+              cfg?.label ||
+              "Sequência";
             const inner = (
               <>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                      {cfg.label}
+                      {label}
                     </p>
-                    <p className={`text-4xl font-black ${cfg.color}`}>
+                    <p className={`text-4xl font-black ${cfg?.color ?? "text-foreground"}`}>
                       {streak.length}
                       <span className="text-base font-normal text-muted-foreground ml-2">jogos</span>
                     </p>
@@ -83,7 +90,7 @@ export default function Streaks() {
                 </div>
                 <p className="text-sm text-muted-foreground mt-3 border-t border-current/10 pt-3">
                   {streak.description}
-                  {cfg.href ? (
+                  {cfg?.href ? (
                     <span className="block mt-1 text-xs font-medium text-primary">
                       Ver jogos da sequência →
                     </span>
@@ -91,11 +98,11 @@ export default function Streaks() {
                 </p>
               </>
             );
-            return cfg.href ? (
+            return cfg?.href ? (
               <Link
                 key={i}
                 href={cfg.href}
-                className={`border rounded p-5 block hover:opacity-95 transition-opacity ${cfg.bg}`}
+                className={`border rounded p-5 block hover:opacity-95 transition-opacity ${cfg?.bg ?? "border bg-background"}`}
                 data-testid={`streak-card-${streak.type}-${i}`}
               >
                 {inner}
@@ -103,7 +110,7 @@ export default function Streaks() {
             ) : (
               <div
                 key={i}
-                className={`border rounded p-5 ${cfg.bg}`}
+                className={`border rounded p-5 ${cfg?.bg ?? "border bg-background"}`}
                 data-testid={`streak-card-${streak.type}-${i}`}
               >
                 {inner}

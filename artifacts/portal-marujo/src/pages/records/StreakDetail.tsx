@@ -31,7 +31,7 @@ const META: Record<
     color: "text-red-600",
   },
   winless: {
-    title: "Mais Jogos Sem Vencer",
+    title: "Mais jogos sem vencer",
     subtitle: "Jogos da maior sequência sem vitória do CSA (empates e derrotas)",
     color: "text-amber-600",
   },

@@ -1433,6 +1433,9 @@ components:
         type:
           type: string
           enum: [winning, unbeaten, winless, losing]
+        label:
+          type: string
+          description: Nome da sequência em português
         length:
           type: integer
         startDate:

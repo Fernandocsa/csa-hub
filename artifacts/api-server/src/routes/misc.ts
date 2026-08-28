@@ -449,6 +449,22 @@ function findBestStreakRange(
   return { length: max, start: bestStart, end: bestEnd };
 }
 
+const STREAK_LABELS: Record<StreakType, string> = {
+  winning: "Vitórias consecutivas",
+  unbeaten: "Jogos sem derrota",
+  winless: "Jogos sem vencer",
+  losing: "Derrotas consecutivas",
+};
+
+function parseStreakType(raw: string): StreakType | null {
+  const key = raw.trim().toLowerCase().replace(/_/g, "-");
+  if (key === "winning" || key === "vitorias" || key === "vitórias") return "winning";
+  if (key === "unbeaten" || key === "invencibilidade") return "unbeaten";
+  if (key === "winless" || key === "sem-vencer") return "winless";
+  if (key === "losing" || key === "derrotas") return "losing";
+  return null;
+}
+
 function streakSummary(
   type: StreakType,
   matches: StreakMatchRow[],
@@ -462,6 +478,7 @@ function streakSummary(
   };
   return {
     type,
+    label: STREAK_LABELS[type],
     length: range.length,
     startDate: matches[range.start].matchDate,
     endDate: matches[range.end].matchDate,
@@ -508,8 +525,8 @@ router.get("/records/streaks", async (req, res) => {
 
 router.get("/records/streaks/:type", async (req, res) => {
   try {
-    const type = req.params.type as string;
-    if (type !== "winning" && type !== "unbeaten" && type !== "winless" && type !== "losing") {
+    const type = parseStreakType(String(req.params.type ?? ""));
+    if (!type) {
       return res.status(400).json({ error: "Tipo de sequência inválido" });
     }
     const matches = await loadOfficialMatchesForStreaks();

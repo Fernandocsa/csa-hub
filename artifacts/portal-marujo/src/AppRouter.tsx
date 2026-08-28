@@ -115,6 +115,7 @@ export default function AppRouter() {
         <Route path="/registros/sequencias/invencibilidade" component={StreakUnbeaten} />
         <Route path="/registros/sequencias/derrotas" component={StreakLosing} />
         <Route path="/registros/sequencias/sem-vencer" component={StreakWinless} />
+        <Route path="/registros/sequencias/winless" component={StreakWinless} />
         <Route path="/registros/sequencias" component={Streaks} />
         <Route path="/registros/mando" component={HomeAway} />
         <Route path="/transferencias" component={TransfersList} />
