@@ -11,26 +11,26 @@ function fmtDate(d: string) {
 const typeConfig = {
   winning: {
     label: "Vitórias consecutivas",
-    color: "text-green-600",
-    bg: "border-green-200 bg-green-50",
+    color: "text-green-600 dark:text-green-400",
+    bg: "border-green-200 bg-green-50 dark:border-green-400/25 dark:bg-green-500/10",
     href: "/registros/sequencias/vitorias",
   },
   unbeaten: {
     label: "Jogos sem derrota",
     color: "text-primary",
-    bg: "border-blue-200 bg-blue-50",
+    bg: "border-blue-200 bg-blue-50 dark:border-primary/30 dark:bg-primary/10",
     href: "/registros/sequencias/invencibilidade",
   },
   winless: {
     label: "Jogos sem vencer",
-    color: "text-amber-600",
-    bg: "border-amber-200 bg-amber-50",
+    color: "text-amber-600 dark:text-amber-400",
+    bg: "border-amber-200 bg-amber-50 dark:border-amber-400/25 dark:bg-amber-500/10",
     href: "/registros/sequencias/sem-vencer",
   },
   losing: {
     label: "Derrotas consecutivas",
-    color: "text-red-600",
-    bg: "border-red-200 bg-red-50",
+    color: "text-red-600 dark:text-red-400",
+    bg: "border-red-200 bg-red-50 dark:border-red-400/25 dark:bg-red-500/10",
     href: "/registros/sequencias/derrotas",
   },
 } as const;
@@ -102,7 +102,7 @@ export default function Streaks() {
               <Link
                 key={i}
                 href={cfg.href}
-                className={`border rounded p-5 block hover:opacity-95 transition-opacity ${cfg?.bg ?? "border bg-background"}`}
+                className={`border rounded p-5 block hover:opacity-95 dark:hover:opacity-100 transition-opacity ${cfg?.bg ?? "border bg-background"}`}
                 data-testid={`streak-card-${streak.type}-${i}`}
               >
                 {inner}

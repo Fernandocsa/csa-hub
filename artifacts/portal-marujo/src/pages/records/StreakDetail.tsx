@@ -18,7 +18,7 @@ const META: Record<
   winning: {
     title: "Maior Sequência de Vitórias",
     subtitle: "Jogos da melhor sequência de vitórias consecutivas do CSA",
-    color: "text-green-600",
+    color: "text-green-600 dark:text-green-400",
   },
   unbeaten: {
     title: "Maior Invencibilidade",
@@ -28,12 +28,12 @@ const META: Record<
   losing: {
     title: "Maior Sequência de Derrotas",
     subtitle: "Jogos da pior sequência de derrotas consecutivas do CSA",
-    color: "text-red-600",
+    color: "text-red-600 dark:text-red-400",
   },
   winless: {
     title: "Mais jogos sem vencer",
     subtitle: "Jogos da maior sequência sem vitória do CSA (empates e derrotas)",
-    color: "text-amber-600",
+    color: "text-amber-600 dark:text-amber-400",
   },
 };
 
@@ -75,10 +75,10 @@ export default function StreakDetailPage({ type }: { type: StreakDetailType }) {
               </p>
               <p>
                 <span className="text-muted-foreground">Gols marcados:</span>{" "}
-                <span className="font-bold text-green-600">{data.goalsFor}</span>
+                <span className="font-bold text-green-600 dark:text-green-400">{data.goalsFor}</span>
                 <span className="text-muted-foreground mx-2">·</span>
                 <span className="text-muted-foreground">Gols sofridos:</span>{" "}
-                <span className="font-bold text-red-600">{data.goalsAgainst}</span>
+                <span className="font-bold text-red-600 dark:text-red-400">{data.goalsAgainst}</span>
               </p>
             </div>
           </div>

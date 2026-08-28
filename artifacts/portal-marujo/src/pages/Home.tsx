@@ -944,7 +944,7 @@ export default function Home() {
             >
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Sequência de Vitórias</p>
               <p className="font-bold text-base">Vitórias consecutivas</p>
-              <p className="text-2xl font-black text-green-600">
+              <p className="text-2xl font-black text-green-600 dark:text-green-400">
                 {formatInt(winStreak.length)}{" "}
                 <span className="text-sm font-normal text-muted-foreground">jogos</span>
               </p>
@@ -977,8 +977,8 @@ export default function Home() {
                   logoUrl={biggestWin.opponentLogoUrl}
                 />
               </p>
-              <p className="text-2xl font-black text-green-600">
-                <MatchScoreLink matchId={biggestWin.id} className="text-green-600">
+              <p className="text-2xl font-black text-green-600 dark:text-green-400">
+                <MatchScoreLink matchId={biggestWin.id} className="text-green-600 dark:text-green-400">
                   {biggestWin.goalsFor}–{biggestWin.goalsAgainst}{" "}
                   <span className="text-sm font-normal text-muted-foreground">
                     {fmtDate(biggestWin.date)}

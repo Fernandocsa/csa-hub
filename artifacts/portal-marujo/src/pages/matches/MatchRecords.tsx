@@ -43,7 +43,7 @@ export default function MatchRecords() {
                     data-testid="streak-winning"
                   >
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Sequência de Vitórias</p>
-                    <p className="text-3xl font-black text-green-600 mt-1">
+                    <p className="text-3xl font-black text-green-600 dark:text-green-400 mt-1">
                       {winStreak.length}{" "}
                       <span className="text-sm font-normal text-muted-foreground">jogos</span>
                     </p>
@@ -75,7 +75,7 @@ export default function MatchRecords() {
                     data-testid="streak-winless"
                   >
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">Mais jogos sem vencer</p>
-                    <p className="text-3xl font-black text-amber-600 mt-1">
+                    <p className="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">
                       {winlessStreak.length}{" "}
                       <span className="text-sm font-normal text-muted-foreground">jogos</span>
                     </p>
@@ -91,7 +91,7 @@ export default function MatchRecords() {
                     data-testid="streak-losing"
                   >
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">Maior Sequência de Derrotas</p>
-                    <p className="text-3xl font-black text-red-600 mt-1">
+                    <p className="text-3xl font-black text-red-600 dark:text-red-400 mt-1">
                       {losingStreak.length}{" "}
                       <span className="text-sm font-normal text-muted-foreground">jogos</span>
                     </p>
