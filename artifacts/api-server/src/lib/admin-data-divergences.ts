@@ -10,7 +10,6 @@ import {
 } from "@workspace/db";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { officialPlayedMatchConditions } from "./match-filters";
-import { csaLineupActuallyPlayedCondition } from "./player-appeared";
 
 export type DivergenceEntityType = "player" | "manager";
 
@@ -120,11 +119,45 @@ async function loadPlayerSeasonHints(
     .where(inArray(playerSeasonStatsTable.playerId, playerIds))
     .groupBy(playerSeasonStatsTable.playerId);
 
-  for (const r of rows) {
-    const first = yearFromSeason(r.firstSeason);
-    const last = yearFromSeason(r.lastSeason);
-    if (!first) continue;
-    map.set(r.playerId, last && last !== first ? `${first}–${last}` : first);
+  const lineupRows = await db
+    .select({
+      playerId: matchLineupsTable.playerId,
+      firstSeason: sql<string | null>`min(${matchesTable.season})`,
+      lastSeason: sql<string | null>`max(${matchesTable.season})`,
+    })
+    .from(matchLineupsTable)
+    .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
+    .where(
+      and(
+        inArray(matchLineupsTable.playerId, playerIds),
+        eq(matchLineupsTable.side, "csa"),
+      ),
+    )
+    .groupBy(matchLineupsTable.playerId);
+
+  const bounds = new Map<number, { first: string; last: string }>();
+  const absorb = (
+    playerId: number | null,
+    first: string | null,
+    last: string | null,
+  ) => {
+    if (playerId == null) return;
+    const f = yearFromSeason(first);
+    const l = yearFromSeason(last) ?? f;
+    if (!f) return;
+    const cur = bounds.get(playerId);
+    if (!cur) {
+      bounds.set(playerId, { first: f, last: l ?? f });
+      return;
+    }
+    if (f < cur.first) cur.first = f;
+    if ((l ?? f) > cur.last) cur.last = l ?? f;
+  };
+  for (const r of rows) absorb(r.playerId, r.firstSeason, r.lastSeason);
+  for (const r of lineupRows) absorb(r.playerId, r.firstSeason, r.lastSeason);
+
+  for (const [playerId, b] of bounds) {
+    map.set(playerId, b.last !== b.first ? `${b.first}–${b.last}` : b.first);
   }
   return map;
 }
@@ -461,45 +494,71 @@ async function managerManualVsLinked(): Promise<DivergenceGroup> {
 }
 
 async function managerSeasonSumVsStored(): Promise<DivergenceGroup> {
-  const rows = await db
+  const managers = await db
     .select({
       id: managersTable.id,
       name: managersTable.name,
-      storedGames: managersTable.storedGames,
+    })
+    .from(managersTable);
+
+  const seasonRows = await db
+    .select({
+      managerId: managerSeasonStatsTable.managerId,
       seasonSum: sql<number>`cast(coalesce(sum(${managerSeasonStatsTable.games}), 0) as int)`,
       seasonCount: sql<number>`cast(count(${managerSeasonStatsTable.id}) as int)`,
     })
-    .from(managersTable)
-    .leftJoin(
-      managerSeasonStatsTable,
-      eq(managerSeasonStatsTable.managerId, managersTable.id),
-    )
-    .where(sql`${managersTable.storedGames} IS NOT NULL`)
-    .groupBy(managersTable.id, managersTable.name, managersTable.storedGames)
-    .having(
-      sql`cast(coalesce(sum(${managerSeasonStatsTable.games}), 0) as int) <> ${managersTable.storedGames}`,
-    );
+    .from(managerSeasonStatsTable)
+    .groupBy(managerSeasonStatsTable.managerId);
+  const seasonById = new Map(
+    seasonRows.map((r) => [r.managerId, { sum: r.seasonSum, count: r.seasonCount }]),
+  );
 
-  const items = rows
-    .map((r) => ({
-      id: r.id,
-      name: r.name,
-      href: `/admin/tecnicos/${r.id}`,
-      summary: `Carreira ${r.storedGames}J · soma das temporadas ${r.seasonSum}J (${r.seasonCount} temp.)`,
+  const linkedRows = await db
+    .select({
+      managerId: matchesTable.managerId,
+      linked: sql<number>`cast(count(*) as int)`,
+    })
+    .from(matchesTable)
+    .where(
+      and(
+        sql`${matchesTable.managerId} IS NOT NULL`,
+        officialPlayedMatchConditions(),
+      ),
+    )
+    .groupBy(matchesTable.managerId);
+  const linkedById = new Map(
+    linkedRows
+      .filter((r) => r.managerId != null)
+      .map((r) => [r.managerId as number, r.linked]),
+  );
+
+  const items: DivergenceItem[] = [];
+  for (const m of managers) {
+    const linked = linkedById.get(m.id) ?? 0;
+    const season = seasonById.get(m.id);
+    const seasonSum = season?.sum ?? 0;
+    const seasonCount = season?.count ?? 0;
+    if (linked === seasonSum) continue;
+    items.push({
+      id: m.id,
+      name: m.name,
+      href: `/admin/tecnicos/${m.id}`,
+      summary: `Partidas linkadas ${linked}J · soma das temporadas ${seasonSum}J (${seasonCount} temp.)`,
       meta: {
-        storedGames: r.storedGames,
-        seasonSum: r.seasonSum,
-        seasonCount: r.seasonCount,
+        linkedMatches: linked,
+        seasonSum,
+        seasonCount,
       },
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+    });
+  }
+  items.sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
 
   return {
     kind: "manager_season_sum_vs_stored",
     entityType: "manager",
-    title: "Soma das temporadas ≠ carreira (técnicos)",
+    title: "Soma das temporadas ≠ jogos linkados (técnicos)",
     description:
-      "Total stored_games diverge da soma de games em manager_season_stats.",
+      "A soma de jogos em manager_season_stats não confere com as partidas oficiais em que o técnico está linkado.",
     count: items.length,
     items,
   };
@@ -586,83 +645,6 @@ async function managerSeasonWdlInconsistent(): Promise<DivergenceGroup> {
   };
 }
 
-async function playerLinkedVsManualSeason(): Promise<DivergenceGroup> {
-  const linked = await db
-    .select({
-      playerId: matchLineupsTable.playerId,
-      season: matchesTable.season,
-      linkedApps: sql<number>`cast(count(distinct ${matchLineupsTable.matchId}) as int)`,
-    })
-    .from(matchLineupsTable)
-    .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
-    .where(
-      and(
-        eq(matchLineupsTable.side, "csa"),
-        csaLineupActuallyPlayedCondition(),
-        officialPlayedMatchConditions(),
-      ),
-    )
-    .groupBy(matchLineupsTable.playerId, matchesTable.season);
-
-  const manuals = await db
-    .select({
-      playerId: playerSeasonStatsTable.playerId,
-      season: playerSeasonStatsTable.season,
-      appearances: playerSeasonStatsTable.appearances,
-    })
-    .from(playerSeasonStatsTable);
-
-  const manualMap = new Map(
-    manuals.map((r) => [`${r.playerId}|${r.season}`, r.appearances ?? 0]),
-  );
-
-  const playerNames = await db
-    .select({ id: playersTable.id, name: playersTable.name })
-    .from(playersTable);
-  const nameById = new Map(playerNames.map((p) => [p.id, p.name]));
-
-  const items: DivergenceItem[] = [];
-  for (const row of linked) {
-    if (row.playerId == null) continue;
-    const playerId = row.playerId;
-    const manual = manualMap.get(`${playerId}|${row.season}`) ?? 0;
-    if (row.linkedApps <= manual) continue;
-    // Only flag meaningful overcounts (digitization noise of +1 can happen; focus on clear excess)
-    if (row.linkedApps - manual < 2 && manual > 0) continue;
-    if (manual === 0 && row.linkedApps < 3) continue;
-    const name = nameById.get(playerId) ?? `#${playerId}`;
-    items.push({
-      id: playerId,
-      name,
-      href: `/admin/jogadores/${row.playerId}`,
-      summary: `${row.season}: manual ${manual}J · fichas ${row.linkedApps}J`,
-      meta: {
-        season: row.season,
-        manualAppearances: manual,
-        linkedAppearances: row.linkedApps,
-      },
-    });
-  }
-
-  items.sort((a, b) => {
-    const da =
-      Number(a.meta?.linkedAppearances ?? 0) - Number(a.meta?.manualAppearances ?? 0);
-    const db_ =
-      Number(b.meta?.linkedAppearances ?? 0) - Number(b.meta?.manualAppearances ?? 0);
-    return db_ - da || a.name.localeCompare(b.name, "pt-BR");
-  });
-
-  return {
-    kind: "player_linked_vs_manual_season",
-    entityType: "player",
-    title: "Fichas linkadas > stats manuais (jogadores)",
-    description:
-      "Em alguma temporada, jogos nas fichas CSA excedem as aparições manuais — possível jogador errado na escalação ou stats desatualizados.",
-    count: items.length,
-    items: items.slice(0, 200),
-  };
-}
-
 export async function loadAdminDataDivergences(): Promise<{
   groups: DivergenceGroup[];
   totalItems: number;
@@ -680,7 +662,6 @@ export async function loadAdminDataDivergences(): Promise<{
     playerDuplicateNames(),
     playerBirthYearMismatch(),
     playerNationalityDemonyms(),
-    playerLinkedVsManualSeason(),
   ]);
 
   await attachPlayerSeasonHints(rawGroups);

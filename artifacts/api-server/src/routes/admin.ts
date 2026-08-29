@@ -75,6 +75,8 @@ import {
   validateManualBadgeInput,
 } from "../lib/manual-badge-templates";
 import {
+  computeManagerSeasonStatsFromMatches,
+  computeManagerStatsFromMatches,
   managerStoredStatsChanged,
   periodFromSeasons,
   recalculateManagerSeasonStats,
@@ -801,6 +803,7 @@ router.get("/admin/players/:id/stats", requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    await syncPlayerSeasonStatsFromSheets(id);
     const stats = await db
       .select()
       .from(playerSeasonStatsTable)
@@ -808,19 +811,32 @@ router.get("/admin/players/:id/stats", requireAdmin, async (req, res) => {
       .orderBy(desc(playerSeasonStatsTable.season));
     const sheet = await flooredPlayerSeasonStats(id);
     const bySeason = new Map(sheet.map((r) => [String(r.season), r]));
-    res.json(
-      stats.map((s) => {
-        const disc = bySeason.get(String(s.season));
+    const seasons = new Set([
+      ...stats.map((s) => String(s.season)),
+      ...sheet.map((r) => String(r.season)),
+    ]);
+    const storedBySeason = new Map(stats.map((s) => [String(s.season), s]));
+    const rows = [...seasons]
+      .sort((a, b) => b.localeCompare(a))
+      .map((season) => {
+        const stored = storedBySeason.get(season);
+        const disc = bySeason.get(season);
         return {
-          ...s,
+          id: stored?.id ?? 0,
+          playerId: id,
+          season,
+          appearances: disc?.appearances ?? 0,
+          goals: disc?.goals ?? 0,
+          assists: disc?.assists ?? 0,
+          shirtNumber: stored?.shirtNumber ?? null,
           yellowCards: disc?.yellowCards ?? 0,
           redCards: disc?.redCards ?? 0,
           ownGoals: disc?.ownGoals ?? 0,
           penaltiesSaved: disc?.penaltiesSaved ?? 0,
           goalsConceded: disc?.goalsConceded ?? 0,
         };
-      }),
-    );
+      });
+    res.json(rows);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -2980,6 +2996,14 @@ router.get("/admin/managers/:id", requireAdmin, async (req, res) => {
     const [manager] = await db.select().from(managersTable).where(eq(managersTable.id, id));
     if (!manager) return res.status(404).json({ error: "Técnico não encontrado" });
     const seasonsMap = await seasonsByManagerIds([id]);
+    const linkedCareer = await computeManagerStatsFromMatches(id);
+    if (
+      linkedCareer.matchCount > 0 &&
+      (seasonsMap.get(id)?.length ?? 0) > 0 &&
+      manager.storedGames !== linkedCareer.storedGames
+    ) {
+      await syncManagerCareerFromSeasonRows(id);
+    }
     let playerName: string | null = null;
     if (manager.playerId != null) {
       const [p] = await db
@@ -2990,7 +3014,25 @@ router.get("/admin/managers/:id", requireAdmin, async (req, res) => {
       playerName = p?.name ?? null;
     }
     res.json({
-      ...serializeManagerAdmin(withDerivedPeriod(manager, seasonsMap.get(id) ?? [])),
+      ...serializeManagerAdmin(
+        withDerivedPeriod(
+          {
+            ...manager,
+            storedGames: linkedCareer.matchCount > 0 ? linkedCareer.storedGames : manager.storedGames,
+            storedWins: linkedCareer.matchCount > 0 ? linkedCareer.storedWins : manager.storedWins,
+            storedDraws: linkedCareer.matchCount > 0 ? linkedCareer.storedDraws : manager.storedDraws,
+            storedLosses: linkedCareer.matchCount > 0 ? linkedCareer.storedLosses : manager.storedLosses,
+            storedGoalsFor:
+              linkedCareer.matchCount > 0 ? linkedCareer.storedGoalsFor : manager.storedGoalsFor,
+            storedGoalsAgainst:
+              linkedCareer.matchCount > 0
+                ? linkedCareer.storedGoalsAgainst
+                : manager.storedGoalsAgainst,
+            statsSource: linkedCareer.matchCount > 0 ? "calculated" : manager.statsSource,
+          },
+          seasonsMap.get(id) ?? [],
+        ),
+      ),
       playerName,
     });
   } catch (err) {
@@ -3240,7 +3282,35 @@ router.get("/admin/managers/:id/stats", requireAdmin, async (req, res) => {
       .from(managerSeasonStatsTable)
       .where(eq(managerSeasonStatsTable.managerId, managerId))
       .orderBy(desc(managerSeasonStatsTable.season));
-    res.json(rows.map(serializeManagerSeasonStat));
+    const linked = await computeManagerSeasonStatsFromMatches(managerId);
+    const storedBySeason = new Map(rows.map((r) => [r.season, r]));
+    const seasons = new Set([
+      ...rows.map((r) => r.season),
+      ...linked.map((r) => r.season),
+    ]);
+    const merged = [...seasons]
+      .sort((a, b) => b.localeCompare(a))
+      .map((season) => {
+        const stored = storedBySeason.get(season);
+        const disc = linked.find((r) => r.season === season);
+        if (disc) {
+          return serializeManagerSeasonStat({
+            id: stored?.id ?? 0,
+            managerId,
+            season,
+            games: disc.games,
+            wins: disc.wins,
+            draws: disc.draws,
+            losses: disc.losses,
+            goalsFor: disc.goalsFor,
+            goalsAgainst: disc.goalsAgainst,
+            statsSource: "calculated",
+            statsRecalculatedAt: stored?.statsRecalculatedAt ?? new Date(),
+          } as typeof managerSeasonStatsTable.$inferSelect);
+        }
+        return serializeManagerSeasonStat(stored!);
+      });
+    res.json(merged);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
