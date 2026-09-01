@@ -6,9 +6,14 @@ import {
   matchGoalsTable,
   managersTable,
   playersTable,
+  stadiumsTable,
 } from "@workspace/db";
 import { and, asc, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
-import { officialPlayedMatchConditions, scoredFieldMatchConditions } from "./match-filters";
+import {
+  officialPlayedMatchConditions,
+  scoredFieldMatchConditions,
+  scheduledMatchConditions,
+} from "./match-filters";
 import { csaLineupActuallyPlayedCondition } from "./player-appeared";
 import {
   foldNamedCompetitionStats,
@@ -424,4 +429,42 @@ export async function getOpponentMostRepeatedScorelines(
       goalsAgainst: r.goalsAgainst!,
       count: r.count!,
     }));
+}
+
+export type OpponentUpcomingMatch = {
+  matchId: number;
+  date: string;
+  competition: string;
+  homeAway: string;
+  stadium: string | null;
+  stadiumId: number | null;
+};
+
+/** Scheduled fixtures (status=scheduled) between CSA and this opponent. */
+export async function getUpcomingMatchesVsOpponent(
+  opponentId: number,
+): Promise<OpponentUpcomingMatch[]> {
+  const rows = await db
+    .select({
+      matchId: matchesTable.id,
+      date: matchesTable.matchDate,
+      competition: competitionsTable.name,
+      homeAway: matchesTable.homeAway,
+      stadium: stadiumsTable.name,
+      stadiumId: matchesTable.stadiumId,
+    })
+    .from(matchesTable)
+    .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+    .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
+    .where(and(eq(matchesTable.opponentId, opponentId), scheduledMatchConditions()))
+    .orderBy(asc(matchesTable.matchDate), asc(matchesTable.id));
+
+  return rows.map((r) => ({
+    matchId: r.matchId,
+    date: r.date,
+    competition: r.competition,
+    homeAway: r.homeAway,
+    stadium: r.stadium ?? null,
+    stadiumId: r.stadiumId ?? null,
+  }));
 }

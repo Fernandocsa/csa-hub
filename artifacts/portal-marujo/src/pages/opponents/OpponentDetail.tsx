@@ -3,6 +3,7 @@ import { Link, useLocation, useParams } from "wouter";
 import {
   useGetOpponent,
   getGetOpponentQueryKey,
+  type OpponentClubStadium,
   type OpponentCompetitionStat,
   type OpponentConfrontationMatch,
   type OpponentHighlightEntry,
@@ -10,7 +11,9 @@ import {
   type OpponentManagerHighlightEntry,
   type OpponentManagerHighlights,
   type OpponentMarginMatch,
+  type OpponentRelatedSummary,
   type OpponentRepeatedScoreline,
+  type OpponentUpcomingMatch,
 } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,6 +27,7 @@ import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 
 import { formatDateBr } from "@/lib/utils";
 import { countryDisplayName } from "@/lib/countries";
+import { ufDisplayName } from "@/lib/br-locations";
 
 const HISTORY_PREVIEW = 10;
 
@@ -299,6 +303,12 @@ function RepeatedScorelinesCard({ items }: { items: OpponentRepeatedScoreline[] 
   );
 }
 
+function mandoLabel(homeAway: string) {
+  if (homeAway === "home") return "Casa";
+  if (homeAway === "away") return "Fora";
+  return "Neutro";
+}
+
 function ConfrontationCard({
   label,
   entry,
@@ -313,9 +323,7 @@ function ConfrontationCard({
     entry.goalsFor != null && entry.goalsAgainst != null
       ? formatScore(entry.goalsFor, entry.goalsAgainst)
       : "–";
-  const mando =
-    entry.homeAway === "home" ? "Casa" : entry.homeAway === "away" ? "Fora" : "Neutro";
-  const place = [mando, entry.stadium].filter(Boolean).join(" · ");
+  const place = [mandoLabel(entry.homeAway), entry.stadium].filter(Boolean).join(" · ");
   return (
     <Link
       href={`/partidas/${entry.matchId}`}
@@ -385,6 +393,119 @@ function OpponentHighlightsSection({ highlights }: { highlights: OpponentHighlig
   );
 }
 
+function UpcomingMatchesCard({ matches }: { matches: OpponentUpcomingMatch[] }) {
+  if (matches.length === 0) return null;
+  const title = matches.length === 1 ? "Próximo confronto" : "Próximos confrontos";
+  return (
+    <section
+      className="border border-primary/25 bg-primary/5 rounded p-4 space-y-3"
+      data-testid="sidebar-upcoming"
+    >
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {title}
+      </h2>
+      <ul className="space-y-3">
+        {matches.map((m) => {
+          const place = [mandoLabel(m.homeAway), m.stadium].filter(Boolean).join(" · ");
+          return (
+            <li key={m.matchId}>
+              <Link
+                href={`/partidas/${m.matchId}`}
+                className="block hover:bg-background/60 rounded -mx-1 px-1 py-0.5 transition-colors"
+              >
+                <p className="text-sm font-semibold">{fmtDate(m.date)}</p>
+                <p className="text-sm text-muted-foreground">{m.competition}</p>
+                {place ? <p className="text-xs text-muted-foreground mt-0.5">{place}</p> : null}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+function RelatedOpponentsCard({
+  uf,
+  opponents,
+}: {
+  uf: string | null | undefined;
+  opponents: OpponentRelatedSummary[];
+}) {
+  if (opponents.length === 0) return null;
+  const stateName = uf ? ufDisplayName(uf) : null;
+  return (
+    <section className="border rounded p-4 space-y-3" data-testid="sidebar-related">
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {stateName ? `Outros adversários de ${stateName}` : "Outros adversários do mesmo estado"}
+      </h2>
+      <ul className="space-y-2">
+        {opponents.map((o) => (
+          <li key={o.id}>
+            <Link
+              href={`/adversarios/${o.id}`}
+              className="flex items-center gap-2 min-w-0 hover:text-primary"
+              data-testid={`sidebar-related-${o.id}`}
+            >
+              <OpponentCrest url={o.logoUrl} name={o.name} size="sm" fallback />
+              <span className="text-sm font-medium truncate">{o.name}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {uf ? (
+        <Link
+          href={`/partidas/por-estado/${uf}`}
+          className="text-xs text-primary hover:underline"
+        >
+          Ver todos de {stateName}
+        </Link>
+      ) : null}
+    </section>
+  );
+}
+
+function PrimaryStadiumCard({ stadium }: { stadium: OpponentClubStadium | undefined }) {
+  if (!stadium) return null;
+  const place = [stadium.city, stadium.state].filter(Boolean).join(", ");
+  return (
+    <Link
+      href={`/estadios/${stadium.id}`}
+      className="border rounded p-4 space-y-1 block hover:bg-muted/40 transition-colors"
+      data-testid="sidebar-primary-stadium"
+    >
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        Estádio principal
+      </p>
+      <p className="font-semibold">{stadium.name}</p>
+      {place ? <p className="text-sm text-muted-foreground">{place}</p> : null}
+    </Link>
+  );
+}
+
+function OpponentSidebar({
+  upcomingMatches,
+  relatedOpponents,
+  relatedUf,
+  primaryStadium,
+}: {
+  upcomingMatches: OpponentUpcomingMatch[];
+  relatedOpponents: OpponentRelatedSummary[];
+  relatedUf: string | null | undefined;
+  primaryStadium: OpponentClubStadium | undefined;
+}) {
+  if (upcomingMatches.length === 0 && relatedOpponents.length === 0 && !primaryStadium) {
+    return null;
+  }
+  return (
+    <aside className="space-y-4 lg:sticky lg:top-20" data-testid="opponent-sidebar">
+      <UpcomingMatchesCard matches={upcomingMatches} />
+      <RelatedOpponentsCard uf={relatedUf} opponents={relatedOpponents} />
+      <PrimaryStadiumCard stadium={primaryStadium} />
+    </aside>
+  );
+}
+
 function OpponentManagerHighlightsSection({
   highlights,
 }: {
@@ -440,7 +561,7 @@ export default function OpponentDetail() {
 
   if (isLoading) {
     return (
-      <div className="space-y-5 max-w-3xl">
+      <div className="space-y-5 max-w-7xl">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-20 w-full" />
         <Skeleton className="h-60 w-full" />
@@ -456,9 +577,14 @@ export default function OpponentDetail() {
   const competitionStats = opponent.competitionStats ?? [];
   const visibleMatches = showAllMatches ? allMatches : allMatches.slice(0, HISTORY_PREVIEW);
   const canExpandHistory = allMatches.length > HISTORY_PREVIEW;
+  const upcomingMatches = opponent.upcomingMatches ?? [];
+  const relatedOpponents = opponent.relatedOpponents ?? [];
+  const primaryStadium = opponent.stadiums?.find((s) => s.isPrimary);
+  const showSidebar =
+    upcomingMatches.length > 0 || relatedOpponents.length > 0 || !!primaryStadium;
 
   return (
-    <div className="space-y-5 max-w-3xl">
+    <div className="space-y-5 max-w-7xl">
       <Link href="/adversarios">
         <span className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground cursor-pointer" data-testid="link-back">
           <ChevronLeft className="h-4 w-4 mr-1" /> Voltar para Adversários
@@ -482,9 +608,16 @@ export default function OpponentDetail() {
                   : [opponent.city, opponent.state].filter(Boolean).join(", ")}
               </p>
             )}
-            {opponent.foundingYear != null && (
+            {(opponent.foundedOn || opponent.foundingYear != null) && (
               <p className="text-sm text-muted-foreground mt-0.5">
-                Fundado em {opponent.foundingYear}
+                Fundado em{" "}
+                {opponent.foundedOn
+                  ? formatDateBr(opponent.foundedOn, {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : opponent.foundingYear}
               </p>
             )}
           </div>
@@ -513,6 +646,14 @@ export default function OpponentDetail() {
         )}
       </div>
 
+      <div
+        className={
+          showSidebar
+            ? "grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start"
+            : undefined
+        }
+      >
+        <div className={showSidebar ? "lg:col-span-2 space-y-5 min-w-0" : "space-y-5"}>
       {/* Histórico por competições */}
       <section>
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
@@ -690,6 +831,17 @@ export default function OpponentDetail() {
       </div>
 
       <EntitySuggestionForm entityType="opponent" entityId={opponent.id} />
+        </div>
+
+        {showSidebar ? (
+          <OpponentSidebar
+            upcomingMatches={upcomingMatches}
+            relatedOpponents={relatedOpponents}
+            relatedUf={opponent.relatedOpponentsUf}
+            primaryStadium={primaryStadium}
+          />
+        ) : null}
+      </div>
     </div>
   );
 }

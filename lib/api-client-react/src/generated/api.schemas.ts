@@ -359,6 +359,26 @@ export interface OpponentClubStadium {
   isPrimary: boolean;
 }
 
+export interface OpponentUpcomingMatch {
+  matchId: number;
+  date: string;
+  competition: string;
+  homeAway: string;
+  /** @nullable */
+  stadium?: string | null;
+  /** @nullable */
+  stadiumId?: number | null;
+}
+
+export interface OpponentRelatedSummary {
+  id: number;
+  name: string;
+  /** @nullable */
+  logoUrl?: string | null;
+  /** @nullable */
+  city?: string | null;
+}
+
 export interface OpponentConfrontationMatch {
   matchId: number;
   date: string;
@@ -411,6 +431,8 @@ export interface OpponentDetail {
   country?: string | null;
   /** @nullable */
   foundingYear?: number | null;
+  /** Full founding date (YYYY-MM-DD) when day and month are known. @nullable */
+  foundedOn?: string | null;
   stadiums?: OpponentClubStadium[];
   /** @nullable */
   logoUrl?: string | null;
@@ -431,6 +453,10 @@ export interface OpponentDetail {
   mostRepeatedScorelines: OpponentRepeatedScoreline[];
   firstMatch?: OpponentConfrontationMatch | null;
   lastMatch?: OpponentConfrontationMatch | null;
+  upcomingMatches?: OpponentUpcomingMatch[];
+  /** @nullable */
+  relatedOpponentsUf?: string | null;
+  relatedOpponents?: OpponentRelatedSummary[];
 }
 
 export interface PaginatedOpponents {

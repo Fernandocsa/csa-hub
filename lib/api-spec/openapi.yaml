@@ -1083,6 +1083,9 @@ components:
           type: ["string", "null"]
         foundingYear:
           type: ["integer", "null"]
+        foundedOn:
+          type: ["string", "null"]
+          description: Full founding date (YYYY-MM-DD) when day and month are known.
         stadiums:
           type: array
           items:
@@ -1141,6 +1144,46 @@ components:
           oneOf:
             - $ref: "#/components/schemas/OpponentConfrontationMatch"
             - type: "null"
+        upcomingMatches:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpponentUpcomingMatch"
+        relatedOpponentsUf:
+          type: ["string", "null"]
+        relatedOpponents:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpponentRelatedSummary"
+
+    OpponentUpcomingMatch:
+      type: object
+      required: [matchId, date, competition, homeAway]
+      properties:
+        matchId:
+          type: integer
+        date:
+          type: string
+        competition:
+          type: string
+        homeAway:
+          type: string
+        stadium:
+          type: ["string", "null"]
+        stadiumId:
+          type: ["integer", "null"]
+
+    OpponentRelatedSummary:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        logoUrl:
+          type: ["string", "null"]
+        city:
+          type: ["string", "null"]
 
     OpponentClubStadium:
       type: object

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { matchesTable, opponentsTable, competitionsTable, stadiumsTable } from "@workspace/db";
-import { sql, eq, and, or, ilike, desc, isNull, isNotNull, asc } from "drizzle-orm";
+import { sql, eq, and, or, ilike, desc, isNull, isNotNull, asc, ne } from "drizzle-orm";
 import {
   BRAZIL_REGIONS,
   regionFromUf,
@@ -17,6 +17,7 @@ import {
   getOpponentBiggestVictory,
   getOpponentBiggestDefeat,
   getOpponentMostRepeatedScorelines,
+  getUpcomingMatchesVsOpponent,
 } from "../lib/opponent-detail.js";
 import { listClubStadiums } from "../lib/club-stadiums.js";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
@@ -681,6 +682,8 @@ router.get("/opponents/:id", async (req, res) => {
       .where(and(eq(matchesTable.opponentId, id), officialPlayedMatchConditions()))
       .orderBy(desc(matchesTable.matchDate));
 
+    const RELATED_OPPONENTS_LIMIT = 6;
+
     const [
       competitionStats,
       highlightsRaw,
@@ -689,6 +692,8 @@ router.get("/opponents/:id", async (req, res) => {
       biggestDefeat,
       mostRepeatedScorelines,
       stadiums,
+      upcomingMatches,
+      relatedBundle,
     ] = await Promise.all([
       getOpponentCompetitionStats(id),
       getOpponentHighlights(id),
@@ -697,6 +702,57 @@ router.get("/opponents/:id", async (req, res) => {
       getOpponentBiggestDefeat(id),
       getOpponentMostRepeatedScorelines(id),
       listClubStadiums(id),
+      getUpcomingMatchesVsOpponent(id),
+      (async () => {
+        const [ufRow] = await db
+          .select({ uf: sql<string | null>`${opponentEffectiveUfSql()}` })
+          .from(opponentsTable)
+          .where(eq(opponentsTable.id, id));
+        const uf = ufRow?.uf ? String(ufRow.uf).toUpperCase() : null;
+        if (!uf || !BRAZIL_UFS.has(uf)) {
+          return { uf: null as string | null, opponents: [] as Array<{
+            id: number;
+            name: string;
+            logoUrl: string | null;
+            city: string | null;
+          }> };
+        }
+
+        const related = await db
+          .select({
+            id: opponentsTable.id,
+            name: opponentsTable.name,
+            logoUrl: opponentsTable.logoUrl,
+            city: opponentsTable.city,
+          })
+          .from(matchesTable)
+          .innerJoin(opponentsTable, eq(matchesTable.opponentId, opponentsTable.id))
+          .where(
+            and(
+              officialPlayedMatchConditions(),
+              opponentUfEqualsCondition(uf),
+              ne(opponentsTable.id, id),
+            ),
+          )
+          .groupBy(
+            opponentsTable.id,
+            opponentsTable.name,
+            opponentsTable.logoUrl,
+            opponentsTable.city,
+          )
+          .orderBy(desc(sql`count(*)`), asc(opponentsTable.name))
+          .limit(RELATED_OPPONENTS_LIMIT);
+
+        return {
+          uf,
+          opponents: related.map((o) => ({
+            id: o.id,
+            name: o.name,
+            logoUrl: o.logoUrl ?? null,
+            city: o.city ?? null,
+          })),
+        };
+      })(),
     ]);
 
     const highlights = highlightsRaw
@@ -782,6 +838,9 @@ router.get("/opponents/:id", async (req, res) => {
       mostRepeatedScorelines,
       firstMatch: toConfrontation(firstRow),
       lastMatch: toConfrontation(lastRow),
+      upcomingMatches,
+      relatedOpponentsUf: relatedBundle.uf,
+      relatedOpponents: relatedBundle.opponents,
     });
   } catch (err) {
     req.log.error(err);

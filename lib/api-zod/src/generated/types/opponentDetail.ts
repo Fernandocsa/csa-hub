@@ -12,7 +12,9 @@ import type { OpponentConfrontationMatch } from './opponentConfrontationMatch';
 import type { OpponentHighlights } from './opponentHighlights';
 import type { OpponentManagerHighlights } from './opponentManagerHighlights';
 import type { OpponentMarginMatch } from './opponentMarginMatch';
+import type { OpponentRelatedSummary } from './opponentRelatedSummary';
 import type { OpponentRepeatedScoreline } from './opponentRepeatedScoreline';
+import type { OpponentUpcomingMatch } from './opponentUpcomingMatch';
 import type { RecordLine } from './recordLine';
 
 export interface OpponentDetail {
@@ -26,6 +28,8 @@ export interface OpponentDetail {
   country?: string | null;
   /** @nullable */
   foundingYear?: number | null;
+  /** Full founding date (YYYY-MM-DD) when day and month are known. @nullable */
+  foundedOn?: string | null;
   stadiums?: OpponentClubStadium[];
   /** @nullable */
   logoUrl?: string | null;
@@ -46,4 +50,8 @@ export interface OpponentDetail {
   mostRepeatedScorelines: OpponentRepeatedScoreline[];
   firstMatch?: OpponentConfrontationMatch | null;
   lastMatch?: OpponentConfrontationMatch | null;
+  upcomingMatches?: OpponentUpcomingMatch[];
+  /** @nullable */
+  relatedOpponentsUf?: string | null;
+  relatedOpponents?: OpponentRelatedSummary[];
 }
