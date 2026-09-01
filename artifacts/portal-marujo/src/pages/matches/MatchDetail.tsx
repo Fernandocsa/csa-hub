@@ -325,6 +325,42 @@ function LineupList({
   );
 }
 
+function ManagerLine({
+  label,
+  id,
+  name,
+  photoUrl,
+}: {
+  label: string;
+  id: number | null | undefined;
+  name: string | null | undefined;
+  photoUrl?: string | null;
+}) {
+  if (!name) return null;
+  return (
+    <div className="flex items-center gap-2 text-sm flex-wrap">
+      <span className="text-muted-foreground">{label}</span>
+      <EntityPhoto
+        url={photoUrl}
+        name={name}
+        size="sm"
+        shape="circle"
+        label={`Foto de ${name}`}
+      />
+      {id != null ? (
+        <Link
+          href={`/tecnicos/${id}`}
+          className="font-medium hover:text-primary hover:underline"
+        >
+          {name}
+        </Link>
+      ) : (
+        <span className="font-medium">{name}</span>
+      )}
+    </div>
+  );
+}
+
 function TeamName({
   name,
   isCsa,
@@ -372,7 +408,7 @@ export default function MatchDetail() {
 
   if (isLoading) {
     return (
-      <div className="space-y-5 max-w-3xl">
+      <div className="space-y-5 max-w-5xl">
         <Skeleton className="h-5 w-40" />
         <Skeleton className="h-16 w-full" />
         <Skeleton className="h-48 w-full" />
@@ -382,7 +418,7 @@ export default function MatchDetail() {
 
   if (isError || !match) {
     return (
-      <div className="space-y-3 max-w-3xl">
+      <div className="space-y-3 max-w-5xl">
         <Link href="/partidas">
           <span className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground cursor-pointer">
             <ChevronLeft className="h-4 w-4 mr-1" /> Voltar para Partidas
@@ -394,23 +430,40 @@ export default function MatchDetail() {
   }
 
   const csaLineups = (match.lineups ?? []).filter((l) => l.side === "csa");
+  const oppLineups = (match.lineups ?? []).filter((l) => l.side === "opponent");
   const starters = csaLineups.filter((l) => l.role === "starter");
   const bench = csaLineups.filter((l) => l.role === "bench");
+  const oppStarters = oppLineups.filter((l) => l.role === "starter");
+  const oppBench = oppLineups.filter((l) => l.role === "bench");
   const goals = (match.goals ?? []).filter((g) => g.side === "csa");
+  const oppGoals = (match.goals ?? []).filter((g) => g.side === "opponent");
   const cards = (match.cards ?? []).filter((c) => c.side === "csa");
+  const oppCards = (match.cards ?? []).filter((c) => c.side === "opponent");
   const substitutions = (match.substitutions ?? []).filter(
     (s) => s.side === "csa",
+  );
+  const oppSubstitutions = (match.substitutions ?? []).filter(
+    (s) => s.side === "opponent",
   );
   const penaltyEvents = (match.penaltyEvents ?? []).filter(
     (pe) => !pe.side || pe.side === "csa",
   );
+  const oppPenaltyEvents = (match.penaltyEvents ?? []).filter(
+    (pe) => pe.side === "opponent",
+  );
   const hasLineup = csaLineups.length > 0;
+  const hasOppLineup = oppLineups.length > 0;
   const hasAnySheet =
     csaLineups.length > 0 ||
+    oppLineups.length > 0 ||
     goals.length > 0 ||
+    oppGoals.length > 0 ||
     cards.length > 0 ||
+    oppCards.length > 0 ||
     substitutions.length > 0 ||
-    penaltyEvents.length > 0;
+    oppSubstitutions.length > 0 ||
+    penaltyEvents.length > 0 ||
+    oppPenaltyEvents.length > 0;
   const scorersText = Array.isArray(match.scorers) ? match.scorers : [];
 
   const isHome = match.homeAway === "home";
@@ -426,37 +479,22 @@ export default function MatchDetail() {
   const scoreRight = isScheduled ? "–" : isUnknown ? "?" : rightGoals ?? "–";
   const scoreSep = isScheduled ? "×" : "–";
 
-  const trainerBlock =
-    match.manager && match.managerId != null ? (
-      <div className="flex items-center gap-2 text-sm flex-wrap">
-        <span className="text-muted-foreground">Treinador:</span>
-        <EntityPhoto
-          url={match.managerPhotoUrl}
-          name={match.manager}
-          size="sm"
-          shape="circle"
-          label={`Foto de ${match.manager}`}
-        />
-        <Link
-          href={`/tecnicos/${match.managerId}`}
-          className="font-medium hover:text-primary hover:underline"
-        >
-          {match.manager}
-        </Link>
-      </div>
-    ) : match.manager ? (
-      <div className="flex items-center gap-2 text-sm flex-wrap">
-        <span className="text-muted-foreground">Treinador:</span>
-        <EntityPhoto
-          url={match.managerPhotoUrl}
-          name={match.manager}
-          size="sm"
-          shape="circle"
-          label={`Foto de ${match.manager}`}
-        />
-        <span className="font-medium">{match.manager}</span>
-      </div>
-    ) : null;
+  const trainerBlock = (
+    <ManagerLine
+      label="Treinador:"
+      id={match.managerId}
+      name={match.manager}
+      photoUrl={match.managerPhotoUrl}
+    />
+  );
+  const opponentTrainerBlock = (
+    <ManagerLine
+      label="Treinador:"
+      id={match.opponentManagerId}
+      name={match.opponentManager}
+      photoUrl={match.opponentManagerPhotoUrl}
+    />
+  );
 
   const refereeBlock =
     match.referee && match.refereeId != null ? (
@@ -477,7 +515,7 @@ export default function MatchDetail() {
     ) : null;
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 max-w-5xl">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Link href="/partidas">
           <span className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground cursor-pointer">
@@ -683,8 +721,8 @@ export default function MatchDetail() {
         </div>
       )}
 
-      {/* Escalação CSA — omitted entirely when empty */}
-      {hasLineup && (
+      {/* Escalação — CSA only, or CSA | adversário when opponent sheet exists */}
+      {hasLineup && !hasOppLineup && (
         <section className="space-y-4">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
             Escalação CSA
@@ -710,6 +748,7 @@ export default function MatchDetail() {
             />
           </div>
           {trainerBlock}
+          {opponentTrainerBlock}
           {refereeBlock}
           <p className="text-xs text-muted-foreground">
             <span className="font-medium text-foreground/80">Legenda:</span>{" "}
@@ -719,11 +758,73 @@ export default function MatchDetail() {
           </p>
         </section>
       )}
+      {hasOppLineup ? (
+        <section className="space-y-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Escalação
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {hasLineup && (
+              <div className="space-y-4 min-w-0">
+                <h3 className="text-sm font-semibold">CSA</h3>
+                <LineupList
+                  title="Titulares"
+                  players={starters}
+                  goals={goals}
+                  cards={cards}
+                  substitutions={substitutions}
+                  penaltyEvents={penaltyEvents}
+                  captainPlayerId={match.captainPlayerId}
+                />
+                <LineupList
+                  title="Reservas"
+                  players={bench}
+                  goals={goals}
+                  cards={cards}
+                  substitutions={substitutions}
+                  penaltyEvents={penaltyEvents}
+                  captainPlayerId={match.captainPlayerId}
+                />
+                {trainerBlock}
+              </div>
+            )}
+            <div className="space-y-4 min-w-0">
+              <h3 className="text-sm font-semibold">{match.opponent}</h3>
+              <LineupList
+                title="Titulares"
+                players={oppStarters}
+                goals={oppGoals}
+                cards={oppCards}
+                substitutions={oppSubstitutions}
+                penaltyEvents={oppPenaltyEvents}
+              />
+              <LineupList
+                title="Reservas"
+                players={oppBench}
+                goals={oppGoals}
+                cards={oppCards}
+                substitutions={oppSubstitutions}
+                penaltyEvents={oppPenaltyEvents}
+              />
+              {opponentTrainerBlock}
+            </div>
+          </div>
+          {!hasLineup && trainerBlock}
+          {refereeBlock}
+          <p className="text-xs text-muted-foreground">
+            <span className="font-medium text-foreground/80">Legenda:</span>{" "}
+            ⚽ gol · P pênalti · F gol de falta · A assistência · PP pênalti perdido · PD
+            pênalti defendido · C capitão · retângulo amarelo/vermelho cartão · ↓ saiu · ↑
+            entrou · minuto ao lado
+          </p>
+        </section>
+      ) : null}
 
       {/* Treinador / árbitro when there is no lineup section */}
-      {!hasLineup && (
+      {!hasLineup && !hasOppLineup && (
         <>
           {trainerBlock}
+          {opponentTrainerBlock}
           {refereeBlock}
         </>
       )}

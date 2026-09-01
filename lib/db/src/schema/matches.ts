@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, date, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, date, boolean, timestamp, uniqueIndex, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { refereesTable } from "./referees";
@@ -22,8 +22,36 @@ export const opponentsTable = pgTable("opponents", {
   state: text("state"),
   country: text("country"),
   logoUrl: text("logo_url"),
+  /** Year the club was founded (nullable; filled gradually). */
+  foundingYear: integer("founding_year"),
+  /**
+   * Denormalized pointer to the primary home stadium (club_stadiums.is_primary).
+   * Kept in sync on write so older queries still work.
+   */
   homeStadiumId: integer("home_stadium_id").references(() => stadiumsTable.id),
 });
+
+/**
+ * Many-to-many: opponent (club) ↔ stadium.
+ * `club_id` points at `opponents` — there is no separate clubs table.
+ */
+export const clubStadiumsTable = pgTable(
+  "club_stadiums",
+  {
+    id: serial("id").primaryKey(),
+    clubId: integer("club_id")
+      .notNull()
+      .references(() => opponentsTable.id, { onDelete: "cascade" }),
+    stadiumId: integer("stadium_id")
+      .notNull()
+      .references(() => stadiumsTable.id, { onDelete: "cascade" }),
+    isPrimary: boolean("is_primary").notNull().default(false),
+  },
+  (t) => [
+    uniqueIndex("club_stadiums_club_stadium_uidx").on(t.clubId, t.stadiumId),
+    index("club_stadiums_stadium_idx").on(t.stadiumId),
+  ],
+);
 
 export const competitionsTable = pgTable("competitions", {
   id: serial("id").primaryKey(),
@@ -84,6 +112,8 @@ export const matchesTable = pgTable("matches", {
   competitionId: integer("competition_id").notNull().references(() => competitionsTable.id),
   stadiumId: integer("stadium_id").references(() => stadiumsTable.id),
   managerId: integer("manager_id").references(() => managersTable.id),
+  /** Opponent head coach for this match. CSA coach remains manager_id. */
+  opponentManagerId: integer("opponent_manager_id").references(() => managersTable.id),
   /** CSA captain for this match (must be on the CSA lineup when set). */
   captainPlayerId: integer("captain_player_id").references(() => playersTable.id),
   refereeId: integer("referee_id").references(() => refereesTable.id),

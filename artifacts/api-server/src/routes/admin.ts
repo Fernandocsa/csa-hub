@@ -35,7 +35,8 @@ import {
   unblockDailyPlayer,
   replaceDailyPlayer,
 } from "../lib/guess-player";
-import { eq, asc, desc, sql, ilike, and, or, inArray, notInArray, ne, isNull, lt, gt } from "drizzle-orm";
+import { eq, asc, desc, sql, ilike, and, or, inArray, ne, isNull, lt, gt } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { isStaffRole, type StaffRole } from "../lib/staff-roles";
 import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard, deleteMatchPenaltyEvent, updateMatchGoal } from "../lib/match-sheet";
 import { syncRelatedMatchLink, parsePenaltyShootoutFields } from "../lib/match-links";
@@ -93,6 +94,14 @@ import {
 import { getClubRecords, getClubRecordStreaks } from "../lib/records";
 import { resolveTransferOpponentId } from "../lib/transfer-opponent";
 import {
+  ensureClubPrimary,
+  listClubStadiums,
+  listHomeClubsForStadium,
+  reassignClubStadiumsOnMerge,
+  replaceClubStadiums,
+  setStadiumHomeClubs,
+} from "../lib/club-stadiums";
+import {
   listChampionCampaigns,
   playerIdsForChampionCampaign,
   managerIdsForChampionCampaign,
@@ -121,6 +130,8 @@ function normalizeOptionalUf(raw: unknown): { ok: true; value: string | null } |
 const NEXT_MATCH_ID = 1;
 
 const router = Router();
+
+const opponentManagers = alias(managersTable, "opponent_managers");
 
 function getAdminToken(): string {
   const secret = process.env.SESSION_SECRET ?? "fallback-secret";
@@ -358,6 +369,31 @@ async function seasonsByPlayerIds(ids: number[]): Promise<Map<number, string[]>>
   return map;
 }
 
+/** CSA sheet appearance (side = 'csa') or any player_season_stats row. */
+async function csaAppearanceByPlayerIds(ids: number[]): Promise<Set<number>> {
+  const unique = [...new Set(ids.filter((id) => Number.isInteger(id) && id > 0))];
+  const out = new Set<number>();
+  if (!unique.length) return out;
+  const [pssRows, lineupRows] = await Promise.all([
+    db
+      .select({ playerId: playerSeasonStatsTable.playerId })
+      .from(playerSeasonStatsTable)
+      .where(inArray(playerSeasonStatsTable.playerId, unique)),
+    db
+      .select({ playerId: matchLineupsTable.playerId })
+      .from(matchLineupsTable)
+      .where(
+        and(
+          inArray(matchLineupsTable.playerId, unique),
+          eq(matchLineupsTable.side, "csa"),
+        ),
+      ),
+  ]);
+  for (const r of pssRows) if (r.playerId != null) out.add(r.playerId);
+  for (const r of lineupRows) if (r.playerId != null) out.add(r.playerId);
+  return out;
+}
+
 router.get("/admin/players", requireAdmin, async (req, res) => {
   try {
     const rows = await db.select().from(playersTable).orderBy(asc(playersTable.name));
@@ -456,6 +492,7 @@ router.get("/admin/players/name-check", requireAdmin, async (req, res) => {
       Number.isInteger(excludeId) ? excludeId : null,
     ).slice(0, 8);
     const byId = new Map(rows.map((r) => [r.id, r]));
+    const csaIds = await csaAppearanceByPlayerIds(matches.map((m) => m.id));
     res.json({
       matches: matches.map((m) => {
         const row = byId.get(m.id);
@@ -465,6 +502,7 @@ router.get("/admin/players/name-check", requireAdmin, async (req, res) => {
           birthDate: row?.birthDate ?? null,
           cbfRegistration: row?.cbfRegistration ?? null,
           seasons: (seasonsByPlayer.get(m.id) ?? []).slice().sort((a, b) => a.localeCompare(b)),
+          csa: csaIds.has(m.id),
         };
       }),
     });
@@ -501,11 +539,16 @@ router.get("/admin/players/search", requireAdmin, async (req, res) => {
       )
       .orderBy(asc(playersTable.name))
       .limit(limit);
-    const seasonsMap = await seasonsByPlayerIds(rows.map((r) => r.id));
+    const ids = rows.map((r) => r.id);
+    const [seasonsMap, csaIds] = await Promise.all([
+      seasonsByPlayerIds(ids),
+      csaAppearanceByPlayerIds(ids),
+    ]);
     res.json(
       rows.map((r) => ({
         ...r,
         seasons: seasonsMap.get(r.id) ?? [],
+        csa: csaIds.has(r.id),
       })),
     );
   } catch (err) {
@@ -1497,6 +1540,8 @@ router.get("/admin/matches/:id", requireAdmin, async (req, res) => {
         stadiumName: stadiumsTable.name,
         managerId: matchesTable.managerId,
         managerName: managersTable.name,
+        opponentManagerId: matchesTable.opponentManagerId,
+        opponentManagerName: opponentManagers.name,
         captainPlayerId: matchesTable.captainPlayerId,
         refereeId: matchesTable.refereeId,
         refereeName: refereesTable.name,
@@ -1515,6 +1560,7 @@ router.get("/admin/matches/:id", requireAdmin, async (req, res) => {
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
       .leftJoin(managersTable, eq(matchesTable.managerId, managersTable.id))
+      .leftJoin(opponentManagers, eq(matchesTable.opponentManagerId, opponentManagers.id))
       .leftJoin(refereesTable, eq(matchesTable.refereeId, refereesTable.id))
       .where(eq(matchesTable.id, id))
       .limit(1);
@@ -1606,6 +1652,7 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
       competitionId: number;
       stadiumId?: number | null;
       managerId?: number | null;
+      opponentManagerId?: number | null;
       refereeId?: number | null;
       attendance?: number | null;
       scorers?: string | null;
@@ -1659,6 +1706,7 @@ router.post("/admin/matches", requireAdmin, async (req, res) => {
         competitionId: body.competitionId,
         stadiumId: body.stadiumId ?? null,
         managerId: body.managerId ?? null,
+        opponentManagerId: body.opponentManagerId ?? null,
         refereeId: body.refereeId ?? null,
         attendance: body.attendance ?? null,
         scorers: body.scorers ?? null,
@@ -1707,6 +1755,7 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
       competitionId: number;
       stadiumId?: number | null;
       managerId?: number | null;
+      opponentManagerId?: number | null;
       refereeId?: number | null;
       attendance?: number | null;
       scorers?: string | null;
@@ -1748,6 +1797,7 @@ router.put("/admin/matches/:id", requireAdmin, async (req, res) => {
       competitionId: body.competitionId,
       stadiumId: body.stadiumId ?? null,
       managerId: body.managerId ?? null,
+      opponentManagerId: body.opponentManagerId ?? null,
       refereeId: body.refereeId ?? null,
       attendance: body.attendance ?? null,
       scorers: body.scorers ?? null,
@@ -1899,7 +1949,9 @@ router.put("/admin/matches/:id/sheet/lineup", requireAdmin, async (req, res) => 
 
     const body = req.body as {
       lineups?: Parameters<typeof replaceCsaLineup>[1]["lineups"];
+      opponentLineups?: Parameters<typeof replaceCsaLineup>[1]["opponentLineups"];
       managerId?: number | null;
+      opponentManagerId?: number | null;
     };
     res.json(await replaceCsaLineup(id, body));
   } catch (err: any) {
@@ -2014,8 +2066,17 @@ router.put("/admin/matches/:id/sheet/substitutions", requireAdmin, async (req, r
       .limit(1);
     if (!match) return res.status(404).json({ error: "Partida não encontrada" });
 
-    const body = req.body as { substitutions?: Parameters<typeof replaceCsaSubstitutions>[1] };
-    res.json(await replaceCsaSubstitutions(id, body.substitutions ?? []));
+    const body = req.body as {
+      substitutions?: Parameters<typeof replaceCsaSubstitutions>[1];
+      opponentSubstitutions?: Parameters<typeof replaceCsaSubstitutions>[2];
+    };
+    res.json(
+      await replaceCsaSubstitutions(
+        id,
+        body.substitutions ?? [],
+        body.opponentSubstitutions,
+      ),
+    );
   } catch (err: any) {
     if (err?.status === 400) return res.status(400).json({ error: err.message });
     req.log.error(err);
@@ -2290,17 +2351,7 @@ router.get("/admin/stadiums/:id", requireAdmin, async (req, res) => {
       .limit(1);
     if (!stadium) return res.status(404).json({ error: "Estádio não encontrado" });
 
-    const homeClubs = await db
-      .select({
-        id: opponentsTable.id,
-        name: opponentsTable.name,
-        city: opponentsTable.city,
-        state: opponentsTable.state,
-        country: opponentsTable.country,
-      })
-      .from(opponentsTable)
-      .where(eq(opponentsTable.homeStadiumId, id))
-      .orderBy(asc(opponentsTable.name));
+    const homeClubs = await listHomeClubsForStadium(id);
 
     const matches = await db
       .select({
@@ -2358,36 +2409,7 @@ router.put("/admin/stadiums/:id/home-clubs", requireAdmin, async (req, res) => {
       }
     }
 
-    await db
-      .update(opponentsTable)
-      .set({ homeStadiumId: null })
-      .where(
-        and(
-          eq(opponentsTable.homeStadiumId, id),
-          opponentIds.length > 0
-            ? notInArray(opponentsTable.id, opponentIds)
-            : sql`true`,
-        ),
-      );
-
-    if (opponentIds.length > 0) {
-      await db
-        .update(opponentsTable)
-        .set({ homeStadiumId: id })
-        .where(inArray(opponentsTable.id, opponentIds));
-    }
-
-    const homeClubs = await db
-      .select({
-        id: opponentsTable.id,
-        name: opponentsTable.name,
-        city: opponentsTable.city,
-        state: opponentsTable.state,
-        country: opponentsTable.country,
-      })
-      .from(opponentsTable)
-      .where(eq(opponentsTable.homeStadiumId, id))
-      .orderBy(asc(opponentsTable.name));
+    const homeClubs = await setStadiumHomeClubs(id, opponentIds);
 
     res.json({ homeClubs });
   } catch (err) {
@@ -2444,6 +2466,8 @@ router.delete("/admin/stadiums/:id", requireAdmin, async (req, res) => {
       });
     }
 
+    const linkedClubs = await listHomeClubsForStadium(id);
+
     await db
       .update(opponentsTable)
       .set({ homeStadiumId: null })
@@ -2454,6 +2478,11 @@ router.delete("/admin/stadiums/:id", requireAdmin, async (req, res) => {
       .where(eq(stadiumsTable.id, id))
       .returning({ id: stadiumsTable.id });
     if (!deleted.length) return res.status(404).json({ error: "Estádio não encontrado" });
+
+    for (const club of linkedClubs) {
+      await ensureClubPrimary(club.id);
+    }
+
     res.json({ ok: true });
   } catch (err) {
     req.log.error(err);
@@ -2485,6 +2514,7 @@ router.post("/admin/stadiums/merge", requireAdmin, async (req, res) => {
         [keepId, oldId],
       );
     }
+    await reassignClubStadiumsOnMerge(keepId, mergeIds);
     // Rename if requested
     if (newName?.trim()) {
       await pgPool.query(`UPDATE stadiums SET name=$1 WHERE id=$2`, [newName.trim(), keepId]);
@@ -2565,7 +2595,7 @@ function parseOpponentProfile(body: {
   return parseLocationProfile(body);
 }
 
-function parseHomeStadiumId(
+function parseFoundingYear(
   raw: unknown,
   present: boolean,
 ): { ok: true; set: boolean; value: number | null } | { ok: false; error: string } {
@@ -2573,11 +2603,44 @@ function parseHomeStadiumId(
   if (raw == null || String(raw).trim() === "") {
     return { ok: true, set: true, value: null };
   }
-  const id = typeof raw === "number" ? raw : parseInt(String(raw), 10);
-  if (!Number.isInteger(id) || id < 1) {
-    return { ok: false, error: "homeStadiumId inválido" };
+  const year = typeof raw === "number" ? raw : parseInt(String(raw), 10);
+  if (!Number.isInteger(year) || year < 1800 || year > 2100) {
+    return { ok: false, error: "Ano de fundação inválido" };
   }
-  return { ok: true, set: true, value: id };
+  return { ok: true, set: true, value: year };
+}
+
+function parseStadiumsPayload(
+  raw: unknown,
+  present: boolean,
+):
+  | { ok: true; set: boolean; value: { stadiumId: number; isPrimary?: boolean }[] }
+  | { ok: false; error: string } {
+  if (!present) return { ok: true, set: false, value: [] };
+  if (raw == null) return { ok: true, set: true, value: [] };
+  if (!Array.isArray(raw)) return { ok: false, error: "stadiums deve ser um array" };
+  const value: { stadiumId: number; isPrimary?: boolean }[] = [];
+  for (const item of raw) {
+    if (typeof item === "number") {
+      value.push({ stadiumId: item });
+      continue;
+    }
+    if (!item || typeof item !== "object") {
+      return { ok: false, error: "stadiums inválido" };
+    }
+    const stadiumIdRaw = (item as { stadiumId?: unknown; id?: unknown }).stadiumId
+      ?? (item as { id?: unknown }).id;
+    const stadiumId =
+      typeof stadiumIdRaw === "number" ? stadiumIdRaw : parseInt(String(stadiumIdRaw), 10);
+    if (!Number.isInteger(stadiumId) || stadiumId < 1) {
+      return { ok: false, error: "stadiumId inválido" };
+    }
+    value.push({
+      stadiumId,
+      isPrimary: !!(item as { isPrimary?: unknown }).isPrimary,
+    });
+  }
+  return { ok: true, set: true, value };
 }
 
 router.get("/admin/opponents/:id", requireAdmin, async (req, res) => {
@@ -2592,15 +2655,8 @@ router.get("/admin/opponents/:id", requireAdmin, async (req, res) => {
       .limit(1);
     if (!opponent) return res.status(404).json({ error: "Adversário não encontrado" });
 
-    let homeStadium = null;
-    if (opponent.homeStadiumId != null) {
-      const [stadium] = await db
-        .select()
-        .from(stadiumsTable)
-        .where(eq(stadiumsTable.id, opponent.homeStadiumId))
-        .limit(1);
-      homeStadium = stadium ?? null;
-    }
+    const stadiums = await listClubStadiums(id);
+    const homeStadium = stadiums.find((s) => s.isPrimary) ?? stadiums[0] ?? null;
 
     const matches = await db
       .select({
@@ -2621,7 +2677,7 @@ router.get("/admin/opponents/:id", requireAdmin, async (req, res) => {
       .where(eq(matchesTable.opponentId, id))
       .orderBy(desc(matchesTable.matchDate));
 
-    res.json({ ...opponent, homeStadium, matches });
+    res.json({ ...opponent, homeStadium, stadiums, matches });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -2636,27 +2692,22 @@ router.post("/admin/opponents", requireAdmin, async (req, res) => {
       state?: string | null;
       country?: string | null;
       logoUrl?: string | null;
-      homeStadiumId?: number | null;
+      foundingYear?: number | null;
+      stadiums?: unknown;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
     const profile = parseOpponentProfile(body);
     if (!profile.ok) return res.status(400).json({ error: profile.error });
-    const homeParsed = parseHomeStadiumId(
-      body.homeStadiumId,
-      Object.prototype.hasOwnProperty.call(body, "homeStadiumId"),
+    const yearParsed = parseFoundingYear(
+      body.foundingYear,
+      Object.prototype.hasOwnProperty.call(body, "foundingYear"),
     );
-    if (!homeParsed.ok) return res.status(400).json({ error: homeParsed.error });
-
-    let homeStadiumId: number | null = null;
-    if (homeParsed.set && homeParsed.value != null) {
-      const [stadium] = await db
-        .select({ id: stadiumsTable.id })
-        .from(stadiumsTable)
-        .where(eq(stadiumsTable.id, homeParsed.value))
-        .limit(1);
-      if (!stadium) return res.status(400).json({ error: "estádio sede não encontrado" });
-      homeStadiumId = stadium.id;
-    }
+    if (!yearParsed.ok) return res.status(400).json({ error: yearParsed.error });
+    const stadiumsParsed = parseStadiumsPayload(
+      body.stadiums,
+      Object.prototype.hasOwnProperty.call(body, "stadiums"),
+    );
+    if (!stadiumsParsed.ok) return res.status(400).json({ error: stadiumsParsed.error });
 
     const [opponent] = await db
       .insert(opponentsTable)
@@ -2666,10 +2717,20 @@ router.post("/admin/opponents", requireAdmin, async (req, res) => {
         state: profile.state,
         country: profile.country,
         logoUrl: parseOptionalUrl(body.logoUrl),
-        homeStadiumId: homeParsed.set ? homeStadiumId : null,
+        foundingYear: yearParsed.set ? yearParsed.value : null,
       })
       .returning();
-    res.status(201).json(opponent);
+    if (stadiumsParsed.set) {
+      try {
+        await replaceClubStadiums(opponent.id, stadiumsParsed.value);
+      } catch (err) {
+        return res.status(400).json({
+          error: err instanceof Error ? err.message : "Erro ao vincular estádios",
+        });
+      }
+    }
+    const stadiums = await listClubStadiums(opponent.id);
+    res.status(201).json({ ...opponent, stadiums });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });
@@ -2686,7 +2747,8 @@ router.put("/admin/opponents/:id", requireAdmin, async (req, res) => {
       state?: string | null;
       country?: string | null;
       logoUrl?: string | null;
-      homeStadiumId?: number | null;
+      foundingYear?: number | null;
+      stadiums?: unknown;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
     const profile = parseOpponentProfile(body);
@@ -2698,7 +2760,7 @@ router.put("/admin/opponents/:id", requireAdmin, async (req, res) => {
       state: string | null;
       country: string | null;
       logoUrl?: string | null;
-      homeStadiumId?: number | null;
+      foundingYear?: number | null;
     } = {
       name: body.name.trim(),
       city: profile.city,
@@ -2710,20 +2772,10 @@ router.put("/admin/opponents/:id", requireAdmin, async (req, res) => {
       values.logoUrl = parseOptionalUrl(body.logoUrl);
     }
 
-    if (Object.prototype.hasOwnProperty.call(body, "homeStadiumId")) {
-      const homeParsed = parseHomeStadiumId(body.homeStadiumId, true);
-      if (!homeParsed.ok) return res.status(400).json({ error: homeParsed.error });
-      if (homeParsed.value != null) {
-        const [stadium] = await db
-          .select({ id: stadiumsTable.id })
-          .from(stadiumsTable)
-          .where(eq(stadiumsTable.id, homeParsed.value))
-          .limit(1);
-        if (!stadium) return res.status(400).json({ error: "estádio sede não encontrado" });
-        values.homeStadiumId = stadium.id;
-      } else {
-        values.homeStadiumId = null;
-      }
+    if (Object.prototype.hasOwnProperty.call(body, "foundingYear")) {
+      const yearParsed = parseFoundingYear(body.foundingYear, true);
+      if (!yearParsed.ok) return res.status(400).json({ error: yearParsed.error });
+      values.foundingYear = yearParsed.value;
     }
 
     const [updated] = await db
@@ -2732,7 +2784,51 @@ router.put("/admin/opponents/:id", requireAdmin, async (req, res) => {
       .where(eq(opponentsTable.id, id))
       .returning();
     if (!updated) return res.status(404).json({ error: "Adversário não encontrado" });
-    res.json(updated);
+
+    if (Object.prototype.hasOwnProperty.call(body, "stadiums")) {
+      const stadiumsParsed = parseStadiumsPayload(body.stadiums, true);
+      if (!stadiumsParsed.ok) return res.status(400).json({ error: stadiumsParsed.error });
+      try {
+        await replaceClubStadiums(id, stadiumsParsed.value);
+      } catch (err) {
+        return res.status(400).json({
+          error: err instanceof Error ? err.message : "Erro ao vincular estádios",
+        });
+      }
+    }
+
+    const stadiums = await listClubStadiums(id);
+    res.json({ ...updated, stadiums });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Erro interno" });
+  }
+});
+
+router.put("/admin/opponents/:id/stadiums", requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+    const [opponent] = await db
+      .select({ id: opponentsTable.id })
+      .from(opponentsTable)
+      .where(eq(opponentsTable.id, id))
+      .limit(1);
+    if (!opponent) return res.status(404).json({ error: "Adversário não encontrado" });
+
+    const stadiumsParsed = parseStadiumsPayload(
+      (req.body as { stadiums?: unknown }).stadiums,
+      true,
+    );
+    if (!stadiumsParsed.ok) return res.status(400).json({ error: stadiumsParsed.error });
+    try {
+      const stadiums = await replaceClubStadiums(id, stadiumsParsed.value);
+      res.json({ stadiums });
+    } catch (err) {
+      return res.status(400).json({
+        error: err instanceof Error ? err.message : "Erro ao vincular estádios",
+      });
+    }
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno" });

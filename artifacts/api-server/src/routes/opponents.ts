@@ -13,10 +13,12 @@ import {
 import {
   getOpponentCompetitionStats,
   getOpponentHighlights,
+  getOpponentManagerHighlights,
   getOpponentBiggestVictory,
   getOpponentBiggestDefeat,
   getOpponentMostRepeatedScorelines,
 } from "../lib/opponent-detail.js";
+import { listClubStadiums } from "../lib/club-stadiums.js";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
 import { accentInsensitiveLike } from "../lib/accent-fold";
 
@@ -666,6 +668,7 @@ router.get("/opponents/:id", async (req, res) => {
         homeAway: matchesTable.homeAway,
         opponentName: opponentsTable.name,
         competitionName: competitionsTable.name,
+        stadiumId: matchesTable.stadiumId,
         stadiumName: stadiumsTable.name,
         phase: matchesTable.phase,
         round: matchesTable.round,
@@ -678,14 +681,59 @@ router.get("/opponents/:id", async (req, res) => {
       .where(and(eq(matchesTable.opponentId, id), officialPlayedMatchConditions()))
       .orderBy(desc(matchesTable.matchDate));
 
-    const [competitionStats, highlights, biggestVictory, biggestDefeat, mostRepeatedScorelines] =
-      await Promise.all([
-        getOpponentCompetitionStats(id),
-        getOpponentHighlights(id),
-        getOpponentBiggestVictory(id),
-        getOpponentBiggestDefeat(id),
-        getOpponentMostRepeatedScorelines(id),
-      ]);
+    const [
+      competitionStats,
+      highlightsRaw,
+      managerHighlights,
+      biggestVictory,
+      biggestDefeat,
+      mostRepeatedScorelines,
+      stadiums,
+    ] = await Promise.all([
+      getOpponentCompetitionStats(id),
+      getOpponentHighlights(id),
+      getOpponentManagerHighlights(id),
+      getOpponentBiggestVictory(id),
+      getOpponentBiggestDefeat(id),
+      getOpponentMostRepeatedScorelines(id),
+      listClubStadiums(id),
+    ]);
+
+    const highlights = highlightsRaw
+      ? {
+          ...highlightsRaw,
+          managerMostMatches: managerHighlights?.mostMatches[0]
+            ? {
+                id: managerHighlights.mostMatches[0].id,
+                name: managerHighlights.mostMatches[0].name,
+                value: managerHighlights.mostMatches[0].games,
+              }
+            : null,
+          managerMostWins: managerHighlights?.mostWins[0]
+            ? {
+                id: managerHighlights.mostWins[0].id,
+                name: managerHighlights.mostWins[0].name,
+                value: managerHighlights.mostWins[0].wins,
+              }
+            : null,
+        }
+      : null;
+
+    const lastRow = allMatchRows[0];
+    const firstRow = allMatchRows[allMatchRows.length - 1];
+    const toConfrontation = (row: (typeof allMatchRows)[number] | undefined) =>
+      row
+        ? {
+            matchId: row.id,
+            date: row.matchDate,
+            competition: row.competitionName,
+            goalsFor: row.goalsFor ?? null,
+            goalsAgainst: row.goalsAgainst ?? null,
+            homeAway: row.homeAway,
+            stadium: row.stadiumName ?? null,
+            stadiumId: row.stadiumId ?? null,
+          }
+        : null;
 
     const stats = overall[0];
     res.json({
@@ -694,6 +742,14 @@ router.get("/opponents/:id", async (req, res) => {
       city: opponent.city ?? null,
       state: opponent.state ?? null,
       country: opponent.country ? String(opponent.country).toUpperCase() : null,
+      foundingYear: opponent.foundingYear ?? null,
+      stadiums: stadiums.map((s) => ({
+        id: s.id,
+        name: s.name,
+        city: s.city ?? null,
+        state: s.state ?? null,
+        isPrimary: s.isPrimary,
+      })),
       logoUrl: opponent.logoUrl ?? null,
       matches: stats?.matches || 0,
       wins: stats?.wins || 0,
@@ -703,6 +759,7 @@ router.get("/opponents/:id", async (req, res) => {
       goalsAgainst: stats?.goalsAgainst || 0,
       competitionStats,
       highlights,
+      managerHighlights,
       homeRecord: homeRecord[0] || { matches: 0, wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 },
       awayRecord: awayRecord[0] || { matches: 0, wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 },
       allMatches: allMatchRows.map((r) => ({
@@ -723,6 +780,8 @@ router.get("/opponents/:id", async (req, res) => {
       biggestVictory,
       biggestDefeat,
       mostRepeatedScorelines,
+      firstMatch: toConfrontation(firstRow),
+      lastMatch: toConfrontation(lastRow),
     });
   } catch (err) {
     req.log.error(err);

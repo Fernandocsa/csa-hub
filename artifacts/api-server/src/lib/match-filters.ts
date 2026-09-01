@@ -1,5 +1,5 @@
-import { and, eq, ne, isNotNull, type SQL } from "drizzle-orm";
-import { matchesTable } from "@workspace/db";
+import { and, eq, ne, isNotNull, sql, type SQL } from "drizzle-orm";
+import { matchesTable, matchLineupsTable, playersTable, managersTable } from "@workspace/db";
 
 /**
  * Official matches that already count toward historical stats / rankings.
@@ -54,4 +54,24 @@ export function unknownResultMatchConditions(): SQL | undefined {
     eq(matchesTable.isFriendly, false),
     eq(matchesTable.isWalkover, false),
   );
+}
+
+/** Named on a CSA sheet (starter or bench). Catalog scope — not “actually played”. */
+export function playerHasCsaLineupSql(): SQL {
+  return sql`exists (
+    select 1 from ${matchLineupsTable}
+    where ${matchLineupsTable.playerId} = ${playersTable.id}
+      and ${matchLineupsTable.side} = 'csa'
+  )`;
+}
+
+/** CSA head coach: linked on a match, or stored career floor already set. */
+export function managerHasCsaAssignmentSql(): SQL {
+  return sql`(
+    exists (
+      select 1 from ${matchesTable}
+      where ${matchesTable.managerId} = ${managersTable.id}
+    )
+    or coalesce(${managersTable.storedGames}, 0) > 0
+  )`;
 }

@@ -328,6 +328,50 @@ export interface OpponentHighlights {
   topAssists: OpponentHighlightEntry | null;
   managerMostMatches: OpponentHighlightEntry | null;
   managerMostWins: OpponentHighlightEntry | null;
+  topScorers?: OpponentHighlightEntry[];
+  mostAppearancesTop?: OpponentHighlightEntry[];
+  topAssistsTop?: OpponentHighlightEntry[];
+}
+
+export interface OpponentManagerHighlightEntry {
+  id: number;
+  name: string;
+  games: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  winPct: number;
+}
+
+export interface OpponentManagerHighlights {
+  mostMatches: OpponentManagerHighlightEntry[];
+  mostWins: OpponentManagerHighlightEntry[];
+  bestWinPct: OpponentManagerHighlightEntry[];
+}
+
+export interface OpponentClubStadium {
+  id: number;
+  name: string;
+  /** @nullable */
+  city?: string | null;
+  /** @nullable */
+  state?: string | null;
+  isPrimary: boolean;
+}
+
+export interface OpponentConfrontationMatch {
+  matchId: number;
+  date: string;
+  competition: string;
+  /** @nullable */
+  goalsFor?: number | null;
+  /** @nullable */
+  goalsAgainst?: number | null;
+  homeAway: string;
+  /** @nullable */
+  stadium?: string | null;
+  /** @nullable */
+  stadiumId?: number | null;
 }
 
 export interface RecordLine {
@@ -360,6 +404,15 @@ export interface OpponentDetail {
   id: number;
   name: string;
   /** @nullable */
+  city?: string | null;
+  /** @nullable */
+  state?: string | null;
+  /** @nullable */
+  country?: string | null;
+  /** @nullable */
+  foundingYear?: number | null;
+  stadiums?: OpponentClubStadium[];
+  /** @nullable */
   logoUrl?: string | null;
   matches: number;
   wins: number;
@@ -369,12 +422,15 @@ export interface OpponentDetail {
   goalsAgainst: number;
   competitionStats: OpponentCompetitionStat[];
   highlights?: OpponentHighlights | null;
+  managerHighlights?: OpponentManagerHighlights | null;
   homeRecord?: RecordLine;
   awayRecord?: RecordLine;
   allMatches: Match[];
   biggestVictory?: OpponentMarginMatch | null;
   biggestDefeat?: OpponentMarginMatch | null;
   mostRepeatedScorelines: OpponentRepeatedScoreline[];
+  firstMatch?: OpponentConfrontationMatch | null;
+  lastMatch?: OpponentConfrontationMatch | null;
 }
 
 export interface PaginatedOpponents {

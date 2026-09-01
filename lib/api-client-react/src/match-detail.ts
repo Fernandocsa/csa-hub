@@ -95,6 +95,9 @@ export interface MatchDetailSheet {
   manager: string | null;
   /** @nullable */
   managerPhotoUrl?: string | null;
+  opponentManagerId?: number | null;
+  opponentManager?: string | null;
+  opponentManagerPhotoUrl?: string | null;
   refereeId: number | null;
   referee: string | null;
   scorers: string[];

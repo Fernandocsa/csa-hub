@@ -10,11 +10,42 @@ import {
 import { and, asc, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import { officialPlayedMatchConditions, scoredFieldMatchConditions } from "./match-filters";
 import { csaLineupActuallyPlayedCondition } from "./player-appeared";
+import {
+  foldNamedCompetitionStats,
+  loadCompetitionFamilyIndex,
+} from "./competition-families";
 
 export interface OpponentHighlightEntry {
   id: number;
   name: string;
   value: number;
+}
+
+export interface OpponentManagerHighlightEntry {
+  id: number;
+  name: string;
+  games: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  winPct: number;
+}
+
+export interface OpponentManagerHighlights {
+  mostMatches: OpponentManagerHighlightEntry[];
+  mostWins: OpponentManagerHighlightEntry[];
+  bestWinPct: OpponentManagerHighlightEntry[];
+}
+
+export interface OpponentConfrontationMatch {
+  matchId: number;
+  date: string;
+  competition: string;
+  goalsFor: number | null;
+  goalsAgainst: number | null;
+  homeAway: string;
+  stadium: string | null;
+  stadiumId: number | null;
 }
 
 /** Biggest win/defeat vs an opponent (field matches only). */
@@ -41,6 +72,9 @@ export interface OpponentHighlights {
   topAssists: OpponentHighlightEntry | null;
   managerMostMatches: OpponentHighlightEntry | null;
   managerMostWins: OpponentHighlightEntry | null;
+  topScorers: OpponentHighlightEntry[];
+  mostAppearancesTop: OpponentHighlightEntry[];
+  topAssistsTop: OpponentHighlightEntry[];
 }
 
 export interface OpponentCompetitionStat {
@@ -52,6 +86,7 @@ export interface OpponentCompetitionStat {
   losses: number;
   goalsFor: number;
   goalsAgainst: number;
+  variants?: OpponentCompetitionStat[];
 }
 
 function mapHighlight(
@@ -59,6 +94,14 @@ function mapHighlight(
 ): OpponentHighlightEntry | null {
   if (!row?.id || row.value == null || row.value <= 0) return null;
   return { id: row.id, name: row.name, value: row.value };
+}
+
+function mapHighlights(
+  rows: { id: number; name: string; value: number | null }[],
+): OpponentHighlightEntry[] {
+  return rows
+    .map((row) => mapHighlight(row))
+    .filter((row): row is OpponentHighlightEntry => row != null);
 }
 
 async function getFichaMatchIds(opponentId: number): Promise<number[]> {
@@ -98,16 +141,20 @@ export async function getOpponentCompetitionStats(
     .groupBy(competitionsTable.id, competitionsTable.name)
     .orderBy(desc(sql`count(*)`), asc(competitionsTable.name));
 
-  return rows.map((r) => ({
-    competitionId: r.competitionId,
-    competitionName: r.competitionName,
-    matches: r.matches ?? 0,
-    wins: r.wins ?? 0,
-    draws: r.draws ?? 0,
-    losses: r.losses ?? 0,
-    goalsFor: r.goalsFor ?? 0,
-    goalsAgainst: r.goalsAgainst ?? 0,
-  }));
+  const familyIndex = await loadCompetitionFamilyIndex();
+  return foldNamedCompetitionStats(
+    rows.map((r) => ({
+      competitionId: r.competitionId,
+      competitionName: r.competitionName,
+      matches: r.matches ?? 0,
+      wins: r.wins ?? 0,
+      draws: r.draws ?? 0,
+      losses: r.losses ?? 0,
+      goalsFor: r.goalsFor ?? 0,
+      goalsAgainst: r.goalsAgainst ?? 0,
+    })),
+    familyIndex,
+  );
 }
 
 export async function getOpponentHighlights(
@@ -116,13 +163,7 @@ export async function getOpponentHighlights(
   const fichaMatchIds = await getFichaMatchIds(opponentId);
   if (fichaMatchIds.length === 0) return null;
 
-  const [
-    topScorerRows,
-    mostAppearancesRows,
-    topAssistsRows,
-    managerMostMatchesRows,
-    managerMostWinsRows,
-  ] = await Promise.all([
+  const [topScorerRows, mostAppearancesRows, topAssistsRows] = await Promise.all([
     db
       .select({
         id: playersTable.id,
@@ -140,7 +181,7 @@ export async function getOpponentHighlights(
       )
       .groupBy(playersTable.id, playersTable.name)
       .orderBy(desc(sql`count(*)`), asc(playersTable.name))
-      .limit(1),
+      .limit(3),
 
     db
       .select({
@@ -160,7 +201,7 @@ export async function getOpponentHighlights(
       )
       .groupBy(playersTable.id, playersTable.name)
       .orderBy(desc(sql`count(distinct ${matchLineupsTable.matchId})`), asc(playersTable.name))
-      .limit(1),
+      .limit(3),
 
     db
       .select({
@@ -179,50 +220,102 @@ export async function getOpponentHighlights(
       )
       .groupBy(playersTable.id, playersTable.name)
       .orderBy(desc(sql`count(*)`), asc(playersTable.name))
-      .limit(1),
-
-    db
-      .select({
-        id: managersTable.id,
-        name: managersTable.name,
-        value: sql<number>`cast(count(*) as int)`,
-      })
-      .from(matchesTable)
-      .innerJoin(managersTable, eq(matchesTable.managerId, managersTable.id))
-      .where(
-        and(inArray(matchesTable.id, fichaMatchIds), isNotNull(matchesTable.managerId)),
-      )
-      .groupBy(managersTable.id, managersTable.name)
-      .orderBy(desc(sql`count(*)`), asc(managersTable.name))
-      .limit(1),
-
-    db
-      .select({
-        id: managersTable.id,
-        name: managersTable.name,
-        value: sql<number>`cast(count(*) as int)`,
-      })
-      .from(matchesTable)
-      .innerJoin(managersTable, eq(matchesTable.managerId, managersTable.id))
-      .where(
-        and(
-          inArray(matchesTable.id, fichaMatchIds),
-          eq(matchesTable.result, "win"),
-          isNotNull(matchesTable.managerId),
-        ),
-      )
-      .groupBy(managersTable.id, managersTable.name)
-      .orderBy(desc(sql`count(*)`), asc(managersTable.name))
-      .limit(1),
+      .limit(3),
   ]);
 
+  const topScorers = mapHighlights(topScorerRows);
+  const mostAppearancesTop = mapHighlights(mostAppearancesRows);
+  const topAssistsTop = mapHighlights(topAssistsRows);
+
   return {
-    topScorer: mapHighlight(topScorerRows[0]),
-    mostAppearances: mapHighlight(mostAppearancesRows[0]),
-    topAssists: mapHighlight(topAssistsRows[0]),
-    managerMostMatches: mapHighlight(managerMostMatchesRows[0]),
-    managerMostWins: mapHighlight(managerMostWinsRows[0]),
+    topScorer: topScorers[0] ?? null,
+    mostAppearances: mostAppearancesTop[0] ?? null,
+    topAssists: topAssistsTop[0] ?? null,
+    managerMostMatches: null,
+    managerMostWins: null,
+    topScorers,
+    mostAppearancesTop,
+    topAssistsTop,
   };
+}
+
+function winPct(wins: number, games: number): number {
+  if (!games) return 0;
+  return Math.round((wins / games) * 1000) / 10;
+}
+
+function toManagerHighlight(row: {
+  id: number;
+  name: string;
+  games: number;
+  wins: number;
+  draws: number;
+  losses: number;
+}): OpponentManagerHighlightEntry {
+  return {
+    id: row.id,
+    name: row.name,
+    games: row.games,
+    wins: row.wins,
+    draws: row.draws,
+    losses: row.losses,
+    winPct: winPct(row.wins, row.games),
+  };
+}
+
+export async function getOpponentManagerHighlights(
+  opponentId: number,
+): Promise<OpponentManagerHighlights | null> {
+  const rows = await db
+    .select({
+      id: managersTable.id,
+      name: managersTable.name,
+      games: sql<number>`cast(count(*) as int)`,
+      wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+      draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+      losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+    })
+    .from(matchesTable)
+    .innerJoin(managersTable, eq(matchesTable.managerId, managersTable.id))
+    .where(
+      and(
+        eq(matchesTable.opponentId, opponentId),
+        officialPlayedMatchConditions(),
+        isNotNull(matchesTable.managerId),
+      ),
+    )
+    .groupBy(managersTable.id, managersTable.name);
+
+  const mapped = rows
+    .map((r) =>
+      toManagerHighlight({
+        id: r.id,
+        name: r.name,
+        games: r.games ?? 0,
+        wins: r.wins ?? 0,
+        draws: r.draws ?? 0,
+        losses: r.losses ?? 0,
+      }),
+    )
+    .filter((r) => r.games > 0);
+
+  if (mapped.length === 0) return null;
+
+  const byName = (a: OpponentManagerHighlightEntry, b: OpponentManagerHighlightEntry) =>
+    a.name.localeCompare(b.name, "pt-BR");
+
+  const mostMatches = [...mapped]
+    .sort((a, b) => b.games - a.games || b.wins - a.wins || byName(a, b))
+    .slice(0, 3);
+  const mostWins = [...mapped]
+    .filter((r) => r.wins > 0)
+    .sort((a, b) => b.wins - a.wins || b.games - a.games || byName(a, b))
+    .slice(0, 3);
+  const bestWinPct = [...mapped]
+    .sort((a, b) => b.winPct - a.winPct || b.games - a.games || b.wins - a.wins || byName(a, b))
+    .slice(0, 3);
+
+  return { mostMatches, mostWins, bestWinPct };
 }
 
 async function getOpponentMarginMatch(

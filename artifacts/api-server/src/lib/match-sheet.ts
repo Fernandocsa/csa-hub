@@ -369,6 +369,199 @@ async function loadCsaLineupMap(matchId: number) {
   return map;
 }
 
+function lineupNameKey(name: string) {
+  return name.trim().toLowerCase();
+}
+
+type OpponentLineupRow = typeof matchLineupsTable.$inferSelect;
+
+type OpponentLineupIndex = {
+  byId: Map<number, OpponentLineupRow>;
+  byName: Map<string, OpponentLineupRow>;
+};
+
+async function loadOpponentLineupIndex(
+  matchId: number,
+): Promise<OpponentLineupIndex> {
+  const rows = await db
+    .select()
+    .from(matchLineupsTable)
+    .where(
+      and(
+        eq(matchLineupsTable.matchId, matchId),
+        eq(matchLineupsTable.side, "opponent"),
+      ),
+    );
+  const byId = new Map<number, OpponentLineupRow>();
+  const byName = new Map<string, OpponentLineupRow>();
+  for (const r of rows) {
+    if (r.playerId != null) byId.set(r.playerId, r);
+    const key = lineupNameKey(r.playerName);
+    if (key && !byName.has(key)) byName.set(key, r);
+  }
+  return { byId, byName };
+}
+
+function requireOpponentLineup(
+  index: OpponentLineupIndex,
+  playerId: number | null | undefined,
+  name: string | null | undefined,
+  label: string,
+) {
+  const id =
+    playerId != null && Number.isInteger(playerId) && playerId > 0
+      ? playerId
+      : null;
+  if (id != null) {
+    const byId = index.byId.get(id);
+    if (byId) return byId;
+  }
+  const key = name?.trim() ? lineupNameKey(name) : "";
+  if (key) {
+    const byName = index.byName.get(key);
+    if (byName) return byName;
+  }
+  if (!id && !key) {
+    throw Object.assign(
+      new Error(`${label} precisa do nome do jogador adversário`),
+      { status: 400 },
+    );
+  }
+  throw Object.assign(
+    new Error(`${label} precisa estar na escalação do adversário`),
+    { status: 400 },
+  );
+}
+
+async function nullLineupFksForSide(matchId: number, side: MatchSheetSide) {
+  await db
+    .update(matchGoalsTable)
+    .set({ scorerLineupId: null, assistLineupId: null })
+    .where(
+      and(eq(matchGoalsTable.matchId, matchId), eq(matchGoalsTable.side, side)),
+    );
+  await db
+    .update(matchCardsTable)
+    .set({ lineupId: null })
+    .where(
+      and(eq(matchCardsTable.matchId, matchId), eq(matchCardsTable.side, side)),
+    );
+  await db
+    .update(matchSubstitutionsTable)
+    .set({ playerOutLineupId: null, playerInLineupId: null })
+    .where(
+      and(
+        eq(matchSubstitutionsTable.matchId, matchId),
+        eq(matchSubstitutionsTable.side, side),
+      ),
+    );
+}
+
+function parseOptionalShirt(value: number | null | undefined) {
+  if (value == null || value === ("" as unknown)) return null;
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(n) && !Number.isNaN(n) ? Math.trunc(n) : null;
+}
+
+async function replaceOpponentLineupRows(matchId: number, lineups: LineupInput[]) {
+  for (const l of lineups) {
+    const playerId =
+      l.playerId != null && Number.isInteger(l.playerId) && l.playerId > 0
+        ? l.playerId
+        : null;
+    if (!playerId && !l.playerName?.trim()) {
+      throw Object.assign(
+        new Error("Cada jogador da escalação adversária precisa de playerId ou nome"),
+        { status: 400 },
+      );
+    }
+    if (l.role !== "starter" && l.role !== "bench") {
+      throw Object.assign(new Error("role deve ser starter ou bench"), {
+        status: 400,
+      });
+    }
+  }
+  const starters = lineups.filter((l) => l.role === "starter");
+  if (starters.length > 11) {
+    throw Object.assign(
+      new Error("Máximo de 11 titulares na escalação do adversário"),
+      { status: 400 },
+    );
+  }
+
+  const seenIds = new Set<number>();
+  for (const l of lineups) {
+    const playerId =
+      l.playerId != null && Number.isInteger(l.playerId) && l.playerId > 0
+        ? l.playerId
+        : null;
+    if (playerId == null) continue;
+    if (seenIds.has(playerId)) {
+      throw Object.assign(
+        new Error("O mesmo jogador não pode aparecer duas vezes na escalação adversária"),
+        { status: 400 },
+      );
+    }
+    seenIds.add(playerId);
+  }
+
+  await nullLineupFksForSide(matchId, "opponent");
+  await db
+    .delete(matchLineupsTable)
+    .where(
+      and(
+        eq(matchLineupsTable.matchId, matchId),
+        eq(matchLineupsTable.side, "opponent"),
+      ),
+    );
+
+  const playerIds = [
+    ...new Set(
+      lineups
+        .map((l) => l.playerId)
+        .filter((id): id is number => id != null && Number.isInteger(id) && id > 0),
+    ),
+  ];
+  const catalogById = new Map<number, { name: string; position: string | null }>();
+  if (playerIds.length > 0) {
+    const catalogRows = await db
+      .select({
+        id: playersTable.id,
+        name: playersTable.name,
+        position: playersTable.position,
+      })
+      .from(playersTable)
+      .where(inArray(playersTable.id, playerIds));
+    for (const p of catalogRows) {
+      catalogById.set(p.id, {
+        name: p.name,
+        position: p.position?.trim() || null,
+      });
+    }
+  }
+
+  for (let i = 0; i < lineups.length; i++) {
+    const l = lineups[i];
+    const playerId =
+      l.playerId != null && Number.isInteger(l.playerId) && l.playerId > 0
+        ? l.playerId
+        : null;
+    const catalog = playerId != null ? catalogById.get(playerId) : undefined;
+    const playerName =
+      catalog?.name ?? (l.playerName?.trim() || (playerId != null ? `Jogador #${playerId}` : ""));
+    await db.insert(matchLineupsTable).values({
+      matchId,
+      side: "opponent",
+      playerId,
+      playerName,
+      role: l.role,
+      shirtNumber: parseOptionalShirt(l.shirtNumber),
+      position: l.position?.trim() || catalog?.position || null,
+      sortOrder: l.sortOrder ?? i,
+    });
+  }
+}
+
 /** Sync matches.own_goals_for_count from GPF / g.c. rows. */
 export async function syncOwnGoalsForCount(matchId: number) {
   const [{ n }] = await db
@@ -416,32 +609,17 @@ export async function loadMatchSheet(matchId: number) {
       db
         .select()
         .from(matchGoalsTable)
-        .where(
-          and(
-            eq(matchGoalsTable.matchId, matchId),
-            eq(matchGoalsTable.side, "csa"),
-          ),
-        )
+        .where(eq(matchGoalsTable.matchId, matchId))
         .orderBy(asc(matchGoalsTable.minute), asc(matchGoalsTable.id)),
       db
         .select()
         .from(matchCardsTable)
-        .where(
-          and(
-            eq(matchCardsTable.matchId, matchId),
-            eq(matchCardsTable.side, "csa"),
-          ),
-        )
+        .where(eq(matchCardsTable.matchId, matchId))
         .orderBy(asc(matchCardsTable.minute), asc(matchCardsTable.id)),
       db
         .select()
         .from(matchSubstitutionsTable)
-        .where(
-          and(
-            eq(matchSubstitutionsTable.matchId, matchId),
-            eq(matchSubstitutionsTable.side, "csa"),
-          ),
-        )
+        .where(eq(matchSubstitutionsTable.matchId, matchId))
         .orderBy(
           asc(matchSubstitutionsTable.minute),
           asc(matchSubstitutionsTable.id),
@@ -457,12 +635,7 @@ export async function loadMatchSheet(matchId: number) {
       db
         .select()
         .from(matchPenaltyEventsTable)
-        .where(
-          and(
-            eq(matchPenaltyEventsTable.matchId, matchId),
-            eq(matchPenaltyEventsTable.side, "csa"),
-          ),
-        )
+        .where(eq(matchPenaltyEventsTable.matchId, matchId))
         .orderBy(
           asc(matchPenaltyEventsTable.minute),
           asc(matchPenaltyEventsTable.id),
@@ -471,6 +644,7 @@ export async function loadMatchSheet(matchId: number) {
         .select({
           captainPlayerId: matchesTable.captainPlayerId,
           managerId: matchesTable.managerId,
+          opponentManagerId: matchesTable.opponentManagerId,
           ownGoalsForCount: matchesTable.ownGoalsForCount,
         })
         .from(matchesTable)
@@ -494,6 +668,7 @@ export async function loadMatchSheet(matchId: number) {
     penaltyEvents: penaltyEvents.map(serializePenaltyEvent),
     captainPlayerId: matchRow[0]?.captainPlayerId ?? null,
     managerId: matchRow[0]?.managerId ?? null,
+    opponentManagerId: matchRow[0]?.opponentManagerId ?? null,
     ownGoalsForCount: matchRow[0]?.ownGoalsForCount ?? 0,
   };
 }
@@ -506,7 +681,10 @@ export async function replaceCsaLineup(
   matchId: number,
   input: {
     lineups?: LineupInput[];
+    /** When provided (even empty), replaces opponent lineup. Omitted = leave opponent as-is. */
+    opponentLineups?: LineupInput[];
     managerId?: number | null;
+    opponentManagerId?: number | null;
   },
 ) {
   const previousPlayerIds = await collectCsaSheetPlayerIds(matchId);
@@ -536,19 +714,8 @@ export async function replaceCsaLineup(
     );
   }
 
-  // Null lineup FKs on dependents before deleting lineups
-  await db
-    .update(matchGoalsTable)
-    .set({ scorerLineupId: null, assistLineupId: null })
-    .where(eq(matchGoalsTable.matchId, matchId));
-  await db
-    .update(matchCardsTable)
-    .set({ lineupId: null })
-    .where(eq(matchCardsTable.matchId, matchId));
-  await db
-    .update(matchSubstitutionsTable)
-    .set({ playerOutLineupId: null, playerInLineupId: null })
-    .where(eq(matchSubstitutionsTable.matchId, matchId));
+  // Null CSA lineup FKs on dependents before deleting CSA lineups
+  await nullLineupFksForSide(matchId, "csa");
 
   await db
     .delete(matchLineupsTable)
@@ -610,13 +777,76 @@ export async function replaceCsaLineup(
       .where(eq(matchesTable.id, matchId));
   }
 
+  if (input.opponentManagerId !== undefined) {
+    await db
+      .update(matchesTable)
+      .set({ opponentManagerId: input.opponentManagerId })
+      .where(eq(matchesTable.id, matchId));
+  }
+
+  if (input.opponentLineups !== undefined) {
+    await replaceOpponentLineupRows(matchId, input.opponentLineups);
+  }
+
   await syncSheetPlayerSeasonStats(matchId, previousPlayerIds);
   return loadMatchSheet(matchId);
+}
+
+async function replaceOpponentSubstitutionRows(
+  matchId: number,
+  substitutions: SubstitutionInput[],
+) {
+  const opp = await loadOpponentLineupIndex(matchId);
+  await db
+    .delete(matchSubstitutionsTable)
+    .where(
+      and(
+        eq(matchSubstitutionsTable.matchId, matchId),
+        eq(matchSubstitutionsTable.side, "opponent"),
+      ),
+    );
+
+  for (const s of substitutions) {
+    const outRow = requireOpponentLineup(
+      opp,
+      s.playerOutId,
+      s.playerOutName,
+      "Jogador que saiu",
+    );
+    const inRow = requireOpponentLineup(
+      opp,
+      s.playerInId,
+      s.playerInName,
+      "Jogador que entrou",
+    );
+    if (outRow.id === inRow.id) {
+      throw Object.assign(
+        new Error("Jogador que saiu e que entrou devem ser diferentes"),
+        { status: 400 },
+      );
+    }
+    await db.insert(matchSubstitutionsTable).values({
+      matchId,
+      side: "opponent",
+      playerOutLineupId: outRow.id,
+      playerOutId: outRow.playerId,
+      playerOutName: outRow.playerName,
+      playerInLineupId: inRow.id,
+      playerInId: inRow.playerId,
+      playerInName: inRow.playerName,
+      minute: normalizeEventMinute(s.minute),
+      injuryTimeMinute:
+        s.injuryTimeMinute == null || String(s.injuryTimeMinute).trim() === ""
+          ? null
+          : Number(s.injuryTimeMinute),
+    });
+  }
 }
 
 export async function replaceCsaSubstitutions(
   matchId: number,
   substitutions: SubstitutionInput[],
+  opponentSubstitutions?: SubstitutionInput[],
 ) {
   const lineupIdByPlayer = await loadCsaLineupMap(matchId);
   const subsIn = (substitutions ?? []).filter((s) => !s.side || s.side === "csa");
@@ -672,6 +902,10 @@ export async function replaceCsaSubstitutions(
           ? null
           : Number(s.injuryTimeMinute),
     });
+  }
+
+  if (opponentSubstitutions !== undefined) {
+    await replaceOpponentSubstitutionRows(matchId, opponentSubstitutions);
   }
 
   await syncSheetPlayerSeasonStats(matchId);
@@ -831,6 +1065,64 @@ async function attachAssistsByMinute(
   }
 }
 
+async function insertOpponentGoalRow(
+  matchId: number,
+  g: GoalInput,
+  opp: OpponentLineupIndex,
+) {
+  const minute = normalizeEventMinute(g.minute);
+  const scorer = requireOpponentLineup(
+    opp,
+    g.scorerPlayerId,
+    g.scorerName,
+    "Autor do gol",
+  );
+  let assistLineupId: number | null = null;
+  let assistPlayerId: number | null = null;
+  let assistName: string | null = null;
+  if (g.assistPlayerId || g.assistName?.trim()) {
+    const assist = requireOpponentLineup(
+      opp,
+      g.assistPlayerId,
+      g.assistName,
+      "Assistência",
+    );
+    if (assist.id === scorer.id) {
+      throw Object.assign(
+        new Error("Assistência não pode ser do mesmo jogador do gol"),
+        { status: 400 },
+      );
+    }
+    assistLineupId = assist.id;
+    assistPlayerId = assist.playerId;
+    assistName = assist.playerName;
+  }
+
+  const [row] = await db
+    .insert(matchGoalsTable)
+    .values({
+      matchId,
+      side: "opponent",
+      scorerLineupId: scorer.id,
+      scorerPlayerId: scorer.playerId,
+      scorerName: scorer.playerName,
+      minute,
+      injuryTimeMinute:
+        g.injuryTimeMinute == null || String(g.injuryTimeMinute).trim() === ""
+          ? null
+          : Number(g.injuryTimeMinute),
+      assistLineupId,
+      assistPlayerId,
+      assistName,
+      isPenalty: Boolean(g.isPenalty) && !g.isOwnGoal,
+      isFreeKick: Boolean(g.isFreeKick) && !g.isOwnGoal && !Boolean(g.isPenalty),
+      isOwnGoal: false,
+      ownGoalDirection: null,
+    })
+    .returning();
+  return row;
+}
+
 /**
  * Append events without wiping existing ones. Clears nothing on the client —
  * caller resets the form after success.
@@ -847,16 +1139,26 @@ export async function appendCsaEvents(
   },
 ) {
   const lineupIdByPlayer = await loadCsaLineupMap(matchId);
+  const opp = await loadOpponentLineupIndex(matchId);
+  const csaGoals = (input.goals ?? []).filter((g) => !g.side || g.side === "csa");
+  const oppGoals = (input.goals ?? []).filter((g) => g.side === "opponent");
+  const csaCards = (input.cards ?? []).filter((c) => !c.side || c.side === "csa");
+  const oppCards = (input.cards ?? []).filter((c) => c.side === "opponent");
+  const csaPens = (input.penaltyEvents ?? []).filter((p) => !p.side || p.side === "csa");
+  const oppPens = (input.penaltyEvents ?? []).filter((p) => p.side === "opponent");
 
-  for (const g of input.goals ?? []) {
+  for (const g of csaGoals) {
     await insertGoalRow(matchId, g, lineupIdByPlayer);
+  }
+  for (const g of oppGoals) {
+    await insertOpponentGoalRow(matchId, g, opp);
   }
 
   if (input.assists?.length) {
     await attachAssistsByMinute(matchId, input.assists, lineupIdByPlayer);
   }
 
-  for (const c of input.cards ?? []) {
+  for (const c of csaCards) {
     if (c.cardType !== "yellow" && c.cardType !== "red") {
       throw Object.assign(new Error("cardType deve ser yellow ou red"), {
         status: 400,
@@ -887,6 +1189,28 @@ export async function appendCsaEvents(
     });
   }
 
+  for (const c of oppCards) {
+    if (c.cardType !== "yellow" && c.cardType !== "red") {
+      throw Object.assign(new Error("cardType deve ser yellow ou red"), {
+        status: 400,
+      });
+    }
+    const row = requireOpponentLineup(opp, c.playerId, c.playerName, "Cartão");
+    await db.insert(matchCardsTable).values({
+      matchId,
+      side: "opponent",
+      cardType: c.cardType,
+      lineupId: row.id,
+      playerId: row.playerId,
+      playerName: row.playerName,
+      minute: normalizeEventMinute(c.minute),
+      injuryTimeMinute:
+        c.injuryTimeMinute == null || String(c.injuryTimeMinute).trim() === ""
+          ? null
+          : Number(c.injuryTimeMinute),
+    });
+  }
+
   for (const mc of input.managerCards ?? []) {
     if (mc.cardType !== "yellow" && mc.cardType !== "red") {
       throw Object.assign(new Error("cardType do técnico deve ser yellow ou red"), {
@@ -904,7 +1228,7 @@ export async function appendCsaEvents(
     });
   }
 
-  for (const pe of input.penaltyEvents ?? []) {
+  for (const pe of csaPens) {
     if (pe.eventType !== "missed" && pe.eventType !== "saved") {
       throw Object.assign(
         new Error("eventType de pênalti deve ser missed ou saved"),
@@ -927,6 +1251,33 @@ export async function appendCsaEvents(
       eventType: pe.eventType,
       playerId,
       playerName,
+      minute: normalizeEventMinute(pe.minute),
+      injuryTimeMinute:
+        pe.injuryTimeMinute == null || String(pe.injuryTimeMinute).trim() === ""
+          ? null
+          : Number(pe.injuryTimeMinute),
+    });
+  }
+
+  for (const pe of oppPens) {
+    if (pe.eventType !== "missed" && pe.eventType !== "saved") {
+      throw Object.assign(
+        new Error("eventType de pênalti deve ser missed ou saved"),
+        { status: 400 },
+      );
+    }
+    const row = requireOpponentLineup(
+      opp,
+      pe.playerId,
+      pe.playerName,
+      "Evento de pênalti",
+    );
+    await db.insert(matchPenaltyEventsTable).values({
+      matchId,
+      side: "opponent",
+      eventType: pe.eventType,
+      playerId: row.playerId,
+      playerName: row.playerName,
       minute: normalizeEventMinute(pe.minute),
       injuryTimeMinute:
         pe.injuryTimeMinute == null || String(pe.injuryTimeMinute).trim() === ""
@@ -1114,9 +1465,17 @@ export async function replaceCsaMatchSheet(
 ) {
   await replaceCsaLineup(matchId, { lineups: input.lineups ?? [] });
 
-  // Wipe events then re-insert (legacy behaviour)
-  await db.delete(matchGoalsTable).where(eq(matchGoalsTable.matchId, matchId));
-  await db.delete(matchCardsTable).where(eq(matchCardsTable.matchId, matchId));
+  // Wipe CSA events then re-insert (legacy). Leave opponent events intact.
+  await db
+    .delete(matchGoalsTable)
+    .where(
+      and(eq(matchGoalsTable.matchId, matchId), eq(matchGoalsTable.side, "csa")),
+    );
+  await db
+    .delete(matchCardsTable)
+    .where(
+      and(eq(matchCardsTable.matchId, matchId), eq(matchCardsTable.side, "csa")),
+    );
 
   const lineupIdByPlayer = await loadCsaLineupMap(matchId);
   for (const g of (input.goals ?? []).filter((x) => !x.side || x.side === "csa")) {

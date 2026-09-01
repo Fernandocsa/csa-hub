@@ -3,7 +3,7 @@ import { Link, useLocation, useParams } from "wouter";
 import { adminFetch } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronLeft, ChevronRight, Pencil, Trash2, X, ClipboardPaste } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Plus, Trash2, X, ClipboardPaste } from "lucide-react";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { EntityPhoto } from "@/components/EntityPhoto";
 import {
@@ -19,6 +19,7 @@ import MatchGeneralForm, {
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
 import { useAdminReturnTo, withAdminFrom } from "@/hooks/useAdminReturnTo";
 import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
+import { foldAccents } from "@/lib/accent-fold";
 import {
   eventMinuteToFormValue,
   isUnknownEventMinute,
@@ -30,6 +31,7 @@ import {
   OgolPasteDialog,
   type OgolApplyPayload,
 } from "@/components/admin/OgolPasteDialog";
+import { OpponentPlayerPicker } from "@/components/admin/OpponentPlayerPicker";
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -69,10 +71,12 @@ type SheetLineup = {
   shirtNumber: number | null;
   position: string | null;
   sortOrder: number;
+  photoUrl?: string | null;
 };
 
 type SheetGoal = {
   id: number;
+  side?: string;
   scorerPlayerId: number | null;
   scorerName: string | null;
   minute: number;
@@ -87,6 +91,7 @@ type SheetGoal = {
 
 type SheetCard = {
   id: number;
+  side?: string;
   cardType: string;
   playerId: number | null;
   playerName: string | null;
@@ -103,6 +108,7 @@ type SheetManagerCard = {
 
 type SheetPenaltyEvent = {
   id: number;
+  side?: string;
   eventType: "missed" | "saved" | string;
   playerId: number | null;
   playerName: string | null;
@@ -112,6 +118,7 @@ type SheetPenaltyEvent = {
 
 type SheetSubstitution = {
   id: number;
+  side?: string;
   playerOutId: number | null;
   playerOutName: string | null;
   playerInId: number | null;
@@ -129,6 +136,7 @@ type SheetResponse = {
   penaltyEvents?: SheetPenaltyEvent[];
   captainPlayerId: number | null;
   managerId: number | null;
+  opponentManagerId: number | null;
   ownGoalsForCount: number;
 };
 
@@ -150,6 +158,8 @@ type MatchMeta = {
   scorers: string | null;
   managerId: number | null;
   managerName: string | null;
+  opponentManagerId: number | null;
+  opponentManagerName: string | null;
   captainPlayerId?: number | null;
   refereeId: number | null;
   refereeName: string | null;
@@ -228,7 +238,8 @@ function emptySubRow(): SubRow {
 }
 
 function buildSubRows(subs: SheetSubstitution[]): SubRow[] {
-  const rows: SubRow[] = subs.slice(0, SUB_ROWS_COUNT).map((s) => ({
+  const csa = subs.filter((s) => !s.side || s.side === "csa");
+  const rows: SubRow[] = csa.slice(0, SUB_ROWS_COUNT).map((s) => ({
     playerOutId: s.playerOutId != null ? String(s.playerOutId) : "",
     playerInId: s.playerInId != null ? String(s.playerInId) : "",
     minute: eventMinuteToFormValue(s.minute),
@@ -236,6 +247,79 @@ function buildSubRows(subs: SheetSubstitution[]): SubRow[] {
   }));
   while (rows.length < SUB_ROWS_COUNT) rows.push(emptySubRow());
   return rows;
+}
+
+type OpponentLineupDraft = {
+  key: string;
+  playerId: number | null;
+  playerName: string;
+  photoUrl: string | null;
+  position: string;
+  shirtNumber: string;
+  role: "" | "starter" | "bench";
+};
+
+type OppEventRow = {
+  playerName: string;
+  minute: string;
+  injuryTimeMinute: string;
+  isPenalty: boolean;
+  isFreeKick: boolean;
+};
+
+function emptyOppEventRow(): OppEventRow {
+  return { playerName: "", minute: "", injuryTimeMinute: "", isPenalty: false, isFreeKick: false };
+}
+
+type OppSubRow = {
+  playerOutName: string;
+  playerInName: string;
+  minute: string;
+  injuryTimeMinute: string;
+};
+
+function emptyOppSubRow(): OppSubRow {
+  return { playerOutName: "", playerInName: "", minute: "", injuryTimeMinute: "" };
+}
+
+let oppLineupSeq = 0;
+function emptyOppLineupRow(): OpponentLineupDraft {
+  oppLineupSeq += 1;
+  return {
+    key: `opp-new-${oppLineupSeq}`,
+    playerId: null,
+    playerName: "",
+    photoUrl: null,
+    position: "",
+    shirtNumber: "",
+    role: "",
+  };
+}
+
+const OPP_LINEUP_MIN_ROWS = 16;
+
+function padOpponentDrafts(rows: OpponentLineupDraft[]): OpponentLineupDraft[] {
+  const next = [...rows];
+  while (next.length < OPP_LINEUP_MIN_ROWS) next.push(emptyOppLineupRow());
+  return next;
+}
+
+function buildOppSubRows(subs: SheetSubstitution[]): OppSubRow[] {
+  const opp = subs.filter((s) => s.side === "opponent");
+  const rows: OppSubRow[] = opp.slice(0, SUB_ROWS_COUNT).map((s) => ({
+    playerOutName: s.playerOutName ?? "",
+    playerInName: s.playerInName ?? "",
+    minute: eventMinuteToFormValue(s.minute),
+    injuryTimeMinute: s.injuryTimeMinute != null ? String(s.injuryTimeMinute) : "",
+  }));
+  while (rows.length < SUB_ROWS_COUNT) rows.push(emptyOppSubRow());
+  return rows;
+}
+
+function sideLabel(side?: string) {
+  return side === "opponent" ? (
+    <span className="ml-1 text-[10px] uppercase text-gray-400">adversário</span>
+  ) : null;
 }
 
 function formatSavedMinute(minute: number, injury: number | null | undefined) {
@@ -297,7 +381,7 @@ export default function AdminMatchSheet() {
   const [lookup, setLookup] = useState<MatchLookupData | null>(null);
   /** All managers (lookup) — only used to resolve names for a manager already on the match. */
   const [allManagers, setAllManagers] = useState<
-    { id: number; name: string; photoUrl?: string | null }[]
+    { id: number; name: string; photoUrl?: string | null; storedGames?: number | null }[]
   >([]);
   /** Managers linked to the match season via /admin/seasons/:year/managers. */
   const [seasonManagers, setSeasonManagers] = useState<
@@ -317,6 +401,12 @@ export default function AdminMatchSheet() {
   const [benchIds, setBenchIds] = useState<Set<number>>(new Set());
   const [shirtNumbers, setShirtNumbers] = useState<Record<number, string>>({});
   const [managerIdDraft, setManagerIdDraft] = useState("");
+  const [opponentManagerIdDraft, setOpponentManagerIdDraft] = useState("");
+  const [opponentManagerQuery, setOpponentManagerQuery] = useState("");
+  const [opponentManagerNameHits, setOpponentManagerNameHits] = useState<
+    Array<{ id: number; name: string; match: "exact" | "similar" }>
+  >([]);
+  const [creatingOpponentManager, setCreatingOpponentManager] = useState(false);
   const [savingLineup, setSavingLineup] = useState(false);
 
   // Eventos - CSA form state (fixed rows, reset after successful save)
@@ -368,6 +458,28 @@ export default function AdminMatchSheet() {
   const [savingSubs, setSavingSubs] = useState(false);
   const [relatedMatchOptions, setRelatedMatchOptions] = useState<RelatedMatchOption[]>([]);
 
+  const [opponentDrafts, setOpponentDrafts] = useState<OpponentLineupDraft[]>(() =>
+    padOpponentDrafts([]),
+  );
+  const [oppGoalRows, setOppGoalRows] = useState<OppEventRow[]>(() =>
+    Array.from({ length: GOAL_ROWS_COUNT }, emptyOppEventRow),
+  );
+  const [oppRedRows, setOppRedRows] = useState<OppEventRow[]>(() =>
+    Array.from({ length: RED_ROWS_COUNT }, emptyOppEventRow),
+  );
+  const [oppYellowRows, setOppYellowRows] = useState<OppEventRow[]>(() =>
+    Array.from({ length: YELLOW_ROWS_COUNT }, emptyOppEventRow),
+  );
+  const [oppPenaltyMissedRows, setOppPenaltyMissedRows] = useState<OppEventRow[]>(() =>
+    Array.from({ length: 3 }, emptyOppEventRow),
+  );
+  const [oppPenaltySavedRows, setOppPenaltySavedRows] = useState<OppEventRow[]>(() =>
+    Array.from({ length: 3 }, emptyOppEventRow),
+  );
+  const [oppSubRows, setOppSubRows] = useState<OppSubRow[]>(() =>
+    Array.from({ length: SUB_ROWS_COUNT }, emptyOppSubRow),
+  );
+
   function resetEventForms() {
     setGoalRows(Array.from({ length: GOAL_ROWS_COUNT }, emptyEventRow));
     setRedRows(Array.from({ length: RED_ROWS_COUNT }, emptyEventRow));
@@ -379,6 +491,11 @@ export default function AdminMatchSheet() {
     setGpfRow(emptyEventRow());
     setCaptainDraft("");
     setManagerCardRows(defaultManagerCardRows());
+    setOppGoalRows(Array.from({ length: GOAL_ROWS_COUNT }, emptyOppEventRow));
+    setOppRedRows(Array.from({ length: RED_ROWS_COUNT }, emptyOppEventRow));
+    setOppYellowRows(Array.from({ length: YELLOW_ROWS_COUNT }, emptyOppEventRow));
+    setOppPenaltyMissedRows(Array.from({ length: 3 }, emptyOppEventRow));
+    setOppPenaltySavedRows(Array.from({ length: 3 }, emptyOppEventRow));
   }
 
   function fillEventSlots(
@@ -581,7 +698,11 @@ export default function AdminMatchSheet() {
     setSavedMsg("Dados do Ogol aplicados à ficha.");
   }
 
-  function applySheetLineups(sheet: SheetResponse, fallbackManagerId?: number | null) {
+  function applySheetLineups(
+    sheet: SheetResponse,
+    fallbackManagerId?: number | null,
+    fallbackOpponentManagerId?: number | null,
+  ) {
     const csaLineups = (sheet.lineups ?? []).filter((l) => !l.side || l.side === "csa");
     const nextStarters = new Set<number>();
     const nextBench = new Set<number>();
@@ -612,6 +733,27 @@ export default function AdminMatchSheet() {
         : fallbackManagerId != null
           ? String(fallbackManagerId)
           : "",
+    );
+    setOpponentManagerIdDraft(
+      sheet.opponentManagerId != null
+        ? String(sheet.opponentManagerId)
+        : fallbackOpponentManagerId != null
+          ? String(fallbackOpponentManagerId)
+          : "",
+    );
+    const opp = (sheet.lineups ?? []).filter((l) => l.side === "opponent");
+    setOpponentDrafts(
+      padOpponentDrafts(
+        opp.map((l) => ({
+          key: `opp-${l.id}`,
+          playerId: l.playerId,
+          playerName: l.playerName,
+          photoUrl: l.photoUrl ?? null,
+          position: l.position ?? "",
+          shirtNumber: l.shirtNumber != null ? String(l.shirtNumber) : "",
+          role: l.role === "starter" || l.role === "bench" ? l.role : "",
+        })),
+      ),
     );
   }
 
@@ -646,9 +788,16 @@ export default function AdminMatchSheet() {
             referees: lookupJson.referees ?? [],
           });
           setAllManagers(
-            [...(lookupJson.managers ?? [])].sort((a: { name: string }, b: { name: string }) =>
-              a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
-            ),
+            [...(lookupJson.managers ?? [])]
+              .map((m: { id: number; name: string; photoUrl?: string | null; storedGames?: number | null }) => ({
+                id: m.id,
+                name: m.name,
+                photoUrl: m.photoUrl ?? null,
+                storedGames: m.storedGames ?? null,
+              }))
+              .sort((a, b) =>
+                a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
+              ),
           );
         }
         if (seasonsRes.ok) {
@@ -750,9 +899,10 @@ export default function AdminMatchSheet() {
         });
 
         const sheet = (await sheetRes.json()) as SheetResponse;
-        applySheetLineups(sheet, found.managerId);
+        applySheetLineups(sheet, found.managerId, found.opponentManagerId);
         applySheetEvents(sheet);
         setSubRows(buildSubRows(sheet.substitutions ?? []));
+        setOppSubRows(buildOppSubRows(sheet.substitutions ?? []));
         resetEventForms();
       } catch (e: any) {
         if (!cancelled) {
@@ -828,6 +978,127 @@ export default function AdminMatchSheet() {
     return rows;
   }, [seasonManagers, managerIdDraft, allManagers, match?.managerName]);
 
+  const seasonManagerIds = useMemo(
+    () => new Set(seasonManagers.map((m) => m.id)),
+    [seasonManagers],
+  );
+
+  const selectedOpponentManager = useMemo(() => {
+    const id = opponentManagerIdDraft ? Number(opponentManagerIdDraft) : null;
+    if (id == null || Number.isNaN(id)) return null;
+    const fromAll = allManagers.find((m) => m.id === id);
+    return {
+      id,
+      name: fromAll?.name ?? match?.opponentManagerName ?? `Técnico #${id}`,
+      photoUrl: fromAll?.photoUrl ?? null,
+    };
+  }, [opponentManagerIdDraft, allManagers, match?.opponentManagerName]);
+
+  const opponentManagerSuggestions = useMemo(() => {
+    const q = foldAccents(opponentManagerQuery).trim();
+    if (q.length < 2) return [];
+    const local = allManagers
+      .filter((m) => foldAccents(m.name).includes(q))
+      .map((m) => ({
+        id: m.id,
+        name: m.name,
+        photoUrl: m.photoUrl ?? null,
+        match: (foldAccents(m.name) === q ? "exact" : "similar") as "exact" | "similar",
+        csa: seasonManagerIds.has(m.id) || (m.storedGames ?? 0) > 0,
+      }));
+    const byId = new Map(local.map((m) => [m.id, m]));
+    for (const h of opponentManagerNameHits) {
+      if (byId.has(h.id)) continue;
+      const fromAll = allManagers.find((m) => m.id === h.id);
+      byId.set(h.id, {
+        id: h.id,
+        name: h.name,
+        photoUrl: fromAll?.photoUrl ?? null,
+        match: h.match,
+        csa: seasonManagerIds.has(h.id) || (fromAll?.storedGames ?? 0) > 0,
+      });
+    }
+    return [...byId.values()]
+      .sort((a, b) => {
+        if (a.csa !== b.csa) return a.csa ? -1 : 1;
+        if (a.match !== b.match) return a.match === "exact" ? -1 : 1;
+        return a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" });
+      })
+      .slice(0, 8);
+  }, [opponentManagerQuery, allManagers, opponentManagerNameHits, seasonManagerIds]);
+
+  const opponentManagerQueryFolded = foldAccents(opponentManagerQuery).trim();
+  const opponentManagerHasExact = opponentManagerSuggestions.some(
+    (m) => foldAccents(m.name) === opponentManagerQueryFolded,
+  );
+
+  useEffect(() => {
+    const q = opponentManagerQuery.trim();
+    if (q.length < 2) {
+      setOpponentManagerNameHits([]);
+      return;
+    }
+    const ac = new AbortController();
+    const t = window.setTimeout(async () => {
+      try {
+        const r = await adminFetch(
+          `/admin/managers/name-check?q=${encodeURIComponent(q)}`,
+        );
+        if (!r.ok || ac.signal.aborted) return;
+        const json = (await r.json()) as {
+          matches?: Array<{ id: number; name: string; match: "exact" | "similar" }>;
+        };
+        if (!ac.signal.aborted) setOpponentManagerNameHits(json.matches ?? []);
+      } catch {
+        if (!ac.signal.aborted) setOpponentManagerNameHits([]);
+      }
+    }, 250);
+    return () => {
+      ac.abort();
+      window.clearTimeout(t);
+    };
+  }, [opponentManagerQuery]);
+
+  async function createOpponentManager() {
+    const name = opponentManagerQuery.trim();
+    if (name.length < 2) return;
+    setCreatingOpponentManager(true);
+    setError("");
+    try {
+      const r = await adminFetch("/admin/managers", {
+        method: "POST",
+        body: JSON.stringify({ name, staffRole: "manager" }),
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error((err as { error?: string }).error ?? "Erro ao criar técnico");
+      }
+      const created = (await r.json()) as {
+        id: number;
+        name: string;
+        photoUrl?: string | null;
+      };
+      setAllManagers((prev) =>
+        prev.some((m) => m.id === created.id)
+          ? prev
+          : [...prev, {
+              id: created.id,
+              name: created.name,
+              photoUrl: created.photoUrl ?? null,
+              storedGames: null,
+            }].sort((a, b) =>
+              a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
+            ),
+      );
+      setOpponentManagerIdDraft(String(created.id));
+      setOpponentManagerQuery("");
+      setOpponentManagerNameHits([]);
+    } catch (e: any) {
+      setError(e.message ?? "Erro ao criar técnico");
+    }
+    setCreatingOpponentManager(false);
+  }
+
   const lineupOptions = useMemo(() => {
     const fromLineup = escalacaoRows
       .filter((r) => starterIds.has(r.playerId) || benchIds.has(r.playerId));
@@ -852,6 +1123,23 @@ export default function AdminMatchSheet() {
       a.playerName.localeCompare(b.playerName, "pt-BR", { sensitivity: "base" }),
     );
   }, [escalacaoRows, starterIds, benchIds, subRows, playerInfo]);
+
+  const opponentLineupNames = useMemo(() => {
+    const names: string[] = [];
+    const seen = new Set<string>();
+    for (const r of opponentDrafts) {
+      const name = r.playerName.trim();
+      if (!name || (r.role !== "starter" && r.role !== "bench")) continue;
+      const key = name.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      names.push(name);
+    }
+    return names;
+  }, [opponentDrafts]);
+
+  const opponentStarterCount = opponentDrafts.filter((r) => r.role === "starter").length;
+  const opponentBenchCount = opponentDrafts.filter((r) => r.role === "bench").length;
 
   function playerNameById(id: number | null): string {
     if (id == null) return "—";
@@ -990,6 +1278,21 @@ export default function AdminMatchSheet() {
     }
   }
 
+  function handleOppRole(key: string, role: "starter" | "bench", checked: boolean) {
+    setSavedMsg("");
+    if (checked && role === "starter") {
+      const starters = opponentDrafts.filter((r) => r.role === "starter" && r.key !== key).length;
+      if (starters >= 11) {
+        setError("Máximo de 11 titulares no adversário. Desmarque outro antes de adicionar este.");
+        return;
+      }
+    }
+    setError("");
+    setOpponentDrafts((rows) =>
+      rows.map((r) => (r.key === key ? { ...r, role: checked ? role : "" } : r)),
+    );
+  }
+
   async function saveEscalacao() {
     if (matchId == null) return;
     setSavingLineup(true);
@@ -1011,9 +1314,39 @@ export default function AdminMatchSheet() {
         sortOrder: i,
         side: "csa" as const,
       }));
+      const filledOpp = opponentDrafts.filter(
+        (r) => r.role === "starter" || r.role === "bench",
+      );
+      for (const r of filledOpp) {
+        if (r.playerId == null) {
+          throw new Error(
+            r.playerName.trim()
+              ? `Resolva o jogador adversário "${r.playerName.trim()}" antes de salvar.`
+              : "Cada jogador da escalação adversária precisa ser vinculado ao cadastro.",
+          );
+        }
+      }
+      const oppIds = filledOpp.map((r) => r.playerId as number);
+      if (new Set(oppIds).size !== oppIds.length) {
+        throw new Error(
+          "O mesmo jogador não pode aparecer duas vezes na escalação adversária",
+        );
+      }
+      const opponentLineups = filledOpp.map((r, i) => ({
+        playerId: r.playerId,
+        playerName: r.playerName.trim(),
+        role: r.role,
+        shirtNumber: r.shirtNumber.trim() === "" ? null : Number(r.shirtNumber),
+        position: r.position.trim() || null,
+        sortOrder: i,
+        side: "opponent" as const,
+      }));
       const body = {
         lineups: sorted,
+        opponentLineups,
         managerId: managerIdDraft === "" ? null : Number(managerIdDraft),
+        opponentManagerId:
+          opponentManagerIdDraft === "" ? null : Number(opponentManagerIdDraft),
       };
       const r = await adminFetch(`/admin/matches/${matchId}/sheet/lineup`, {
         method: "PUT",
@@ -1024,8 +1357,14 @@ export default function AdminMatchSheet() {
         throw new Error((err as { error?: string }).error ?? "Erro ao salvar escalação");
       }
       const sheet = (await r.json()) as SheetResponse;
-      applySheetLineups(sheet, sheet.managerId);
-      if (match) setMatch({ ...match, managerId: sheet.managerId });
+      applySheetLineups(sheet, sheet.managerId, sheet.opponentManagerId);
+      if (match) {
+        setMatch({
+          ...match,
+          managerId: sheet.managerId,
+          opponentManagerId: sheet.opponentManagerId,
+        });
+      }
       setOgolCanRevert(false);
       setOgolSnapshot(null);
       setSavedMsg("Escalação salva.");
@@ -1199,6 +1538,61 @@ export default function AdminMatchSheet() {
       // wipe out a captain saved previously.
       if (captainDraft) body.captainPlayerId = Number(captainDraft);
 
+      for (const row of oppGoalRows) {
+        if (!row.playerName.trim() && !row.minute) continue;
+        if (!row.playerName.trim()) {
+          throw new Error("Selecione o autor do gol do adversário.");
+        }
+        goals.push({
+          side: "opponent",
+          scorerName: row.playerName.trim(),
+          minute: normalizeEventMinute(row.minute),
+          injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
+          isPenalty: row.isPenalty,
+          isFreeKick: row.isFreeKick && !row.isPenalty,
+        });
+      }
+      for (const row of oppRedRows) {
+        if (!row.playerName.trim()) continue;
+        cards.push({
+          side: "opponent",
+          cardType: "red",
+          playerName: row.playerName.trim(),
+          minute: normalizeEventMinute(row.minute),
+          injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
+        });
+      }
+      for (const row of oppYellowRows) {
+        if (!row.playerName.trim()) continue;
+        cards.push({
+          side: "opponent",
+          cardType: "yellow",
+          playerName: row.playerName.trim(),
+          minute: normalizeEventMinute(row.minute),
+          injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
+        });
+      }
+      for (const row of oppPenaltyMissedRows) {
+        if (!row.playerName.trim()) continue;
+        penaltyEvents.push({
+          side: "opponent",
+          eventType: "missed",
+          playerName: row.playerName.trim(),
+          minute: normalizeEventMinute(row.minute),
+          injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
+        });
+      }
+      for (const row of oppPenaltySavedRows) {
+        if (!row.playerName.trim()) continue;
+        penaltyEvents.push({
+          side: "opponent",
+          eventType: "saved",
+          playerName: row.playerName.trim(),
+          minute: normalizeEventMinute(row.minute),
+          injuryTimeMinute: row.injuryTimeMinute ? Number(row.injuryTimeMinute) : null,
+        });
+      }
+
       const r = await adminFetch(`/admin/matches/${matchId}/sheet/events`, {
         method: "POST",
         body: JSON.stringify(body),
@@ -1334,9 +1728,18 @@ export default function AdminMatchSheet() {
           minute: normalizeEventMinute(s.minute),
           injuryTimeMinute: s.injuryTimeMinute ? Number(s.injuryTimeMinute) : null,
         }));
+      const opponentSubstitutions = oppSubRows
+        .filter((s) => s.playerOutName.trim() && s.playerInName.trim())
+        .map((s) => ({
+          side: "opponent" as const,
+          playerOutName: s.playerOutName.trim(),
+          playerInName: s.playerInName.trim(),
+          minute: normalizeEventMinute(s.minute),
+          injuryTimeMinute: s.injuryTimeMinute ? Number(s.injuryTimeMinute) : null,
+        }));
       const r = await adminFetch(`/admin/matches/${matchId}/sheet/substitutions`, {
         method: "PUT",
-        body: JSON.stringify({ substitutions }),
+        body: JSON.stringify({ substitutions, opponentSubstitutions }),
       });
       if (!r.ok) {
         const err = await r.json().catch(() => ({}));
@@ -1344,6 +1747,7 @@ export default function AdminMatchSheet() {
       }
       const sheet = (await r.json()) as SheetResponse;
       setSubRows(buildSubRows(sheet.substitutions ?? []));
+      setOppSubRows(buildOppSubRows(sheet.substitutions ?? []));
       setOgolCanRevert(false);
       setOgolSnapshot(null);
       setSavedMsg(
@@ -1743,6 +2147,150 @@ export default function AdminMatchSheet() {
             </table>
           </div>
 
+          <div className="space-y-3 pt-2 border-t">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+                {match.opponent}
+              </h2>
+              <p className="text-xs text-gray-400">
+                {opponentStarterCount} titulares · {opponentBenchCount} reservas
+                {opponentStarterCount !== 11 && opponentStarterCount > 0 && (
+                  <span className="text-amber-600"> — aviso: o usual são 11 titulares</span>
+                )}
+              </p>
+            </div>
+            <p className="text-xs text-gray-400">
+              Busca na tabela de jogadores inteira (existe / similar / criar novo). Quem já
+              passou pelo CSA aparece primeiro; se o nome for ambíguo entre um candidato CSA
+              e um só-adversário, confirme na lista — não resolve sozinho. Fichas antigas em
+              texto livre continuam visíveis, mas precisam ser vinculadas ao cadastro para
+              salvar de novo.
+            </p>
+            <div className="border rounded overflow-x-auto">
+              <table className="w-full text-sm border-separate border-spacing-0">
+                <thead>
+                  <tr className="bg-gray-100 text-left text-[11px] uppercase text-gray-500">
+                    <th className="px-1.5 md:px-2 py-2 w-11 md:w-14">N.</th>
+                    <th className="px-1.5 md:px-2 py-2 min-w-0">Jogador</th>
+                    <th className="px-1.5 md:px-2 py-2 w-16">Pos</th>
+                    <th className="px-1.5 md:px-2 py-2 w-11 md:w-14 text-center">Tit.</th>
+                    <th className="px-1.5 md:px-2 py-2 w-11 md:w-14 text-center">Res.</th>
+                    <th className="px-1.5 md:px-2 py-2 w-8"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {opponentDrafts.map((row, i) => {
+                    const zebra = i % 2 === 0 ? "bg-white" : "bg-gray-50";
+                    const disabledIds = new Set(
+                      opponentDrafts
+                        .filter((r) => r.key !== row.key && r.playerId != null)
+                        .map((r) => r.playerId as number),
+                    );
+                    return (
+                      <tr key={row.key} className={zebra}>
+                        <td className={`px-1.5 md:px-2 py-1.5 align-top ${zebra}`}>
+                          <Input
+                            className="w-10 md:w-14 h-8 text-center"
+                            value={row.shirtNumber}
+                            onChange={(e) =>
+                              setOpponentDrafts((rows) =>
+                                patchAt(rows, i, { shirtNumber: e.target.value }),
+                              )
+                            }
+                          />
+                        </td>
+                        <td className={`px-1.5 md:px-2 py-1.5 min-w-[16rem] ${zebra}`}>
+                          <OpponentPlayerPicker
+                            playerId={row.playerId}
+                            playerName={row.playerName}
+                            photoUrl={row.photoUrl}
+                            disabledIds={disabledIds}
+                            onQueryChange={(query) =>
+                              setOpponentDrafts((rows) =>
+                                patchAt(rows, i, { playerName: query }),
+                              )
+                            }
+                            onResolved={(hit) => {
+                              setSavedMsg("");
+                              setOpponentDrafts((rows) =>
+                                patchAt(rows, i, {
+                                  playerId: hit.id,
+                                  playerName: hit.name,
+                                  photoUrl: hit.photoUrl,
+                                  position: rows[i].position.trim() || hit.position || "",
+                                }),
+                              );
+                            }}
+                            onClear={() => {
+                              setSavedMsg("");
+                              setOpponentDrafts((rows) =>
+                                patchAt(rows, i, {
+                                  playerId: null,
+                                  photoUrl: null,
+                                }),
+                              );
+                            }}
+                          />
+                        </td>
+                        <td className={`px-1.5 md:px-2 py-1.5 align-top ${zebra}`}>
+                          <Input
+                            className="h-8 w-16"
+                            placeholder="—"
+                            value={row.position}
+                            onChange={(e) =>
+                              setOpponentDrafts((rows) =>
+                                patchAt(rows, i, { position: e.target.value }),
+                              )
+                            }
+                          />
+                        </td>
+                        <td className={`px-1.5 md:px-2 py-1.5 text-center align-top ${zebra}`}>
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 accent-[#1B3A6B]"
+                            checked={row.role === "starter"}
+                            onChange={(e) => handleOppRole(row.key, "starter", e.target.checked)}
+                          />
+                        </td>
+                        <td className={`px-1.5 md:px-2 py-1.5 text-center align-top ${zebra}`}>
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 accent-[#1B3A6B]"
+                            checked={row.role === "bench"}
+                            onChange={(e) => handleOppRole(row.key, "bench", e.target.checked)}
+                          />
+                        </td>
+                        <td className={`px-1.5 md:px-2 py-1.5 align-top ${zebra}`}>
+                          <button
+                            type="button"
+                            className="p-1 text-gray-400 hover:text-red-600"
+                            title="Remover linha"
+                            onClick={() =>
+                              setOpponentDrafts((rows) =>
+                                padOpponentDrafts(rows.filter((r) => r.key !== row.key)),
+                              )
+                            }
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setOpponentDrafts((rows) => [...rows, emptyOppLineupRow()])}
+            >
+              <Plus className="h-3.5 w-3.5 mr-1" />
+              Adicionar jogador
+            </Button>
+          </div>
+
           <div className="space-y-2">
             <h3 className="text-xs font-semibold text-gray-500 uppercase">Técnico</h3>
             <p className="text-xs text-gray-400">
@@ -1805,6 +2353,114 @@ export default function AdminMatchSheet() {
                 </tbody>
               </table>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-xs font-semibold text-gray-500 uppercase">Técnico adversário</h3>
+            <p className="text-xs text-gray-400">
+              Busca na tabela de técnicos inteira (existe / similar / criar novo). Técnicos com
+              passagem pelo CSA aparecem primeiro; se o nome for ambíguo, confirme na lista — não
+              resolve sozinho.
+            </p>
+            {selectedOpponentManager ? (
+              <div className="flex items-center gap-2 text-sm max-w-lg">
+                <EntityPhoto
+                  url={selectedOpponentManager.photoUrl}
+                  name={selectedOpponentManager.name}
+                  size="sm"
+                  shape="circle"
+                  label={`Foto de ${selectedOpponentManager.name}`}
+                />
+                <a
+                  href={`/admin/tecnicos/${selectedOpponentManager.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#1B3A6B] hover:underline truncate font-medium"
+                >
+                  {selectedOpponentManager.name}
+                </a>
+                <button
+                  type="button"
+                  className="text-xs text-gray-500 hover:text-red-600"
+                  onClick={() => {
+                    setOpponentManagerIdDraft("");
+                    setSavedMsg("");
+                  }}
+                >
+                  Limpar
+                </button>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400">Nenhum técnico adversário selecionado.</p>
+            )}
+            <Input
+              className="max-w-lg h-8"
+              placeholder="Buscar técnico…"
+              value={opponentManagerQuery}
+              onChange={(e) => setOpponentManagerQuery(e.target.value)}
+            />
+            {opponentManagerSuggestions.length > 0 && (
+              <div className="border rounded overflow-hidden max-w-lg">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-100 text-left text-[11px] uppercase text-gray-500">
+                      <th className="px-2 py-2">Técnico</th>
+                      <th className="px-2 py-2 w-24"> </th>
+                      <th className="px-2 py-2 w-14 text-center">Sel.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {opponentManagerSuggestions.map((m, i) => {
+                      const selected = opponentManagerIdDraft === String(m.id);
+                      return (
+                        <tr key={m.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                          <td className="px-2 py-1.5 font-medium">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <EntityPhoto
+                                url={m.photoUrl}
+                                name={m.name}
+                                size="sm"
+                                shape="circle"
+                                label={`Foto de ${m.name}`}
+                              />
+                              <span className="truncate">{m.name}</span>
+                            </div>
+                          </td>
+                          <td className="px-2 py-1.5 text-[11px] text-gray-500 whitespace-nowrap">
+                            {m.csa ? "passagem CSA" : "só adversário"}
+                            {m.match === "similar" ? " · similar" : ""}
+                          </td>
+                          <td className="px-2 py-1.5 text-center">
+                            <input
+                              type="checkbox"
+                              className="h-4 w-4 accent-[#1B3A6B]"
+                              checked={selected}
+                              onChange={(e) => {
+                                setSavedMsg("");
+                                setOpponentManagerIdDraft(e.target.checked ? String(m.id) : "");
+                              }}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {opponentManagerQueryFolded.length >= 2 && !opponentManagerHasExact && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={creatingOpponentManager}
+                onClick={createOpponentManager}
+              >
+                {creatingOpponentManager
+                  ? "Criando…"
+                  : `Criar novo: ${opponentManagerQuery.trim()}`}
+              </Button>
+            )}
           </div>
 
           <Button type="button" className="bg-[#1B3A6B]" onClick={saveEscalacao} disabled={savingLineup}>
@@ -2303,6 +2959,300 @@ export default function AdminMatchSheet() {
 
           <section className="bg-white border rounded-lg p-4 space-y-3">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+              Eventos - {match.opponent}
+            </h2>
+            <p className="text-xs text-gray-400">
+              Jogadores vêm da escalação adversária (salve a aba Escalação antes). Nome em
+              texto, sem cadastro.
+            </p>
+            {opponentLineupNames.length === 0 && (
+              <p className="text-xs text-gray-400">
+                Cadastre titulares/reservas do adversário na aba Escalação antes dos eventos.
+              </p>
+            )}
+            <div className="border rounded overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-100 text-left text-[11px] uppercase text-gray-500">
+                    <th className="px-2 py-2 w-10"></th>
+                    <th className="px-2 py-2 min-w-[10rem]">Jogador</th>
+                    <th className="px-2 py-2 w-20">Min</th>
+                    <th className="px-2 py-2 w-28">Min Acrésc.</th>
+                    <th className="px-2 py-2 w-14 text-center">Pen</th>
+                    <th className="px-2 py-2 w-14 text-center">Falta</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {oppGoalRows.map((row, i) => (
+                    <tr key={`opp-goal-${i}`} className="border-t">
+                      <td className="px-2 py-1.5 text-center">⚽</td>
+                      <td className="px-2 py-1.5">
+                        <select
+                          className={selectCls}
+                          value={row.playerName}
+                          onChange={(e) =>
+                            setOppGoalRows((rows) => patchAt(rows, i, { playerName: e.target.value }))
+                          }
+                        >
+                          <option value="">(Nenhum)</option>
+                          {opponentLineupNames.map((name) => (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.minute}
+                          onChange={(e) =>
+                            setOppGoalRows((rows) => patchAt(rows, i, { minute: e.target.value }))
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.injuryTimeMinute}
+                          onChange={(e) =>
+                            setOppGoalRows((rows) =>
+                              patchAt(rows, i, { injuryTimeMinute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5 text-center">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4"
+                          checked={row.isPenalty}
+                          onChange={(e) =>
+                            setOppGoalRows((rows) =>
+                              patchAt(rows, i, {
+                                isPenalty: e.target.checked,
+                                isFreeKick: e.target.checked ? false : row.isFreeKick,
+                              }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5 text-center">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4"
+                          checked={row.isFreeKick}
+                          onChange={(e) =>
+                            setOppGoalRows((rows) =>
+                              patchAt(rows, i, {
+                                isFreeKick: e.target.checked,
+                                isPenalty: e.target.checked ? false : row.isPenalty,
+                              }),
+                            )
+                          }
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                  {oppRedRows.map((row, i) => (
+                    <tr key={`opp-red-${i}`} className="border-t bg-red-50">
+                      <td className="px-2 py-1.5 text-center">
+                        <span className="inline-block w-3 h-4 rounded-sm bg-red-600" />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <select
+                          className={selectCls}
+                          value={row.playerName}
+                          onChange={(e) =>
+                            setOppRedRows((rows) => patchAt(rows, i, { playerName: e.target.value }))
+                          }
+                        >
+                          <option value="">(Nenhum)</option>
+                          {opponentLineupNames.map((name) => (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.minute}
+                          onChange={(e) =>
+                            setOppRedRows((rows) => patchAt(rows, i, { minute: e.target.value }))
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.injuryTimeMinute}
+                          onChange={(e) =>
+                            setOppRedRows((rows) =>
+                              patchAt(rows, i, { injuryTimeMinute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5"></td>
+                      <td className="px-2 py-1.5"></td>
+                    </tr>
+                  ))}
+                  {oppYellowRows.map((row, i) => (
+                    <tr key={`opp-yel-${i}`} className="border-t bg-yellow-50">
+                      <td className="px-2 py-1.5 text-center">
+                        <span className="inline-block w-3 h-4 rounded-sm bg-yellow-400" />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <select
+                          className={selectCls}
+                          value={row.playerName}
+                          onChange={(e) =>
+                            setOppYellowRows((rows) =>
+                              patchAt(rows, i, { playerName: e.target.value }),
+                            )
+                          }
+                        >
+                          <option value="">(Nenhum)</option>
+                          {opponentLineupNames.map((name) => (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.minute}
+                          onChange={(e) =>
+                            setOppYellowRows((rows) => patchAt(rows, i, { minute: e.target.value }))
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.injuryTimeMinute}
+                          onChange={(e) =>
+                            setOppYellowRows((rows) =>
+                              patchAt(rows, i, { injuryTimeMinute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5"></td>
+                      <td className="px-2 py-1.5"></td>
+                    </tr>
+                  ))}
+                  {oppPenaltyMissedRows.map((row, i) => (
+                    <tr key={`opp-pen-miss-${i}`} className="border-t bg-orange-50/40">
+                      <td className="px-2 py-1.5 text-center text-[10px] font-semibold text-orange-700">
+                        A:
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <select
+                          className={selectCls}
+                          value={row.playerName}
+                          onChange={(e) =>
+                            setOppPenaltyMissedRows((rows) =>
+                              patchAt(rows, i, { playerName: e.target.value }),
+                            )
+                          }
+                        >
+                          <option value="">(Nenhum)</option>
+                          {opponentLineupNames.map((name) => (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.minute}
+                          onChange={(e) =>
+                            setOppPenaltyMissedRows((rows) =>
+                              patchAt(rows, i, { minute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.injuryTimeMinute}
+                          onChange={(e) =>
+                            setOppPenaltyMissedRows((rows) =>
+                              patchAt(rows, i, { injuryTimeMinute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5 text-[10px] text-orange-600" colSpan={2}>
+                        Pênalti perdido
+                      </td>
+                    </tr>
+                  ))}
+                  {oppPenaltySavedRows.map((row, i) => (
+                    <tr key={`opp-pen-save-${i}`} className="border-t bg-sky-50/40">
+                      <td className="px-2 py-1.5 text-center text-[10px] font-semibold text-sky-700">
+                        C:
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <select
+                          className={selectCls}
+                          value={row.playerName}
+                          onChange={(e) =>
+                            setOppPenaltySavedRows((rows) =>
+                              patchAt(rows, i, { playerName: e.target.value }),
+                            )
+                          }
+                        >
+                          <option value="">(Nenhum)</option>
+                          {opponentLineupNames.map((name) => (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.minute}
+                          onChange={(e) =>
+                            setOppPenaltySavedRows((rows) =>
+                              patchAt(rows, i, { minute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.injuryTimeMinute}
+                          onChange={(e) =>
+                            setOppPenaltySavedRows((rows) =>
+                              patchAt(rows, i, { injuryTimeMinute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5 text-[10px] text-sky-700" colSpan={2}>
+                        Pênalti defendido
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section className="bg-white border rounded-lg p-4 space-y-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
               Eventos - Treinador
             </h2>
             <div className="border rounded overflow-x-auto max-w-md">
@@ -2488,6 +3438,7 @@ export default function AdminMatchSheet() {
                         <span>
                           {formatSavedMinute(g.minute, g.injuryTimeMinute)}{" "}
                           {g.scorerName ?? (g.isOwnGoal ? "Gol contra" : "—")}
+                          {sideLabel(g.side)}
                           {g.isPenalty && (
                             <span className="ml-1 text-[10px] uppercase text-gray-400">(Pênalti)</span>
                           )}
@@ -2546,6 +3497,7 @@ export default function AdminMatchSheet() {
                         }`}
                       />
                       {c.playerName ?? "—"}
+                      {sideLabel(c.side)}
                     </span>
                     <button
                       type="button"
@@ -2613,6 +3565,7 @@ export default function AdminMatchSheet() {
                         {pe.eventType === "saved" ? "C" : "A"}
                       </span>
                       {pe.playerName ?? "—"}
+                      {sideLabel(pe.side)}
                       <span className="ml-1 text-xs text-gray-400">
                         {pe.eventType === "saved" ? "(defendidos)" : "(perdido)"}
                       </span>
@@ -2723,6 +3676,91 @@ export default function AdminMatchSheet() {
           <Button type="button" className="bg-[#1B3A6B]" onClick={saveSubs} disabled={savingSubs}>
             {savingSubs ? "Salvando…" : "Salvar Substituições"}
           </Button>
+
+          <div className="space-y-3 pt-4 border-t">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+              Substituições {match.opponent}
+            </h2>
+            {opponentLineupNames.length === 0 && (
+              <p className="text-xs text-gray-400">
+                Cadastre a escalação do adversário antes das substituições.
+              </p>
+            )}
+            <div className="border rounded overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-100 text-left text-[11px] uppercase text-gray-500">
+                    <th className="px-2 py-2 min-w-[9rem]">Saiu</th>
+                    <th className="px-2 py-2 min-w-[9rem]">Entrou</th>
+                    <th className="px-2 py-2 w-20">Min</th>
+                    <th className="px-2 py-2 w-28">Min Acrésc.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {oppSubRows.map((row, i) => (
+                    <tr key={i} className={i % 2 === 0 ? "bg-white border-t" : "bg-gray-50 border-t"}>
+                      <td className="px-2 py-1.5">
+                        <select
+                          className={selectCls}
+                          value={row.playerOutName}
+                          onChange={(e) =>
+                            setOppSubRows((rows) =>
+                              patchAt(rows, i, { playerOutName: e.target.value }),
+                            )
+                          }
+                        >
+                          <option value="">(Nenhum)</option>
+                          {opponentLineupNames.map((name) => (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <select
+                          className={selectCls}
+                          value={row.playerInName}
+                          onChange={(e) =>
+                            setOppSubRows((rows) =>
+                              patchAt(rows, i, { playerInName: e.target.value }),
+                            )
+                          }
+                        >
+                          <option value="">(Nenhum)</option>
+                          {opponentLineupNames.map((name) => (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.minute}
+                          onChange={(e) =>
+                            setOppSubRows((rows) => patchAt(rows, i, { minute: e.target.value }))
+                          }
+                        />
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Input
+                          className="h-8"
+                          value={row.injuryTimeMinute}
+                          onChange={(e) =>
+                            setOppSubRows((rows) =>
+                              patchAt(rows, i, { injuryTimeMinute: e.target.value }),
+                            )
+                          }
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </section>
       )}
 

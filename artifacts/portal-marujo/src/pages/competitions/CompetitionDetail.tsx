@@ -7,6 +7,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft } from "lucide-react";
 import { BrazilFlag } from "@/components/BrazilFlag";
 import { ShareButton } from "@/components/ShareButton";
+import type {
+  CompetitionParentRef,
+  CompetitionSeasonRow,
+  CompetitionVariant,
+} from "@/lib/competition-variants";
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -35,6 +40,9 @@ type CompetitionHighlights = {
 
 type CompetitionDetailWithHighlights = CompetitionDetail & {
   highlights?: CompetitionHighlights | null;
+  parent?: CompetitionParentRef | null;
+  variants?: CompetitionVariant[];
+  seasonStats: CompetitionSeasonRow[];
 };
 
 function HighlightCard({
@@ -179,6 +187,11 @@ export default function CompetitionDetailPage() {
   }
 
   const gd = (comp.goalsScored ?? 0) - (comp.goalsConceded ?? 0);
+  const variants = (comp.variants ?? []).filter((v) => v.matches > 0);
+  const seasonStats = comp.seasonStats ?? [];
+  const showFormatColumn = seasonStats.some(
+    (s) => s.competitionName && s.competitionName !== comp.name,
+  );
 
   return (
     <div className="space-y-5 max-w-3xl">
@@ -196,6 +209,14 @@ export default function CompetitionDetailPage() {
             <ShareButton title={comp.name} />
           </h1>
           {nivel(comp.type) && <p className="text-sm text-muted-foreground mt-1">{nivel(comp.type)}</p>}
+          {comp.parent ? (
+            <p className="text-sm text-muted-foreground mt-2">
+              Formato histórico do{" "}
+              <Link href={`/competicoes/${comp.parent.id}`} className="text-primary hover:underline">
+                {comp.parent.name}
+              </Link>
+            </p>
+          ) : null}
         </div>
         {comp.titles ? (
           <span className="text-sm bg-amber-100 text-amber-700 border border-amber-300 px-3 py-1.5 rounded font-bold whitespace-nowrap">
@@ -235,9 +256,74 @@ export default function CompetitionDetailPage() {
         ))}
       </div>
 
+      {comp.matches > 0 ? (
+        <p className="text-sm">
+          <Link
+            href={`/partidas?competitionId=${comp.id}`}
+            className="text-primary hover:underline"
+            data-testid="link-competition-matches"
+          >
+            Ver partidas desta competição →
+          </Link>
+        </p>
+      ) : null}
+
       <CompetitionHighlightsSection highlights={comp.highlights} />
 
-      {comp.seasonStats && comp.seasonStats.length > 0 && (
+      {variants.length > 0 && (
+        <div>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+            Formatos históricos
+          </h2>
+          <p className="text-sm text-muted-foreground mb-3">
+            Nomes oficiais de cada era, todos computados nas estatísticas acima.
+          </p>
+          <div className="border rounded">
+            <Table>
+              <TableHeader>
+                <TableRow className="text-xs">
+                  <TableHead className="py-2">Formato</TableHead>
+                  <TableHead className="py-2 text-right">J</TableHead>
+                  <TableHead className="py-2 text-right text-green-600">V</TableHead>
+                  <TableHead className="py-2 text-right text-amber-600">E</TableHead>
+                  <TableHead className="py-2 text-right text-red-600">D</TableHead>
+                  <TableHead className="py-2 text-right">GP</TableHead>
+                  <TableHead className="py-2 text-right">GC</TableHead>
+                  <TableHead className="py-2 text-right">Aproveit.</TableHead>
+                  <TableHead className="py-2 text-right">Última Ed.</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {variants.map((v) => (
+                  <TableRow key={v.id} className="text-sm" data-testid={`row-competition-variant-${v.id}`}>
+                    <TableCell className="py-2 font-medium">
+                      {v.id === comp.id ? (
+                        v.name
+                      ) : (
+                        <Link href={`/competicoes/${v.id}`} className="hover:text-primary hover:underline">
+                          {v.name}
+                        </Link>
+                      )}
+                    </TableCell>
+                    <TableCell className="py-2 text-right">{v.matches}</TableCell>
+                    <TableCell className="py-2 text-right text-green-600">{v.wins}</TableCell>
+                    <TableCell className="py-2 text-right text-amber-600">{v.draws}</TableCell>
+                    <TableCell className="py-2 text-right text-red-600">{v.losses}</TableCell>
+                    <TableCell className="py-2 text-right">{v.goalsScored}</TableCell>
+                    <TableCell className="py-2 text-right">{v.goalsConceded}</TableCell>
+                    <TableCell className="py-2 text-right font-medium">{pct(v.wins, v.matches)}</TableCell>
+                    <TableCell className="py-2 text-right text-muted-foreground text-xs">
+                      {v.lastParticipation ?? "–"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      )}
+
+      {seasonStats.length > 0 && (
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
             Histórico por Edição
@@ -247,6 +333,7 @@ export default function CompetitionDetailPage() {
               <TableHeader>
                 <TableRow className="text-xs">
                   <TableHead className="py-2">Edição</TableHead>
+                  {showFormatColumn ? <TableHead className="py-2">Formato</TableHead> : null}
                   <TableHead className="py-2 text-right">J</TableHead>
                   <TableHead className="py-2 text-right text-green-600">V</TableHead>
                   <TableHead className="py-2 text-right text-amber-600">E</TableHead>
@@ -257,13 +344,28 @@ export default function CompetitionDetailPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {comp.seasonStats.map((s) => (
-                  <TableRow key={s.year} className="text-sm" data-testid={`row-competition-season-${s.year}`}>
+                {seasonStats.map((s) => (
+                  <TableRow
+                    key={`${s.year}-${s.competitionId ?? s.competitionName ?? ""}`}
+                    className="text-sm"
+                    data-testid={`row-competition-season-${s.year}`}
+                  >
                     <TableCell className="py-2 font-medium">
                       <Link href={`/temporadas/${s.year}`} className="hover:text-primary hover:underline">
                         {s.year}
                       </Link>
                     </TableCell>
+                    {showFormatColumn ? (
+                      <TableCell className="py-2 text-muted-foreground text-xs">
+                        {s.competitionId && s.competitionId !== comp.id ? (
+                          <Link href={`/competicoes/${s.competitionId}`} className="hover:text-primary hover:underline">
+                            {s.competitionName}
+                          </Link>
+                        ) : (
+                          s.competitionName ?? "–"
+                        )}
+                      </TableCell>
+                    ) : null}
                     <TableCell className="py-2 text-right">{s.matches}</TableCell>
                     <TableCell className="py-2 text-right text-green-600">{s.wins}</TableCell>
                     <TableCell className="py-2 text-right text-amber-600">{s.draws}</TableCell>

@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { matchesTable, opponentsTable, stadiumsTable, competitionsTable, managersTable, refereesTable } from "@workspace/db";
-import { sql, eq, and, ilike, desc, asc, or, lt, gt, ne } from "drizzle-orm";
+import { sql, eq, and, ilike, desc, asc, or, lt, gt, ne, inArray } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { loadMatchSheet } from "../lib/match-sheet";
 import {
   officialPlayedMatchConditions,
@@ -10,8 +11,15 @@ import {
 } from "../lib/match-filters";
 import { formatYmd, saoPauloYmd } from "../lib/birthdays";
 import { accentInsensitiveLike } from "../lib/accent-fold";
+import {
+  familyIdsForCompetition,
+  isFamilyParent,
+  loadCompetitionFamilyIndex,
+} from "../lib/competition-families";
 
 const router = Router();
+
+const opponentManagers = alias(managersTable, "opponent_managers");
 
 function buildMatchRow(row: any) {
   return {
@@ -96,7 +104,17 @@ router.get("/matches", async (req, res) => {
     if (season) conditions.push(eq(matchesTable.season, season));
     if (competitionId) {
       const cid = parseInt(competitionId, 10);
-      if (!isNaN(cid)) conditions.push(eq(matchesTable.competitionId, cid));
+      if (!isNaN(cid)) {
+        const familyIndex = await loadCompetitionFamilyIndex();
+        const ids = isFamilyParent(familyIndex, cid)
+          ? familyIdsForCompetition(familyIndex, cid)
+          : [cid];
+        conditions.push(
+          ids.length === 1
+            ? eq(matchesTable.competitionId, ids[0]!)
+            : inArray(matchesTable.competitionId, ids),
+        );
+      }
     } else if (competition) {
       conditions.push(accentInsensitiveLike(competitionsTable.name, competition));
     }
@@ -384,6 +402,9 @@ router.get("/matches/:id", async (req, res) => {
         managerId: matchesTable.managerId,
         managerName: managersTable.name,
         managerPhotoUrl: managersTable.photoUrl,
+        opponentManagerId: matchesTable.opponentManagerId,
+        opponentManagerName: opponentManagers.name,
+        opponentManagerPhotoUrl: opponentManagers.photoUrl,
         refereeId: matchesTable.refereeId,
         refereeName: refereesTable.name,
         scorers: matchesTable.scorers,
@@ -397,6 +418,7 @@ router.get("/matches/:id", async (req, res) => {
       .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
       .leftJoin(stadiumsTable, eq(matchesTable.stadiumId, stadiumsTable.id))
       .leftJoin(managersTable, eq(matchesTable.managerId, managersTable.id))
+      .leftJoin(opponentManagers, eq(matchesTable.opponentManagerId, opponentManagers.id))
       .leftJoin(refereesTable, eq(matchesTable.refereeId, refereesTable.id))
       .where(eq(matchesTable.id, id));
 
@@ -485,6 +507,9 @@ router.get("/matches/:id", async (req, res) => {
       managerId: row.managerId ?? null,
       manager: row.managerName ?? null,
       managerPhotoUrl: row.managerPhotoUrl ?? null,
+      opponentManagerId: row.opponentManagerId ?? null,
+      opponentManager: row.opponentManagerName ?? null,
+      opponentManagerPhotoUrl: row.opponentManagerPhotoUrl ?? null,
       refereeId: row.refereeId ?? null,
       referee: row.refereeName ?? null,
       scorers: row.scorers ? row.scorers.split(",").map((s) => s.trim()).filter(Boolean) : [],

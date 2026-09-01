@@ -41,142 +41,147 @@ export type PlayerSeasonFloor = {
 
 /** Count CSA sheet stats for a player, grouped by match season. */
 export async function linkedPlayerSeasonStats(playerId: number) {
-  const apps = await db
-    .select({
-      season: matchesTable.season,
-      appearances: sql<number>`cast(count(distinct ${matchLineupsTable.matchId}) as int)`,
-    })
-    .from(matchLineupsTable)
-    .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
-    .where(
-      and(
-        eq(matchLineupsTable.playerId, playerId),
-        eq(matchLineupsTable.side, "csa"),
-        csaLineupActuallyPlayedCondition(),
-        officialPlayedMatchConditions(),
-      ),
-    )
-    .groupBy(matchesTable.season);
-
-  const goals = await db
-    .select({
-      season: matchesTable.season,
-      goals: sql<number>`cast(count(*) as int)`,
-    })
-    .from(matchGoalsTable)
-    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
-    .where(
-      and(
-        eq(matchGoalsTable.scorerPlayerId, playerId),
-        eq(matchGoalsTable.side, "csa"),
-        eq(matchGoalsTable.isOwnGoal, false),
-        officialPlayedMatchConditions(),
-      ),
-    )
-    .groupBy(matchesTable.season);
-
-  const assists = await db
-    .select({
-      season: matchesTable.season,
-      assists: sql<number>`cast(count(*) as int)`,
-    })
-    .from(matchGoalsTable)
-    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
-    .where(
-      and(
-        eq(matchGoalsTable.assistPlayerId, playerId),
-        eq(matchGoalsTable.side, "csa"),
-        officialPlayedMatchConditions(),
-      ),
-    )
-    .groupBy(matchesTable.season);
-
-  const penaltiesMissed = await db
-    .select({
-      season: matchesTable.season,
-      count: sql<number>`cast(count(*) as int)`,
-    })
-    .from(matchPenaltyEventsTable)
-    .innerJoin(matchesTable, eq(matchPenaltyEventsTable.matchId, matchesTable.id))
-    .where(
-      and(
-        eq(matchPenaltyEventsTable.playerId, playerId),
-        eq(matchPenaltyEventsTable.side, "csa"),
-        eq(matchPenaltyEventsTable.eventType, "missed"),
-        officialPlayedMatchConditions(),
-      ),
-    )
-    .groupBy(matchesTable.season);
-
-  const penaltiesSaved = await db
-    .select({
-      season: matchesTable.season,
-      count: sql<number>`cast(count(*) as int)`,
-    })
-    .from(matchPenaltyEventsTable)
-    .innerJoin(matchesTable, eq(matchPenaltyEventsTable.matchId, matchesTable.id))
-    .where(
-      and(
-        eq(matchPenaltyEventsTable.playerId, playerId),
-        eq(matchPenaltyEventsTable.side, "csa"),
-        eq(matchPenaltyEventsTable.eventType, "saved"),
-        officialPlayedMatchConditions(),
-      ),
-    )
-    .groupBy(matchesTable.season);
-
-  const yellowCards = await db
-    .select({
-      season: matchesTable.season,
-      count: sql<number>`cast(count(*) as int)`,
-    })
-    .from(matchCardsTable)
-    .innerJoin(matchesTable, eq(matchCardsTable.matchId, matchesTable.id))
-    .where(
-      and(
-        eq(matchCardsTable.playerId, playerId),
-        eq(matchCardsTable.side, "csa"),
-        eq(matchCardsTable.cardType, "yellow"),
-        officialPlayedMatchConditions(),
-      ),
-    )
-    .groupBy(matchesTable.season);
-
-  const redCards = await db
-    .select({
-      season: matchesTable.season,
-      count: sql<number>`cast(count(*) as int)`,
-    })
-    .from(matchCardsTable)
-    .innerJoin(matchesTable, eq(matchCardsTable.matchId, matchesTable.id))
-    .where(
-      and(
-        eq(matchCardsTable.playerId, playerId),
-        eq(matchCardsTable.side, "csa"),
-        eq(matchCardsTable.cardType, "red"),
-        officialPlayedMatchConditions(),
-      ),
-    )
-    .groupBy(matchesTable.season);
-
-  const ownGoals = await db
-    .select({
-      season: matchesTable.season,
-      count: sql<number>`cast(count(*) as int)`,
-    })
-    .from(matchGoalsTable)
-    .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
-    .where(
-      and(
-        eq(matchGoalsTable.scorerPlayerId, playerId),
-        eq(matchGoalsTable.isOwnGoal, true),
-        eq(matchGoalsTable.ownGoalDirection, "against"),
-        officialPlayedMatchConditions(),
-      ),
-    )
-    .groupBy(matchesTable.season);
-
-  const concededBySeason = await concededGoalsBySeasonForPlayer(playerId);
+  const [
+    apps,
+    goals,
+    assists,
+    penaltiesMissed,
+    penaltiesSaved,
+    yellowCards,
+    redCards,
+    ownGoals,
+    concededBySeason,
+  ] = await Promise.all([
+    db
+      .select({
+        season: matchesTable.season,
+        appearances: sql<number>`cast(count(distinct ${matchLineupsTable.matchId}) as int)`,
+      })
+      .from(matchLineupsTable)
+      .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
+      .where(
+        and(
+          eq(matchLineupsTable.playerId, playerId),
+          eq(matchLineupsTable.side, "csa"),
+          csaLineupActuallyPlayedCondition(),
+          officialPlayedMatchConditions(),
+        ),
+      )
+      .groupBy(matchesTable.season),
+    db
+      .select({
+        season: matchesTable.season,
+        goals: sql<number>`cast(count(*) as int)`,
+      })
+      .from(matchGoalsTable)
+      .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
+      .where(
+        and(
+          eq(matchGoalsTable.scorerPlayerId, playerId),
+          eq(matchGoalsTable.side, "csa"),
+          eq(matchGoalsTable.isOwnGoal, false),
+          officialPlayedMatchConditions(),
+        ),
+      )
+      .groupBy(matchesTable.season),
+    db
+      .select({
+        season: matchesTable.season,
+        assists: sql<number>`cast(count(*) as int)`,
+      })
+      .from(matchGoalsTable)
+      .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
+      .where(
+        and(
+          eq(matchGoalsTable.assistPlayerId, playerId),
+          eq(matchGoalsTable.side, "csa"),
+          officialPlayedMatchConditions(),
+        ),
+      )
+      .groupBy(matchesTable.season),
+    db
+      .select({
+        season: matchesTable.season,
+        count: sql<number>`cast(count(*) as int)`,
+      })
+      .from(matchPenaltyEventsTable)
+      .innerJoin(matchesTable, eq(matchPenaltyEventsTable.matchId, matchesTable.id))
+      .where(
+        and(
+          eq(matchPenaltyEventsTable.playerId, playerId),
+          eq(matchPenaltyEventsTable.side, "csa"),
+          eq(matchPenaltyEventsTable.eventType, "missed"),
+          officialPlayedMatchConditions(),
+        ),
+      )
+      .groupBy(matchesTable.season),
+    db
+      .select({
+        season: matchesTable.season,
+        count: sql<number>`cast(count(*) as int)`,
+      })
+      .from(matchPenaltyEventsTable)
+      .innerJoin(matchesTable, eq(matchPenaltyEventsTable.matchId, matchesTable.id))
+      .where(
+        and(
+          eq(matchPenaltyEventsTable.playerId, playerId),
+          eq(matchPenaltyEventsTable.side, "csa"),
+          eq(matchPenaltyEventsTable.eventType, "saved"),
+          officialPlayedMatchConditions(),
+        ),
+      )
+      .groupBy(matchesTable.season),
+    db
+      .select({
+        season: matchesTable.season,
+        count: sql<number>`cast(count(*) as int)`,
+      })
+      .from(matchCardsTable)
+      .innerJoin(matchesTable, eq(matchCardsTable.matchId, matchesTable.id))
+      .where(
+        and(
+          eq(matchCardsTable.playerId, playerId),
+          eq(matchCardsTable.side, "csa"),
+          eq(matchCardsTable.cardType, "yellow"),
+          officialPlayedMatchConditions(),
+        ),
+      )
+      .groupBy(matchesTable.season),
+    db
+      .select({
+        season: matchesTable.season,
+        count: sql<number>`cast(count(*) as int)`,
+      })
+      .from(matchCardsTable)
+      .innerJoin(matchesTable, eq(matchCardsTable.matchId, matchesTable.id))
+      .where(
+        and(
+          eq(matchCardsTable.playerId, playerId),
+          eq(matchCardsTable.side, "csa"),
+          eq(matchCardsTable.cardType, "red"),
+          officialPlayedMatchConditions(),
+        ),
+      )
+      .groupBy(matchesTable.season),
+    db
+      .select({
+        season: matchesTable.season,
+        count: sql<number>`cast(count(*) as int)`,
+      })
+      .from(matchGoalsTable)
+      .innerJoin(matchesTable, eq(matchGoalsTable.matchId, matchesTable.id))
+      .where(
+        and(
+          eq(matchGoalsTable.scorerPlayerId, playerId),
+          eq(matchGoalsTable.side, "csa"),
+          eq(matchGoalsTable.isOwnGoal, true),
+          eq(matchGoalsTable.ownGoalDirection, "against"),
+          officialPlayedMatchConditions(),
+        ),
+      )
+      .groupBy(matchesTable.season),
+    concededGoalsBySeasonForPlayer(playerId),
+  ]);
 
   type SeasonAgg = {
     appearances: number;

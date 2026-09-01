@@ -9,6 +9,7 @@ import {
 import { and, asc, desc, eq, isNotNull, sql } from "drizzle-orm";
 import { officialPlayedMatchConditions } from "./match-filters";
 import { csaLineupActuallyPlayedCondition } from "./player-appeared";
+import { competitionIdIn } from "./competition-families";
 
 export type CompetitionHighlightEntry = {
   id: number;
@@ -30,12 +31,13 @@ function mapHighlight(
   return { id: row.id, name: row.name, value: row.value };
 }
 
-/** Career highlights for CSA in a single competition (all editions). */
+/** Career highlights for CSA in one competition or a family of equivalent formats. */
 export async function getCompetitionHighlights(
-  competitionId: number,
+  competitionIds: number | number[],
 ): Promise<CompetitionHighlights> {
+  const ids = Array.isArray(competitionIds) ? competitionIds : [competitionIds];
   const competitionMatch = and(
-    eq(matchesTable.competitionId, competitionId),
+    competitionIdIn(ids),
     officialPlayedMatchConditions(),
   );
 

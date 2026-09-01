@@ -9,9 +9,18 @@ import {
   opponentsTable,
   seasonCompetitionStatsTable,
 } from "@workspace/db";
-import { sql, eq, and, desc, asc } from "drizzle-orm";
+import { sql, eq, and, desc, asc, inArray } from "drizzle-orm";
 import { officialPlayedMatchConditions } from "../lib/match-filters";
 import { getCompetitionHighlights } from "../lib/competition-highlights";
+import { listHomeClubsForStadium } from "../lib/club-stadiums";
+import {
+  competitionIdIn,
+  familyIdsForCompetition,
+  foldListedCompetitions,
+  isFamilyParent,
+  loadCompetitionFamilyIndex,
+  parentIdForCompetition,
+} from "../lib/competition-families";
 
 const router = Router();
 
@@ -112,14 +121,8 @@ router.get("/stadiums/:id", async (req, res) => {
 
     if (!stadium) return res.status(404).json({ error: "Estádio não encontrado" });
 
-    const homeClubs = await db
-      .select({
-        id: opponentsTable.id,
-        name: opponentsTable.name,
-      })
-      .from(opponentsTable)
-      .where(eq(opponentsTable.homeStadiumId, id))
-      .orderBy(asc(opponentsTable.name));
+    const homeClubRows = await listHomeClubsForStadium(id);
+    const homeClubs = homeClubRows.map((c) => ({ id: c.id, name: c.name }));
 
     const baseWhere = and(
       eq(matchesTable.stadiumId, id),
@@ -237,25 +240,32 @@ router.get("/stadiums/:id", async (req, res) => {
 // Competitions
 router.get("/competitions", async (req, res) => {
   try {
-    const rows = await db
-      .select({
-        id: competitionsTable.id,
-        name: competitionsTable.name,
-        type: competitionsTable.type,
-        matches: sql<number>`cast(count(${matchesTable.id}) as int)`,
-        wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
-        draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
-        losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
-        goalsScored: sql<number>`cast(sum(${matchesTable.goalsFor}) as int)`,
-        goalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
-        lastParticipation: sql<string>`cast(max(${matchesTable.season}) as text)`,
-      })
-      .from(competitionsTable)
-      .leftJoin(matchesTable, and(eq(matchesTable.competitionId, competitionsTable.id), officialPlayedMatchConditions()))
-      .groupBy(competitionsTable.id, competitionsTable.name, competitionsTable.type)
-      .orderBy(sql`count(${matchesTable.id}) desc`);
+    const [rows, familyIndex] = await Promise.all([
+      db
+        .select({
+          id: competitionsTable.id,
+          name: competitionsTable.name,
+          type: competitionsTable.type,
+          matches: sql<number>`cast(count(${matchesTable.id}) as int)`,
+          wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+          draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+          losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+          goalsScored: sql<number>`cast(sum(${matchesTable.goalsFor}) as int)`,
+          goalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
+          lastParticipation: sql<string>`cast(max(${matchesTable.season}) as text)`,
+        })
+        .from(competitionsTable)
+        .leftJoin(matchesTable, and(eq(matchesTable.competitionId, competitionsTable.id), officialPlayedMatchConditions()))
+        .groupBy(competitionsTable.id, competitionsTable.name, competitionsTable.type)
+        .orderBy(sql`count(${matchesTable.id}) desc`),
+      loadCompetitionFamilyIndex(),
+    ]);
 
-    res.json(rows.map((r) => ({ ...r, titles: null })));
+    const listed = foldListedCompetitions(
+      rows.map((r) => ({ ...r, titles: null })),
+      familyIndex,
+    );
+    res.json(listed);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Erro interno do servidor" });
@@ -270,6 +280,10 @@ router.get("/competitions/:id", async (req, res) => {
     const comp = await db.query.competitionsTable.findFirst({ where: eq(competitionsTable.id, id) });
     if (!comp) return res.status(404).json({ error: "Competição não encontrada" });
 
+    const familyIndex = await loadCompetitionFamilyIndex();
+    const aggregate = isFamilyParent(familyIndex, id);
+    const ids = aggregate ? familyIdsForCompetition(familyIndex, id) : [id];
+
     const overall = await db
       .select({
         matches: sql<number>`cast(count(*) as int)`,
@@ -280,11 +294,13 @@ router.get("/competitions/:id", async (req, res) => {
         goalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
-      .where(and(eq(matchesTable.competitionId, id), officialPlayedMatchConditions()));
+      .where(and(competitionIdIn(ids), officialPlayedMatchConditions()));
 
     const seasonRows = await db
       .select({
         season: matchesTable.season,
+        competitionId: competitionsTable.id,
+        competitionName: competitionsTable.name,
         matches: sql<number>`cast(count(*) as int)`,
         wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
         draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
@@ -293,12 +309,43 @@ router.get("/competitions/:id", async (req, res) => {
         goalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
       })
       .from(matchesTable)
-      .where(and(eq(matchesTable.competitionId, id), officialPlayedMatchConditions()))
-      .groupBy(matchesTable.season)
-      .orderBy(desc(matchesTable.season));
+      .innerJoin(competitionsTable, eq(matchesTable.competitionId, competitionsTable.id))
+      .where(and(competitionIdIn(ids), officialPlayedMatchConditions()))
+      .groupBy(matchesTable.season, competitionsTable.id, competitionsTable.name)
+      .orderBy(desc(matchesTable.season), asc(competitionsTable.name));
+
+    const variantRows = aggregate
+      ? await db
+          .select({
+            id: competitionsTable.id,
+            name: competitionsTable.name,
+            type: competitionsTable.type,
+            matches: sql<number>`cast(count(${matchesTable.id}) as int)`,
+            wins: sql<number>`cast(sum(case when ${matchesTable.result} = 'win' then 1 else 0 end) as int)`,
+            draws: sql<number>`cast(sum(case when ${matchesTable.result} = 'draw' then 1 else 0 end) as int)`,
+            losses: sql<number>`cast(sum(case when ${matchesTable.result} = 'loss' then 1 else 0 end) as int)`,
+            goalsScored: sql<number>`cast(sum(${matchesTable.goalsFor}) as int)`,
+            goalsConceded: sql<number>`cast(sum(${matchesTable.goalsAgainst}) as int)`,
+            lastParticipation: sql<string>`cast(max(${matchesTable.season}) as text)`,
+          })
+          .from(competitionsTable)
+          .leftJoin(
+            matchesTable,
+            and(eq(matchesTable.competitionId, competitionsTable.id), officialPlayedMatchConditions()),
+          )
+          .where(inArray(competitionsTable.id, ids))
+          .groupBy(competitionsTable.id, competitionsTable.name, competitionsTable.type)
+          .orderBy(sql`count(${matchesTable.id}) desc`, asc(competitionsTable.name))
+      : [];
 
     const stats = overall[0];
-    const highlights = await getCompetitionHighlights(id);
+    const highlights = await getCompetitionHighlights(ids);
+
+    const parentId = parentIdForCompetition(familyIndex, id);
+    const parent =
+      parentId !== id
+        ? familyIndex.byId.get(parentId) ?? null
+        : null;
 
     res.json({
       id: comp.id,
@@ -312,8 +359,25 @@ router.get("/competitions/:id", async (req, res) => {
       goalsConceded: stats?.goalsConceded || 0,
       titles: null,
       highlights,
+      parent: parent ? { id: parent.id, name: parent.name } : null,
+      variants: variantRows
+        .filter((v) => (v.matches ?? 0) > 0)
+        .map((v) => ({
+          id: v.id,
+          name: v.name,
+          type: v.type,
+          matches: v.matches ?? 0,
+          wins: v.wins ?? 0,
+          draws: v.draws ?? 0,
+          losses: v.losses ?? 0,
+          goalsScored: v.goalsScored ?? 0,
+          goalsConceded: v.goalsConceded ?? 0,
+          lastParticipation: v.lastParticipation ?? null,
+        })),
       seasonStats: seasonRows.map((r) => ({
         year: r.season,
+        competitionId: r.competitionId,
+        competitionName: r.competitionName,
         matches: r.matches,
         wins: r.wins,
         draws: r.draws,
@@ -573,21 +637,35 @@ router.get("/titles", async (req, res) => {
       .where(eq(seasonCompetitionStatsTable.isChampion, true))
       .orderBy(asc(competitionsTable.name), asc(seasonCompetitionStatsTable.season));
 
+    const familyIndex = await loadCompetitionFamilyIndex();
     const byComp = new Map<
       number,
-      { competitionId: number; competitionName: string; seasons: string[] }
+      {
+        competitionId: number;
+        competitionName: string;
+        seasons: string[];
+        formats: { season: string; competitionId: number; competitionName: string }[];
+      }
     >();
     for (const r of rows) {
-      let entry = byComp.get(r.competitionId);
+      const parentId = parentIdForCompetition(familyIndex, r.competitionId);
+      const parentName = familyIndex.byId.get(parentId)?.name ?? r.competitionName;
+      let entry = byComp.get(parentId);
       if (!entry) {
         entry = {
-          competitionId: r.competitionId,
-          competitionName: r.competitionName,
+          competitionId: parentId,
+          competitionName: parentName,
           seasons: [],
+          formats: [],
         };
-        byComp.set(r.competitionId, entry);
+        byComp.set(parentId, entry);
       }
       entry.seasons.push(r.season);
+      entry.formats.push({
+        season: r.season,
+        competitionId: r.competitionId,
+        competitionName: r.competitionName,
+      });
     }
 
     const competitions = [...byComp.values()]
@@ -596,6 +674,7 @@ router.get("/titles", async (req, res) => {
         competitionName: c.competitionName,
         count: c.seasons.length,
         seasons: c.seasons,
+        formats: c.formats,
       }))
       .sort(
         (a, b) =>

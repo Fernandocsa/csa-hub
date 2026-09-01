@@ -15,7 +15,7 @@ import {
   resolveManagerCareerStats,
   resolveManagerSeasonStatsPublic,
 } from "../lib/manager-stats";
-import { officialPlayedMatchConditions } from "../lib/match-filters";
+import { officialPlayedMatchConditions, managerHasCsaAssignmentSql } from "../lib/match-filters";
 import { countManagerTitles, listManagerTitles } from "../lib/titles";
 import {
   managerMostFacedOpponents,
@@ -87,7 +87,7 @@ router.get("/managers", async (req, res) => {
         matchesTable,
         and(eq(matchesTable.managerId, managersTable.id), officialPlayedMatchConditions()),
       )
-      .where(eq(managersTable.staffRole, "manager"))
+      .where(and(eq(managersTable.staffRole, "manager"), managerHasCsaAssignmentSql()))
       .groupBy(
         managersTable.id,
         managersTable.name,

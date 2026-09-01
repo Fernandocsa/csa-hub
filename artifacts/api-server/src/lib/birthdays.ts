@@ -3,6 +3,7 @@
 import { db } from "@workspace/db";
 import { playersTable, managersTable } from "@workspace/db";
 import { and, asc, eq, isNotNull, sql } from "drizzle-orm";
+import { playerHasCsaLineupSql, managerHasCsaAssignmentSql } from "./match-filters";
 
 export type Ymd = { year: number; month: number; day: number };
 
@@ -54,8 +55,8 @@ export async function loadBirthdays(ymd: Ymd, includeDeceased: boolean) {
     sql`extract(day from ${playersTable.birthDate}) = ${ymd.day}`,
   );
   const playerWhere = includeDeceased
-    ? monthDay
-    : and(monthDay, eq(playersTable.isDeceased, false));
+    ? and(monthDay, playerHasCsaLineupSql())
+    : and(monthDay, eq(playersTable.isDeceased, false), playerHasCsaLineupSql());
 
   const players = await db
     .select({
@@ -78,8 +79,8 @@ export async function loadBirthdays(ymd: Ymd, includeDeceased: boolean) {
     sql`extract(day from ${managersTable.birthDate}) = ${ymd.day}`,
   );
   const managerWhere = includeDeceased
-    ? managerMonthDay
-    : and(managerMonthDay, eq(managersTable.isDeceased, false));
+    ? and(managerMonthDay, managerHasCsaAssignmentSql())
+    : and(managerMonthDay, eq(managersTable.isDeceased, false), managerHasCsaAssignmentSql());
 
   const managers = await db
     .select({

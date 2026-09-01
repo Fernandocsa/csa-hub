@@ -163,6 +163,7 @@ export async function concededGoalsBySeasonForPlayer(
             or (
               coalesce(${matchGoalsTable.isOwnGoal}, false) = true
               and ${matchGoalsTable.ownGoalDirection} = 'against'
+              and ${matchGoalsTable.side} = 'csa'
             )
           )`,
         ),

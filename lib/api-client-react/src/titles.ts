@@ -6,6 +6,7 @@ export interface TitlesCompetition {
   competitionName: string;
   count: number;
   seasons: string[];
+  formats?: { season: string; competitionId: number; competitionName: string }[];
 }
 
 export interface TitlesResponse {

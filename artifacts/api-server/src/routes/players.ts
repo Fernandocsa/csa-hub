@@ -21,8 +21,8 @@ import {
   listFlooredCareerPlayers,
   sumFlooredSeasons,
 } from "../lib/player-stats-floor";
-import { officialPlayedMatchConditions } from "../lib/match-filters";
-import { countPlayerTitles, listPlayerTitles } from "../lib/titles";
+import { officialPlayedMatchConditions, playerHasCsaLineupSql } from "../lib/match-filters";
+import { listPlayerTitles } from "../lib/titles";
 import {
   playerMostFacedOpponents,
   playerMostGoalsVsOpponents,
@@ -34,13 +34,21 @@ import {
 
 const router = Router();
 
-async function loadPlayerSheetMatches(playerId: number, limit?: number) {
-  const [catalog] = await db
-    .select({ position: playersTable.position })
-    .from(playersTable)
-    .where(eq(playersTable.id, playerId))
-    .limit(1);
-  const catalogPosition = catalog?.position?.trim() || null;
+async function loadPlayerSheetMatches(
+  playerId: number,
+  limit?: number,
+  catalogPositionHint?: string | null,
+) {
+  const catalogPosition =
+    catalogPositionHint?.trim() ||
+    (
+      await db
+        .select({ position: playersTable.position })
+        .from(playersTable)
+        .where(eq(playersTable.id, playerId))
+        .limit(1)
+    )[0]?.position?.trim() ||
+    null;
 
   let q = db
     .select({
@@ -320,6 +328,7 @@ router.get("/players/top-own-goals", async (req, res) => {
         INNER JOIN matches m ON m.id = mg.match_id
         WHERE coalesce(mg.is_own_goal, false) = true
           AND mg.own_goal_direction = 'against'
+          AND mg.side = 'csa'
           AND mg.scorer_player_id IS NOT NULL
           AND coalesce(m.is_friendly, false) = false
           AND coalesce(m.status, 'played') <> 'scheduled'
@@ -406,7 +415,7 @@ router.get("/players/foreign", async (req, res) => {
       })
       .from(playersTable)
       .leftJoin(playerSeasonStatsTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
-      .where(ne(playersTable.nationality, "Brasil"))
+      .where(and(ne(playersTable.nationality, "Brasil"), playerHasCsaLineupSql()))
       .groupBy(
         playersTable.id,
         playersTable.name,
@@ -439,7 +448,7 @@ router.get("/players/nationalities", async (req, res) => {
       })
       .from(playersTable)
       .leftJoin(playerSeasonStatsTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
-      .where(ne(playersTable.nationality, "Brasil"))
+      .where(and(ne(playersTable.nationality, "Brasil"), playerHasCsaLineupSql()))
       .groupBy(playersTable.nationality, playersTable.nationalityFlag)
       .orderBy(sql`count(distinct ${playersTable.id}) desc`);
 
@@ -484,6 +493,7 @@ router.get("/players/by-birth-state", async (req, res) => {
         and(
           sql`${playersTable.birthState} is not null`,
           sql`trim(${playersTable.birthState}) <> ''`,
+          playerHasCsaLineupSql(),
         ),
       )
       .groupBy(birthStateNorm)
@@ -498,9 +508,12 @@ router.get("/players/by-birth-state", async (req, res) => {
       .from(playersTable)
       .leftJoin(playerSeasonStatsTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
       .where(
-        or(
-          isNull(playersTable.birthState),
-          sql`trim(${playersTable.birthState}) = ''`,
+        and(
+          or(
+            isNull(playersTable.birthState),
+            sql`trim(${playersTable.birthState}) = ''`,
+          ),
+          playerHasCsaLineupSql(),
         ),
       );
 
@@ -586,7 +599,7 @@ router.get("/players/by-birth-state/:uf", async (req, res) => {
       })
       .from(playersTable)
       .leftJoin(playerSeasonStatsTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
-      .where(stateCondition)
+      .where(and(stateCondition, playerHasCsaLineupSql()))
       .groupBy(
         playersTable.id,
         playersTable.name,
@@ -633,7 +646,7 @@ router.get("/players/by-nationality/:country", async (req, res) => {
       })
       .from(playersTable)
       .leftJoin(playerSeasonStatsTable, eq(playerSeasonStatsTable.playerId, playersTable.id))
-      .where(eq(playersTable.nationality, country))
+      .where(and(eq(playersTable.nationality, country), playerHasCsaLineupSql()))
       .groupBy(
         playersTable.id,
         playersTable.name,
@@ -667,7 +680,48 @@ router.get("/players/:id", async (req, res) => {
     });
     if (!player) return res.status(404).json({ error: "Jogador não encontrado" });
 
-    const floored = await flooredPlayerSeasonStats(id);
+    const [
+      floored,
+      recentMatches,
+      badges,
+      titles,
+      mostFacedOpponents,
+      mostGoalsVsOpponents,
+      linkedMgrRows,
+      transfers,
+    ] = await Promise.all([
+      flooredPlayerSeasonStats(id),
+      loadPlayerSheetMatches(id, 5, player.position),
+      loadEntityBadges("player", id),
+      listPlayerTitles(id),
+      playerMostFacedOpponents(id),
+      playerMostGoalsVsOpponents(id),
+      db
+        .select({ id: managersTable.id, name: managersTable.name })
+        .from(managersTable)
+        .where(eq(managersTable.playerId, id))
+        .limit(1),
+      db
+        .select({
+          id: transfersTable.id,
+          direction: transfersTable.direction,
+          club: transfersTable.club,
+          opponentId: transfersTable.opponentId,
+          clubLogoUrl: opponentsTable.logoUrl,
+          transferDate: transfersTable.transferDate,
+          season: transfersTable.season,
+          transferType: transfersTable.transferType,
+          notes: transfersTable.notes,
+        })
+        .from(transfersTable)
+        .leftJoin(
+          opponentsTable,
+          eq(transfersTable.opponentId, opponentsTable.id),
+        )
+        .where(eq(transfersTable.playerId, id))
+        .orderBy(desc(transfersTable.season), desc(transfersTable.transferDate)),
+    ]);
+
     const totals = sumFlooredSeasons(floored);
     const seasonStats = floored.map((r) => ({
       id: 0,
@@ -686,41 +740,8 @@ router.get("/players/:id", async (req, res) => {
       ownGoals: r.ownGoals,
       goalsConceded: r.goalsConceded,
     }));
-    const recentMatches = await loadPlayerSheetMatches(id, 5);
-    const badges = await loadEntityBadges("player", id);
-    const [titleCount, titles, mostFacedOpponents, mostGoalsVsOpponents] =
-      await Promise.all([
-        countPlayerTitles(id),
-        listPlayerTitles(id),
-        playerMostFacedOpponents(id),
-        playerMostGoalsVsOpponents(id),
-      ]);
-
-    const [linkedMgr] = await db
-      .select({ id: managersTable.id, name: managersTable.name })
-      .from(managersTable)
-      .where(eq(managersTable.playerId, id))
-      .limit(1);
-
-    const transfers = await db
-      .select({
-        id: transfersTable.id,
-        direction: transfersTable.direction,
-        club: transfersTable.club,
-        opponentId: transfersTable.opponentId,
-        clubLogoUrl: opponentsTable.logoUrl,
-        transferDate: transfersTable.transferDate,
-        season: transfersTable.season,
-        transferType: transfersTable.transferType,
-        notes: transfersTable.notes,
-      })
-      .from(transfersTable)
-      .leftJoin(
-        opponentsTable,
-        eq(transfersTable.opponentId, opponentsTable.id),
-      )
-      .where(eq(transfersTable.playerId, id))
-      .orderBy(desc(transfersTable.season), desc(transfersTable.transferDate));
+    const titleCount = titles.length;
+    const linkedMgr = linkedMgrRows[0];
 
     const opponentsCatalog = transfers.some((t) => !t.opponentId || !t.clubLogoUrl)
       ? await loadOpponentCrestCatalog()

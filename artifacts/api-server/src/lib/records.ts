@@ -334,6 +334,7 @@ async function topOwnGoals(limit = 10): Promise<PlayerRecordHolder[]> {
     .where(
       and(
         recordsMatchConditions(),
+        eq(matchGoalsTable.side, "csa"),
         eq(matchGoalsTable.isOwnGoal, true),
         eq(matchGoalsTable.ownGoalDirection, "against"),
         isNotNull(matchGoalsTable.scorerPlayerId),

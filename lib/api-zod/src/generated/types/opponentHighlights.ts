@@ -13,4 +13,7 @@ export interface OpponentHighlights {
   topAssists: OpponentHighlightEntry | null;
   managerMostMatches: OpponentHighlightEntry | null;
   managerMostWins: OpponentHighlightEntry | null;
+  topScorers?: OpponentHighlightEntry[];
+  mostAppearancesTop?: OpponentHighlightEntry[];
+  topAssistsTop?: OpponentHighlightEntry[];
 }

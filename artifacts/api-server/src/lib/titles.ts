@@ -122,33 +122,7 @@ export async function managerIdsForChampionCampaign(
 }
 
 export async function countPlayerTitles(playerId: number): Promise<number> {
-  const champions = await db
-    .select({
-      season: seasonCompetitionStatsTable.season,
-      competitionId: seasonCompetitionStatsTable.competitionId,
-    })
-    .from(seasonCompetitionStatsTable)
-    .where(eq(seasonCompetitionStatsTable.isChampion, true));
-
-  if (champions.length === 0) return 0;
-
-  let count = 0;
-  for (const c of champions) {
-    const [hit] = await db
-      .select({ one: sql<number>`1` })
-      .from(matchLineupsTable)
-      .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
-      .where(
-        and(
-          campaignMatchConditions(c.season, c.competitionId),
-          eq(matchLineupsTable.side, "csa"),
-          eq(matchLineupsTable.playerId, playerId),
-        ),
-      )
-      .limit(1);
-    if (hit) count += 1;
-  }
-  return count;
+  return (await listPlayerTitles(playerId)).length;
 }
 
 export async function countManagerTitles(managerId: number): Promise<number> {
@@ -166,30 +140,46 @@ export async function countManagerTitles(managerId: number): Promise<number> {
 export async function listPlayerTitles(
   playerId: number,
 ): Promise<TitleAward[]> {
-  const champions = await listChampionCampaigns();
-  const out: TitleAward[] = [];
-  for (const c of champions) {
-    const [hit] = await db
-      .select({ one: sql<number>`1` })
-      .from(matchLineupsTable)
-      .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
-      .where(
-        and(
-          campaignMatchConditions(c.season, c.competitionId),
-          eq(matchLineupsTable.side, "csa"),
-          eq(matchLineupsTable.playerId, playerId),
+  const rows = await db
+    .selectDistinct({
+      season: seasonCompetitionStatsTable.season,
+      competitionId: seasonCompetitionStatsTable.competitionId,
+      competitionName: competitionsTable.name,
+    })
+    .from(matchLineupsTable)
+    .innerJoin(matchesTable, eq(matchLineupsTable.matchId, matchesTable.id))
+    .innerJoin(
+      seasonCompetitionStatsTable,
+      and(
+        eq(seasonCompetitionStatsTable.season, matchesTable.season),
+        eq(
+          seasonCompetitionStatsTable.competitionId,
+          matchesTable.competitionId,
         ),
-      )
-      .limit(1);
-    if (hit) {
-      out.push({
-        season: c.season,
-        competitionId: c.competitionId,
-        competitionName: c.competitionName,
-      });
-    }
-  }
-  return out;
+        eq(seasonCompetitionStatsTable.isChampion, true),
+      ),
+    )
+    .innerJoin(
+      competitionsTable,
+      eq(seasonCompetitionStatsTable.competitionId, competitionsTable.id),
+    )
+    .where(
+      and(
+        officialPlayedMatchConditions(),
+        eq(matchLineupsTable.side, "csa"),
+        eq(matchLineupsTable.playerId, playerId),
+      ),
+    )
+    .orderBy(
+      desc(seasonCompetitionStatsTable.season),
+      asc(competitionsTable.name),
+    );
+
+  return rows.map((r) => ({
+    season: r.season,
+    competitionId: r.competitionId,
+    competitionName: r.competitionName,
+  }));
 }
 
 export async function listManagerTitles(

@@ -53,19 +53,24 @@ export default function Titles() {
                   </span>
                 </div>
                 <div className="px-4 py-3 flex flex-wrap gap-x-3 gap-y-1.5 text-sm">
-                  {c.seasons.map((year, i) => (
-                    <span key={year} className="inline-flex items-baseline gap-3">
+                  {(c.formats ?? c.seasons.map((year) => ({ season: year, competitionId: c.competitionId, competitionName: c.competitionName }))).map((item, i) => (
+                    <span key={`${item.season}-${item.competitionId}`} className="inline-flex items-baseline gap-3">
                       {i > 0 ? (
                         <span className="text-muted-foreground/40 select-none" aria-hidden>
                           ·
                         </span>
                       ) : null}
                       <Link
-                        href={`/temporadas/${year}`}
+                        href={`/temporadas/${item.season}`}
                         className="font-medium tabular-nums hover:text-primary hover:underline"
                       >
-                        {year}
+                        {item.season}
                       </Link>
+                      {item.competitionName !== c.competitionName ? (
+                        <span className="text-xs text-muted-foreground">
+                          {item.competitionName}
+                        </span>
+                      ) : null}
                     </span>
                   ))}
                 </div>

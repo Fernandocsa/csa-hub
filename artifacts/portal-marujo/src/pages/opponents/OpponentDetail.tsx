@@ -4,23 +4,27 @@ import {
   useGetOpponent,
   getGetOpponentQueryKey,
   type OpponentCompetitionStat,
+  type OpponentConfrontationMatch,
   type OpponentHighlightEntry,
   type OpponentHighlights,
+  type OpponentManagerHighlightEntry,
+  type OpponentManagerHighlights,
   type OpponentMarginMatch,
   type OpponentRepeatedScoreline,
 } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, ChevronLeft as PrevIcon, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronLeft as PrevIcon, ChevronRight, ChevronDown } from "lucide-react";
 import { ResultBadge, WalkoverBadge } from "@/components/ui/result-badge";
 import { Button } from "@/components/ui/button";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
-import { OpponentCrest, CsaCrest } from "@/components/OpponentCrest";
+import { OpponentCrest } from "@/components/OpponentCrest";
 import { ShareButton } from "@/components/ShareButton";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 
 import { LIST_PAGE_SIZE } from "@/lib/list-page";
 import { formatDateBr } from "@/lib/utils";
+import { countryDisplayName } from "@/lib/countries";
 
 const PAGE_SIZE = LIST_PAGE_SIZE;
 
@@ -48,7 +52,22 @@ function MiniRecord({ label, data: d }: { label: string; data: { matches: number
   );
 }
 
-function CompetitionStatsTable({ rows }: { rows: OpponentCompetitionStat[] }) {
+type OpponentCompetitionStatRow = OpponentCompetitionStat & {
+  variants?: OpponentCompetitionStat[];
+};
+
+function CompetitionStatsTable({ rows }: { rows: OpponentCompetitionStatRow[] }) {
+  const [openIds, setOpenIds] = useState<Set<number>>(new Set());
+
+  function toggle(id: number) {
+    setOpenIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
   if (rows.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">Nenhuma competição registrada neste confronto.</p>
@@ -72,54 +91,139 @@ function CompetitionStatsTable({ rows }: { rows: OpponentCompetitionStat[] }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map((r) => (
-            <TableRow key={r.competitionId} className="text-sm">
-              <TableCell className="py-2 font-medium">{r.competitionName}</TableCell>
-              <TableCell className="py-2 text-right tabular-nums">{r.matches}</TableCell>
-              <TableCell className="py-2 text-right tabular-nums text-green-600">{r.wins}</TableCell>
-              <TableCell className="py-2 text-right tabular-nums text-amber-600">{r.draws}</TableCell>
-              <TableCell className="py-2 text-right tabular-nums text-red-600">{r.losses}</TableCell>
-              <TableCell className="py-2 text-right tabular-nums">{r.goalsFor}</TableCell>
-              <TableCell className="py-2 text-right tabular-nums">{r.goalsAgainst}</TableCell>
-              <TableCell className="py-2 text-right tabular-nums font-medium">
-                {r.goalsFor - r.goalsAgainst > 0 ? "+" : ""}
-                {r.goalsFor - r.goalsAgainst}
-              </TableCell>
-              <TableCell className="py-2 text-right tabular-nums">{pct(r.wins, r.matches)}</TableCell>
-            </TableRow>
-          ))}
+          {rows.flatMap((r) => {
+            const variants = r.variants ?? [];
+            const open = openIds.has(r.competitionId);
+            const parent = (
+              <TableRow key={r.competitionId} className="text-sm">
+                <TableCell className="py-2 font-medium">
+                  <div className="inline-flex items-center gap-1.5">
+                    {variants.length > 0 ? (
+                      <button
+                        type="button"
+                        className="text-muted-foreground hover:text-foreground"
+                        aria-expanded={open}
+                        onClick={() => toggle(r.competitionId)}
+                      >
+                        {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                      </button>
+                    ) : null}
+                    {r.competitionName}
+                  </div>
+                </TableCell>
+                <TableCell className="py-2 text-right tabular-nums">{r.matches}</TableCell>
+                <TableCell className="py-2 text-right tabular-nums text-green-600">{r.wins}</TableCell>
+                <TableCell className="py-2 text-right tabular-nums text-amber-600">{r.draws}</TableCell>
+                <TableCell className="py-2 text-right tabular-nums text-red-600">{r.losses}</TableCell>
+                <TableCell className="py-2 text-right tabular-nums">{r.goalsFor}</TableCell>
+                <TableCell className="py-2 text-right tabular-nums">{r.goalsAgainst}</TableCell>
+                <TableCell className="py-2 text-right tabular-nums font-medium">
+                  {r.goalsFor - r.goalsAgainst > 0 ? "+" : ""}
+                  {r.goalsFor - r.goalsAgainst}
+                </TableCell>
+                <TableCell className="py-2 text-right tabular-nums">{pct(r.wins, r.matches)}</TableCell>
+              </TableRow>
+            );
+            if (!open || variants.length === 0) return [parent];
+            return [
+              parent,
+              ...variants.map((v) => (
+                <TableRow key={`${r.competitionId}-${v.competitionId}`} className="text-sm bg-muted/30">
+                  <TableCell className="py-2 pl-8 text-muted-foreground">{v.competitionName}</TableCell>
+                  <TableCell className="py-2 text-right tabular-nums">{v.matches}</TableCell>
+                  <TableCell className="py-2 text-right tabular-nums text-green-600">{v.wins}</TableCell>
+                  <TableCell className="py-2 text-right tabular-nums text-amber-600">{v.draws}</TableCell>
+                  <TableCell className="py-2 text-right tabular-nums text-red-600">{v.losses}</TableCell>
+                  <TableCell className="py-2 text-right tabular-nums">{v.goalsFor}</TableCell>
+                  <TableCell className="py-2 text-right tabular-nums">{v.goalsAgainst}</TableCell>
+                  <TableCell className="py-2 text-right tabular-nums font-medium">
+                    {v.goalsFor - v.goalsAgainst > 0 ? "+" : ""}
+                    {v.goalsFor - v.goalsAgainst}
+                  </TableCell>
+                  <TableCell className="py-2 text-right tabular-nums">{pct(v.wins, v.matches)}</TableCell>
+                </TableRow>
+              )),
+            ];
+          })}
         </TableBody>
       </Table>
     </div>
   );
 }
 
-function HighlightCard({
+function HighlightTop3Card({
   label,
-  entry,
-  valueSuffix,
-  href,
+  entries,
+  valueText,
+  hrefOf,
   testId,
 }: {
   label: string;
-  entry: OpponentHighlightEntry;
-  valueSuffix: string;
-  href: string;
+  entries: OpponentHighlightEntry[];
+  valueText: (value: number) => string;
+  hrefOf: (id: number) => string;
   testId: string;
 }) {
+  if (entries.length === 0) return null;
   return (
-    <Link
-      href={href}
-      className="border rounded p-4 space-y-1 block hover:bg-muted/40 transition-colors"
-      data-testid={testId}
-    >
+    <div className="border rounded p-4 space-y-2" data-testid={testId}>
       <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
-      <p className="font-bold text-base">{entry.name}</p>
-      <p className="text-2xl font-black text-primary">
-        {entry.value}{" "}
-        <span className="text-sm font-normal text-muted-foreground">{valueSuffix}</span>
-      </p>
-    </Link>
+      <ol className="space-y-1.5">
+        {entries.map((entry, i) => (
+          <li key={entry.id}>
+            <Link
+              href={hrefOf(entry.id)}
+              className="flex items-baseline justify-between gap-2 hover:underline"
+            >
+              <span className="min-w-0">
+                <span className="text-muted-foreground tabular-nums mr-1.5">{i + 1}.</span>
+                <span className="font-bold">{entry.name}</span>
+              </span>
+              <span className="tabular-nums font-semibold text-primary whitespace-nowrap">
+                {valueText(entry.value)}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+function ManagerTop3Card({
+  label,
+  entries,
+  valueText,
+  testId,
+}: {
+  label: string;
+  entries: OpponentManagerHighlightEntry[];
+  valueText: (entry: OpponentManagerHighlightEntry) => string;
+  testId: string;
+}) {
+  if (entries.length === 0) return null;
+  return (
+    <div className="border rounded p-4 space-y-2" data-testid={testId}>
+      <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+      <ol className="space-y-1.5">
+        {entries.map((entry, i) => (
+          <li key={entry.id}>
+            <Link
+              href={`/tecnicos/${entry.id}`}
+              className="flex items-baseline justify-between gap-2 hover:underline"
+            >
+              <span className="min-w-0">
+                <span className="text-muted-foreground tabular-nums mr-1.5">{i + 1}.</span>
+                <span className="font-bold">{entry.name}</span>
+              </span>
+              <span className="tabular-nums font-semibold text-primary whitespace-nowrap">
+                {valueText(entry)}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ol>
+    </div>
   );
 }
 
@@ -177,78 +281,129 @@ function RepeatedScorelinesCard({ items }: { items: OpponentRepeatedScoreline[] 
   );
 }
 
-function OpponentHighlightsSection({ highlights }: { highlights: OpponentHighlights }) {
-  const cards = [
-    highlights.topScorer
-      ? {
-          key: "topScorer",
-          label: "Artilheiro",
-          entry: highlights.topScorer,
-          valueSuffix: highlights.topScorer.value === 1 ? "gol" : "gols",
-          href: `/jogadores/${highlights.topScorer.id}`,
-          testId: "highlight-top-scorer",
-        }
-      : null,
-    highlights.mostAppearances
-      ? {
-          key: "mostAppearances",
-          label: "Mais Jogos",
-          entry: highlights.mostAppearances,
-          valueSuffix: highlights.mostAppearances.value === 1 ? "jogo" : "jogos",
-          href: `/jogadores/${highlights.mostAppearances.id}`,
-          testId: "highlight-most-appearances",
-        }
-      : null,
-    highlights.topAssists
-      ? {
-          key: "topAssists",
-          label: "Mais Assistências",
-          entry: highlights.topAssists,
-          valueSuffix: highlights.topAssists.value === 1 ? "assist." : "assist.",
-          href: `/jogadores/${highlights.topAssists.id}`,
-          testId: "highlight-top-assists",
-        }
-      : null,
-    highlights.managerMostMatches
-      ? {
-          key: "managerMostMatches",
-          label: "Técnico com Mais Jogos",
-          entry: highlights.managerMostMatches,
-          valueSuffix: highlights.managerMostMatches.value === 1 ? "jogo" : "jogos",
-          href: `/tecnicos/${highlights.managerMostMatches.id}`,
-          testId: "highlight-manager-matches",
-        }
-      : null,
-    highlights.managerMostWins
-      ? {
-          key: "managerMostWins",
-          label: "Técnico com Mais Vitórias",
-          entry: highlights.managerMostWins,
-          valueSuffix: highlights.managerMostWins.value === 1 ? "vitória" : "vitórias",
-          href: `/tecnicos/${highlights.managerMostWins.id}`,
-          testId: "highlight-manager-wins",
-        }
-      : null,
-  ].filter(Boolean) as Array<{
-    key: string;
-    label: string;
-    entry: OpponentHighlightEntry;
-    valueSuffix: string;
-    href: string;
-    testId: string;
-  }>;
+function ConfrontationCard({
+  label,
+  entry,
+  testId,
+}: {
+  label: string;
+  entry: OpponentConfrontationMatch | null | undefined;
+  testId: string;
+}) {
+  if (!entry) return null;
+  const score =
+    entry.goalsFor != null && entry.goalsAgainst != null
+      ? formatScore(entry.goalsFor, entry.goalsAgainst)
+      : "–";
+  const mando =
+    entry.homeAway === "home" ? "Casa" : entry.homeAway === "away" ? "Fora" : "Neutro";
+  const place = [mando, entry.stadium].filter(Boolean).join(" · ");
+  return (
+    <Link
+      href={`/partidas/${entry.matchId}`}
+      className="border rounded p-4 space-y-1 block hover:bg-muted/40 transition-colors"
+      data-testid={testId}
+    >
+      <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className="text-2xl font-black text-primary">{score}</p>
+      <p className="text-sm text-muted-foreground">
+        {fmtDate(entry.date)} · {entry.competition}
+      </p>
+      {place ? <p className="text-xs text-muted-foreground">{place}</p> : null}
+    </Link>
+  );
+}
 
-  if (cards.length === 0) return null;
+function OpponentHighlightsSection({ highlights }: { highlights: OpponentHighlights }) {
+  const topScorers = highlights.topScorers?.length
+    ? highlights.topScorers
+    : highlights.topScorer
+      ? [highlights.topScorer]
+      : [];
+  const mostAppearances = highlights.mostAppearancesTop?.length
+    ? highlights.mostAppearancesTop
+    : highlights.mostAppearances
+      ? [highlights.mostAppearances]
+      : [];
+  const topAssists = highlights.topAssistsTop?.length
+    ? highlights.topAssistsTop
+    : highlights.topAssists
+      ? [highlights.topAssists]
+      : [];
+
+  if (topScorers.length === 0 && mostAppearances.length === 0 && topAssists.length === 0) {
+    return null;
+  }
 
   return (
     <section>
       <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-        Destaques do Confronto
+        Destaques do confronto (Jogadores)
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {cards.map((card) => (
-          <HighlightCard key={card.key} {...card} />
-        ))}
+        <HighlightTop3Card
+          label="Artilheiro"
+          entries={topScorers}
+          valueText={(v) => `${v} ${v === 1 ? "gol" : "gols"}`}
+          hrefOf={(id) => `/jogadores/${id}`}
+          testId="highlight-top-scorer"
+        />
+        <HighlightTop3Card
+          label="Mais Jogos"
+          entries={mostAppearances}
+          valueText={(v) => `${v} ${v === 1 ? "jogo" : "jogos"}`}
+          hrefOf={(id) => `/jogadores/${id}`}
+          testId="highlight-most-appearances"
+        />
+        <HighlightTop3Card
+          label="Mais Assistências"
+          entries={topAssists}
+          valueText={(v) => `${v} assist.`}
+          hrefOf={(id) => `/jogadores/${id}`}
+          testId="highlight-top-assists"
+        />
+      </div>
+    </section>
+  );
+}
+
+function OpponentManagerHighlightsSection({
+  highlights,
+}: {
+  highlights: OpponentManagerHighlights;
+}) {
+  if (
+    highlights.mostMatches.length === 0 &&
+    highlights.mostWins.length === 0 &&
+    highlights.bestWinPct.length === 0
+  ) {
+    return null;
+  }
+
+  return (
+    <section>
+      <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+        Destaques do confronto (Treinadores)
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <ManagerTop3Card
+          label="Mais Jogos"
+          entries={highlights.mostMatches}
+          valueText={(e) => `${e.games} ${e.games === 1 ? "jogo" : "jogos"}`}
+          testId="highlight-manager-matches"
+        />
+        <ManagerTop3Card
+          label="Mais Vitórias"
+          entries={highlights.mostWins}
+          valueText={(e) => `${e.wins} ${e.wins === 1 ? "vitória" : "vitórias"}`}
+          testId="highlight-manager-wins"
+        />
+        <ManagerTop3Card
+          label="Melhor aproveitamento"
+          entries={highlights.bestWinPct}
+          valueText={(e) => `${e.winPct.toFixed(1)}% (${e.wins}V ${e.draws}E ${e.losses}D)`}
+          testId="highlight-manager-winpct"
+        />
       </div>
     </section>
   );
@@ -293,20 +448,51 @@ export default function OpponentDetail() {
       </Link>
 
       <div className="border-b pb-4">
-        <div className="inline-flex items-center gap-2 flex-wrap">
-          <h1 className="text-2xl font-bold inline-flex items-center gap-3 flex-wrap" data-testid="heading-opponent">
-            <span className="inline-flex items-center gap-2">
-              <CsaCrest size="lg" />
-              <span>CSA</span>
-            </span>
-            <span className="text-muted-foreground font-normal">x</span>
-            <span className="inline-flex items-center gap-2">
-              <span>{opponent.name}</span>
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div className="min-w-0">
+            <h1
+              className="text-3xl font-black inline-flex items-center gap-3 flex-wrap"
+              data-testid="heading-opponent"
+            >
               <OpponentCrest url={opponent.logoUrl} name={opponent.name} size="lg" fallback />
-            </span>
-          </h1>
+              <span>{opponent.name}</span>
+            </h1>
+            {(opponent.city || opponent.state || opponent.country) && (
+              <p className="text-sm text-muted-foreground mt-1">
+                {opponent.country
+                  ? [opponent.city, countryDisplayName(opponent.country)].filter(Boolean).join(", ")
+                  : [opponent.city, opponent.state].filter(Boolean).join(", ")}
+              </p>
+            )}
+            {opponent.foundingYear != null && (
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Fundado em {opponent.foundingYear}
+              </p>
+            )}
+          </div>
           <ShareButton title={`CSA x ${opponent.name}`} />
         </div>
+        {(opponent.stadiums?.length ?? 0) > 0 && (
+          <div className="mt-3" data-testid="opponent-stadiums">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+              {(opponent.stadiums?.length ?? 0) === 1 ? "Estádio" : "Estádios"}
+            </p>
+            <ul className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
+              {opponent.stadiums!.map((s) => (
+                <li key={s.id}>
+                  <Link href={`/estadios/${s.id}`} className="text-primary hover:underline font-medium">
+                    {s.name}
+                  </Link>
+                  {s.isPrimary ? (
+                    <span className="ml-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+                      principal
+                    </span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* Por competição */}
@@ -359,12 +545,24 @@ export default function OpponentDetail() {
       {/* Marcos do confronto (jogos de campo) */}
       {(opponent.biggestVictory ||
         opponent.biggestDefeat ||
-        (opponent.mostRepeatedScorelines?.length ?? 0) > 0) && (
+        (opponent.mostRepeatedScorelines?.length ?? 0) > 0 ||
+        opponent.firstMatch ||
+        opponent.lastMatch) && (
         <section>
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
             Marcos do Confronto
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <ConfrontationCard
+              label="Primeiro confronto"
+              entry={opponent.firstMatch}
+              testId="milestone-first-match"
+            />
+            <ConfrontationCard
+              label="Último confronto"
+              entry={opponent.lastMatch}
+              testId="milestone-last-match"
+            />
             <MarginCard
               label="Maior Vitória"
               entry={opponent.biggestVictory}
@@ -385,6 +583,10 @@ export default function OpponentDetail() {
       {/* Destaques (somente com ficha) */}
       {opponent.highlights ? (
         <OpponentHighlightsSection highlights={opponent.highlights} />
+      ) : null}
+
+      {opponent.managerHighlights ? (
+        <OpponentManagerHighlightsSection highlights={opponent.managerHighlights} />
       ) : null}
 
       {/* Histórico de confrontos */}

@@ -24,7 +24,7 @@ import {
   normalizeCountryName,
   type Country,
 } from "@/lib/countries";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Star, X } from "lucide-react";
 import { OpponentCrest } from "@/components/OpponentCrest";
 
 export type Opponent = {
@@ -34,6 +34,7 @@ export type Opponent = {
   state: string | null;
   country: string | null;
   logoUrl?: string | null;
+  foundingYear?: number | null;
   homeStadiumId?: number | null;
 };
 
@@ -42,7 +43,9 @@ type HomeStadium = {
   name: string;
   city: string | null;
   state: string | null;
+  country?: string | null;
   capacity: number | null;
+  isPrimary?: boolean;
 };
 
 type OpponentMatch = {
@@ -61,6 +64,7 @@ type OpponentMatch = {
 type OpponentDetail = Opponent & {
   matches: OpponentMatch[];
   homeStadium?: HomeStadium | null;
+  stadiums?: HomeStadium[];
 };
 
 type OpponentPayload = {
@@ -69,7 +73,7 @@ type OpponentPayload = {
   state: string | null;
   country: string | null;
   logoUrl?: string | null;
-  homeStadiumId?: number | null;
+  foundingYear?: number | null;
 };
 
 function opponentLocationLabel(o: {
@@ -100,6 +104,9 @@ function OpponentProfileForm({
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [logoUrl, setLogoUrl] = useState(initial?.logoUrl ?? "");
+  const [foundingYear, setFoundingYear] = useState(
+    initial?.foundingYear != null ? String(initial.foundingYear) : "",
+  );
   const [city, setCity] = useState(initial?.city ?? "");
   const [state, setState] = useState(initial?.state ?? "");
   const [countryQuery, setCountryQuery] = useState(
@@ -118,6 +125,7 @@ function OpponentProfileForm({
   useEffect(() => {
     setName(initial?.name ?? "");
     setLogoUrl(initial?.logoUrl ?? "");
+    setFoundingYear(initial?.foundingYear != null ? String(initial.foundingYear) : "");
     setCity(initial?.city ?? "");
     setState(initial?.state ?? "");
     setCountryCode(initial?.country ?? null);
@@ -170,12 +178,24 @@ function OpponentProfileForm({
     setError("");
     setSuffixNote("");
     try {
+      const yearTrim = foundingYear.trim();
+      let year: number | null = null;
+      if (yearTrim) {
+        const parsed = parseInt(yearTrim, 10);
+        if (!Number.isInteger(parsed) || parsed < 1800 || parsed > 2100) {
+          setError("Ano de fundação inválido");
+          setSaving(false);
+          return;
+        }
+        year = parsed;
+      }
       await onSave({
         name: name.trim(),
         city: city.trim() || null,
         state: isForeign ? null : state.trim() ? state.trim().toUpperCase() : null,
         country: isForeign ? countryCode : null,
         logoUrl: logoUrl.trim() || null,
+        foundingYear: year,
       });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro ao salvar");
@@ -239,6 +259,19 @@ function OpponentProfileForm({
           onChange={(e) => setName(e.target.value)}
           required
           className="h-9"
+        />
+      </div>
+
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
+          Ano de fundação
+        </label>
+        <Input
+          value={foundingYear}
+          onChange={(e) => setFoundingYear(e.target.value)}
+          placeholder="ex: 1935"
+          className="h-9"
+          inputMode="numeric"
         />
       </div>
 
@@ -374,18 +407,16 @@ function formatStadiumLabel(s: {
   return bits.join(" · ");
 }
 
-function HomeStadiumSection({
+function ClubStadiumsSection({
   opponentId,
-  opponentName,
   current,
   defaultCity,
   defaultState,
-  defaultCountry,
+  defaultCountry: _defaultCountry,
   onChanged,
 }: {
   opponentId: number;
-  opponentName: string;
-  current: HomeStadium | null | undefined;
+  current: HomeStadium[];
   defaultCity: string | null;
   defaultState: string | null;
   defaultCountry: string | null;
@@ -435,18 +466,17 @@ function HomeStadiumSection({
     };
   }, [query]);
 
-  async function linkStadium(stadiumId: number | null) {
+  async function saveStadiums(next: HomeStadium[]) {
     setBusy(true);
     setError("");
     try {
-      const r = await adminFetch(`/admin/opponents/${opponentId}`, {
+      const r = await adminFetch(`/admin/opponents/${opponentId}/stadiums`, {
         method: "PUT",
         body: JSON.stringify({
-          name: opponentName,
-          city: defaultCity,
-          state: defaultCountry ? null : defaultState,
-          country: defaultCountry,
-          homeStadiumId: stadiumId,
+          stadiums: next.map((s) => ({
+            stadiumId: s.id,
+            isPrimary: !!s.isPrimary,
+          })),
         }),
       });
       if (!r.ok) {
@@ -460,6 +490,33 @@ function HomeStadiumSection({
       setError(err instanceof Error ? err.message : "Erro");
     }
     setBusy(false);
+  }
+
+  function addStadium(stadium: HomeStadium) {
+    if (current.some((s) => s.id === stadium.id)) {
+      setQuery("");
+      setOpen(false);
+      return;
+    }
+    const next = [
+      ...current,
+      { ...stadium, isPrimary: current.length === 0 },
+    ];
+    void saveStadiums(next);
+  }
+
+  function removeStadium(stadiumId: number) {
+    const remaining = current.filter((s) => s.id !== stadiumId);
+    if (remaining.length > 0 && !remaining.some((s) => s.isPrimary)) {
+      remaining[0] = { ...remaining[0], isPrimary: true };
+    }
+    void saveStadiums(remaining);
+  }
+
+  function markPrimary(stadiumId: number) {
+    void saveStadiums(
+      current.map((s) => ({ ...s, isPrimary: s.id === stadiumId })),
+    );
   }
 
   async function createAndLink(e: React.FormEvent) {
@@ -490,41 +547,78 @@ function HomeStadiumSection({
         throw new Error((err as { error?: string }).error ?? "Erro ao criar estádio");
       }
       const stadium = (await created.json()) as HomeStadium;
-      await linkStadium(stadium.id);
+      setBusy(false);
+      addStadium(stadium);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro");
       setBusy(false);
     }
   }
 
+  const availableResults = results.filter((s) => !current.some((c) => c.id === s.id));
+
   return (
     <div className="mt-8 pt-6 border-t max-w-xl space-y-3">
       <h2 className="text-sm font-semibold text-gray-800 uppercase tracking-wide">
-        Estádio sede
+        Estádios
       </h2>
+      <p className="text-xs text-gray-500">
+        Um clube pode ter mais de um estádio. Marque o principal.
+      </p>
 
-      {current ? (
-        <div className="rounded border bg-white px-3 py-2 text-sm">
-          <p className="font-medium">{formatStadiumLabel(current)}</p>
-          <div className="flex flex-wrap gap-2 mt-2">
-            <Link
-              href={`/estadios/${current.id}`}
-              className="text-xs text-[#1B3A6B] hover:underline"
+      {current.length > 0 ? (
+        <ul className="space-y-2">
+          {current.map((s) => (
+            <li
+              key={s.id}
+              className={`rounded border bg-white px-3 py-2 text-sm ${
+                s.isPrimary ? "border-[#1B3A6B]" : ""
+              }`}
             >
-              Ver página pública
-            </Link>
-            <button
-              type="button"
-              className="text-xs text-red-600 hover:underline"
-              disabled={busy}
-              onClick={() => linkStadium(null)}
-            >
-              Remover vínculo
-            </button>
-          </div>
-        </div>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className="font-medium">
+                    {formatStadiumLabel(s)}
+                    {s.isPrimary ? (
+                      <span className="ml-2 text-[10px] uppercase tracking-wide text-[#1B3A6B] font-semibold">
+                        Principal
+                      </span>
+                    ) : null}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <Link
+                      href={`/estadios/${s.id}`}
+                      className="text-xs text-[#1B3A6B] hover:underline"
+                    >
+                      Ver página pública
+                    </Link>
+                    {!s.isPrimary && (
+                      <button
+                        type="button"
+                        className="text-xs text-[#1B3A6B] hover:underline inline-flex items-center gap-1"
+                        disabled={busy}
+                        onClick={() => markPrimary(s.id)}
+                      >
+                        <Star size={11} /> Marcar como principal
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="text-gray-400 hover:text-red-600 p-1"
+                  disabled={busy}
+                  title="Remover"
+                  onClick={() => removeStadium(s.id)}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
       ) : (
-        <p className="text-xs text-gray-500">Nenhum estádio sede vinculado.</p>
+        <p className="text-xs text-gray-500">Nenhum estádio vinculado.</p>
       )}
 
       <div ref={rootRef} className="relative">
@@ -540,16 +634,16 @@ function HomeStadiumSection({
         />
         {open && query.trim().length >= 2 && (
           <ul className="absolute z-30 mt-1 w-full max-h-56 overflow-auto rounded-md border bg-white shadow-md text-xs">
-            {results.length === 0 ? (
+            {availableResults.length === 0 ? (
               <li className="px-3 py-2 text-gray-400">Nenhum estádio</li>
             ) : (
-              results.map((s) => (
+              availableResults.map((s) => (
                 <li key={s.id}>
                   <button
                     type="button"
                     className="w-full text-left px-3 py-2 hover:bg-gray-50"
                     disabled={busy}
-                    onClick={() => linkStadium(s.id)}
+                    onClick={() => addStadium(s)}
                   >
                     {formatStadiumLabel(s)}
                   </button>
@@ -573,7 +667,7 @@ function HomeStadiumSection({
             setStadiumCapacity("");
           }}
         >
-          Criar estádio sede
+          Criar estádio
         </Button>
       ) : (
         <form onSubmit={createAndLink} className="space-y-2 rounded border p-3 bg-gray-50">
@@ -821,10 +915,15 @@ export default function AdminOpponentDetail() {
             isNew={isNew}
           />
           {!isNew && detail && (
-            <HomeStadiumSection
+            <ClubStadiumsSection
               opponentId={detail.id}
-              opponentName={detail.name}
-              current={detail.homeStadium}
+              current={
+                detail.stadiums?.length
+                  ? detail.stadiums
+                  : detail.homeStadium
+                    ? [{ ...detail.homeStadium, isPrimary: true }]
+                    : []
+              }
               defaultCity={detail.city}
               defaultState={detail.state}
               defaultCountry={detail.country}

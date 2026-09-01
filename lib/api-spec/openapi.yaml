@@ -1075,6 +1075,18 @@ components:
           type: integer
         name:
           type: string
+        city:
+          type: ["string", "null"]
+        state:
+          type: ["string", "null"]
+        country:
+          type: ["string", "null"]
+        foundingYear:
+          type: ["integer", "null"]
+        stadiums:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpponentClubStadium"
         logoUrl:
           type: ["string", "null"]
         matches:
@@ -1097,6 +1109,10 @@ components:
           oneOf:
             - $ref: "#/components/schemas/OpponentHighlights"
             - type: "null"
+        managerHighlights:
+          oneOf:
+            - $ref: "#/components/schemas/OpponentManagerHighlights"
+            - type: "null"
         homeRecord:
           $ref: "#/components/schemas/RecordLine"
         awayRecord:
@@ -1117,6 +1133,50 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/OpponentRepeatedScoreline"
+        firstMatch:
+          oneOf:
+            - $ref: "#/components/schemas/OpponentConfrontationMatch"
+            - type: "null"
+        lastMatch:
+          oneOf:
+            - $ref: "#/components/schemas/OpponentConfrontationMatch"
+            - type: "null"
+
+    OpponentClubStadium:
+      type: object
+      required: [id, name, isPrimary]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        city:
+          type: ["string", "null"]
+        state:
+          type: ["string", "null"]
+        isPrimary:
+          type: boolean
+
+    OpponentConfrontationMatch:
+      type: object
+      required: [matchId, date, competition, homeAway]
+      properties:
+        matchId:
+          type: integer
+        date:
+          type: string
+        competition:
+          type: string
+        goalsFor:
+          type: ["integer", "null"]
+        goalsAgainst:
+          type: ["integer", "null"]
+        homeAway:
+          type: string
+        stadium:
+          type: ["string", "null"]
+        stadiumId:
+          type: ["integer", "null"]
 
     OpponentMarginMatch:
       type: object
@@ -1183,7 +1243,7 @@ components:
 
     OpponentHighlights:
       type: object
-      required: [topScorer, mostAppearances, topAssists, managerMostMatches, managerMostWins]
+      required: [topScorer, mostAppearances, topAssists, managerMostMatches, managerMostWins, topScorers, mostAppearancesTop, topAssistsTop]
       properties:
         topScorer:
           oneOf:
@@ -1205,6 +1265,54 @@ components:
           oneOf:
             - $ref: "#/components/schemas/OpponentHighlightEntry"
             - type: "null"
+        topScorers:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpponentHighlightEntry"
+        mostAppearancesTop:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpponentHighlightEntry"
+        topAssistsTop:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpponentHighlightEntry"
+
+    OpponentManagerHighlightEntry:
+      type: object
+      required: [id, name, games, wins, draws, losses, winPct]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        games:
+          type: integer
+        wins:
+          type: integer
+        draws:
+          type: integer
+        losses:
+          type: integer
+        winPct:
+          type: number
+
+    OpponentManagerHighlights:
+      type: object
+      required: [mostMatches, mostWins, bestWinPct]
+      properties:
+        mostMatches:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpponentManagerHighlightEntry"
+        mostWins:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpponentManagerHighlightEntry"
+        bestWinPct:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpponentManagerHighlightEntry"
 
     PaginatedOpponents:
       type: object
@@ -1385,6 +1493,11 @@ components:
           type: ["integer", "null"]
         lastParticipation:
           type: ["string", "null"]
+        variants:
+          type: array
+          description: Historic formats rolled into this competition (Série A / Série B families)
+          items:
+            $ref: "#/components/schemas/Competition"
 
     CompetitionDetail:
       type: object
@@ -1410,6 +1523,17 @@ components:
           type: integer
         titles:
           type: ["integer", "null"]
+        parent:
+          type: ["object", "null"]
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        variants:
+          type: array
+          items:
+            $ref: "#/components/schemas/Competition"
         seasonStats:
           type: array
           items:

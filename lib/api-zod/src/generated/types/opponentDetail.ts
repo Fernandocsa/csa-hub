@@ -6,8 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { Match } from './match';
+import type { OpponentClubStadium } from './opponentClubStadium';
 import type { OpponentCompetitionStat } from './opponentCompetitionStat';
+import type { OpponentConfrontationMatch } from './opponentConfrontationMatch';
 import type { OpponentHighlights } from './opponentHighlights';
+import type { OpponentManagerHighlights } from './opponentManagerHighlights';
 import type { OpponentMarginMatch } from './opponentMarginMatch';
 import type { OpponentRepeatedScoreline } from './opponentRepeatedScoreline';
 import type { RecordLine } from './recordLine';
@@ -15,6 +18,15 @@ import type { RecordLine } from './recordLine';
 export interface OpponentDetail {
   id: number;
   name: string;
+  /** @nullable */
+  city?: string | null;
+  /** @nullable */
+  state?: string | null;
+  /** @nullable */
+  country?: string | null;
+  /** @nullable */
+  foundingYear?: number | null;
+  stadiums?: OpponentClubStadium[];
   /** @nullable */
   logoUrl?: string | null;
   matches: number;
@@ -25,10 +37,13 @@ export interface OpponentDetail {
   goalsAgainst: number;
   competitionStats: OpponentCompetitionStat[];
   highlights?: OpponentHighlights | null;
+  managerHighlights?: OpponentManagerHighlights | null;
   homeRecord?: RecordLine;
   awayRecord?: RecordLine;
   allMatches: Match[];
   biggestVictory?: OpponentMarginMatch | null;
   biggestDefeat?: OpponentMarginMatch | null;
   mostRepeatedScorelines: OpponentRepeatedScoreline[];
+  firstMatch?: OpponentConfrontationMatch | null;
+  lastMatch?: OpponentConfrontationMatch | null;
 }

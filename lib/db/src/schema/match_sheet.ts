@@ -12,8 +12,8 @@ import { matchesTable } from "./matches";
 import { playersTable } from "./players";
 
 /**
- * CSA match sheet (Phase 1). Column `side` is always 'csa' for now;
- * 'opponent' reserved for a later phase without schema migration.
+ * Match sheet. `side` is 'csa' | 'opponent'. Opponent rows use player_id null
+ * (free-text names; no opponent player catalog).
  */
 
 export const matchLineupsTable = pgTable(
