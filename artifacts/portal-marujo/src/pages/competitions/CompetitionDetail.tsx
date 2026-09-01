@@ -38,7 +38,7 @@ type CompetitionHighlights = {
   managerMostWins: HighlightEntry | null;
 };
 
-type CompetitionDetailWithHighlights = CompetitionDetail & {
+type CompetitionDetailWithHighlights = Omit<CompetitionDetail, "seasonStats"> & {
   highlights?: CompetitionHighlights | null;
   parent?: CompetitionParentRef | null;
   variants?: CompetitionVariant[];
@@ -188,6 +188,7 @@ export default function CompetitionDetailPage() {
 
   const gd = (comp.goalsScored ?? 0) - (comp.goalsConceded ?? 0);
   const variants = (comp.variants ?? []).filter((v) => v.matches > 0);
+  const hasHistoricFormats = variants.some((v) => v.id !== comp.id);
   const seasonStats = comp.seasonStats ?? [];
   const showFormatColumn = seasonStats.some(
     (s) => s.competitionName && s.competitionName !== comp.name,
@@ -270,7 +271,7 @@ export default function CompetitionDetailPage() {
 
       <CompetitionHighlightsSection highlights={comp.highlights} />
 
-      {variants.length > 0 && (
+      {hasHistoricFormats && (
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
             Formatos históricos
