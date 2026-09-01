@@ -30,6 +30,14 @@ export const COMPETITION_FAMILIES: ReadonlyArray<{
       "Taça de Prata",
     ],
   },
+  {
+    parent: "Campeonato Brasileiro Série C",
+    members: [
+      "Campeonato Brasileiro Série C",
+      "Campeonato Brasileiro 3ª Divisão",
+      "Campeonato Brasileiro 3a Divisão",
+    ],
+  },
 ];
 
 export function foldCompetitionName(name: string | null | undefined): string {

@@ -13,6 +13,7 @@ export function competitionAbbreviation(name?: string | null): string {
     [/s[eé]rie\s*b\b/, "SB"],
     [/s[eé]rie\s*c\b/, "SC"],
     [/s[eé]rie\s*d\b/, "SD"],
+    [/3[ªaº]?\s*divis[aã]o/, "3D"],
     [/m[oó]dulo amarelo/, "MA"],
     [/divis[aã]o especial/, "DE"],
     [/ta[cç]a de prata/, "TdP"],
