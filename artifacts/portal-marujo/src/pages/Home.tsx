@@ -250,11 +250,11 @@ function OnThisDayMatchRow({ match }: { match: OnThisDayMatch }) {
       className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 py-2"
       data-testid={`on-this-day-match-${match.id}`}
     >
-      <div className="sm:w-28 shrink-0">
+      <div className="sm:w-32 shrink-0">
         <p className="text-xs font-semibold text-primary">
           {ago ?? match.season}
         </p>
-        <p className="text-[11px] text-muted-foreground">{fmtDate(match.date)}</p>
+        <p className="text-xs text-muted-foreground">{fmtDate(match.date)}</p>
       </div>
       <div className="min-w-0 flex-1">
         <p className="font-medium text-sm">
@@ -301,7 +301,7 @@ function OnThisDaySection() {
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <span className="text-sm font-medium text-foreground/80 min-w-[8.5rem] text-center">
+          <span className="text-sm font-medium text-foreground/80 min-w-[9.5rem] text-center">
             {titleDate}
           </span>
           <button
@@ -636,7 +636,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="home-page space-y-6">
       <div className="rounded-lg border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background p-4 sm:p-5 space-y-4">
         <div className="border-b border-primary/10 pb-3">
           <div className="inline-flex items-center gap-2">
@@ -771,9 +771,9 @@ export default function Home() {
             <Table>
               <TableHeader>
                 <TableRow className="text-xs">
-                  <TableHead className="py-2 w-6">#</TableHead>
-                  <TableHead className="py-2">Jogador</TableHead>
-                  <TableHead className="py-2 text-right">Jogos</TableHead>
+                  <TableHead className="h-auto py-2.5 w-8">#</TableHead>
+                  <TableHead className="h-auto py-2.5">Jogador</TableHead>
+                  <TableHead className="h-auto py-2.5 text-right">Jogos</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -785,8 +785,8 @@ export default function Home() {
                     ))
                   : homeAppearances.map((p, i) => (
                       <TableRow key={p.id} className="text-sm">
-                        <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeAppearanceRanks[i])}</TableCell>
-                        <TableCell className="py-1.5 font-medium">
+                        <TableCell className="py-2 text-muted-foreground text-xs">{formatCompetitionRank(homeAppearanceRanks[i])}</TableCell>
+                        <TableCell className="py-2 font-medium">
                           <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-2 min-w-0">
                             <PlayerPhoto
                               url={(p as { photoUrl?: string | null }).photoUrl}
@@ -805,7 +805,7 @@ export default function Home() {
                             </span>
                           </Link>
                         </TableCell>
-                        <TableCell className="py-1.5 text-right font-bold text-primary tabular-nums">{formatInt(p.appearances)}</TableCell>
+                        <TableCell className="py-2 text-right font-bold text-primary tabular-nums">{formatInt(p.appearances)}</TableCell>
                       </TableRow>
                     ))}
               </TableBody>
@@ -823,9 +823,9 @@ export default function Home() {
             <Table>
               <TableHeader>
                 <TableRow className="text-xs">
-                  <TableHead className="py-2 w-6">#</TableHead>
-                  <TableHead className="py-2">Jogador</TableHead>
-                  <TableHead className="py-2 text-right">Gols</TableHead>
+                  <TableHead className="h-auto py-2.5 w-8">#</TableHead>
+                  <TableHead className="h-auto py-2.5">Jogador</TableHead>
+                  <TableHead className="h-auto py-2.5 text-right">Gols</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -837,8 +837,8 @@ export default function Home() {
                     ))
                   : homeScorers.map((p, i) => (
                       <TableRow key={p.id} className="text-sm">
-                        <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeScorerRanks[i])}</TableCell>
-                        <TableCell className="py-1.5 font-medium">
+                        <TableCell className="py-2 text-muted-foreground text-xs">{formatCompetitionRank(homeScorerRanks[i])}</TableCell>
+                        <TableCell className="py-2 font-medium">
                           <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-2 min-w-0" data-testid={`link-player-${p.id}`}>
                             <PlayerPhoto
                               url={(p as { photoUrl?: string | null }).photoUrl}
@@ -857,7 +857,7 @@ export default function Home() {
                             </span>
                           </Link>
                         </TableCell>
-                        <TableCell className="py-1.5 text-right font-bold text-primary tabular-nums">{formatInt(p.goals)}</TableCell>
+                        <TableCell className="py-2 text-right font-bold text-primary tabular-nums">{formatInt(p.goals)}</TableCell>
                       </TableRow>
                     ))}
               </TableBody>
@@ -875,9 +875,9 @@ export default function Home() {
             <Table>
               <TableHeader>
                 <TableRow className="text-xs">
-                  <TableHead className="py-2 w-6">#</TableHead>
-                  <TableHead className="py-2">Jogador</TableHead>
-                  <TableHead className="py-2 text-right font-bold text-primary">Assistências</TableHead>
+                  <TableHead className="h-auto py-2.5 w-8">#</TableHead>
+                  <TableHead className="h-auto py-2.5">Jogador</TableHead>
+                  <TableHead className="h-auto py-2.5 text-right font-bold text-primary">Assistências</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -889,8 +889,8 @@ export default function Home() {
                     ))
                   : homeAssists.map((p, i) => (
                       <TableRow key={p.id} className="text-sm">
-                        <TableCell className="py-1.5 text-muted-foreground text-xs">{formatCompetitionRank(homeAssistRanks[i])}</TableCell>
-                        <TableCell className="py-1.5 font-medium">
+                        <TableCell className="py-2 text-muted-foreground text-xs">{formatCompetitionRank(homeAssistRanks[i])}</TableCell>
+                        <TableCell className="py-2 font-medium">
                           <Link href={`/jogadores/${p.id}`} className="hover:text-primary hover:underline inline-flex items-center gap-2 min-w-0">
                             <PlayerPhoto
                               url={(p as { photoUrl?: string | null }).photoUrl}
@@ -909,7 +909,7 @@ export default function Home() {
                             </span>
                           </Link>
                         </TableCell>
-                        <TableCell className="py-1.5 text-right font-bold text-primary tabular-nums">{formatInt(p.assists)}</TableCell>
+                        <TableCell className="py-2 text-right font-bold text-primary tabular-nums">{formatInt(p.assists)}</TableCell>
                       </TableRow>
                     ))}
               </TableBody>

@@ -347,7 +347,12 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         )}
 
         <main className="flex-1 min-w-0">
-          <div className="px-4 py-5 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <div
+            className={cn(
+              "px-4 py-5 sm:px-6 lg:px-8 mx-auto",
+              isHome ? "max-w-screen-2xl" : "max-w-7xl",
+            )}
+          >
             {children}
             <SiteFooter />
           </div>
