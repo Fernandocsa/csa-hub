@@ -14,7 +14,7 @@ import {
 } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, ChevronLeft as PrevIcon, ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { ResultBadge, WalkoverBadge } from "@/components/ui/result-badge";
 import { Button } from "@/components/ui/button";
 import { matchPhaseRoundLabel } from "@/lib/match-phase-round";
@@ -22,11 +22,10 @@ import { OpponentCrest } from "@/components/OpponentCrest";
 import { ShareButton } from "@/components/ShareButton";
 import { EntitySuggestionForm } from "@/components/EntitySuggestionForm";
 
-import { LIST_PAGE_SIZE } from "@/lib/list-page";
 import { formatDateBr } from "@/lib/utils";
 import { countryDisplayName } from "@/lib/countries";
 
-const PAGE_SIZE = LIST_PAGE_SIZE;
+const HISTORY_PREVIEW = 10;
 
 function pct(wins: number, total: number) {
   if (!total) return "–";
@@ -151,38 +150,61 @@ function CompetitionStatsTable({ rows }: { rows: OpponentCompetitionStatRow[] })
   );
 }
 
+function HighlightRankRow({
+  href,
+  rank,
+  name,
+  value,
+}: {
+  href: string;
+  rank: number;
+  name: string;
+  value: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 gap-y-0.5 hover:underline"
+    >
+      <span className="min-w-0 overflow-hidden leading-snug break-words">
+        <span className="text-muted-foreground tabular-nums mr-1.5">{rank}.</span>
+        <span className="font-bold">{name}</span>
+      </span>
+      <span className="shrink-0 text-right tabular-nums font-semibold text-primary whitespace-nowrap leading-snug">
+        {value}
+      </span>
+    </Link>
+  );
+}
+
 function HighlightTop3Card({
   label,
   entries,
   valueText,
   hrefOf,
   testId,
+  className,
 }: {
   label: string;
   entries: OpponentHighlightEntry[];
   valueText: (value: number) => string;
   hrefOf: (id: number) => string;
   testId: string;
+  className?: string;
 }) {
   if (entries.length === 0) return null;
   return (
-    <div className="border rounded p-4 space-y-2" data-testid={testId}>
+    <div className={`border rounded p-4 space-y-2 ${className ?? ""}`} data-testid={testId}>
       <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
-      <ol className="space-y-1.5">
+      <ol className="space-y-2">
         {entries.map((entry, i) => (
           <li key={entry.id}>
-            <Link
+            <HighlightRankRow
               href={hrefOf(entry.id)}
-              className="flex items-baseline justify-between gap-2 hover:underline"
-            >
-              <span className="min-w-0">
-                <span className="text-muted-foreground tabular-nums mr-1.5">{i + 1}.</span>
-                <span className="font-bold">{entry.name}</span>
-              </span>
-              <span className="tabular-nums font-semibold text-primary whitespace-nowrap">
-                {valueText(entry.value)}
-              </span>
-            </Link>
+              rank={i + 1}
+              name={entry.name}
+              value={valueText(entry.value)}
+            />
           </li>
         ))}
       </ol>
@@ -195,31 +217,27 @@ function ManagerTop3Card({
   entries,
   valueText,
   testId,
+  className,
 }: {
   label: string;
   entries: OpponentManagerHighlightEntry[];
   valueText: (entry: OpponentManagerHighlightEntry) => string;
   testId: string;
+  className?: string;
 }) {
   if (entries.length === 0) return null;
   return (
-    <div className="border rounded p-4 space-y-2" data-testid={testId}>
+    <div className={`border rounded p-4 space-y-2 ${className ?? ""}`} data-testid={testId}>
       <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
-      <ol className="space-y-1.5">
+      <ol className="space-y-2">
         {entries.map((entry, i) => (
           <li key={entry.id}>
-            <Link
+            <HighlightRankRow
               href={`/tecnicos/${entry.id}`}
-              className="flex items-baseline justify-between gap-2 hover:underline"
-            >
-              <span className="min-w-0">
-                <span className="text-muted-foreground tabular-nums mr-1.5">{i + 1}.</span>
-                <span className="font-bold">{entry.name}</span>
-              </span>
-              <span className="tabular-nums font-semibold text-primary whitespace-nowrap">
-                {valueText(entry)}
-              </span>
-            </Link>
+              rank={i + 1}
+              name={entry.name}
+              value={valueText(entry)}
+            />
           </li>
         ))}
       </ol>
@@ -385,7 +403,7 @@ function OpponentManagerHighlightsSection({
       <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
         Destaques do confronto (Treinadores)
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <ManagerTop3Card
           label="Mais Jogos"
           entries={highlights.mostMatches}
@@ -403,6 +421,7 @@ function OpponentManagerHighlightsSection({
           entries={highlights.bestWinPct}
           valueText={(e) => `${e.winPct.toFixed(1)}% (${e.wins}V ${e.draws}E ${e.losses}D)`}
           testId="highlight-manager-winpct"
+          className="sm:col-span-2"
         />
       </div>
     </section>
@@ -413,7 +432,7 @@ export default function OpponentDetail() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const id = parseInt(params.id ?? "0", 10);
-  const [page, setPage] = useState(0);
+  const [showAllMatches, setShowAllMatches] = useState(false);
 
   const { data: opponent, isLoading, isError } = useGetOpponent(id, {
     query: { enabled: !!id, queryKey: getGetOpponentQueryKey(id) },
@@ -435,9 +454,8 @@ export default function OpponentDetail() {
 
   const allMatches = opponent.allMatches ?? [];
   const competitionStats = opponent.competitionStats ?? [];
-  const totalPages = Math.ceil(allMatches.length / PAGE_SIZE);
-  const currentPage = Math.min(page, Math.max(0, totalPages - 1));
-  const pageMatches = allMatches.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
+  const visibleMatches = showAllMatches ? allMatches : allMatches.slice(0, HISTORY_PREVIEW);
+  const canExpandHistory = allMatches.length > HISTORY_PREVIEW;
 
   return (
     <div className="space-y-5 max-w-3xl">
@@ -495,10 +513,10 @@ export default function OpponentDetail() {
         )}
       </div>
 
-      {/* Por competição */}
+      {/* Histórico por competições */}
       <section>
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-          Por Competição
+          Histórico por Competições
         </h2>
         <CompetitionStatsTable rows={competitionStats} />
       </section>
@@ -591,33 +609,20 @@ export default function OpponentDetail() {
 
       {/* Histórico de confrontos */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between gap-3 mb-3">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
             Histórico de Confrontos
             <span className="ml-2 font-normal text-xs">({allMatches.length} {allMatches.length === 1 ? "jogo" : "jogos"})</span>
           </h2>
-          {totalPages > 1 && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 px-2"
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-                disabled={currentPage === 0}
-              >
-                <PrevIcon className="h-3.5 w-3.5" />
-              </Button>
-              <span>{currentPage + 1}/{totalPages}</span>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 px-2"
-                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                disabled={currentPage >= totalPages - 1}
-              >
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Button>
-            </div>
+          {canExpandHistory && (
+            <button
+              type="button"
+              className="text-xs text-primary hover:underline shrink-0"
+              onClick={() => setShowAllMatches((v) => !v)}
+              data-testid="toggle-all-matches"
+            >
+              {showAllMatches ? "Ver menos" : "Ver todos"}
+            </button>
           )}
         </div>
         <div className="border rounded">
@@ -633,12 +638,12 @@ export default function OpponentDetail() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pageMatches.length === 0 ? (
+              {visibleMatches.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="h-16 text-center text-muted-foreground">Sem confrontos registrados.</TableCell>
                 </TableRow>
               ) : (
-                pageMatches.map((match) => (
+                visibleMatches.map((match) => (
                   <TableRow
                     key={match.id}
                     className="text-sm cursor-pointer hover:bg-muted/40"
@@ -669,10 +674,18 @@ export default function OpponentDetail() {
             </TableBody>
           </Table>
         </div>
-        {totalPages > 1 && (
-          <p className="text-xs text-muted-foreground mt-2 text-right">
-            Exibindo {currentPage * PAGE_SIZE + 1}–{Math.min((currentPage + 1) * PAGE_SIZE, allMatches.length)} de {allMatches.length} jogos
-          </p>
+        {canExpandHistory && !showAllMatches && (
+          <div className="mt-3 text-center">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAllMatches(true)}
+              data-testid="button-see-all-matches"
+            >
+              Ver todos os {allMatches.length} jogos
+            </Button>
+          </div>
         )}
       </div>
 
