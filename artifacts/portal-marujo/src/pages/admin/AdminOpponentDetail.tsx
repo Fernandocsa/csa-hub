@@ -35,6 +35,7 @@ export type Opponent = {
   country: string | null;
   logoUrl?: string | null;
   foundingYear?: number | null;
+  foundedOn?: string | null;
   homeStadiumId?: number | null;
 };
 
@@ -74,6 +75,7 @@ type OpponentPayload = {
   country: string | null;
   logoUrl?: string | null;
   foundingYear?: number | null;
+  foundedOn?: string | null;
 };
 
 function opponentLocationLabel(o: {
@@ -104,9 +106,7 @@ function OpponentProfileForm({
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [logoUrl, setLogoUrl] = useState(initial?.logoUrl ?? "");
-  const [foundingYear, setFoundingYear] = useState(
-    initial?.foundingYear != null ? String(initial.foundingYear) : "",
-  );
+  const [foundedOn, setFoundedOn] = useState(initial?.foundedOn?.slice(0, 10) ?? "");
   const [city, setCity] = useState(initial?.city ?? "");
   const [state, setState] = useState(initial?.state ?? "");
   const [countryQuery, setCountryQuery] = useState(
@@ -125,7 +125,7 @@ function OpponentProfileForm({
   useEffect(() => {
     setName(initial?.name ?? "");
     setLogoUrl(initial?.logoUrl ?? "");
-    setFoundingYear(initial?.foundingYear != null ? String(initial.foundingYear) : "");
+    setFoundedOn(initial?.foundedOn?.slice(0, 10) ?? "");
     setCity(initial?.city ?? "");
     setState(initial?.state ?? "");
     setCountryCode(initial?.country ?? null);
@@ -178,16 +178,11 @@ function OpponentProfileForm({
     setError("");
     setSuffixNote("");
     try {
-      const yearTrim = foundingYear.trim();
-      let year: number | null = null;
-      if (yearTrim) {
-        const parsed = parseInt(yearTrim, 10);
-        if (!Number.isInteger(parsed) || parsed < 1800 || parsed > 2100) {
-          setError("Ano de fundação inválido");
-          setSaving(false);
-          return;
-        }
-        year = parsed;
+      const dateTrim = foundedOn.trim();
+      if (dateTrim && !/^\d{4}-\d{2}-\d{2}$/.test(dateTrim)) {
+        setError("Data de fundação inválida");
+        setSaving(false);
+        return;
       }
       await onSave({
         name: name.trim(),
@@ -195,7 +190,10 @@ function OpponentProfileForm({
         state: isForeign ? null : state.trim() ? state.trim().toUpperCase() : null,
         country: isForeign ? countryCode : null,
         logoUrl: logoUrl.trim() || null,
-        foundingYear: year,
+        foundedOn: dateTrim || null,
+        foundingYear: dateTrim
+          ? parseInt(dateTrim.slice(0, 4), 10)
+          : initial?.foundingYear ?? null,
       });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro ao salvar");
@@ -264,15 +262,17 @@ function OpponentProfileForm({
 
       <div>
         <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">
-          Ano de fundação
+          Data de fundação
         </label>
         <Input
-          value={foundingYear}
-          onChange={(e) => setFoundingYear(e.target.value)}
-          placeholder="ex: 1935"
+          type="date"
+          value={foundedOn}
+          onChange={(e) => setFoundedOn(e.target.value)}
           className="h-9"
-          inputMode="numeric"
         />
+        <p className="text-xs text-gray-400 mt-1">
+          Dia, mês e ano. Deixe vazio se a data completa não for conhecida.
+        </p>
       </div>
 
       <div>

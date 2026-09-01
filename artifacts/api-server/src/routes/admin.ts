@@ -2610,6 +2610,32 @@ function parseFoundingYear(
   return { ok: true, set: true, value: year };
 }
 
+function parseFoundedOn(
+  raw: unknown,
+  present: boolean,
+): { ok: true; set: boolean; value: string | null } | { ok: false; error: string } {
+  if (!present) return { ok: true, set: false, value: null };
+  if (raw == null || String(raw).trim() === "") {
+    return { ok: true, set: true, value: null };
+  }
+  const s = String(raw).trim().slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    return { ok: false, error: "Data de fundação inválida" };
+  }
+  const [y, m, d] = s.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  if (
+    dt.getUTCFullYear() !== y
+    || dt.getUTCMonth() !== m - 1
+    || dt.getUTCDate() !== d
+    || y < 1800
+    || y > 2100
+  ) {
+    return { ok: false, error: "Data de fundação inválida" };
+  }
+  return { ok: true, set: true, value: s };
+}
+
 function parseStadiumsPayload(
   raw: unknown,
   present: boolean,
@@ -2693,11 +2719,17 @@ router.post("/admin/opponents", requireAdmin, async (req, res) => {
       country?: string | null;
       logoUrl?: string | null;
       foundingYear?: number | null;
+      foundedOn?: string | null;
       stadiums?: unknown;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
     const profile = parseOpponentProfile(body);
     if (!profile.ok) return res.status(400).json({ error: profile.error });
+    const dateParsed = parseFoundedOn(
+      body.foundedOn,
+      Object.prototype.hasOwnProperty.call(body, "foundedOn"),
+    );
+    if (!dateParsed.ok) return res.status(400).json({ error: dateParsed.error });
     const yearParsed = parseFoundingYear(
       body.foundingYear,
       Object.prototype.hasOwnProperty.call(body, "foundingYear"),
@@ -2709,6 +2741,12 @@ router.post("/admin/opponents", requireAdmin, async (req, res) => {
     );
     if (!stadiumsParsed.ok) return res.status(400).json({ error: stadiumsParsed.error });
 
+    const foundingYear = dateParsed.set && dateParsed.value
+      ? Number(dateParsed.value.slice(0, 4))
+      : yearParsed.set
+        ? yearParsed.value
+        : null;
+
     const [opponent] = await db
       .insert(opponentsTable)
       .values({
@@ -2717,7 +2755,8 @@ router.post("/admin/opponents", requireAdmin, async (req, res) => {
         state: profile.state,
         country: profile.country,
         logoUrl: parseOptionalUrl(body.logoUrl),
-        foundingYear: yearParsed.set ? yearParsed.value : null,
+        foundingYear,
+        foundedOn: dateParsed.set ? dateParsed.value : null,
       })
       .returning();
     if (stadiumsParsed.set) {
@@ -2748,6 +2787,7 @@ router.put("/admin/opponents/:id", requireAdmin, async (req, res) => {
       country?: string | null;
       logoUrl?: string | null;
       foundingYear?: number | null;
+      foundedOn?: string | null;
       stadiums?: unknown;
     };
     if (!body.name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
@@ -2761,6 +2801,7 @@ router.put("/admin/opponents/:id", requireAdmin, async (req, res) => {
       country: string | null;
       logoUrl?: string | null;
       foundingYear?: number | null;
+      foundedOn?: string | null;
     } = {
       name: body.name.trim(),
       city: profile.city,
@@ -2772,7 +2813,22 @@ router.put("/admin/opponents/:id", requireAdmin, async (req, res) => {
       values.logoUrl = parseOptionalUrl(body.logoUrl);
     }
 
-    if (Object.prototype.hasOwnProperty.call(body, "foundingYear")) {
+    const hasDate = Object.prototype.hasOwnProperty.call(body, "foundedOn");
+    const hasYear = Object.prototype.hasOwnProperty.call(body, "foundingYear");
+    if (hasDate) {
+      const dateParsed = parseFoundedOn(body.foundedOn, true);
+      if (!dateParsed.ok) return res.status(400).json({ error: dateParsed.error });
+      values.foundedOn = dateParsed.value;
+      if (dateParsed.value) {
+        values.foundingYear = Number(dateParsed.value.slice(0, 4));
+      } else if (hasYear) {
+        const yearParsed = parseFoundingYear(body.foundingYear, true);
+        if (!yearParsed.ok) return res.status(400).json({ error: yearParsed.error });
+        values.foundingYear = yearParsed.value;
+      } else {
+        values.foundingYear = null;
+      }
+    } else if (hasYear) {
       const yearParsed = parseFoundingYear(body.foundingYear, true);
       if (!yearParsed.ok) return res.status(400).json({ error: yearParsed.error });
       values.foundingYear = yearParsed.value;

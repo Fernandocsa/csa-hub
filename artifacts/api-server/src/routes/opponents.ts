@@ -799,6 +799,7 @@ router.get("/opponents/:id", async (req, res) => {
       state: opponent.state ?? null,
       country: opponent.country ? String(opponent.country).toUpperCase() : null,
       foundingYear: opponent.foundingYear ?? null,
+      foundedOn: opponent.foundedOn ?? null,
       stadiums: stadiums.map((s) => ({
         id: s.id,
         name: s.name,

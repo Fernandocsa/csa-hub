@@ -22,8 +22,10 @@ export const opponentsTable = pgTable("opponents", {
   state: text("state"),
   country: text("country"),
   logoUrl: text("logo_url"),
-  /** Year the club was founded (nullable; filled gradually). */
+  /** Year the club was founded (nullable; kept in sync with foundedOn). */
   foundingYear: integer("founding_year"),
+  /** Full founding date when day and month are known (YYYY-MM-DD). */
+  foundedOn: date("founded_on", { mode: "string" }),
   /**
    * Denormalized pointer to the primary home stadium (club_stadiums.is_primary).
    * Kept in sync on write so older queries still work.
