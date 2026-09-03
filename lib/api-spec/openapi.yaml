@@ -35,7 +35,7 @@ paths:
     get:
       operationId: healthCheck
       tags: [health]
-      summary: Health check
+      summary: Liveness plus Postgres connectivity and required schema
       responses:
         "200":
           description: Healthy
@@ -43,6 +43,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+        "503":
+          description: Database unreachable or a required column/table is missing
 
   /summary:
     get:

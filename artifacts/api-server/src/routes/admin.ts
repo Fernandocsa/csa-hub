@@ -36,6 +36,7 @@ import {
   replaceDailyPlayer,
 } from "../lib/guess-player";
 import { eq, asc, desc, sql, ilike, and, or, inArray, ne, isNull, lt, gt } from "drizzle-orm";
+import { accentInsensitiveLike } from "../lib/accent-fold";
 import { alias } from "drizzle-orm/pg-core";
 import { isStaffRole, type StaffRole } from "../lib/staff-roles";
 import { loadMatchSheet, replaceCsaMatchSheet, replaceCsaLineup, replaceCsaSubstitutions, appendCsaEvents, deleteMatchGoal, deleteMatchCard, deleteMatchManagerCard, deleteMatchPenaltyEvent, updateMatchGoal } from "../lib/match-sheet";
