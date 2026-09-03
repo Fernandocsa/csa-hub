@@ -3,6 +3,7 @@ import pg from "pg";
 import { getPgPoolOptions } from "./connection";
 import { loadRootEnv } from "./load-env";
 import * as schema from "./schema";
+import { checkSqlSchema } from "./sql-schema-check";
 
 const { Pool } = pg;
 
@@ -32,46 +33,32 @@ export async function pingDatabase(): Promise<void> {
   await pool.query("SELECT 1");
 }
 
-/**
- * Schema the running API assumes exists. A missing column 500s every match
- * detail / admin sheet (see 6018c0b / opponent_manager_id). Health checks
- * surface this before a user hits a detail page.
- */
-const CRITICAL_COLUMNS: Array<{ table: string; column: string }> = [
-  { table: "matches", column: "opponent_manager_id" },
-  { table: "opponents", column: "founded_on" },
-];
+export { checkSqlSchema } from "./sql-schema-check";
+export type { SchemaCheckResult } from "./sql-schema-check";
 
-const CRITICAL_TABLES = ["club_stadiums"];
+/**
+ * Fail closed when a .sql file in lib/db/sql has not been applied.
+ * Backed by lib/db/src/generated/sql-schema-expectations.json (regenerate with
+ * `node scripts/check-pending-migrations.mjs --write-snapshot`).
+ */
+export async function inspectSqlSchema() {
+  return checkSqlSchema(pool);
+}
 
 export async function assertCriticalSchema(): Promise<string[]> {
-  const missing: string[] = [];
-  for (const table of CRITICAL_TABLES) {
-    const { rows } = await pool.query<{ ok: number }>(
-      `SELECT 1 AS ok FROM information_schema.tables
-       WHERE table_schema = 'public' AND table_name = $1`,
-      [table],
-    );
-    if (rows.length === 0) missing.push(table);
-  }
-  for (const { table, column } of CRITICAL_COLUMNS) {
-    const { rows } = await pool.query<{ ok: number }>(
-      `SELECT 1 AS ok FROM information_schema.columns
-       WHERE table_schema = 'public' AND table_name = $1 AND column_name = $2`,
-      [table, column],
-    );
-    if (rows.length === 0) missing.push(`${table}.${column}`);
-  }
-  if (missing.length > 0) {
+  const { missing, extras, pendingFiles } = await inspectSqlSchema();
+  const problems = [...missing, ...extras];
+  if (problems.length > 0) {
     console.error(
       JSON.stringify({
         msg: "pg-schema-missing",
-        missing,
-        hint: "Apply the matching file in lib/db/sql/ (e.g. alter-matches-opponent-manager.sql)",
+        missing: problems,
+        pendingFiles,
+        hint: "Apply the matching file in lib/db/sql/ then re-run scripts/check-pending-migrations.mjs",
       }),
     );
   }
-  return missing;
+  return problems;
 }
 
 void (async () => {

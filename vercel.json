@@ -1,6 +1,6 @@
 {
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/portal-marujo run build",
+  "buildCommand": "node scripts/check-pending-migrations.mjs --require-db && pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/portal-marujo run build",
   "outputDirectory": "artifacts/portal-marujo/dist/public",
   "rewrites": [
     {

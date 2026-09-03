@@ -44,7 +44,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
         "503":
-          description: Database unreachable or a required column/table is missing
+          description: Database unreachable or a required table/column/index from lib/db/sql is missing
 
   /summary:
     get:

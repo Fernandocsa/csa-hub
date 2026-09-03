@@ -1,17 +1,20 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { HealthCheckResponse } from "@workspace/api-zod";
-import { assertCriticalSchema, pingDatabase } from "@workspace/db";
+import { inspectSqlSchema, pingDatabase } from "@workspace/db";
 
 const router: IRouter = Router();
 
 async function healthHandler(_req: Request, res: Response) {
   try {
     await pingDatabase();
-    const missing = await assertCriticalSchema();
-    if (missing.length > 0) {
+    const { missing, extras, pendingFiles } = await inspectSqlSchema();
+    const problems = [...missing, ...extras];
+    if (problems.length > 0) {
+      const preview = problems.slice(0, 20);
       res.status(503).json({
         status: "error",
-        error: `schema missing: ${missing.join(", ")}`,
+        error: `schema missing: ${preview.join(", ")}${problems.length > 20 ? ` (+${problems.length - 20} more)` : ""}`,
+        pendingFiles,
       });
       return;
     }

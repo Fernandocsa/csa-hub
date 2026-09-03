@@ -1,0 +1,1587 @@
+{
+  "generatedBy": "scripts/check-pending-migrations.mjs",
+  "sqlDir": "lib/db/sql",
+  "fileCount": 65,
+  "merged": {
+    "tables": [
+      "admin_divergence_dismissals",
+      "ai_import_sessions",
+      "club_stadiums",
+      "comments",
+      "daily_player",
+      "daily_player_blocks",
+      "entity_badges",
+      "manager_season_stats",
+      "managers",
+      "match_cards",
+      "match_goals",
+      "match_lineups",
+      "match_manager_cards",
+      "match_penalty_events",
+      "match_substitutions",
+      "matches",
+      "next_match",
+      "opponents",
+      "player_season_name_aliases",
+      "player_season_stats",
+      "players",
+      "presidents",
+      "ratings",
+      "referees",
+      "season_competition_stats",
+      "seasons",
+      "site_content",
+      "stadiums",
+      "suggestions",
+      "transfers"
+    ],
+    "columns": [
+      "admin_divergence_dismissals.created_at",
+      "admin_divergence_dismissals.entity_id",
+      "admin_divergence_dismissals.kind",
+      "admin_divergence_dismissals.note",
+      "ai_import_sessions.created_at",
+      "ai_import_sessions.expires_at",
+      "ai_import_sessions.id",
+      "ai_import_sessions.kind",
+      "ai_import_sessions.preview",
+      "ai_import_sessions.season_year",
+      "ai_import_sessions.source_text",
+      "ai_import_sessions.status",
+      "ai_import_sessions.usage",
+      "club_stadiums.club_id",
+      "club_stadiums.id",
+      "club_stadiums.is_primary",
+      "club_stadiums.stadium_id",
+      "comments.author_name",
+      "comments.body",
+      "comments.created_at",
+      "comments.entity_id",
+      "comments.entity_type",
+      "comments.id",
+      "daily_player.created_at",
+      "daily_player.play_date",
+      "daily_player.player_id",
+      "daily_player_blocks.created_at",
+      "daily_player_blocks.note",
+      "daily_player_blocks.player_id",
+      "entity_badges.auto_kind",
+      "entity_badges.competition_id",
+      "entity_badges.created_at",
+      "entity_badges.entity_id",
+      "entity_badges.entity_type",
+      "entity_badges.id",
+      "entity_badges.label",
+      "entity_badges.match_id",
+      "entity_badges.season_year",
+      "entity_badges.source",
+      "entity_badges.template",
+      "manager_season_stats.draws",
+      "manager_season_stats.games",
+      "manager_season_stats.goals_against",
+      "manager_season_stats.goals_for",
+      "manager_season_stats.id",
+      "manager_season_stats.losses",
+      "manager_season_stats.manager_id",
+      "manager_season_stats.season",
+      "manager_season_stats.stats_recalculated_at",
+      "manager_season_stats.stats_source",
+      "manager_season_stats.wins",
+      "managers.birth_city",
+      "managers.birth_country",
+      "managers.birth_date",
+      "managers.birth_state",
+      "managers.full_name",
+      "managers.is_deceased",
+      "managers.photo_url",
+      "managers.player_id",
+      "managers.registration_number",
+      "managers.registration_type",
+      "managers.staff_role",
+      "managers.stats_recalculated_at",
+      "managers.stats_source",
+      "managers.verification_status",
+      "managers.verified_at",
+      "managers.verified_by",
+      "match_cards.card_type",
+      "match_cards.id",
+      "match_cards.injury_time_minute",
+      "match_cards.lineup_id",
+      "match_cards.match_id",
+      "match_cards.minute",
+      "match_cards.player_id",
+      "match_cards.player_name",
+      "match_cards.side",
+      "match_goals.assist_lineup_id",
+      "match_goals.assist_name",
+      "match_goals.assist_player_id",
+      "match_goals.id",
+      "match_goals.injury_time_minute",
+      "match_goals.is_free_kick",
+      "match_goals.is_own_goal",
+      "match_goals.is_penalty",
+      "match_goals.match_id",
+      "match_goals.minute",
+      "match_goals.own_goal_direction",
+      "match_goals.scorer_lineup_id",
+      "match_goals.scorer_name",
+      "match_goals.scorer_player_id",
+      "match_goals.side",
+      "match_lineups.id",
+      "match_lineups.match_id",
+      "match_lineups.player_id",
+      "match_lineups.player_name",
+      "match_lineups.position",
+      "match_lineups.role",
+      "match_lineups.shirt_number",
+      "match_lineups.side",
+      "match_lineups.sort_order",
+      "match_manager_cards.card_type",
+      "match_manager_cards.id",
+      "match_manager_cards.injury_time_minute",
+      "match_manager_cards.match_id",
+      "match_manager_cards.minute",
+      "match_penalty_events.event_type",
+      "match_penalty_events.id",
+      "match_penalty_events.injury_time_minute",
+      "match_penalty_events.match_id",
+      "match_penalty_events.minute",
+      "match_penalty_events.player_id",
+      "match_penalty_events.player_name",
+      "match_penalty_events.side",
+      "match_substitutions.id",
+      "match_substitutions.injury_time_minute",
+      "match_substitutions.match_id",
+      "match_substitutions.minute",
+      "match_substitutions.player_in_id",
+      "match_substitutions.player_in_lineup_id",
+      "match_substitutions.player_in_name",
+      "match_substitutions.player_out_id",
+      "match_substitutions.player_out_lineup_id",
+      "match_substitutions.player_out_name",
+      "match_substitutions.side",
+      "matches.attendance_paid",
+      "matches.captain_player_id",
+      "matches.opponent_manager_id",
+      "matches.own_goals_for_count",
+      "matches.penalties_against",
+      "matches.penalties_for",
+      "matches.phase",
+      "matches.referee_id",
+      "matches.related_match_id",
+      "matches.round",
+      "matches.status",
+      "next_match.competition",
+      "next_match.home_away",
+      "next_match.id",
+      "next_match.match_date",
+      "next_match.match_id",
+      "next_match.opponent",
+      "next_match.opponent_id",
+      "next_match.stadium",
+      "next_match.updated_at",
+      "opponents.city",
+      "opponents.country",
+      "opponents.founded_on",
+      "opponents.founding_year",
+      "opponents.home_stadium_id",
+      "opponents.logo_url",
+      "opponents.state",
+      "player_season_name_aliases.alias",
+      "player_season_name_aliases.alias_norm",
+      "player_season_name_aliases.created_at",
+      "player_season_name_aliases.id",
+      "player_season_name_aliases.player_id",
+      "player_season_name_aliases.season",
+      "player_season_stats.shirt_number",
+      "players.birth_city",
+      "players.birth_country",
+      "players.birth_date",
+      "players.birth_state",
+      "players.cbf_registration",
+      "players.full_name",
+      "players.height_cm",
+      "players.is_deceased",
+      "players.photo_url",
+      "players.preferred_foot",
+      "players.secondary_positions",
+      "players.weight_kg",
+      "presidents.id",
+      "presidents.is_current",
+      "presidents.linked_manager_id",
+      "presidents.linked_player_id",
+      "presidents.name",
+      "presidents.notes",
+      "presidents.person_key",
+      "presidents.photo_url",
+      "presidents.term_end",
+      "presidents.term_start",
+      "ratings.created_at",
+      "ratings.entity_id",
+      "ratings.entity_type",
+      "ratings.id",
+      "ratings.stars",
+      "ratings.voter_token",
+      "referees.id",
+      "referees.merged_into_id",
+      "referees.name",
+      "referees.photo_url",
+      "referees.state",
+      "season_competition_stats.classification",
+      "season_competition_stats.competition_id",
+      "season_competition_stats.draws",
+      "season_competition_stats.final_match_id",
+      "season_competition_stats.games",
+      "season_competition_stats.goals_against",
+      "season_competition_stats.goals_for",
+      "season_competition_stats.id",
+      "season_competition_stats.is_champion",
+      "season_competition_stats.losses",
+      "season_competition_stats.season",
+      "season_competition_stats.stats_recalculated_at",
+      "season_competition_stats.stats_source",
+      "season_competition_stats.wins",
+      "seasons.stats_fully_verified",
+      "seasons.stats_verified_at",
+      "site_content.content",
+      "site_content.id",
+      "site_content.key",
+      "site_content.updated_at",
+      "stadiums.country",
+      "stadiums.photo_url",
+      "stadiums.state",
+      "suggestions.author_name",
+      "suggestions.contact",
+      "suggestions.created_at",
+      "suggestions.entity_id",
+      "suggestions.entity_type",
+      "suggestions.id",
+      "suggestions.message",
+      "suggestions.status",
+      "transfers.club",
+      "transfers.direction",
+      "transfers.id",
+      "transfers.notes",
+      "transfers.opponent_id",
+      "transfers.player_id",
+      "transfers.season",
+      "transfers.transfer_date",
+      "transfers.transfer_type"
+    ],
+    "dropColumns": [
+      "managers.end_year",
+      "managers.seasons",
+      "managers.start_year"
+    ],
+    "indexes": [
+      "admin_divergence_dismissals_created_at_idx",
+      "ai_import_sessions_expires_idx",
+      "ai_import_sessions_status_idx",
+      "club_stadiums_one_primary_uidx",
+      "club_stadiums_stadium_idx",
+      "comments_created_idx",
+      "comments_entity_created_idx",
+      "daily_player_player_date_idx",
+      "daily_player_player_id_idx",
+      "entity_badges_auto_comp_uidx",
+      "entity_badges_auto_season_uidx",
+      "entity_badges_entity_idx",
+      "entity_badges_manual_comp_year_uidx",
+      "entity_badges_manual_cria_uidx",
+      "entity_badges_manual_match_uidx",
+      "entity_badges_manual_year_uidx",
+      "entity_badges_season_auto_idx",
+      "manager_season_stats_manager_idx",
+      "manager_season_stats_season_idx",
+      "managers_player_id_uidx",
+      "managers_staff_role_idx",
+      "match_cards_match_id_idx",
+      "match_goals_match_id_idx",
+      "match_lineups_match_id_idx",
+      "match_lineups_match_side_player_uidx",
+      "match_manager_cards_match_id_idx",
+      "match_penalty_events_match_id_idx",
+      "match_penalty_events_player_id_idx",
+      "match_substitutions_match_id_idx",
+      "matches_opponent_manager_id_idx",
+      "matches_referee_id_idx",
+      "matches_related_match_id_idx",
+      "matches_status_date_idx",
+      "opponents_country_idx",
+      "opponents_home_stadium_idx",
+      "opponents_state_idx",
+      "player_season_name_aliases_player_idx",
+      "player_season_name_aliases_season_idx",
+      "player_season_name_aliases_season_norm_uidx",
+      "player_season_stats_season_idx",
+      "players_birth_state_idx",
+      "players_cbf_registration_uidx",
+      "presidents_linked_manager_idx",
+      "presidents_linked_player_idx",
+      "presidents_person_key_idx",
+      "ratings_entity_idx",
+      "ratings_entity_voter_uidx",
+      "referees_merged_into_id_idx",
+      "referees_name_idx",
+      "referees_state_idx",
+      "season_competition_stats_champion_idx",
+      "season_competition_stats_competition_idx",
+      "season_competition_stats_season_idx",
+      "site_content_key_uidx",
+      "stadiums_country_idx",
+      "suggestions_created_idx",
+      "suggestions_status_created_idx",
+      "transfers_direction_idx",
+      "transfers_opponent_idx",
+      "transfers_player_idx",
+      "transfers_season_idx"
+    ],
+    "dropIndexes": [
+      "entity_badges_auto_uidx"
+    ],
+    "constraints": [
+      "comments_author_name_len",
+      "comments_body_len",
+      "comments_entity_type_check",
+      "entity_badges_auto_fields_check",
+      "entity_badges_auto_kind_check",
+      "entity_badges_entity_type_check",
+      "entity_badges_source_check",
+      "entity_badges_template_check",
+      "manager_season_stats_manager_season_uidx",
+      "manager_season_stats_nonneg_check",
+      "manager_season_stats_source_check",
+      "managers_stats_source_check",
+      "matches_opponent_manager_id_fkey",
+      "matches_related_match_id_fkey",
+      "player_season_stats_player_season_uidx",
+      "ratings_entity_type_check",
+      "ratings_stars_check",
+      "season_competition_stats_nonneg_check",
+      "season_competition_stats_season_comp_uidx",
+      "season_competition_stats_source_check",
+      "suggestions_author_name_len",
+      "suggestions_contact_len",
+      "suggestions_entity_id_for_type_check",
+      "suggestions_entity_type_check",
+      "suggestions_message_len",
+      "suggestions_status_check"
+    ]
+  },
+  "files": {
+    "lib/db/sql/alter-badges-manual-constraint.sql": {
+      "file": "lib/db/sql/alter-badges-manual-constraint.sql",
+      "kind": "schema",
+      "tables": [
+        "entity_badges"
+      ],
+      "columns": [],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": [
+        "entity_badges_auto_fields_check"
+      ]
+    },
+    "lib/db/sql/alter-badges-stage-d.sql": {
+      "file": "lib/db/sql/alter-badges-stage-d.sql",
+      "kind": "schema",
+      "tables": [
+        "entity_badges"
+      ],
+      "columns": [
+        "entity_badges.match_id",
+        "entity_badges.template"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "entity_badges_manual_comp_year_uidx",
+        "entity_badges_manual_cria_uidx",
+        "entity_badges_manual_match_uidx",
+        "entity_badges_manual_year_uidx"
+      ],
+      "dropIndexes": [],
+      "constraints": [
+        "entity_badges_auto_fields_check",
+        "entity_badges_template_check"
+      ]
+    },
+    "lib/db/sql/alter-competition-badges.sql": {
+      "file": "lib/db/sql/alter-competition-badges.sql",
+      "kind": "schema",
+      "tables": [
+        "entity_badges",
+        "matches"
+      ],
+      "columns": [
+        "entity_badges.competition_id",
+        "matches.own_goals_for_count"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "entity_badges_auto_comp_uidx",
+        "entity_badges_auto_season_uidx"
+      ],
+      "dropIndexes": [
+        "entity_badges_auto_uidx"
+      ],
+      "constraints": [
+        "entity_badges_auto_fields_check",
+        "entity_badges_auto_kind_check"
+      ]
+    },
+    "lib/db/sql/alter-managers-drop-legacy-tenure.sql": {
+      "file": "lib/db/sql/alter-managers-drop-legacy-tenure.sql",
+      "kind": "schema",
+      "tables": [
+        "managers"
+      ],
+      "columns": [],
+      "dropColumns": [
+        "managers.end_year",
+        "managers.seasons",
+        "managers.start_year"
+      ],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-managers-photo-url.sql": {
+      "file": "lib/db/sql/alter-managers-photo-url.sql",
+      "kind": "schema",
+      "tables": [
+        "managers"
+      ],
+      "columns": [
+        "managers.photo_url"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-managers-player-id.sql": {
+      "file": "lib/db/sql/alter-managers-player-id.sql",
+      "kind": "schema",
+      "tables": [
+        "managers"
+      ],
+      "columns": [
+        "managers.player_id"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "managers_player_id_uidx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-managers-profile.sql": {
+      "file": "lib/db/sql/alter-managers-profile.sql",
+      "kind": "schema",
+      "tables": [
+        "managers"
+      ],
+      "columns": [
+        "managers.birth_city",
+        "managers.birth_country",
+        "managers.birth_date",
+        "managers.birth_state",
+        "managers.full_name",
+        "managers.is_deceased"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-managers-stats-source.sql": {
+      "file": "lib/db/sql/alter-managers-stats-source.sql",
+      "kind": "schema",
+      "tables": [
+        "managers"
+      ],
+      "columns": [
+        "managers.stats_recalculated_at",
+        "managers.stats_source"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": [
+        "managers_stats_source_check"
+      ]
+    },
+    "lib/db/sql/alter-managers-verification.sql": {
+      "file": "lib/db/sql/alter-managers-verification.sql",
+      "kind": "schema",
+      "tables": [
+        "managers"
+      ],
+      "columns": [
+        "managers.verification_status",
+        "managers.verified_at",
+        "managers.verified_by"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-match-goals-free-kick.sql": {
+      "file": "lib/db/sql/alter-match-goals-free-kick.sql",
+      "kind": "schema",
+      "tables": [
+        "match_goals"
+      ],
+      "columns": [
+        "match_goals.is_free_kick"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-match-sheet-events.sql": {
+      "file": "lib/db/sql/alter-match-sheet-events.sql",
+      "kind": "schema",
+      "tables": [
+        "match_goals",
+        "match_manager_cards",
+        "matches"
+      ],
+      "columns": [
+        "match_goals.is_own_goal",
+        "match_goals.is_penalty",
+        "match_goals.own_goal_direction",
+        "match_manager_cards.card_type",
+        "match_manager_cards.id",
+        "match_manager_cards.injury_time_minute",
+        "match_manager_cards.match_id",
+        "match_manager_cards.minute",
+        "matches.captain_player_id"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "match_manager_cards_match_id_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-matches-opponent-manager.sql": {
+      "file": "lib/db/sql/alter-matches-opponent-manager.sql",
+      "kind": "schema",
+      "tables": [
+        "matches"
+      ],
+      "columns": [
+        "matches.opponent_manager_id"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "matches_opponent_manager_id_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": [
+        "matches_opponent_manager_id_fkey"
+      ]
+    },
+    "lib/db/sql/alter-matches-penalties.sql": {
+      "file": "lib/db/sql/alter-matches-penalties.sql",
+      "kind": "schema",
+      "tables": [
+        "matches"
+      ],
+      "columns": [
+        "matches.attendance_paid",
+        "matches.penalties_against",
+        "matches.penalties_for"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-matches-phase-round.sql": {
+      "file": "lib/db/sql/alter-matches-phase-round.sql",
+      "kind": "schema",
+      "tables": [
+        "matches"
+      ],
+      "columns": [
+        "matches.phase",
+        "matches.round"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-matches-related-match.sql": {
+      "file": "lib/db/sql/alter-matches-related-match.sql",
+      "kind": "schema",
+      "tables": [
+        "matches"
+      ],
+      "columns": [
+        "matches.related_match_id"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "matches_related_match_id_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": [
+        "matches_related_match_id_fkey"
+      ]
+    },
+    "lib/db/sql/alter-matches-status.sql": {
+      "file": "lib/db/sql/alter-matches-status.sql",
+      "kind": "schema",
+      "tables": [
+        "matches"
+      ],
+      "columns": [
+        "matches.status"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "matches_status_date_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-next-match-links.sql": {
+      "file": "lib/db/sql/alter-next-match-links.sql",
+      "kind": "schema",
+      "tables": [
+        "next_match"
+      ],
+      "columns": [
+        "next_match.match_id",
+        "next_match.opponent_id"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-opponents-club-stadiums.sql": {
+      "file": "lib/db/sql/alter-opponents-club-stadiums.sql",
+      "kind": "schema",
+      "tables": [
+        "club_stadiums",
+        "opponents"
+      ],
+      "columns": [
+        "club_stadiums.club_id",
+        "club_stadiums.id",
+        "club_stadiums.is_primary",
+        "club_stadiums.stadium_id",
+        "opponents.founding_year"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "club_stadiums_one_primary_uidx",
+        "club_stadiums_stadium_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-opponents-foreign-stage-a.sql": {
+      "file": "lib/db/sql/alter-opponents-foreign-stage-a.sql",
+      "kind": "schema",
+      "tables": [
+        "opponents"
+      ],
+      "columns": [
+        "opponents.country"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "opponents_country_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-opponents-founded-on.sql": {
+      "file": "lib/db/sql/alter-opponents-founded-on.sql",
+      "kind": "schema",
+      "tables": [
+        "opponents"
+      ],
+      "columns": [
+        "opponents.founded_on"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-opponents-logo-url.sql": {
+      "file": "lib/db/sql/alter-opponents-logo-url.sql",
+      "kind": "schema",
+      "tables": [
+        "opponents"
+      ],
+      "columns": [
+        "opponents.logo_url"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-opponents-stage-b.sql": {
+      "file": "lib/db/sql/alter-opponents-stage-b.sql",
+      "kind": "schema",
+      "tables": [
+        "opponents"
+      ],
+      "columns": [
+        "opponents.city",
+        "opponents.state"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "opponents_state_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-opponents-stage-c.sql": {
+      "file": "lib/db/sql/alter-opponents-stage-c.sql",
+      "kind": "schema",
+      "tables": [
+        "opponents",
+        "stadiums"
+      ],
+      "columns": [
+        "opponents.home_stadium_id",
+        "stadiums.state"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "opponents_home_stadium_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-player-season-shirt-number.sql": {
+      "file": "lib/db/sql/alter-player-season-shirt-number.sql",
+      "kind": "schema",
+      "tables": [
+        "player_season_stats"
+      ],
+      "columns": [
+        "player_season_stats.shirt_number"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "player_season_stats_season_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": [
+        "player_season_stats_player_season_uidx"
+      ]
+    },
+    "lib/db/sql/alter-players-birth-state-idx.sql": {
+      "file": "lib/db/sql/alter-players-birth-state-idx.sql",
+      "kind": "schema",
+      "tables": [],
+      "columns": [],
+      "dropColumns": [],
+      "indexes": [
+        "players_birth_state_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-players-cbf-and-staff-registration.sql": {
+      "file": "lib/db/sql/alter-players-cbf-and-staff-registration.sql",
+      "kind": "schema",
+      "tables": [
+        "managers",
+        "players"
+      ],
+      "columns": [
+        "managers.registration_number",
+        "managers.registration_type",
+        "managers.staff_role",
+        "players.cbf_registration"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "managers_staff_role_idx",
+        "players_cbf_registration_uidx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-players-photo-url.sql": {
+      "file": "lib/db/sql/alter-players-photo-url.sql",
+      "kind": "schema",
+      "tables": [
+        "players"
+      ],
+      "columns": [
+        "players.photo_url"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-players-profile.sql": {
+      "file": "lib/db/sql/alter-players-profile.sql",
+      "kind": "schema",
+      "tables": [
+        "players"
+      ],
+      "columns": [
+        "players.birth_city",
+        "players.birth_country",
+        "players.birth_date",
+        "players.birth_state",
+        "players.full_name",
+        "players.height_cm",
+        "players.preferred_foot",
+        "players.weight_kg"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-players-stage-a.sql": {
+      "file": "lib/db/sql/alter-players-stage-a.sql",
+      "kind": "schema",
+      "tables": [
+        "players"
+      ],
+      "columns": [
+        "players.is_deceased"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-players-stage-b.sql": {
+      "file": "lib/db/sql/alter-players-stage-b.sql",
+      "kind": "schema",
+      "tables": [
+        "players"
+      ],
+      "columns": [
+        "players.secondary_positions"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-presidents-is-current.sql": {
+      "file": "lib/db/sql/alter-presidents-is-current.sql",
+      "kind": "schema",
+      "tables": [
+        "presidents"
+      ],
+      "columns": [
+        "presidents.is_current"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-presidents-linked-ids.sql": {
+      "file": "lib/db/sql/alter-presidents-linked-ids.sql",
+      "kind": "schema",
+      "tables": [
+        "presidents"
+      ],
+      "columns": [
+        "presidents.linked_manager_id",
+        "presidents.linked_player_id"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "presidents_linked_manager_idx",
+        "presidents_linked_player_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-presidents-person-key.sql": {
+      "file": "lib/db/sql/alter-presidents-person-key.sql",
+      "kind": "schema",
+      "tables": [
+        "presidents"
+      ],
+      "columns": [
+        "presidents.person_key"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "presidents_person_key_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-referees-merged-into-id.sql": {
+      "file": "lib/db/sql/alter-referees-merged-into-id.sql",
+      "kind": "schema",
+      "tables": [
+        "referees"
+      ],
+      "columns": [
+        "referees.merged_into_id"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "referees_merged_into_id_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-referees-photo-url.sql": {
+      "file": "lib/db/sql/alter-referees-photo-url.sql",
+      "kind": "schema",
+      "tables": [
+        "referees"
+      ],
+      "columns": [
+        "referees.photo_url"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-season-competition-champion.sql": {
+      "file": "lib/db/sql/alter-season-competition-champion.sql",
+      "kind": "schema",
+      "tables": [
+        "season_competition_stats"
+      ],
+      "columns": [
+        "season_competition_stats.final_match_id",
+        "season_competition_stats.is_champion"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "season_competition_stats_champion_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-stadiums-country.sql": {
+      "file": "lib/db/sql/alter-stadiums-country.sql",
+      "kind": "schema",
+      "tables": [
+        "stadiums"
+      ],
+      "columns": [
+        "stadiums.country"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "stadiums_country_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-stadiums-photo-url.sql": {
+      "file": "lib/db/sql/alter-stadiums-photo-url.sql",
+      "kind": "schema",
+      "tables": [
+        "stadiums"
+      ],
+      "columns": [
+        "stadiums.photo_url"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/alter-suggestions-expand-types.sql": {
+      "file": "lib/db/sql/alter-suggestions-expand-types.sql",
+      "kind": "schema",
+      "tables": [
+        "suggestions"
+      ],
+      "columns": [],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": [
+        "suggestions_entity_id_for_type_check",
+        "suggestions_entity_type_check"
+      ]
+    },
+    "lib/db/sql/alter-transfers-opponent-id.sql": {
+      "file": "lib/db/sql/alter-transfers-opponent-id.sql",
+      "kind": "schema",
+      "tables": [
+        "transfers"
+      ],
+      "columns": [
+        "transfers.opponent_id"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "transfers_opponent_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/create-admin-divergence-dismissals.sql": {
+      "file": "lib/db/sql/create-admin-divergence-dismissals.sql",
+      "kind": "schema",
+      "tables": [
+        "admin_divergence_dismissals"
+      ],
+      "columns": [
+        "admin_divergence_dismissals.created_at",
+        "admin_divergence_dismissals.entity_id",
+        "admin_divergence_dismissals.kind",
+        "admin_divergence_dismissals.note"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "admin_divergence_dismissals_created_at_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/create-ai-import-sessions.sql": {
+      "file": "lib/db/sql/create-ai-import-sessions.sql",
+      "kind": "schema",
+      "tables": [
+        "ai_import_sessions"
+      ],
+      "columns": [
+        "ai_import_sessions.created_at",
+        "ai_import_sessions.expires_at",
+        "ai_import_sessions.id",
+        "ai_import_sessions.kind",
+        "ai_import_sessions.preview",
+        "ai_import_sessions.season_year",
+        "ai_import_sessions.source_text",
+        "ai_import_sessions.status",
+        "ai_import_sessions.usage"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "ai_import_sessions_expires_idx",
+        "ai_import_sessions_status_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/create-comments.sql": {
+      "file": "lib/db/sql/create-comments.sql",
+      "kind": "schema",
+      "tables": [
+        "comments"
+      ],
+      "columns": [
+        "comments.author_name",
+        "comments.body",
+        "comments.created_at",
+        "comments.entity_id",
+        "comments.entity_type",
+        "comments.id"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "comments_created_idx",
+        "comments_entity_created_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": [
+        "comments_author_name_len",
+        "comments_body_len",
+        "comments_entity_type_check"
+      ]
+    },
+    "lib/db/sql/create-daily-player-blocks.sql": {
+      "file": "lib/db/sql/create-daily-player-blocks.sql",
+      "kind": "schema",
+      "tables": [
+        "daily_player_blocks"
+      ],
+      "columns": [
+        "daily_player_blocks.created_at",
+        "daily_player_blocks.note",
+        "daily_player_blocks.player_id"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/create-daily-player.sql": {
+      "file": "lib/db/sql/create-daily-player.sql",
+      "kind": "schema",
+      "tables": [
+        "daily_player"
+      ],
+      "columns": [
+        "daily_player.created_at",
+        "daily_player.play_date",
+        "daily_player.player_id"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "daily_player_player_date_idx",
+        "daily_player_player_id_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/create-entity-badges.sql": {
+      "file": "lib/db/sql/create-entity-badges.sql",
+      "kind": "schema",
+      "tables": [
+        "entity_badges",
+        "matches",
+        "seasons"
+      ],
+      "columns": [
+        "entity_badges.auto_kind",
+        "entity_badges.competition_id",
+        "entity_badges.created_at",
+        "entity_badges.entity_id",
+        "entity_badges.entity_type",
+        "entity_badges.id",
+        "entity_badges.label",
+        "entity_badges.season_year",
+        "entity_badges.source",
+        "matches.own_goals_for_count",
+        "seasons.stats_fully_verified",
+        "seasons.stats_verified_at"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "entity_badges_auto_comp_uidx",
+        "entity_badges_auto_season_uidx",
+        "entity_badges_entity_idx",
+        "entity_badges_season_auto_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": [
+        "entity_badges_auto_fields_check",
+        "entity_badges_auto_kind_check",
+        "entity_badges_entity_type_check",
+        "entity_badges_source_check"
+      ]
+    },
+    "lib/db/sql/create-manager-season-stats.sql": {
+      "file": "lib/db/sql/create-manager-season-stats.sql",
+      "kind": "schema",
+      "tables": [
+        "manager_season_stats"
+      ],
+      "columns": [
+        "manager_season_stats.draws",
+        "manager_season_stats.games",
+        "manager_season_stats.goals_against",
+        "manager_season_stats.goals_for",
+        "manager_season_stats.id",
+        "manager_season_stats.losses",
+        "manager_season_stats.manager_id",
+        "manager_season_stats.season",
+        "manager_season_stats.stats_recalculated_at",
+        "manager_season_stats.stats_source",
+        "manager_season_stats.wins"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "manager_season_stats_manager_idx",
+        "manager_season_stats_season_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": [
+        "manager_season_stats_manager_season_uidx",
+        "manager_season_stats_nonneg_check",
+        "manager_season_stats_source_check"
+      ]
+    },
+    "lib/db/sql/create-match-penalty-events.sql": {
+      "file": "lib/db/sql/create-match-penalty-events.sql",
+      "kind": "schema",
+      "tables": [
+        "match_penalty_events"
+      ],
+      "columns": [
+        "match_penalty_events.event_type",
+        "match_penalty_events.id",
+        "match_penalty_events.injury_time_minute",
+        "match_penalty_events.match_id",
+        "match_penalty_events.minute",
+        "match_penalty_events.player_id",
+        "match_penalty_events.player_name",
+        "match_penalty_events.side"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "match_penalty_events_match_id_idx",
+        "match_penalty_events_player_id_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/create-match-sheet.sql": {
+      "file": "lib/db/sql/create-match-sheet.sql",
+      "kind": "schema",
+      "tables": [
+        "match_cards",
+        "match_goals",
+        "match_lineups",
+        "match_substitutions"
+      ],
+      "columns": [
+        "match_cards.card_type",
+        "match_cards.id",
+        "match_cards.injury_time_minute",
+        "match_cards.lineup_id",
+        "match_cards.match_id",
+        "match_cards.minute",
+        "match_cards.player_id",
+        "match_cards.player_name",
+        "match_cards.side",
+        "match_goals.assist_lineup_id",
+        "match_goals.assist_name",
+        "match_goals.assist_player_id",
+        "match_goals.id",
+        "match_goals.injury_time_minute",
+        "match_goals.match_id",
+        "match_goals.minute",
+        "match_goals.scorer_lineup_id",
+        "match_goals.scorer_name",
+        "match_goals.scorer_player_id",
+        "match_goals.side",
+        "match_lineups.id",
+        "match_lineups.match_id",
+        "match_lineups.player_id",
+        "match_lineups.player_name",
+        "match_lineups.position",
+        "match_lineups.role",
+        "match_lineups.shirt_number",
+        "match_lineups.side",
+        "match_lineups.sort_order",
+        "match_substitutions.id",
+        "match_substitutions.injury_time_minute",
+        "match_substitutions.match_id",
+        "match_substitutions.minute",
+        "match_substitutions.player_in_id",
+        "match_substitutions.player_in_lineup_id",
+        "match_substitutions.player_in_name",
+        "match_substitutions.player_out_id",
+        "match_substitutions.player_out_lineup_id",
+        "match_substitutions.player_out_name",
+        "match_substitutions.side"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "match_cards_match_id_idx",
+        "match_goals_match_id_idx",
+        "match_lineups_match_id_idx",
+        "match_lineups_match_side_player_uidx",
+        "match_substitutions_match_id_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/create-next-match.sql": {
+      "file": "lib/db/sql/create-next-match.sql",
+      "kind": "schema",
+      "tables": [
+        "next_match"
+      ],
+      "columns": [
+        "next_match.competition",
+        "next_match.home_away",
+        "next_match.id",
+        "next_match.match_date",
+        "next_match.opponent",
+        "next_match.stadium",
+        "next_match.updated_at"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/create-player-season-name-aliases.sql": {
+      "file": "lib/db/sql/create-player-season-name-aliases.sql",
+      "kind": "schema",
+      "tables": [
+        "player_season_name_aliases"
+      ],
+      "columns": [
+        "player_season_name_aliases.alias",
+        "player_season_name_aliases.alias_norm",
+        "player_season_name_aliases.created_at",
+        "player_season_name_aliases.id",
+        "player_season_name_aliases.player_id",
+        "player_season_name_aliases.season"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "player_season_name_aliases_player_idx",
+        "player_season_name_aliases_season_idx",
+        "player_season_name_aliases_season_norm_uidx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/create-presidents.sql": {
+      "file": "lib/db/sql/create-presidents.sql",
+      "kind": "schema",
+      "tables": [
+        "presidents"
+      ],
+      "columns": [
+        "presidents.id",
+        "presidents.name",
+        "presidents.notes",
+        "presidents.photo_url",
+        "presidents.term_end",
+        "presidents.term_start"
+      ],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/create-ratings.sql": {
+      "file": "lib/db/sql/create-ratings.sql",
+      "kind": "schema",
+      "tables": [
+        "ratings"
+      ],
+      "columns": [
+        "ratings.created_at",
+        "ratings.entity_id",
+        "ratings.entity_type",
+        "ratings.id",
+        "ratings.stars",
+        "ratings.voter_token"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "ratings_entity_idx",
+        "ratings_entity_voter_uidx"
+      ],
+      "dropIndexes": [],
+      "constraints": [
+        "ratings_entity_type_check",
+        "ratings_stars_check"
+      ]
+    },
+    "lib/db/sql/create-referees.sql": {
+      "file": "lib/db/sql/create-referees.sql",
+      "kind": "schema",
+      "tables": [
+        "matches",
+        "referees"
+      ],
+      "columns": [
+        "matches.referee_id",
+        "referees.id",
+        "referees.merged_into_id",
+        "referees.name",
+        "referees.state"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "matches_referee_id_idx",
+        "referees_merged_into_id_idx",
+        "referees_name_idx",
+        "referees_state_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/create-season-competition-stats.sql": {
+      "file": "lib/db/sql/create-season-competition-stats.sql",
+      "kind": "schema",
+      "tables": [
+        "season_competition_stats"
+      ],
+      "columns": [
+        "season_competition_stats.classification",
+        "season_competition_stats.competition_id",
+        "season_competition_stats.draws",
+        "season_competition_stats.games",
+        "season_competition_stats.goals_against",
+        "season_competition_stats.goals_for",
+        "season_competition_stats.id",
+        "season_competition_stats.losses",
+        "season_competition_stats.season",
+        "season_competition_stats.stats_recalculated_at",
+        "season_competition_stats.stats_source",
+        "season_competition_stats.wins"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "season_competition_stats_competition_idx",
+        "season_competition_stats_season_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": [
+        "season_competition_stats_nonneg_check",
+        "season_competition_stats_season_comp_uidx",
+        "season_competition_stats_source_check"
+      ]
+    },
+    "lib/db/sql/create-site-content.sql": {
+      "file": "lib/db/sql/create-site-content.sql",
+      "kind": "schema",
+      "tables": [
+        "site_content"
+      ],
+      "columns": [
+        "site_content.content",
+        "site_content.id",
+        "site_content.key",
+        "site_content.updated_at"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "site_content_key_uidx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/create-suggestions.sql": {
+      "file": "lib/db/sql/create-suggestions.sql",
+      "kind": "schema",
+      "tables": [
+        "suggestions"
+      ],
+      "columns": [
+        "suggestions.author_name",
+        "suggestions.contact",
+        "suggestions.created_at",
+        "suggestions.entity_id",
+        "suggestions.entity_type",
+        "suggestions.id",
+        "suggestions.message",
+        "suggestions.status"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "suggestions_created_idx",
+        "suggestions_status_created_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": [
+        "suggestions_author_name_len",
+        "suggestions_contact_len",
+        "suggestions_entity_type_check",
+        "suggestions_message_len",
+        "suggestions_status_check"
+      ]
+    },
+    "lib/db/sql/create-transfers.sql": {
+      "file": "lib/db/sql/create-transfers.sql",
+      "kind": "schema",
+      "tables": [
+        "transfers"
+      ],
+      "columns": [
+        "transfers.club",
+        "transfers.direction",
+        "transfers.id",
+        "transfers.notes",
+        "transfers.player_id",
+        "transfers.season",
+        "transfers.transfer_date",
+        "transfers.transfer_type"
+      ],
+      "dropColumns": [],
+      "indexes": [
+        "transfers_direction_idx",
+        "transfers_player_idx",
+        "transfers_season_idx"
+      ],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/migrate-merge-opponent-sete-de-setembro-al.sql": {
+      "file": "lib/db/sql/migrate-merge-opponent-sete-de-setembro-al.sql",
+      "kind": "data",
+      "tables": [],
+      "columns": [],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/migrate-opponents-country-from-suffix.sql": {
+      "file": "lib/db/sql/migrate-opponents-country-from-suffix.sql",
+      "kind": "data",
+      "tables": [],
+      "columns": [],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/migrate-opponents-state-from-suffix.sql": {
+      "file": "lib/db/sql/migrate-opponents-state-from-suffix.sql",
+      "kind": "data",
+      "tables": [],
+      "columns": [],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/migrate-reattach-cruzeiro-pre-2020.sql": {
+      "file": "lib/db/sql/migrate-reattach-cruzeiro-pre-2020.sql",
+      "kind": "data",
+      "tables": [],
+      "columns": [],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/migrate-split-cruzeiro-arapiraca-al.sql": {
+      "file": "lib/db/sql/migrate-split-cruzeiro-arapiraca-al.sql",
+      "kind": "data",
+      "tables": [],
+      "columns": [],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/migrate-split-historic-brasileiro-names.sql": {
+      "file": "lib/db/sql/migrate-split-historic-brasileiro-names.sql",
+      "kind": "data",
+      "tables": [],
+      "columns": [],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    },
+    "lib/db/sql/seed-torneio-inicio-alagoas-titles.sql": {
+      "file": "lib/db/sql/seed-torneio-inicio-alagoas-titles.sql",
+      "kind": "data",
+      "tables": [],
+      "columns": [],
+      "dropColumns": [],
+      "indexes": [],
+      "dropIndexes": [],
+      "constraints": []
+    }
+  }
+}
