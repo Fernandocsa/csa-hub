@@ -12,18 +12,24 @@ import { scheduledMatchConditions } from "../lib/match-filters";
 
 const router: IRouter = Router();
 
+function todayInSaoPaulo(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
 /**
  * Public: next upcoming scheduled match for the Home card (null if none).
- * Prefer matches.status='scheduled'; fall back to legacy next_match singleton
- * during deploy overlap.
+ * Prefer matches.status='scheduled'. The next_match singleton is only a
+ * fallback for a future fixture that has not been imported yet — never a
+ * past or already-played game (stale Uberlândia card).
  */
 router.get("/next-match", async (req, res) => {
   try {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, "0");
-    const dd = String(today.getDate()).padStart(2, "0");
-    const todayStr = `${yyyy}-${mm}-${dd}`;
+    const todayStr = todayInSaoPaulo();
 
     const [row] = await db
       .select({
@@ -63,7 +69,7 @@ router.get("/next-match", async (req, res) => {
       return;
     }
 
-    // Legacy fallback (singleton) — remove after deploy settles
+    // Optional admin-featured fixture not yet in matches (must still be in the future).
     const [legacy] = await db
       .select({
         opponent: nextMatchTable.opponent,
@@ -80,9 +86,28 @@ router.get("/next-match", async (req, res) => {
       .where(eq(nextMatchTable.id, 1))
       .limit(1);
 
-    if (!legacy) {
+    if (!legacy || legacy.matchDate < todayStr) {
       res.json(null);
       return;
+    }
+
+    if (legacy.matchId != null) {
+      const [linked] = await db
+        .select({
+          status: matchesTable.status,
+          matchDate: matchesTable.matchDate,
+        })
+        .from(matchesTable)
+        .where(eq(matchesTable.id, legacy.matchId))
+        .limit(1);
+      if (
+        !linked ||
+        linked.status !== "scheduled" ||
+        linked.matchDate < todayStr
+      ) {
+        res.json(null);
+        return;
+      }
     }
 
     res.json({
